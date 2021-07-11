@@ -1,0 +1,20 @@
+# Enable debug mode for verbose logging
+debug: false
+
+# Settings for the bots matrix account
+matrixbotaccount:
+  # Matrix user name
+  username: "iamabot"
+  # Matrix password
+  password: fsddf
+  # Matrix homeserver
+  homeserver: fsdf
+
+# Matrix username to interact with
+matrixuser: "yourmatrixuser"
+
+# Database settings
+database:
+  # MySQL connection string
+  # https://github.com/go-sql-driver/mysql#dsn-data-source-name
+  connection: "username:password@protocol(address)/dbname"
