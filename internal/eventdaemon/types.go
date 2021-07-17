@@ -10,7 +10,7 @@ import (
 // Database defines an interface for a database
 type Database interface {
 	AddReminder(remindTime time.Time, message string, active bool, repeatInterval uint64, channel *database.Channel) (*database.Reminder, error)
-	AddMessage(id string, timestamp int64, content *event.MessageEventContent, reminder *database.Reminder, msgType database.MessageType, channel *database.Channel) (*database.Message, error)
+	AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *database.Reminder, msgType database.MessageType, channel *database.Channel) (*database.Message, error)
 	GetChannelByUserIdentifier(userID string) (*database.Channel, error)
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	AddChannel(userID, channelID string) (*database.Channel, error)

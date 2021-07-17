@@ -21,6 +21,7 @@ type Message struct {
 type MessageType string
 
 const (
-	MessageTypeReminderRequest = MessageType("REMINDER")
+	MessageTypeReminderRequest = MessageType("REMINDER_REQUEST")
 	MessageTypeReminderSuccess = MessageType("REMINDER_SUCCESS")
+	MessageTypeReminder        = MessageType("REMINDER")
 )

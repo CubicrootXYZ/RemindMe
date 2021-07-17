@@ -106,8 +106,8 @@ func (d *Database) AddReminder(remindTime time.Time, message string, active bool
 	return &reminder, err
 }
 
-// AddMessage adds a message to the database
-func (d *Database) AddMessage(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
+// AddMessageFromMatrix adds a message to the database
+func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
 	relatesTo := ""
 	if content.RelatesTo != nil {
 		relatesTo = content.RelatesTo.EventID.String()
@@ -129,4 +129,35 @@ func (d *Database) AddMessage(id string, timestamp int64, content *event.Message
 	err := d.db.Create(&message).Error
 
 	return &message, err
+}
+
+// AddMessage adds a message to the database
+func (d *Database) AddMessage(message *Message) (*Message, error) {
+
+	err := d.db.Create(message).Error
+
+	return message, err
+}
+
+// GetMessageFromReminder returns the message with the specified message type regarding the reminder
+func (d *Database) GetMessageFromReminder(reminderID uint, msgType MessageType) (*Message, error) {
+	message := &Message{}
+	err := d.db.Find(message, "reminder_id = ? AND type = ?", reminderID, msgType).Error
+	return message, err
+}
+
+// GetPendingReminder returns all reminders that are due
+func (d *Database) GetPendingReminder() (*[]Reminder, error) {
+	reminder := make([]Reminder, 0)
+	err := d.db.Debug().Preload("Channel").Find(&reminder, "active = ? AND remind_time <= ?", 1, time.Now()).Error
+
+	return &reminder, err
+}
+
+// SetReminderDone sets a reminder as inactive
+func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
+	reminder.Active = false
+	err := d.db.Save(reminder).Error
+
+	return reminder, err
 }

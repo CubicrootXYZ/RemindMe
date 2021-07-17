@@ -86,7 +86,7 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 		log.Warn("Error when inserting reminder: " + err.Error())
 		return reminder, err
 	}
-	_, err = s.daemon.Database.AddMessage(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
+	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
 
 	return reminder, err
 }
