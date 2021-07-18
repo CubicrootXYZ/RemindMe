@@ -24,7 +24,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 
 	_, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if !ok {
-		log.Warn(fmt.Sprintf("Event is not a message event. Can not handle it"))
+		log.Warn("Event is not a message event. Can not handle it")
 		return
 	}
 
@@ -34,7 +34,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 		// But we know the user
 		if channel2 != nil {
 			log.Info("User messaged us in a Channel we do not know")
-			_, err := s.sendMessage("Hey, this is not our usual messaging channel ;)", evt, evt.RoomID.String())
+			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", evt, evt.RoomID.String())
 			if err != nil {
 				log.Warn(err.Error())
 			}
@@ -52,10 +52,10 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 		return
 	}
 
-	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, reminder.RemindTime.String())
+	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, reminder.RemindTime.Format("15:04 02.01.2006"))
 
 	log.Info(msg)
-	_, err = s.sendMessage(msg, evt, evt.RoomID.String())
+	_, err = s.messenger.SendReplyToEvent(msg, evt, evt.RoomID.String())
 	if err != nil {
 		log.Warn("Was not able to send success message to user")
 	}

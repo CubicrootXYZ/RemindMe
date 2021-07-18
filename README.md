@@ -3,14 +3,27 @@ A matrix bot that handles reminders and knows your agenda.
 
 **This little boy needs to grow a lot!**
 
-## TODO
+## How to use it
 
-* Add messenger to the syncer => no duplicate code
-* Make Reminders as answers
-* Better Format messages
-* Add option to edit reminders
-* Add options for recuring reminders
-* Add option to list all reminders
-* Timezone support
-* Map sunday, etc. to mid-day instead of midnight
-* Better Time displaying (formatting)
+After you have installed the bot he will invite you in a channel accept the invite and you are ready to interact with him. 
+
+### New Reminder
+
+To make a new reminder talk to the bot like this: 
+```
+Make laundry at Sunday 16:00
+```
+
+It tries to understand your natural language as best as it can. 
+
+## Installation
+
+### Plain
+
+1. Download the code
+2. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
+3. Run the binary
+
+### Docker
+
+Needs to be done :).

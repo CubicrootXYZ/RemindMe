@@ -6,7 +6,9 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/dchest/uniuri"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -59,8 +61,8 @@ func Create(config *configuration.Matrix) (*Messenger, error) {
 
 // SendReminder sends a reminder to the user
 func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *database.Message) (*database.Message, error) {
-	newMsg := fmt.Sprintf("Hey %s: %s (at %s)", "USER", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
-	newMsgFormatted := fmt.Sprintf("Hey %s: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, reminder.RemindTime.Format("15:04 02.01206"))
+	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
+	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
 
 	body, bodyFormatted := makeResponse(newMsg, newMsgFormatted, reminder.Message, reminder.Message, reminder.Channel.UserIdentifier, reminder.Channel.ChannelIdentifier, respondToMessage.ExternalIdentifier)
 
@@ -74,7 +76,7 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 
 	matrixMessage.RelatesTo.InReplyTo.EventID = respondToMessage.ExternalIdentifier
 
-	evt, err := m.sendMessage(&matrixMessage, "", reminder.Channel.ChannelIdentifier)
+	evt, err := m.sendMessage(&matrixMessage, reminder.Channel.ChannelIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -93,11 +95,54 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 	return &message, nil
 }
 
-// sendMessage sends a message to a matrix room
-func (m *Messenger) sendMessage(message *MatrixMessage, replyEventID, roomID string) (resp *mautrix.RespSendEvent, err error) {
-	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
-	if replyEventID != "" {
-		message.RelatesTo.InReplyTo.EventID = replyEventID
+// SendReplyToEvent sends a message in reply to the given replyEvent, if the event is nil or of wrogn format a normal message will be sent
+func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	var message MatrixMessage
+	if replyEvent != nil {
+		content, ok := replyEvent.Content.Parsed.(*event.MessageEventContent)
+		if !ok {
+			return nil, errors.MatrixEventWrongType
+		}
+
+		oldFormattedBody := content.Body
+		if len(content.FormattedBody) > 1 {
+			oldFormattedBody = content.FormattedBody
+		}
+
+		body, bodyFormatted := makeResponse(msg, msg, content.Body, oldFormattedBody, replyEvent.Sender.String(), roomID, replyEvent.ID.String())
+
+		message.Body = body
+		message.FormattedBody = bodyFormatted
+		message.RelatesTo.InReplyTo.EventID = replyEvent.ID.String()
+	} else {
+		message.Body = msg
+		message.FormattedBody = msg
 	}
+
+	message.Format = "org.matrix.custom.html"
+	message.MsgType = "m.text"
+	message.Type = "m.room.message"
+
+	return m.sendMessage(&message, roomID)
+}
+
+// CreateChannel creates a new matrix channel
+func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error) {
+	// TODO use another alias name that is more unique
+	room := mautrix.ReqCreateRoom{
+		Visibility:    "private",
+		RoomAliasName: "RemindMe-" + uniuri.NewLen(5),
+		Name:          "RemindMe",
+		Topic:         "I will be your personal reminder bot",
+		Invite:        []id.UserID{id.UserID(userID)},
+		Preset:        "trusted_private_chat",
+	}
+
+	return m.client.CreateRoom(&room)
+}
+
+// sendMessage sends a message to a matrix room
+func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
 	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
 }

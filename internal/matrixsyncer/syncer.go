@@ -15,18 +15,20 @@ import (
 
 // Syncer receives messages from a matrix channel
 type Syncer struct {
-	config  configuration.Matrix
-	user    string
-	client  *mautrix.Client
-	daemon  *eventdaemon.Daemon
-	botName string
+	config    configuration.Matrix
+	user      string
+	client    *mautrix.Client
+	daemon    *eventdaemon.Daemon
+	botName   string
+	messenger Messenger
 }
 
 // Create creates a new syncer
-func Create(config configuration.Matrix, matrixUser string) *Syncer {
+func Create(config configuration.Matrix, matrixUser string, messenger Messenger) *Syncer {
 	return &Syncer{
-		config: config,
-		user:   matrixUser,
+		config:    config,
+		user:      matrixUser,
+		messenger: messenger,
 	}
 }
 
