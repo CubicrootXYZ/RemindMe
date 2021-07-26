@@ -146,3 +146,16 @@ func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *ma
 	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
 	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
 }
+
+// SendFormattedMessage sends a HTML formatted message to the given room
+func (m *Messenger) SendFormattedMessage(msg, msgFormatted, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	message := MatrixMessage{
+		Body:          msg,
+		FormattedBody: msgFormatted,
+		MsgType:       "m.text",
+		Type:          "m.room.message",
+		Format:        "org.matrix.custom.html",
+	}
+
+	return m.sendMessage(&message, roomID)
+}

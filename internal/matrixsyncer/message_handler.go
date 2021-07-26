@@ -2,8 +2,10 @@ package matrixsyncer
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
@@ -22,7 +24,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 
 	channel, err := s.daemon.Database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
 
-	_, ok := evt.Content.Parsed.(*event.MessageEventContent)
+	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if !ok {
 		log.Warn("Event is not a message event. Can not handle it")
 		return
@@ -46,6 +48,11 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 
 	// TODO handle replies
 
+	if s.checkActions(evt, channel, content) {
+		return
+	}
+
+	// Nothing left so it must be a reminder
 	reminder, err := s.parseRemind(evt, channel)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Failed parsing the Reminder with: %s", err.Error()))
@@ -59,4 +66,15 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 	if err != nil {
 		log.Warn("Was not able to send success message to user")
 	}
+}
+
+// checkActions checks if a message matches any special actions and performs them.
+func (s *Syncer) checkActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
+	// List action
+	if matched, err := regexp.Match("(?i)((^list|^show)(| all| the)(| reminders| my reminders)(| please)$|^reminders$|^reminder$)", []byte(content.Body)); matched && err == nil {
+		s.ActionList(channel)
+		return true
+	}
+
+	return false
 }
