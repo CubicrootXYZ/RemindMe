@@ -16,6 +16,15 @@ Make laundry at Sunday 16:00
 
 It tries to understand your natural language as best as it can. 
 
+### List all available commands 
+
+To get all commands just type one of these lines:
+```
+commands
+list all commands
+show all commands
+```
+
 ### List all reminders
 
 You can use one of those commands to list all pending reminders in a channel:

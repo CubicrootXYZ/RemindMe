@@ -21,15 +21,22 @@ type Syncer struct {
 	daemon    *eventdaemon.Daemon
 	botName   string
 	messenger Messenger
+	actions   []*Action
 }
 
 // Create creates a new syncer
 func Create(config configuration.Matrix, matrixUser string, messenger Messenger) *Syncer {
-	return &Syncer{
+	syncer := &Syncer{
 		config:    config,
 		user:      matrixUser,
 		messenger: messenger,
 	}
+
+	// Add all actions
+	syncer.actions = append(syncer.actions, syncer.getActionList())
+	syncer.actions = append(syncer.actions, syncer.getActionCommands())
+
+	return syncer
 }
 
 // Start starts the syncer

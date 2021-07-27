@@ -4,10 +4,21 @@ import (
 	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"maunium.net/go/mautrix/event"
 )
 
-// ActionList performs the action "list" that writes all pending reminders to the given channel
-func (s *Syncer) ActionList(channel *database.Channel) error {
+func (s *Syncer) getActionList() *Action {
+	action := &Action{
+		Name:     "List all reminders",
+		Examples: []string{"list", "list reminders", "show", "show reminders", "list my reminders", "reminders"},
+		Regex:    "(?i)((^list|^show)(| all| the)(| reminders| my reminders)(| please)$|^reminders$|^reminder$)",
+		Action:   s.actionList,
+	}
+	return action
+}
+
+// actionList performs the action "list" that writes all pending reminders to the given channel
+func (s *Syncer) actionList(evt *event.Event, channel *database.Channel) error {
 	reminders, err := s.daemon.Database.GetPendingReminders(channel)
 	if err != nil {
 		return err
@@ -16,8 +27,8 @@ func (s *Syncer) ActionList(channel *database.Channel) error {
 	msg := strings.Builder{}
 	msgFormatted := strings.Builder{}
 
-	msg.WriteString("You asked for your open reminders, here they are: \n\n")
-	msgFormatted.WriteString("You asked for your open reminders, here they are: <br><br>")
+	msg.WriteString("= Open Reminders = \nYou asked for your open reminders, here they are: \n\n")
+	msgFormatted.WriteString("<h3>Open Reminders</h3><br>You asked for your open reminders, here they are: <br><br>")
 
 	for _, reminder := range reminders {
 		msg.WriteString("== " + reminder.Message + " ==\n at " + reminder.RemindTime.Format("15:04 02.01.2006") + "\n\n")

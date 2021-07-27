@@ -3,6 +3,7 @@ package matrixsyncer
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -70,10 +71,16 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 
 // checkActions checks if a message matches any special actions and performs them.
 func (s *Syncer) checkActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
+	message := strings.ToLower(content.Body)
+
 	// List action
-	if matched, err := regexp.Match("(?i)((^list|^show)(| all| the)(| reminders| my reminders)(| please)$|^reminders$|^reminder$)", []byte(content.Body)); matched && err == nil {
-		s.ActionList(channel)
-		return true
+	for _, action := range s.actions {
+		log.Info("Checking for match with action " + action.Name)
+		if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
+			_ = action.Action(evt, channel)
+			log.Info("Matched")
+			return true
+		}
 	}
 
 	return false
