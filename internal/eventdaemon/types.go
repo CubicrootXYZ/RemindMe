@@ -15,6 +15,8 @@ type Database interface {
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	AddChannel(userID, channelID string) (*database.Channel, error)
 	GetPendingReminders(channel *database.Channel) ([]database.Reminder, error)
+	GetMessageByExternalID(externalID string) (*database.Message, error)
+	DeleteReminder(reminderID uint) (*database.Reminder, error)
 }
 
 // Syncer is responsible for receiving messages from a messenger

@@ -159,3 +159,9 @@ func (m *Messenger) SendFormattedMessage(msg, msgFormatted, roomID string) (resp
 
 	return m.sendMessage(&message, roomID)
 }
+
+// DeleteMessage deletes a message in matrix
+func (m *Messenger) DeleteMessage(messageID, roomID string) error {
+	_, err := m.client.RedactEvent(id.RoomID(roomID), id.EventID(messageID))
+	return err
+}

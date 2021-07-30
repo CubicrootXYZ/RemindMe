@@ -19,8 +19,10 @@ type MatrixMessage struct {
 	} `json:"m.relates_to,omitempty"`
 }
 
+// Messenger defines an interface for interacting with matrix messages
 type Messenger interface {
 	SendReplyToEvent(msg string, replyEvent *event.Event, roomID string) (resp *mautrix.RespSendEvent, err error)
 	CreateChannel(userID string) (*mautrix.RespCreateRoom, error)
 	SendFormattedMessage(msg, msgFormatted, roomID string) (resp *mautrix.RespSendEvent, err error)
+	DeleteMessage(messageID, roomID string) error
 }

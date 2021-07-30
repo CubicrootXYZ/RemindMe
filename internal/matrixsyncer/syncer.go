@@ -15,13 +15,14 @@ import (
 
 // Syncer receives messages from a matrix channel
 type Syncer struct {
-	config    configuration.Matrix
-	user      string
-	client    *mautrix.Client
-	daemon    *eventdaemon.Daemon
-	botName   string
-	messenger Messenger
-	actions   []*Action
+	config          configuration.Matrix
+	user            string
+	client          *mautrix.Client
+	daemon          *eventdaemon.Daemon
+	botName         string
+	messenger       Messenger
+	actions         []*Action
+	reactionActions []*ReactionAction
 }
 
 // Create creates a new syncer
@@ -35,6 +36,8 @@ func Create(config configuration.Matrix, matrixUser string, messenger Messenger)
 	// Add all actions
 	syncer.actions = append(syncer.actions, syncer.getActionList())
 	syncer.actions = append(syncer.actions, syncer.getActionCommands())
+
+	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
 
 	return syncer
 }
@@ -77,6 +80,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	// Get messages
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
 	syncer.OnEventType(event.EventMessage, s.handleMessages)
+	syncer.OnEventType(event.EventReaction, s.handleReactions)
 	return client.Sync()
 }
 

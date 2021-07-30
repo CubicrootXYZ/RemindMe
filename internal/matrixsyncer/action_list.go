@@ -1,9 +1,10 @@
 package matrixsyncer
 
 import (
-	"strings"
+	"strconv"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -24,17 +25,20 @@ func (s *Syncer) actionList(evt *event.Event, channel *database.Channel) error {
 		return err
 	}
 
-	msg := strings.Builder{}
-	msgFormatted := strings.Builder{}
+	msg := formater.Formater{}
 
-	msg.WriteString("= Open Reminders = \nYou asked for your open reminders, here they are: \n\n")
-	msgFormatted.WriteString("<h3>Open Reminders</h3><br>You asked for your open reminders, here they are: <br><br>")
+	msg.Title("Open Reminders")
+	msg.TextLine("You asked for your open reminders, here they are:")
+	msg.NewLine()
 
 	for _, reminder := range reminders {
-		msg.WriteString("== " + reminder.Message + " ==\n at " + reminder.RemindTime.Format("15:04 02.01.2006") + "\n\n")
-		msgFormatted.WriteString("<b>" + reminder.Message + "</b><br> <i>at " + reminder.RemindTime.Format("15:04 02.01.2006") + "</i><br><br>")
+		msg.BoldLine(reminder.Message)
+		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + reminder.RemindTime.Format("15:04 02.01.2006"))
+		msg.NewLine()
 	}
 
-	_, err = s.messenger.SendFormattedMessage(msg.String(), msgFormatted.String(), channel.ChannelIdentifier)
+	message, messageFormatted := msg.Build()
+
+	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel.ChannelIdentifier)
 	return err
 }

@@ -1,6 +1,11 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+	"maunium.net/go/mautrix/event"
+)
 
 // Message holds information about a single message
 type Message struct {
@@ -25,3 +30,43 @@ const (
 	MessageTypeReminderSuccess = MessageType("REMINDER_SUCCESS")
 	MessageTypeReminder        = MessageType("REMINDER")
 )
+
+// AddMessageFromMatrix adds a message to the database
+func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
+	relatesTo := ""
+	if content.RelatesTo != nil {
+		relatesTo = content.RelatesTo.EventID.String()
+	}
+	message := Message{
+		Body:               content.Body,
+		BodyHTML:           content.FormattedBody,
+		ReminderID:         reminder.ID,
+		Reminder:           *reminder,
+		ResponseToMessage:  relatesTo,
+		Type:               msgType,
+		ChannelID:          channel.ID,
+		Channel:            *channel,
+		Timestamp:          timestamp,
+		ExternalIdentifier: id,
+	}
+	message.Model.CreatedAt = time.Now().UTC()
+
+	err := d.db.Create(&message).Error
+
+	return &message, err
+}
+
+// AddMessage adds a message to the database
+func (d *Database) AddMessage(message *Message) (*Message, error) {
+
+	err := d.db.Create(message).Error
+
+	return message, err
+}
+
+// GetMessageByExternalID returns if found the message with the given external id
+func (d *Database) GetMessageByExternalID(externalID string) (*Message, error) {
+	message := &Message{}
+	err := d.db.First(&message, "external_identifier = ?", externalID).Error
+	return message, err
+}

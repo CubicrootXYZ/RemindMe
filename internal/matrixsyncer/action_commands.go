@@ -1,9 +1,8 @@
 package matrixsyncer
 
 import (
-	"strings"
-
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -19,33 +18,44 @@ func (s *Syncer) getActionCommands() *Action {
 
 // actionCommands lists all available commands
 func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) error {
-	msg := strings.Builder{}
-	msgFormatted := strings.Builder{}
+	msg := formater.Formater{}
 
-	msg.WriteString("= Available Commands = \nYou can interact with me in many ways, check out my features: \n\n")
-	msgFormatted.WriteString("<h3>Available Commands</h3><You can interact with me in many ways, check out my features: <br><br>")
+	msg.Title("Available Commands")
+	msg.TextLine("You can interact with me in many ways, check out my features:")
+	msg.NewLine()
 
 	for _, action := range s.actions {
-		msg.WriteString("== " + action.Name + " ==\n")
-		msgFormatted.WriteString("<b>" + action.Name + "</b><br>")
+		msg.BoldLine(action.Name)
 
 		if len(action.Examples) > 0 {
-			msg.WriteString("Here are some examples how you can tell me to perform this action:\n")
-			msgFormatted.WriteString("Here are some examples how you can tell me to perform this action:<br>")
-			for _, example := range action.Examples {
-				msg.WriteString(example + "\n")
-				msgFormatted.WriteString("<i>" + example + "</i><br>")
-			}
+			msg.TextLine("Here are some examples how you can tell me to perform this action:")
+			msg.List(action.Examples)
 		}
-
-		msg.WriteString("\n")
-		msgFormatted.WriteString("<br>")
-
+		msg.NewLine()
 	}
 
-	msg.WriteString("== Make a new Reminder ==\nTo make a new reminder I will process all messages that are not part of one of the above commands. Try it with:\nLaundry at Sunday 12am\nGo shopping in 4 hours")
-	msgFormatted.WriteString("<b>Make a new Reminder </b><br>To make a new reminder I will process all messages that are not part of one of the above commands. Try it with:<br><i>Laundry at Sunday 12am</i><br><i>Go shopping in 4 hours</i>")
+	msg.BoldLine("Make a new Reminder")
+	msg.TextLine("To make a new reminder I will process all messages that are not part of one of the above commands. Try it with:")
+	msg.List([]string{"Laundry at Sunday 12am", "Go shopping in 4 hours"})
+	msg.NewLine()
 
-	_, err := s.messenger.SendFormattedMessage(msg.String(), msgFormatted.String(), channel.ChannelIdentifier)
+	if len(s.reactionActions) > 0 {
+		msg.SubTitle("Reactions")
+		msg.TextLine("I am able to understand a few reactions you can give to a message.")
+		msg.NewLine()
+
+		for _, action := range s.reactionActions {
+			msg.BoldLine(action.Name)
+			msg.Text("Available for messages of the type " + string(action.Type) + ". Give the message one of these reactions: ")
+			for _, reaction := range action.Keys {
+				msg.Text(reaction + " ")
+			}
+			msg.NewLine()
+		}
+	}
+
+	message, messageFormatted := msg.Build()
+
+	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel.ChannelIdentifier)
 	return err
 }

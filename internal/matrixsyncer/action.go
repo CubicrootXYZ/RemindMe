@@ -12,3 +12,21 @@ type Action struct {
 	Regex    string   // Regex the message must match to trigger the action
 	Action   func(evt *event.Event, channel *database.Channel) error
 }
+
+// ReactionAction defines an action performed on receiving a reaction
+type ReactionAction struct {
+	Name   string   // Name of the action just for displaying
+	Keys   []string // The key the reaction must match
+	Type   ReactionActionType
+	Action func(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error
+}
+
+// ReactionActionType defines types of reaction actions
+type ReactionActionType string
+
+const (
+	ReactionActionTypeReminderRequest = ReactionActionType(string(database.MessageTypeReminderRequest))
+	ReactionActionTypeReminder        = ReactionActionType(string(database.MessageTypeReminder))
+	ReactionActionTypeReminderSuccess = ReactionActionType(string(database.MessageTypeReminderSuccess))
+	ReactionActionTypeAll             = ReactionActionType("")
+)

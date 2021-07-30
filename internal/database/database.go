@@ -6,7 +6,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"maunium.net/go/mautrix/event"
 )
 
 // Database holds all information for connecting to the database
@@ -86,78 +85,4 @@ func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
 	var channel Channel
 	err = d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
 	return &channel, err
-}
-
-// AddReminder adds a reminder to the database
-func (d *Database) AddReminder(remindTime time.Time, message string, active bool, repeatInterval uint64, channel *Channel) (*Reminder, error) {
-	reminder := Reminder{
-		Message:        message,
-		RemindTime:     remindTime,
-		Active:         true,
-		RepeatInterval: repeatInterval,
-		RepeatMax:      0,
-		Channel:        *channel,
-		ChannelID:      channel.ID,
-	}
-	reminder.Model.CreatedAt = time.Now().UTC()
-
-	err := d.db.Create(&reminder).Error
-
-	return &reminder, err
-}
-
-// AddMessageFromMatrix adds a message to the database
-func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
-	relatesTo := ""
-	if content.RelatesTo != nil {
-		relatesTo = content.RelatesTo.EventID.String()
-	}
-	message := Message{
-		Body:               content.Body,
-		BodyHTML:           content.FormattedBody,
-		ReminderID:         reminder.ID,
-		Reminder:           *reminder,
-		ResponseToMessage:  relatesTo,
-		Type:               msgType,
-		ChannelID:          channel.ID,
-		Channel:            *channel,
-		Timestamp:          timestamp,
-		ExternalIdentifier: id,
-	}
-	message.Model.CreatedAt = time.Now().UTC()
-
-	err := d.db.Create(&message).Error
-
-	return &message, err
-}
-
-// AddMessage adds a message to the database
-func (d *Database) AddMessage(message *Message) (*Message, error) {
-
-	err := d.db.Create(message).Error
-
-	return message, err
-}
-
-// GetMessageFromReminder returns the message with the specified message type regarding the reminder
-func (d *Database) GetMessageFromReminder(reminderID uint, msgType MessageType) (*Message, error) {
-	message := &Message{}
-	err := d.db.Find(message, "reminder_id = ? AND type = ?", reminderID, msgType).Error
-	return message, err
-}
-
-// GetPendingReminder returns all reminders that are due
-func (d *Database) GetPendingReminder() (*[]Reminder, error) {
-	reminder := make([]Reminder, 0)
-	err := d.db.Debug().Preload("Channel").Find(&reminder, "active = ? AND remind_time <= ?", 1, time.Now()).Error
-
-	return &reminder, err
-}
-
-// SetReminderDone sets a reminder as inactive
-func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
-	reminder.Active = false
-	err := d.db.Save(reminder).Error
-
-	return reminder, err
 }
