@@ -38,6 +38,7 @@ func Create(config configuration.Matrix, matrixUser string, messenger Messenger)
 	syncer.actions = append(syncer.actions, syncer.getActionCommands())
 
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
+	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)
 
 	return syncer
 }

@@ -79,3 +79,17 @@ func (d *Database) DeleteReminder(reminderID uint) (*Reminder, error) {
 	err = d.db.Delete(&deleteReminder).Statement.Error
 	return deleteReminder, err
 }
+
+// UpdateReminder updates the reminder
+func (d *Database) UpdateReminder(reminderID uint, remindTime time.Time) (*Reminder, error) {
+	reminder := &Reminder{}
+	err := d.db.First(reminder, "id = ?", reminderID).Error
+	if err != nil {
+		return nil, err
+	}
+
+	reminder.RemindTime = remindTime
+	reminder.Active = true
+	err = d.db.Save(reminder).Error
+	return reminder, err
+}

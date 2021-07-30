@@ -116,12 +116,19 @@ func (s *Syncer) handleReactions(source mautrix.EventSource, evt *event.Event) {
 		return
 	}
 
-	switch message.Type {
-	case database.MessageTypeReminderRequest:
-		log.Info("Reaction to message of type Reminder Request")
-		matched, err := s.handleReminderRequestReaction(message, content, evt, channel)
-		if matched && err == nil {
-			return
+	for _, action := range s.reactionActions {
+		log.Info("Checking for match with action " + action.Name)
+		if action.Type != ReactionActionType(message.Type) && action.Type != ReactionActionTypeAll {
+			continue
+		}
+
+		for _, key := range action.Keys {
+			if content.RelatesTo.Key == key {
+				err = action.Action(message, content, evt, channel)
+				if err == nil {
+					return
+				}
+			}
 		}
 	}
 

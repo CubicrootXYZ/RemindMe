@@ -67,6 +67,6 @@ func (d *Database) AddMessage(message *Message) (*Message, error) {
 // GetMessageByExternalID returns if found the message with the given external id
 func (d *Database) GetMessageByExternalID(externalID string) (*Message, error) {
 	message := &Message{}
-	err := d.db.First(&message, "external_identifier = ?", externalID).Error
+	err := d.db.Preload("Reminder").First(&message, "external_identifier = ?", externalID).Error
 	return message, err
 }

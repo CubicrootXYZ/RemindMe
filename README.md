@@ -7,6 +7,11 @@ A matrix bot that handles reminders and knows your agenda.
 
 After you have installed the bot he will invite you in a channel accept the invite and you are ready to interact with him. 
 
+Provided features:
+
+* Add reminders in natural language
+* Delete reminders
+
 ### New Reminder
 
 To make a new reminder talk to the bot like this: 
@@ -23,21 +28,6 @@ To get all commands just type one of these lines:
 commands
 list all commands
 show all commands
-```
-
-### List all reminders
-
-You can use one of those commands to list all pending reminders in a channel:
-```
-list
-list all reminders
-list reminders
-list my reminders
-show 
-show all reminders
-show reminders
-reminders 
-reminder
 ```
 
 ## Installation

@@ -43,19 +43,7 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 	return reminder, err
 }
 
-func (s *Syncer) handleReminderRequestReaction(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) (matched bool, err error) {
-	for _, action := range s.reactionActions {
-		log.Info("Checking for match with action " + action.Name)
-		if action.Type != ReactionActionTypeReminderRequest {
-			continue
-		}
+func (s *Syncer) handleReminderRequestReactions(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) (matched bool, err error) {
 
-		for _, key := range action.Keys {
-			if content.RelatesTo.Key == key {
-				err := action.Action(message, content, evt, channel)
-				return true, err
-			}
-		}
-	}
 	return false, nil
 }
