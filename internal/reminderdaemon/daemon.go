@@ -61,7 +61,6 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 			time.Sleep(sleepTime)
 		}
 	}
-
-	wg.Done()
-	return nil
+	//wg.Done()
+	//return nil
 }

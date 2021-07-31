@@ -40,7 +40,7 @@ func (d *Daemon) Start(wg *sync.WaitGroup) {
 		}
 		time.Sleep(time.Minute * 5)
 	}
-	wg.Done()
+	//wg.Done()
 }
 
 // Stop stops the daemon
