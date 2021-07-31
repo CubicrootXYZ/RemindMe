@@ -1,5 +1,9 @@
 name: Main
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
 jobs: 
   # Checks the code
   test_analyze_and_build:
