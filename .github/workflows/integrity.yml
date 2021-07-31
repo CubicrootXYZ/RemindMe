@@ -19,6 +19,6 @@ jobs:
       - name: Run staticcheck
         run: staticcheck ./...
       - name: Build the app
-        run: go build /tmp/app ./cmd/remindme
+        run: go build ./app ./cmd/remindme
       
       
