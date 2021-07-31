@@ -55,3 +55,14 @@ show all commands
 ### Docker
 
 [Docker Hub](https://hub.docker.com/repository/docker/cubicrootxyz/remindme)
+
+## Attribution
+
+Great thanks to the libraries used in this project:
+
+* [Mautrix](https://github.com/tulir/mautrix-go)
+* [Gorm](https://gorm.io/)
+* [Gorm MySQL](https://github.com/go-gorm/mysql)
+* [Naturaldate](https://github.com/tj/go-naturaldate)
+* [Configor](https://github.com/jinzhu/configor)
+* [Uniuri](https://github.com/dchest/uniuri)
