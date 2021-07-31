@@ -101,7 +101,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID
 	if replyEvent != nil {
 		content, ok := replyEvent.Content.Parsed.(*event.MessageEventContent)
 		if !ok {
-			return nil, errors.MatrixEventWrongType
+			return nil, errors.ErrMatrixEventWrongType
 		}
 
 		oldFormattedBody := content.Body

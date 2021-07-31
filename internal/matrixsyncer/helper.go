@@ -25,7 +25,7 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 	baseTime := time.Now().UTC()
 	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if !ok {
-		return nil, errors.MatrixEventWrongType
+		return nil, errors.ErrMatrixEventWrongType
 	}
 	remindTime, err := naturaldate.Parse(content.Body, baseTime, naturaldate.WithDirection(naturaldate.Future))
 	if err != nil {
@@ -41,9 +41,4 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
 
 	return reminder, err
-}
-
-func (s *Syncer) handleReminderRequestReactions(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) (matched bool, err error) {
-
-	return false, nil
 }

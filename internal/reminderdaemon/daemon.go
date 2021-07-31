@@ -56,7 +56,7 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 			}
 		}
 
-		sleepTime := start.Add(time.Minute * 1).Sub(time.Now())
+		sleepTime := time.Until(start.Add(time.Minute * 1))
 		if sleepTime > 0 {
 			time.Sleep(sleepTime)
 		}
