@@ -1,8 +1,8 @@
 # Matrix reminder and calendar bot
 A matrix bot that handles reminders and knows your agenda.
 
-![Example list of reminders](Screenshots/Screenshot_Reminders.png)
-![Example list of commands](Screenshots/Screenshot_Commands.png)
+![Example list of reminders](Screenshots/Screenshot_Reminders.jpg)
+![Example list of commands](Screenshots/Screenshot_Commands.jpg)
 
 **This little boy needs to grow a lot!**
 
