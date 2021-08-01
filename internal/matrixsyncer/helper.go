@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"strings"
 	"time"
 	"unicode"
 
@@ -50,4 +51,17 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
 
 	return reminder, err
+}
+
+// StripReply removes the quoted reply from a message
+func StripReply(msg string) string {
+	strippedMsg := strings.Builder{}
+	for _, line := range strings.Split(msg, "\n") {
+		if strings.HasPrefix(line, ">") {
+			continue
+		}
+		strippedMsg.WriteString(line)
+	}
+
+	return strippedMsg.String()
 }

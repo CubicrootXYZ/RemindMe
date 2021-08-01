@@ -21,8 +21,9 @@ type Syncer struct {
 	daemon          *eventdaemon.Daemon
 	botName         string
 	messenger       Messenger
-	actions         []*Action
-	reactionActions []*ReactionAction
+	actions         []*Action         // Actions based on direct messages from the user
+	reactionActions []*ReactionAction // Actions based on reactions by the user
+	replyActions    []*ReplyAction    // Actions based on replies from the user on existing messages
 }
 
 // Create creates a new syncer

@@ -13,6 +13,15 @@ type Action struct {
 	Action   func(evt *event.Event, channel *database.Channel) error
 }
 
+// ReplyAction defines actions that are performed on replies
+type ReplyAction struct {
+	Name        string               // Name of the action just for displaying
+	Examples    []string             // Example commands to trigger the action
+	Regex       string               // Regex the message must match to trigger the action
+	ReplyToType database.MessageType // Kind of message the reply is for
+	Action      func(evt *event.Event, channel *database.Channel, replyMessage *database.Message) error
+}
+
 // ReactionAction defines an action performed on receiving a reaction
 type ReactionAction struct {
 	Name   string   // Name of the action just for displaying
