@@ -104,12 +104,12 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID
 			return nil, errors.ErrMatrixEventWrongType
 		}
 
-		oldFormattedBody := content.Body
+		oldFormattedBody := StripReply(content.Body)
 		if len(content.FormattedBody) > 1 {
-			oldFormattedBody = content.FormattedBody
+			oldFormattedBody = StripReplyFormatted(content.FormattedBody)
 		}
 
-		body, bodyFormatted := makeResponse(msg, msg, content.Body, oldFormattedBody, replyEvent.Sender.String(), roomID, replyEvent.ID.String())
+		body, bodyFormatted := makeResponse(msg, msg, StripReply(content.Body), oldFormattedBody, replyEvent.Sender.String(), roomID, replyEvent.ID.String())
 
 		message.Body = body
 		message.FormattedBody = bodyFormatted

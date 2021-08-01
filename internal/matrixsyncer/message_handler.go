@@ -9,6 +9,7 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/tj/go-naturaldate"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
@@ -178,7 +179,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 
 		// Clear body from characters the library can not handle
 		t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-		strippedBody, _, _ := transform.String(t, StripReply(content.Body))
+		strippedBody, _, _ := transform.String(t, matrixmessenger.StripReply(content.Body))
 		log.Info(strippedBody)
 
 		remindTime, err := naturaldate.Parse(strippedBody, baseTime, naturaldate.WithDirection(naturaldate.Future))
