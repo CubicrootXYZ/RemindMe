@@ -7,8 +7,8 @@
 
 A matrix bot that handles reminders and knows your agenda.
 
-![Example list of reminders](Screenshots/Screenshot_Reminders.jpg)
-![Example list of commands](Screenshots/Screenshot_Commands.jpg)
+![Example list of reminders](Screenshots/reminders.png)
+![Example list of commands](Screenshots/commands.png)
 
 **This little boy needs to grow a lot!**
 
