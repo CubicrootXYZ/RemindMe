@@ -4,6 +4,9 @@ on:
     paths-ignore:
       - '**.md'
       - '**.yml'
+      - '**.jpg'
+      - '**.jpeg'
+      - '**.png'
 jobs: 
   # Checks the code
   test_analyze_and_build:

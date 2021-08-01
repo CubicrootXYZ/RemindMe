@@ -2,11 +2,15 @@ package matrixsyncer
 
 import (
 	"time"
+	"unicode"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/tj/go-naturaldate"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -27,7 +31,12 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 	if !ok {
 		return nil, errors.ErrMatrixEventWrongType
 	}
-	remindTime, err := naturaldate.Parse(content.Body, baseTime, naturaldate.WithDirection(naturaldate.Future))
+
+	// Clear body from characters the library can not handle
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	strippedBody, _, _ := transform.String(t, content.Body)
+
+	remindTime, err := naturaldate.Parse(strippedBody, baseTime, naturaldate.WithDirection(naturaldate.Future))
 	if err != nil {
 		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, evt.RoomID.String())
 		return nil, err
