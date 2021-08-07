@@ -9,7 +9,7 @@ import (
 func makeResponse(newMsg, newMsgFormatted, respondMsg, respondMsgFormatted, respondTo, roomID, respondEventID string) (body, bodyFormatted string) {
 	body = fmt.Sprintf("> <%s>%s\n\n%s", respondTo, respondMsg, newMsg)
 
-	bodyFormatted = fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote>\n</mx-reply>%s", roomID, respondEventID, respondTo, respondTo, respondMsgFormatted, newMsgFormatted)
+	bodyFormatted = fmt.Sprintf("<mx-reply><blockquote><a href='https://matrix.to/#/%s/%s'>In reply to</a> <a href='https://matrix.to/#/%s'>%s</a><br />%s</blockquote></mx-reply>%s", roomID, respondEventID, respondTo, respondTo, respondMsgFormatted, newMsgFormatted)
 
 	return body, bodyFormatted
 }

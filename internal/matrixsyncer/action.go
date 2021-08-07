@@ -19,7 +19,7 @@ type ReplyAction struct {
 	Examples    []string             // Example commands to trigger the action
 	Regex       string               // Regex the message must match to trigger the action
 	ReplyToType database.MessageType // Kind of message the reply is for
-	Action      func(evt *event.Event, channel *database.Channel, replyMessage *database.Message) error
+	Action      func(evt *event.Event, channel *database.Channel, replyMessage *database.Message, content *event.MessageEventContent) error
 }
 
 // ReactionAction defines an action performed on receiving a reaction

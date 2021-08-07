@@ -59,6 +59,14 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 	msg.TextLine("I can also understand some of your replies to messages.")
 	msg.NewLine()
 
+	if len(s.replyActions) > 0 {
+		for _, action := range s.replyActions {
+			msg.BoldLine(action.Name)
+			msg.TextLine("Answer to a message of the type " + string(action.ReplyToType) + " with: ")
+			msg.List(action.Examples)
+		}
+	}
+
 	msg.BoldLine("Change reminder time")
 	msg.TextLine("You can achieve this with a reply to a message of the type REMINDER_REQUEST with one of this examples:")
 	msg.List([]string{"sunday 5pm", "monday 15:57", "in 5 hours"})

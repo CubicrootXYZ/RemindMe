@@ -154,7 +154,8 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 		return false
 	}
 
-	message := strings.ToLower(content.Body)
+	// Cycle through all registered actions
+	message := strings.ToLower(matrixmessenger.StripReply(content.Body))
 	replyMessage, err := s.daemon.Database.GetMessageByExternalID(content.RelatesTo.EventID.String())
 	if err != nil || replyMessage == nil {
 		log.Info("Message replies to unknown message")
@@ -162,12 +163,16 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 	}
 
 	for _, action := range s.replyActions {
+		log.Info("Checking for match with " + action.Name)
+		log.Info(string(replyMessage.Type))
 		if action.ReplyToType != "" && action.ReplyToType != replyMessage.Type {
 			continue
 		}
 
+		log.Info("Regex matching: " + message)
+
 		if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
-			_ = action.Action(evt, channel, replyMessage)
+			_ = action.Action(evt, channel, replyMessage, content)
 			log.Info("Matched")
 			return true
 		}
@@ -193,6 +198,11 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 		if err != nil {
 			log.Warn(err.Error())
 			return true
+		}
+
+		_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderUpdate, channel)
+		if err != nil {
+			log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
 		}
 
 		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006")), evt, evt.RoomID.String())

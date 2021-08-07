@@ -93,3 +93,11 @@ func (d *Database) UpdateReminder(reminderID uint, remindTime time.Time) (*Remin
 	err = d.db.Save(reminder).Error
 	return reminder, err
 }
+
+// GetMessagesByReminderID returns a list with all messages for the given reminder id
+func (d *Database) GetMessagesByReminderID(id uint) ([]*Message, error) {
+	messages := make([]*Message, 0)
+	err := d.db.Find(&messages, "reminder_id = ?", id).Error
+
+	return messages, err
+}

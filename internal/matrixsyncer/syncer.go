@@ -9,6 +9,7 @@ import (
 	"maunium.net/go/mautrix/event"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 )
@@ -40,6 +41,10 @@ func Create(config configuration.Matrix, matrixUser string, messenger Messenger)
 
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)
+
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderRequest))
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderSuccess))
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderUpdate))
 
 	return syncer
 }

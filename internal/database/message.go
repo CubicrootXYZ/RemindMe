@@ -29,6 +29,8 @@ const (
 	MessageTypeReminderRequest = MessageType("REMINDER_REQUEST")
 	MessageTypeReminderSuccess = MessageType("REMINDER_SUCCESS")
 	MessageTypeReminder        = MessageType("REMINDER")
+	MessageTypeReminderUpdate  = MessageType("REMINDER_UPDATE")
+	MessageTypeReminderDelete  = MessageType("REMINDER_DELETE")
 )
 
 // AddMessageFromMatrix adds a message to the database
