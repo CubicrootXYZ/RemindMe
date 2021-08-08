@@ -48,8 +48,13 @@ func ParseTime(msg string, channel *database.Channel) (time.Time, error) {
 		return parsedTime, err
 	}
 
-	timeString := parsedTime.In(loc).Format("15:04")
+	// Past? then set to in an hour
+	if parsedTime.Sub(time.Now()) <= 5*time.Minute {
+		parsedTime = time.Now().Add(time.Hour)
+	}
 
+	// Midnight? Move to 9:00
+	timeString := parsedTime.In(loc).Format("15:04")
 	if timeString == "00:00" && !(strings.Contains(msg, "00:00") || strings.Contains(msg, "12am") || strings.Contains(msg, "24:00")) {
 		parsedTime = parsedTime.Add(9 * time.Hour)
 	}
