@@ -33,7 +33,7 @@ func (s *Syncer) actionList(evt *event.Event, channel *database.Channel) error {
 
 	for _, reminder := range reminders {
 		msg.BoldLine(reminder.Message)
-		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + reminder.RemindTime.Format("15:04 02.01.2006"))
+		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + formater.ToLocalTime(reminder.RemindTime, channel))
 		msg.NewLine()
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/dchest/uniuri"
 	"maunium.net/go/mautrix"
@@ -61,8 +62,8 @@ func Create(config *configuration.Matrix) (*Messenger, error) {
 
 // SendReminder sends a reminder to the user
 func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *database.Message) (*database.Message, error) {
-	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
-	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
+	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
+	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
 
 	body, bodyFormatted := makeResponse(newMsg, newMsgFormatted, reminder.Message, reminder.Message, reminder.Channel.UserIdentifier, reminder.Channel.ChannelIdentifier, respondToMessage.ExternalIdentifier)
 

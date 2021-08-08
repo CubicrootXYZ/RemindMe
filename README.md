@@ -10,7 +10,13 @@ A matrix bot that handles reminders and knows your agenda.
 ![Example list of reminders](Screenshots/reminders.png)
 ![Example list of commands](Screenshots/commands.png)
 
-**This little boy needs to grow a lot!**
+## Features
+
+* Schedule reminders
+* Edit and delete reminders
+* Timezone support
+* Natural language understanding
+* Quick actions via reactions
 
 ## Contribute
 

@@ -30,7 +30,7 @@ func (d *Database) GetPendingReminders(channel *Channel) ([]Reminder, error) {
 // GetMessageFromReminder returns the message with the specified message type regarding the reminder
 func (d *Database) GetMessageFromReminder(reminderID uint, msgType MessageType) (*Message, error) {
 	message := &Message{}
-	err := d.db.Find(message, "reminder_id = ? AND type = ?", reminderID, msgType).Error
+	err := d.db.Preload("Channel").Find(message, "reminder_id = ? AND type = ?", reminderID, msgType).Error
 	return message, err
 }
 

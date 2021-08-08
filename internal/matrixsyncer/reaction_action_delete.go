@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -33,8 +35,21 @@ func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content
 		return err
 	}
 
-	msg = fmt.Sprintf("I deleted the reminder \"%s\" (at %s) for you.", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
-	msgFormatted = fmt.Sprintf("I <b>deleted</b> the reminder \"%s\" (<i>at %s</i>) for you.", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
+	// Delete all messages regarding this reminder
+	messages, err := s.daemon.Database.GetMessagesByReminderID(reminder.ID)
+	if err == nil {
+		for _, message := range messages {
+			err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
+			if err != nil {
+				log.Warn(fmt.Sprintf("Failed to delete message %s with: %s", message.ExternalIdentifier, err.Error()))
+			}
+		}
+	} else {
+		log.Warn(fmt.Sprintf("Failed to get messages for reminder %d: %s", reminder.ID, err.Error()))
+	}
+
+	msg = fmt.Sprintf("I deleted the reminder \"%s\" (at %s) for you.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
+	msgFormatted = fmt.Sprintf("I <b>deleted</b> the reminder \"%s\" (<i>at %s</i>) for you.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
 	_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel.ChannelIdentifier)
 	return err
 }

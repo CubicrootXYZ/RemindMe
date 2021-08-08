@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/tj/go-naturaldate"
@@ -28,6 +29,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 	if evt.Sender == id.UserID(s.botName) || evt.Timestamp/1000 <= time.Now().Unix()-60 {
 		return
 	}
+	// TODO check if the message is already known
 
 	channel, err := s.daemon.Database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
 
@@ -70,7 +72,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 		return
 	}
 
-	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, reminder.RemindTime.Format("15:04 02.01.2006"))
+	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
 
 	log.Info(msg)
 	_, err = s.messenger.SendReplyToEvent(msg, evt, evt.RoomID.String())
@@ -205,7 +207,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 			log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
 		}
 
-		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006")), evt, evt.RoomID.String())
+		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, evt.RoomID.String())
 	}
 
 	return true

@@ -38,6 +38,7 @@ func Create(config configuration.Matrix, matrixUser string, messenger Messenger)
 	// Add all actions
 	syncer.actions = append(syncer.actions, syncer.getActionList())
 	syncer.actions = append(syncer.actions, syncer.getActionCommands())
+	syncer.actions = append(syncer.actions, syncer.getActionTimezone())
 
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)

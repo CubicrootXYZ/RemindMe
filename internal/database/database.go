@@ -1,8 +1,6 @@
 package database
 
 import (
-	"time"
-
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -49,40 +47,4 @@ func (d *Database) initialize() error {
 	}
 
 	return nil
-}
-
-// GetChannelByUserIdentifier returns the latest channel with the given user
-func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
-	var channel Channel
-	err := d.db.First(&channel, "user_identifier = ?", userID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
-}
-
-// GetChannelByUserAndChannelIdentifier returns the latest channel with the given user and channel id
-func (d *Database) GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*Channel, error) {
-	var channel Channel
-	err := d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
-}
-
-// AddChannel adds a channel to the database
-func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
-	err := d.db.Create(&Channel{
-		Created:           time.Now(),
-		ChannelIdentifier: channelID,
-		UserIdentifier:    userID,
-	}).Error
-	if err != nil {
-		return nil, err
-	}
-
-	var channel Channel
-	err = d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
-	return &channel, err
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -131,7 +132,7 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 		return err
 	}
 
-	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, reminder.RemindTime.Format("15:04 02.01.2006"))
+	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
 
 	_, err = s.messenger.SendFormattedMessage(msg, msg, channel.ChannelIdentifier)
 	return err

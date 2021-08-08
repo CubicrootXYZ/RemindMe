@@ -26,11 +26,12 @@ type Message struct {
 type MessageType string
 
 const (
-	MessageTypeReminderRequest = MessageType("REMINDER_REQUEST")
-	MessageTypeReminderSuccess = MessageType("REMINDER_SUCCESS")
-	MessageTypeReminder        = MessageType("REMINDER")
-	MessageTypeReminderUpdate  = MessageType("REMINDER_UPDATE")
-	MessageTypeReminderDelete  = MessageType("REMINDER_DELETE")
+	MessageTypeReminderRequest       = MessageType("REMINDER_REQUEST")
+	MessageTypeReminderSuccess       = MessageType("REMINDER_SUCCESS")
+	MessageTypeReminder              = MessageType("REMINDER")
+	MessageTypeReminderUpdate        = MessageType("REMINDER_UPDATE")
+	MessageTypeReminderDelete        = MessageType("REMINDER_DELETE")
+	MessageTypeTimezoneChangeRequest = MessageType("TIMEZONE_CHANGE")
 )
 
 // AddMessageFromMatrix adds a message to the database
@@ -42,8 +43,6 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 	message := Message{
 		Body:               content.Body,
 		BodyHTML:           content.FormattedBody,
-		ReminderID:         reminder.ID,
-		Reminder:           *reminder,
 		ResponseToMessage:  relatesTo,
 		Type:               msgType,
 		ChannelID:          channel.ID,
@@ -52,6 +51,11 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 		ExternalIdentifier: id,
 	}
 	message.Model.CreatedAt = time.Now().UTC()
+
+	if reminder != nil {
+		message.Reminder = *reminder
+		message.ReminderID = reminder.ID
+	}
 
 	err := d.db.Create(&message).Error
 
