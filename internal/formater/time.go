@@ -49,7 +49,7 @@ func ParseTime(msg string, channel *database.Channel) (time.Time, error) {
 	}
 
 	// Past? then set to in an hour
-	if parsedTime.Sub(time.Now()) <= 5*time.Minute {
+	if time.Until(parsedTime) <= 5*time.Minute {
 		parsedTime = time.Now().Add(time.Hour)
 	}
 
