@@ -69,6 +69,8 @@ show all commands
 
 ### Docker
 
+Different versions are available on docker hub:
+
 [Docker Hub](https://hub.docker.com/repository/docker/cubicrootxyz/remindme)
 
 ## Attribution
