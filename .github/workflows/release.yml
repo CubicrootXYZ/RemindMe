@@ -24,6 +24,6 @@ jobs:
       - name: Push image (latest)
         run: docker push cubicrootxyz/remindme:latest
       - name: Tag image with version
-        run: docker tag cubicrootxyz/remindme:latest cubicrootxyz/remindme:{{ github.event.release.tag_name }}
+        run: docker tag cubicrootxyz/remindme:latest cubicrootxyz/remindme:${{ github.event.release.tag_name }}
       - name: Push image (version)
-        run: docker push cubicrootxyz/remindme:{{ github.event.release.tag_name }}
+        run: docker push cubicrootxyz/remindme:${{ github.event.release.tag_name }}
