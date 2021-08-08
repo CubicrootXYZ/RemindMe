@@ -1,6 +1,5 @@
 name: Release
 on:
-on:
   release:
     types: [published]
 
