@@ -15,7 +15,6 @@ import (
 func main() {
 	wg := sync.WaitGroup{}
 	// Load config
-	// TODO add timezone settings
 	config, err := configuration.Load([]string{"config.yml"})
 	if err != nil {
 		panic(err)
