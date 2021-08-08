@@ -6,7 +6,6 @@ on:
 jobs:
   # Builds the image and publishes it on docker hub
   build_and_push_docker:
-    needs: test_analyze_and_build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
