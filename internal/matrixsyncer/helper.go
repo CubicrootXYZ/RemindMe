@@ -1,16 +1,12 @@
 package matrixsyncer
 
 import (
-	"time"
-	"unicode"
+	"fmt"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
-	"github.com/tj/go-naturaldate"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -24,19 +20,14 @@ func (s *Syncer) createChannel(userID string) (*database.Channel, error) {
 	return s.daemon.Database.AddChannel(userID, roomCreated.RoomID.String())
 }
 
-// parseRemind parses a message for a reminder date
-func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*database.Reminder, error) {
-	baseTime := time.Now().UTC()
+// newReminder parses a message for a reminder date
+func (s *Syncer) newReminder(evt *event.Event, channel *database.Channel) (*database.Reminder, error) {
 	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if !ok {
 		return nil, errors.ErrMatrixEventWrongType
 	}
 
-	// Clear body from characters the library can not handle
-	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-	strippedBody, _, _ := transform.String(t, content.Body)
-
-	remindTime, err := naturaldate.Parse(strippedBody, baseTime, naturaldate.WithDirection(naturaldate.Future))
+	remindTime, err := formater.ParseTime(content.Body, channel)
 	if err != nil {
 		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, evt.RoomID.String())
 		return nil, err
@@ -48,6 +39,14 @@ func (s *Syncer) parseRemind(evt *event.Event, channel *database.Channel) (*data
 		return reminder, err
 	}
 	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
+
+	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
+
+	log.Info(msg)
+	_, err = s.messenger.SendReplyToEvent(msg, evt, evt.RoomID.String())
+	if err != nil {
+		log.Warn("Was not able to send success message to user")
+	}
 
 	return reminder, err
 }

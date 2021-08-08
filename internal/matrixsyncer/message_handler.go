@@ -5,16 +5,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
-	"github.com/tj/go-naturaldate"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
@@ -66,18 +60,10 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 	}
 
 	// Nothing left so it must be a reminder
-	reminder, err := s.parseRemind(evt, channel)
+	_, err = s.newReminder(evt, channel)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Failed parsing the Reminder with: %s", err.Error()))
 		return
-	}
-
-	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
-
-	log.Info(msg)
-	_, err = s.messenger.SendReplyToEvent(msg, evt, evt.RoomID.String())
-	if err != nil {
-		log.Warn("Was not able to send success message to user")
 	}
 }
 
@@ -145,7 +131,6 @@ func (s *Syncer) handleReactions(source mautrix.EventSource, evt *event.Event) {
 	}
 
 	log.Info("Nothing handled that reaction")
-
 }
 
 func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
@@ -157,7 +142,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 	}
 
 	// Cycle through all registered actions
-	message := strings.ToLower(matrixmessenger.StripReply(content.Body))
+	message := strings.ToLower(formater.StripReply(content.Body))
 	replyMessage, err := s.daemon.Database.GetMessageByExternalID(content.RelatesTo.EventID.String())
 	if err != nil || replyMessage == nil {
 		log.Info("Message replies to unknown message")
@@ -182,14 +167,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 
 	// Fallback change reminder date
 	if replyMessage.ReminderID > 0 {
-		baseTime := time.Now()
-
-		// Clear body from characters the library can not handle
-		t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-		strippedBody, _, _ := transform.String(t, matrixmessenger.StripReply(content.Body))
-		log.Info(strippedBody)
-
-		remindTime, err := naturaldate.Parse(strippedBody, baseTime, naturaldate.WithDirection(naturaldate.Future))
+		remindTime, err := formater.ParseTime(content.Body, channel)
 		if err != nil {
 			log.Warn(err.Error())
 			s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, evt.RoomID.String())

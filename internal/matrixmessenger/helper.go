@@ -3,7 +3,6 @@ package matrixmessenger
 import (
 	"fmt"
 	"regexp"
-	"strings"
 )
 
 func makeResponse(newMsg, newMsgFormatted, respondMsg, respondMsgFormatted, respondTo, roomID, respondEventID string) (body, bodyFormatted string) {
@@ -20,23 +19,4 @@ func makeLinkToUser(userID string) (link string) {
 	link = fmt.Sprintf("<a href=\"https://matrix.to/#/%s\">%s</a>", userID, re.Find([]byte(userID)))
 
 	return
-}
-
-// StripReply removes the quoted reply from a message
-func StripReply(msg string) string {
-	strippedMsg := strings.Builder{}
-	for _, line := range strings.Split(msg, "\n") {
-		if strings.HasPrefix(line, ">") {
-			continue
-		}
-		strippedMsg.WriteString(line)
-	}
-
-	return strippedMsg.String()
-}
-
-// StripReplyFormatted removes the quoted reply from a message
-func StripReplyFormatted(msg string) string {
-	re := regexp.MustCompile(`(?s)<mx-reply>.*<\/mx-reply>`)
-	return re.ReplaceAllString(msg, "")
 }
