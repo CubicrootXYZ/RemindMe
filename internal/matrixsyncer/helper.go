@@ -39,6 +39,9 @@ func (s *Syncer) newReminder(evt *event.Event, channel *database.Channel) (*data
 		return reminder, err
 	}
 	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
+	if err != nil {
+		log.Warn("Was not able to save a message to the database: " + err.Error())
+	}
 
 	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
 
