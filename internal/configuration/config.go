@@ -4,7 +4,7 @@ package configuration
 type Config struct {
 	Debug            bool `default:"false"`
 	MatrixBotAccount Matrix
-	MatrixUser       string `required:"true"`
+	MatrixUsers      []string `required:"true"`
 	Database         Database
 }
 

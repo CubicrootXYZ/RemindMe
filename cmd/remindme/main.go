@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUser, messenger)
+	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUsers, messenger)
 
 	// Start event daemon
 	eventDaemon := eventdaemon.Create(db, syncer)

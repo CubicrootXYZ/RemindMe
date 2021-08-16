@@ -11,8 +11,9 @@ matrixbotaccount:
   homeserver: fsdf
 
 # Matrix username to interact with
-matrixuser: "yourmatrixuser"
-
+matrixusers: 
+  - "yourmatrixuser"
+  - "anotheruser"
 # Database settings
 database:
   # MySQL connection string

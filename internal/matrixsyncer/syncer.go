@@ -17,7 +17,7 @@ import (
 // Syncer receives messages from a matrix channel
 type Syncer struct {
 	config          configuration.Matrix
-	user            string
+	users           []string
 	client          *mautrix.Client
 	daemon          *eventdaemon.Daemon
 	botName         string
@@ -28,10 +28,10 @@ type Syncer struct {
 }
 
 // Create creates a new syncer
-func Create(config configuration.Matrix, matrixUser string, messenger Messenger) *Syncer {
+func Create(config configuration.Matrix, matrixUsers []string, messenger Messenger) *Syncer {
 	syncer := &Syncer{
 		config:    config,
-		user:      matrixUser,
+		users:     matrixUsers,
 		messenger: messenger,
 	}
 
@@ -75,14 +75,17 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	}
 	log.Info("Logged in to matrix")
 
-	_, err = s.daemon.Database.GetChannelByUserIdentifier(s.user)
-	if err == gorm.ErrRecordNotFound {
-		_, err = s.createChannel(s.user)
-		if err != nil {
+	// Make channel for each user we do not know
+	for _, user := range s.users {
+		_, err = s.daemon.Database.GetChannelByUserIdentifier(user)
+		if err == gorm.ErrRecordNotFound {
+			_, err = s.createChannel(user)
+			if err != nil {
+				return err
+			}
+		} else if err != nil {
 			return err
 		}
-	} else if err != nil {
-		return err
 	}
 
 	// Get messages
