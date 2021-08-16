@@ -77,15 +77,17 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	// Make channel for each user we do not know
 	for _, user := range s.users {
-		_, err = s.daemon.Database.GetChannelByUserIdentifier(user)
+		channel, err := s.daemon.Database.GetChannelByUserIdentifier(user)
 		if err == gorm.ErrRecordNotFound {
-			_, err = s.createChannel(user)
+			channel, err = s.createChannel(user)
 			if err != nil {
 				return err
 			}
 		} else if err != nil {
 			return err
 		}
+
+		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
 	}
 
 	// Get messages

@@ -25,4 +25,5 @@ type Messenger interface {
 	CreateChannel(userID string) (*mautrix.RespCreateRoom, error)
 	SendFormattedMessage(msg, msgFormatted, roomID string) (resp *mautrix.RespSendEvent, err error)
 	DeleteMessage(messageID, roomID string) error
+	SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent, err error)
 }

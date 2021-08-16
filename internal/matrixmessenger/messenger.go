@@ -166,3 +166,14 @@ func (m *Messenger) DeleteMessage(messageID, roomID string) error {
 	_, err := m.client.RedactEvent(id.RoomID(roomID), id.EventID(messageID))
 	return err
 }
+
+// SendNotice sends a notice to the room
+func (m *Messenger) SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	message := MatrixMessage{
+		Body:    msg,
+		MsgType: "m.notice",
+		Type:    "m.room.message",
+	}
+
+	return m.sendMessage(&message, roomID)
+}
