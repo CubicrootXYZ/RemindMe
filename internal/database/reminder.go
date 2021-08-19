@@ -14,6 +14,7 @@ type Reminder struct {
 	Active         bool
 	RepeatInterval uint64
 	RepeatMax      uint64
+	Repeated       uint64
 	ChannelID      uint
 	Channel        Channel
 }
@@ -44,7 +45,12 @@ func (d *Database) GetPendingReminder() (*[]Reminder, error) {
 
 // SetReminderDone sets a reminder as inactive
 func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
-	reminder.Active = false
+	if reminder.RepeatMax < reminder.Repeated && reminder.RepeatInterval > 0 {
+		reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
+	} else {
+		reminder.Active = false
+	}
+
 	err := d.db.Save(reminder).Error
 
 	return reminder, err
