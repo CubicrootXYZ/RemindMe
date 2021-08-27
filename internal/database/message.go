@@ -26,12 +26,14 @@ type Message struct {
 type MessageType string
 
 const (
-	MessageTypeReminderRequest       = MessageType("REMINDER_REQUEST")
-	MessageTypeReminderSuccess       = MessageType("REMINDER_SUCCESS")
-	MessageTypeReminder              = MessageType("REMINDER")
-	MessageTypeReminderUpdate        = MessageType("REMINDER_UPDATE")
-	MessageTypeReminderDelete        = MessageType("REMINDER_DELETE")
-	MessageTypeTimezoneChangeRequest = MessageType("TIMEZONE_CHANGE")
+	MessageTypeReminderRequest          = MessageType("REMINDER_REQUEST")
+	MessageTypeReminderSuccess          = MessageType("REMINDER_SUCCESS")
+	MessageTypeReminder                 = MessageType("REMINDER")
+	MessageTypeReminderUpdate           = MessageType("REMINDER_UPDATE")
+	MessageTypeReminderDelete           = MessageType("REMINDER_DELETE")
+	MessageTypeReminderRecurringRequest = MessageType("REMINDER_RECURRING_REQUEST")
+	MessageTypeReminderRecurringSuccess = MessageType("REMINDER_RECURRING_SUCCESS")
+	MessageTypeTimezoneChangeRequest    = MessageType("TIMEZONE_CHANGE")
 )
 
 // AddMessageFromMatrix adds a message to the database
@@ -41,8 +43,6 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 		relatesTo = content.RelatesTo.EventID.String()
 	}
 	message := Message{
-		Body:               content.Body,
-		BodyHTML:           content.FormattedBody,
 		ResponseToMessage:  relatesTo,
 		Type:               msgType,
 		ChannelID:          channel.ID,
@@ -51,6 +51,11 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 		ExternalIdentifier: id,
 	}
 	message.Model.CreatedAt = time.Now().UTC()
+
+	if content != nil {
+		message.Body = content.Body
+		message.BodyHTML = content.FormattedBody
+	}
 
 	if reminder != nil {
 		message.Reminder = *reminder

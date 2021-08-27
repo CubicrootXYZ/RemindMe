@@ -174,7 +174,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 			return true
 		}
 
-		reminder, err := s.daemon.Database.UpdateReminder(replyMessage.ReminderID, remindTime)
+		reminder, err := s.daemon.Database.UpdateReminder(replyMessage.ReminderID, remindTime, 0, 0)
 		if err != nil {
 			log.Warn(err.Error())
 			return true

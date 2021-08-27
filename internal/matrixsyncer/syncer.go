@@ -46,6 +46,9 @@ func Create(config configuration.Matrix, matrixUsers []string, messenger Messeng
 	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderRequest))
 	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderSuccess))
 	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypeReminderUpdate))
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionRecurring(database.MessageTypeReminderUpdate))
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionRecurring(database.MessageTypeReminderSuccess))
+	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionRecurring(database.MessageTypeReminderRequest))
 
 	return syncer
 }

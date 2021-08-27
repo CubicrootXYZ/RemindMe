@@ -127,7 +127,7 @@ func (s *Syncer) reactionActionAdd1Day(message *database.Message, content *event
 
 // reactionAddXHours to referentiate all other actions here
 func (s *Syncer) reactionActionAddXHours(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel, duration time.Duration) error {
-	reminder, err := s.daemon.Database.UpdateReminder(message.ReminderID, addTimeOrFromNow(message.Reminder.RemindTime, duration))
+	reminder, err := s.daemon.Database.UpdateReminder(message.ReminderID, addTimeOrFromNow(message.Reminder.RemindTime, duration), 0, 0)
 	if err != nil {
 		return err
 	}
