@@ -10,7 +10,7 @@ func (s *Syncer) getActionCommands() *Action {
 	action := &Action{
 		Name:     "List all commands",
 		Examples: []string{"show all commands", "list the commands", "commands"},
-		Regex:    "(?i)(^(show|list)( all| the| my)( command| commands)$|commands)",
+		Regex:    "(?i)(^(show|list)( all| the| my)( command| commands)$|commands|help)",
 		Action:   s.actionCommands,
 	}
 	return action
