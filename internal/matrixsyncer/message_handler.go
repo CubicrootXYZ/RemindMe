@@ -39,7 +39,7 @@ func (s *Syncer) handleMessages(source mautrix.EventSource, evt *event.Event) {
 		// But we know the user
 		if channel2 != nil {
 			log.Info("User messaged us in a Channel we do not know")
-			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", evt, evt.RoomID.String())
+			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", evt, &database.Channel{ChannelIdentifier: evt.RoomID.String()}, database.MessageTypeDoNotSave)
 			if err != nil {
 				log.Warn(err.Error())
 			}
@@ -134,7 +134,7 @@ func (s *Syncer) handleReactions(source mautrix.EventSource, evt *event.Event) {
 }
 
 func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
-	if content.RelatesTo == nil {
+	if content.RelatesTo == nil || channel == nil {
 		return false
 	}
 	if len(content.RelatesTo.EventID) < 2 {
@@ -166,15 +166,15 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 	}
 
 	// Fallback change reminder date
-	if replyMessage.ReminderID > 0 {
+	if replyMessage.ReminderID != nil && *replyMessage.ReminderID > 0 {
 		remindTime, err := formater.ParseTime(content.Body, channel)
 		if err != nil {
 			log.Warn(err.Error())
-			s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, evt.RoomID.String())
+			s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
 			return true
 		}
 
-		reminder, err := s.daemon.Database.UpdateReminder(replyMessage.ReminderID, remindTime, 0, 0)
+		reminder, err := s.daemon.Database.UpdateReminder(*replyMessage.ReminderID, remindTime, 0, 0)
 		if err != nil {
 			log.Warn(err.Error())
 			return true
@@ -185,7 +185,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 			log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
 		}
 
-		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, evt.RoomID.String())
+		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
 	}
 
 	return true

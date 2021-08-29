@@ -73,6 +73,6 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 
 	message, messageFormatted := msg.Build()
 
-	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel.ChannelIdentifier)
+	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeActions, 0)
 	return err
 }

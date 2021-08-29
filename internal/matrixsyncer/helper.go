@@ -29,7 +29,7 @@ func (s *Syncer) newReminder(evt *event.Event, channel *database.Channel) (*data
 
 	remindTime, err := formater.ParseTime(content.Body, channel)
 	if err != nil {
-		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, evt.RoomID.String())
+		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
 		return nil, err
 	}
 
@@ -46,7 +46,7 @@ func (s *Syncer) newReminder(evt *event.Event, channel *database.Channel) (*data
 	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
 
 	log.Info(msg)
-	_, err = s.messenger.SendReplyToEvent(msg, evt, evt.RoomID.String())
+	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderSuccess)
 	if err != nil {
 		log.Warn("Was not able to send success message to user")
 	}

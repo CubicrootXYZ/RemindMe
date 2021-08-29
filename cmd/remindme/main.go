@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Create messenger
-	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount)
+	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db)
 	if err != nil {
 		panic(err)
 	}

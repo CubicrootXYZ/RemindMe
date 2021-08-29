@@ -6,6 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/gonaturalduration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"maunium.net/go/mautrix/event"
@@ -23,6 +24,13 @@ func (s *Syncer) getReplyActionRecurring(rtt database.MessageType) *ReplyAction 
 }
 
 func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channel, replyMessage *database.Message, content *event.MessageEventContent) error {
+	if replyMessage.ReminderID == nil {
+		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", replyMessage.ReminderID)
+		msgFormatted := msg
+		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		return errors.ErrIdNotSet
+	}
+
 	// Get duration from message
 	duration := gonaturalduration.ParseNumber(content.Body)
 	if duration <= time.Minute {
@@ -33,7 +41,7 @@ func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channe
 	// Repeat for 5 years
 	repeatTimes := (5 * 365 * 24 * time.Hour) / duration
 
-	reminder, err := s.daemon.Database.UpdateReminder(replyMessage.ReminderID, time.Now(), uint64(duration/time.Minute), uint64(repeatTimes))
+	reminder, err := s.daemon.Database.UpdateReminder(*replyMessage.ReminderID, time.Now(), uint64(duration/time.Minute), uint64(repeatTimes))
 	if err != nil {
 		log.Error(err.Error())
 		return err
@@ -47,15 +55,10 @@ func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channe
 	lastRemind := reminder.RemindTime.Add(duration * repeatTimes)
 
 	msg := fmt.Sprintf("Updated the reminder to remind you every %s until %s", formater.ToNiceDuration(duration), formater.ToLocalTime(lastRemind, channel))
-	resp, err := s.messenger.SendReplyToEvent(msg, evt, channel.ChannelIdentifier)
+	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderRecurringSuccess)
 	if err != nil {
 		log.Error(err.Error())
 		return err
-	}
-
-	_, err = s.daemon.Database.AddMessageFromMatrix(resp.EventID.String(), time.Now().Unix(), nil, reminder, database.MessageTypeReminderRecurringSuccess, channel)
-	if err != nil {
-		log.Warn(fmt.Sprintf("Failed to add recurring message %s to database: %s", evt.ID.String(), err.Error()))
 	}
 	return err
 }

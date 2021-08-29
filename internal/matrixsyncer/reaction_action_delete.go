@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"maunium.net/go/mautrix/event"
@@ -22,11 +23,17 @@ func (s *Syncer) getReactionActionDelete(rat ReactionActionType) *ReactionAction
 func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error {
 	var msg string
 	var msgFormatted string
-	reminder, err := s.daemon.Database.DeleteReminder(message.ReminderID)
+	if message.ReminderID == nil {
+		msg = fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
+		msgFormatted = msg
+		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, 0)
+		return errors.ErrIdNotSet
+	}
+	reminder, err := s.daemon.Database.DeleteReminder(*message.ReminderID)
 	if err != nil {
 		msg = fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
 		msgFormatted = msg
-		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel.ChannelIdentifier)
+		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, reminder.ID)
 		return err
 	}
 
@@ -50,6 +57,6 @@ func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content
 
 	msg = fmt.Sprintf("I deleted the reminder \"%s\" (at %s) for you.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
 	msgFormatted = fmt.Sprintf("I <b>deleted</b> the reminder \"%s\" (<i>at %s</i>) for you.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
-	_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel.ChannelIdentifier)
+	_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteSuccess, reminder.ID)
 	return err
 }

@@ -37,18 +37,18 @@ func (s *Syncer) actionTimezone(evt *event.Event, channel *database.Channel) err
 	tz := strings.ReplaceAll(content.Body, "set timezone ", "")
 	_, err = time.LoadLocation(tz)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I do not know this timezone.", evt, channel.ChannelIdentifier)
+		_, err = s.messenger.SendReplyToEvent("Sorry, I do not know this timezone.", evt, channel, database.MessageTypeTimezoneChangeRequestFail)
 		return err
 	}
 
 	channel, err = s.daemon.Database.UpdateChannel(channel.ID, tz)
 	if err != nil {
 		log.Warn("Failed to save timezone in database: " + err.Error())
-		_, err = s.messenger.SendReplyToEvent("Sorry, that failed.", evt, channel.ChannelIdentifier)
+		_, err = s.messenger.SendReplyToEvent("Sorry, that failed.", evt, channel, database.MessageTypeTimezoneChangeRequestFail)
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent("Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel), evt, channel.ChannelIdentifier)
+	_, err = s.messenger.SendReplyToEvent("Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel), evt, channel, database.MessageTypeTimezoneChangeRequestSuccess)
 
 	return err
 }

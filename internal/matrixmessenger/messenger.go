@@ -19,6 +19,13 @@ import (
 type Messenger struct {
 	config *configuration.Matrix
 	client *mautrix.Client
+	db     Database
+}
+
+// Database defines the database interface
+type Database interface {
+	AddMessage(message *database.Message) (*database.Message, error)
+	GetMessageByExternalID(externalID string) (*database.Message, error)
 }
 
 // MatrixMessage holds information for a matrix response message
@@ -36,7 +43,7 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(config *configuration.Matrix) (*Messenger, error) {
+func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
 	// Log into matrix
 	client, err := mautrix.NewClient(config.Homeserver, "", "")
 	if err != nil {
@@ -57,6 +64,7 @@ func Create(config *configuration.Matrix) (*Messenger, error) {
 	return &Messenger{
 		config: config,
 		client: client,
+		db:     db,
 	}, nil
 }
 
@@ -85,7 +93,7 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 	message := database.Message{
 		Body:               matrixMessage.Body,
 		BodyHTML:           matrixMessage.FormattedBody,
-		ReminderID:         reminder.ID,
+		ReminderID:         &reminder.ID,
 		Reminder:           *reminder,
 		Type:               database.MessageTypeReminder,
 		ChannelID:          reminder.ChannelID,
@@ -97,7 +105,7 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 }
 
 // SendReplyToEvent sends a message in reply to the given replyEvent, if the event is nil or of wrogn format a normal message will be sent
-func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID string) (resp *mautrix.RespSendEvent, err error) {
+func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
 	var message MatrixMessage
 	if replyEvent != nil {
 		content, ok := replyEvent.Content.Parsed.(*event.MessageEventContent)
@@ -110,7 +118,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID
 			oldFormattedBody = formater.StripReplyFormatted(content.FormattedBody)
 		}
 
-		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(content.Body), oldFormattedBody, replyEvent.Sender.String(), roomID, replyEvent.ID.String())
+		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(content.Body), oldFormattedBody, replyEvent.Sender.String(), channel.ChannelIdentifier, replyEvent.ID.String())
 
 		message.Body = body
 		message.FormattedBody = bodyFormatted
@@ -124,7 +132,33 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, roomID
 	message.MsgType = "m.text"
 	message.Type = "m.room.message"
 
-	return m.sendMessage(&message, roomID)
+	resp, err = m.sendMessage(&message, channel.ChannelIdentifier)
+
+	// Add message to the database
+	if msgType != database.MessageTypeDoNotSave {
+		dbMessage := &database.Message{
+			Body:               msg,
+			BodyHTML:           msg,
+			ResponseToMessage:  replyEvent.ID.String(),
+			Type:               msgType,
+			ChannelID:          channel.ID,
+			Channel:            *channel,
+			Timestamp:          time.Now().Unix(),
+			ExternalIdentifier: resp.EventID.String(),
+		}
+
+		origMessage, err := m.db.GetMessageByExternalID(replyEvent.ID.String())
+		if err == nil && origMessage.ReminderID != nil && *origMessage.ReminderID != 0 {
+			dbMessage.ReminderID = origMessage.ReminderID
+		}
+
+		_, err = m.db.AddMessage(dbMessage)
+		if err != nil {
+			log.Warn(fmt.Sprintf("Failed to save message of type %s in database: %s", string(msgType), err.Error()))
+		}
+	}
+
+	return resp, err
 }
 
 // CreateChannel creates a new matrix channel
@@ -149,7 +183,7 @@ func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *ma
 }
 
 // SendFormattedMessage sends a HTML formatted message to the given room
-func (m *Messenger) SendFormattedMessage(msg, msgFormatted, roomID string) (resp *mautrix.RespSendEvent, err error) {
+func (m *Messenger) SendFormattedMessage(msg, msgFormatted string, channel *database.Channel, msgType database.MessageType, relatedReminderID uint) (resp *mautrix.RespSendEvent, err error) {
 	message := MatrixMessage{
 		Body:          msg,
 		FormattedBody: msgFormatted,
@@ -158,7 +192,31 @@ func (m *Messenger) SendFormattedMessage(msg, msgFormatted, roomID string) (resp
 		Format:        "org.matrix.custom.html",
 	}
 
-	return m.sendMessage(&message, roomID)
+	resp, err = m.sendMessage(&message, channel.ChannelIdentifier)
+
+	// Add message to the database
+	if msgType != database.MessageTypeDoNotSave {
+		dbMessage := &database.Message{
+			Body:               msg,
+			BodyHTML:           msg,
+			Type:               msgType,
+			ChannelID:          channel.ID,
+			Channel:            *channel,
+			Timestamp:          time.Now().Unix(),
+			ExternalIdentifier: resp.EventID.String(),
+		}
+
+		if relatedReminderID != 0 {
+			dbMessage.ReminderID = &relatedReminderID
+		}
+
+		_, err = m.db.AddMessage(dbMessage)
+		if err != nil {
+			log.Warn(fmt.Sprintf("Failed to save message of type %s in database: %s", string(msgType), err.Error()))
+		}
+	}
+
+	return
 }
 
 // DeleteMessage deletes a message in matrix

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"maunium.net/go/mautrix/event"
 )
@@ -127,14 +128,21 @@ func (s *Syncer) reactionActionAdd1Day(message *database.Message, content *event
 
 // reactionAddXHours to referentiate all other actions here
 func (s *Syncer) reactionActionAddXHours(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel, duration time.Duration) error {
-	reminder, err := s.daemon.Database.UpdateReminder(message.ReminderID, addTimeOrFromNow(message.Reminder.RemindTime, duration), 0, 0)
+	if message.ReminderID == nil {
+		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
+		msgFormatted := msg
+		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		return errors.ErrIdNotSet
+	}
+
+	reminder, err := s.daemon.Database.UpdateReminder(*message.ReminderID, addTimeOrFromNow(message.Reminder.RemindTime, duration), 0, 0)
 	if err != nil {
 		return err
 	}
 
 	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
 
-	_, err = s.messenger.SendFormattedMessage(msg, msg, channel.ChannelIdentifier)
+	_, err = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeReminderUpdateSuccess, reminder.ID)
 	return err
 }
 

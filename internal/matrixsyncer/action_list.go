@@ -39,6 +39,6 @@ func (s *Syncer) actionList(evt *event.Event, channel *database.Channel) error {
 
 	message, messageFormatted := msg.Build()
 
-	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel.ChannelIdentifier)
+	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeReminderList, 0)
 	return err
 }

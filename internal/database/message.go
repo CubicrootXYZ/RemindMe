@@ -12,7 +12,7 @@ type Message struct {
 	gorm.Model
 	Body               string
 	BodyHTML           string
-	ReminderID         uint
+	ReminderID         *uint
 	Reminder           Reminder
 	ResponseToMessage  string
 	Type               MessageType
@@ -25,15 +25,32 @@ type Message struct {
 // MessageType defines different types of messages
 type MessageType string
 
+// Message types differentiate the context of a message
 const (
-	MessageTypeReminderRequest          = MessageType("REMINDER_REQUEST")
-	MessageTypeReminderSuccess          = MessageType("REMINDER_SUCCESS")
-	MessageTypeReminder                 = MessageType("REMINDER")
+	// Reminder itself
+	MessageTypeReminderRequest = MessageType("REMINDER_REQUEST")
+	MessageTypeReminderSuccess = MessageType("REMINDER_SUCCESS")
+	MessageTypeReminderFail    = MessageType("REMINDER_FAIL")
+	MessageTypeReminder        = MessageType("REMINDER")
+	// Arbitrary actions
+	MessageTypeActions      = MessageType("ACTIONS")
+	MessageTypeReminderList = MessageType("REMINDER_LIST")
+	// Reminder edits
 	MessageTypeReminderUpdate           = MessageType("REMINDER_UPDATE")
+	MessageTypeReminderUpdateFail       = MessageType("REMINDER_UPDATE_FAIL")
+	MessageTypeReminderUpdateSuccess    = MessageType("REMINDER_UPDATE_SUCCESS")
 	MessageTypeReminderDelete           = MessageType("REMINDER_DELETE")
+	MessageTypeReminderDeleteSuccess    = MessageType("REMINDER_DELETE_SUCCESS")
+	MessageTypeReminderDeleteFail       = MessageType("REMINDER_DELETE_Fail")
 	MessageTypeReminderRecurringRequest = MessageType("REMINDER_RECURRING_REQUEST")
 	MessageTypeReminderRecurringSuccess = MessageType("REMINDER_RECURRING_SUCCESS")
-	MessageTypeTimezoneChangeRequest    = MessageType("TIMEZONE_CHANGE")
+	MessageTypeReminderRecurringFail    = MessageType("REMINDER_RECURRING_FAIL")
+	// Settings
+	MessageTypeTimezoneChangeRequest        = MessageType("TIMEZONE_CHANGE")
+	MessageTypeTimezoneChangeRequestSuccess = MessageType("TIMEZONE_CHANGE_SUCCESS")
+	MessageTypeTimezoneChangeRequestFail    = MessageType("TIMEZONE_CHANGE_FAIL")
+	// Do not save!
+	MessageTypeDoNotSave = MessageType("")
 )
 
 // AddMessageFromMatrix adds a message to the database
@@ -59,7 +76,7 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 
 	if reminder != nil {
 		message.Reminder = *reminder
-		message.ReminderID = reminder.ID
+		message.ReminderID = &reminder.ID
 	}
 
 	err := d.db.Create(&message).Error
