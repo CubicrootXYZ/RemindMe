@@ -10,13 +10,13 @@ import (
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReplyActionDelete(rtt database.MessageType) *ReplyAction {
+func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *ReplyAction {
 	action := &ReplyAction{
-		Name:        "Delete a reminder",
-		Examples:    []string{"delete", "remove", "cancel"},
-		Regex:       "(?i)^(delete|remove|cancel)$",
-		ReplyToType: rtt,
-		Action:      s.replyActionDeleteReminder,
+		Name:         "Delete a reminder",
+		Examples:     []string{"delete", "remove", "cancel"},
+		Regex:        "(?i)^(delete|remove|cancel)$",
+		ReplyToTypes: rtt,
+		Action:       s.replyActionDeleteReminder,
 	}
 	return action
 }

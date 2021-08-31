@@ -152,17 +152,18 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 	for _, action := range s.replyActions {
 		log.Info("Checking for match with " + action.Name)
 		log.Info(string(replyMessage.Type))
-		if action.ReplyToType != "" && action.ReplyToType != replyMessage.Type {
-			continue
+
+		for _, rtt := range action.ReplyToTypes {
+			if rtt == replyMessage.Type {
+				log.Info("Regex matching: " + message)
+				if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
+					_ = action.Action(evt, channel, replyMessage, content)
+					log.Info("Matched")
+					return true
+				}
+			}
 		}
 
-		log.Info("Regex matching: " + message)
-
-		if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
-			_ = action.Action(evt, channel, replyMessage, content)
-			log.Info("Matched")
-			return true
-		}
 	}
 
 	// Fallback change reminder date

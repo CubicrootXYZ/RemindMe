@@ -53,6 +53,9 @@ const (
 	MessageTypeDoNotSave = MessageType("")
 )
 
+// MessageTypesWithReminder message types with reminders
+var MessageTypesWithReminder = []MessageType{MessageTypeReminderRequest, MessageTypeReminderSuccess, MessageTypeReminderUpdate, MessageTypeReminderUpdateSuccess, MessageTypeReminderRecurringRequest, MessageTypeReminderRecurringSuccess, MessageTypeReminderRecurringFail, MessageTypeReminderUpdateFail}
+
 // AddMessageFromMatrix adds a message to the database
 func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
 	relatesTo := ""

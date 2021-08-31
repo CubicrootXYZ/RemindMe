@@ -12,13 +12,13 @@ import (
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReplyActionRecurring(rtt database.MessageType) *ReplyAction {
+func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *ReplyAction {
 	action := &ReplyAction{
-		Name:        "Make a reminder recurring",
-		Examples:    []string{"every 10 days", "each twenty two hours and five seconds"},
-		Regex:       "(?i)(every|each|always|recurring|all|any).*(second|minute|day|hour)(|s)$",
-		ReplyToType: rtt,
-		Action:      s.replyActionRecurring,
+		Name:         "Make a reminder recurring",
+		Examples:     []string{"every 10 days", "each twenty two hours and five seconds"},
+		Regex:        "(?i)(every|each|always|recurring|all|any).*(second|minute|day|hour)(|s)$",
+		ReplyToTypes: rtt,
+		Action:       s.replyActionRecurring,
 	}
 	return action
 }
