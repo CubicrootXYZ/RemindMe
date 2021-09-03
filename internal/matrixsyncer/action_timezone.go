@@ -41,7 +41,7 @@ func (s *Syncer) actionTimezone(evt *event.Event, channel *database.Channel) err
 		return err
 	}
 
-	channel, err = s.daemon.Database.UpdateChannel(channel.ID, tz)
+	channel, err = s.daemon.Database.UpdateChannel(channel.ID, tz, channel.DailyReminder)
 	if err != nil {
 		log.Warn("Failed to save timezone in database: " + err.Error())
 		_, err = s.messenger.SendReplyToEvent("Sorry, that failed.", evt, channel, database.MessageTypeTimezoneChangeRequestFail)

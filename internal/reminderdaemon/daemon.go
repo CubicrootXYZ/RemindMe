@@ -25,8 +25,18 @@ func Create(db Database, messenger Messenger) *Daemon {
 
 // Start starts the daemon
 func (d *Daemon) Start(wg *sync.WaitGroup) error {
+	i := 0
 	for {
+		i++
 		start := time.Now()
+
+		// Check for daily reminder every 5 minutes
+		if i%5 == 0 {
+			i = 0
+			d.CheckForDailyReminder()
+		}
+
+		// Check for reminders every minute
 		reminders, err := d.Database.GetPendingReminder()
 		if err != nil {
 			log.Warn("Not able to get Reminders from database: " + err.Error())

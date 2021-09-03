@@ -49,12 +49,41 @@ const (
 	MessageTypeTimezoneChangeRequest        = MessageType("TIMEZONE_CHANGE")
 	MessageTypeTimezoneChangeRequestSuccess = MessageType("TIMEZONE_CHANGE_SUCCESS")
 	MessageTypeTimezoneChangeRequestFail    = MessageType("TIMEZONE_CHANGE_FAIL")
+	// Daily Reminder
+	MessageTypeDailyReminder = MessageType("DAILY_REMINDER")
 	// Do not save!
 	MessageTypeDoNotSave = MessageType("")
 )
 
 // MessageTypesWithReminder message types with reminders
 var MessageTypesWithReminder = []MessageType{MessageTypeReminderRequest, MessageTypeReminderSuccess, MessageTypeReminderUpdate, MessageTypeReminderUpdateSuccess, MessageTypeReminderRecurringRequest, MessageTypeReminderRecurringSuccess, MessageTypeReminderRecurringFail, MessageTypeReminderUpdateFail}
+
+// GET DATA
+
+// GetMessageByExternalID returns if found the message with the given external id
+func (d *Database) GetMessageByExternalID(externalID string) (*Message, error) {
+	message := &Message{}
+	err := d.db.Preload("Reminder").First(&message, "external_identifier = ?", externalID).Error
+	return message, err
+}
+
+// GetMessagesByReminderID returns a list with all messages for the given reminder id
+func (d *Database) GetMessagesByReminderID(id uint) ([]*Message, error) {
+	messages := make([]*Message, 0)
+	err := d.db.Find(&messages, "reminder_id = ?", id).Error
+
+	return messages, err
+}
+
+// GetLastMessageByType returns the last message in the given channel with the given message type
+func (d *Database) GetLastMessageByType(msgType MessageType, channel *Channel) (*Message, error) {
+	message := &Message{}
+	err := d.db.Order("timestamp desc").First(message, "channel_id = ? AND type = ?", channel.ID, msgType).Error
+
+	return message, err
+}
+
+// INSERT DATA
 
 // AddMessageFromMatrix adds a message to the database
 func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *Reminder, msgType MessageType, channel *Channel) (*Message, error) {
@@ -92,12 +121,5 @@ func (d *Database) AddMessage(message *Message) (*Message, error) {
 
 	err := d.db.Create(message).Error
 
-	return message, err
-}
-
-// GetMessageByExternalID returns if found the message with the given external id
-func (d *Database) GetMessageByExternalID(externalID string) (*Message, error) {
-	message := &Message{}
-	err := d.db.Preload("Reminder").First(&message, "external_identifier = ?", externalID).Error
 	return message, err
 }

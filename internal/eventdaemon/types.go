@@ -14,7 +14,7 @@ type Database interface {
 	GetChannelByUserIdentifier(userID string) (*database.Channel, error)
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	AddChannel(userID, channelID string) (*database.Channel, error)
-	UpdateChannel(channelID uint, timeZone string) (*database.Channel, error)
+	UpdateChannel(channelID uint, timeZone string, dailyReminder *uint) (*database.Channel, error)
 	GetPendingReminders(channel *database.Channel) ([]database.Reminder, error)
 	GetMessageByExternalID(externalID string) (*database.Message, error)
 	DeleteReminder(reminderID uint) (*database.Reminder, error)
