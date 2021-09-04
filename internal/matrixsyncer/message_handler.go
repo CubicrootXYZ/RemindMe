@@ -168,7 +168,7 @@ func (s *Syncer) checkReplyActions(evt *event.Event, channel *database.Channel, 
 
 	// Fallback change reminder date
 	if replyMessage.ReminderID != nil && *replyMessage.ReminderID > 0 {
-		remindTime, err := formater.ParseTime(content.Body, channel)
+		remindTime, err := formater.ParseTime(content.Body, channel, false)
 		if err != nil {
 			log.Warn(err.Error())
 			s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)

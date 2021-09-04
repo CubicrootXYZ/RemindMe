@@ -50,7 +50,13 @@ const (
 	MessageTypeTimezoneChangeRequestSuccess = MessageType("TIMEZONE_CHANGE_SUCCESS")
 	MessageTypeTimezoneChangeRequestFail    = MessageType("TIMEZONE_CHANGE_FAIL")
 	// Daily Reminder
-	MessageTypeDailyReminder = MessageType("DAILY_REMINDER")
+	MessageTypeDailyReminder              = MessageType("DAILY_REMINDER")
+	MessageTypeDailyReminderUpdate        = MessageType("DAILY_REMINDER_UPDATE")
+	MessageTypeDailyReminderUpdateFail    = MessageType("DAILY_REMINDER_UPDATE_FAIL")
+	MessageTypeDailyReminderUpdateSuccess = MessageType("DAILY_REMINDER_UPDATE_SUCCESS")
+	MessageTypeDailyReminderDelete        = MessageType("DAILY_REMINDER_DELETE")
+	MessageTypeDailyReminderDeleteFail    = MessageType("DAILY_REMINDER_DELETE_FAIL")
+	MessageTypeDailyReminderDeleteSuccess = MessageType("DAILY_REMINDER_DELETE_SUCCESS")
 	// Do not save!
 	MessageTypeDoNotSave = MessageType("")
 )

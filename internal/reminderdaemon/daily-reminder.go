@@ -48,10 +48,6 @@ func (d *Daemon) CheckForDailyReminder() error {
 			continue
 		}
 
-		if len(*dailyReminder) == 0 {
-			continue
-		}
-
 		log.Info(fmt.Sprintf("Sending out daily reminder to channel id %d", channel.ID))
 
 		msg := &formater.Formater{}
@@ -66,6 +62,10 @@ func (d *Daemon) CheckForDailyReminder() error {
 				msg.NewLine()
 			}
 			msg.NewLine()
+		}
+
+		if len(*dailyReminder) == 0 {
+			msg.TextLine("Nothing todo for today.")
 		}
 
 		body, bodyFormatted := msg.Build()

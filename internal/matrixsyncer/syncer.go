@@ -39,6 +39,8 @@ func Create(config configuration.Matrix, matrixUsers []string, messenger Messeng
 	syncer.actions = append(syncer.actions, syncer.getActionList())
 	syncer.actions = append(syncer.actions, syncer.getActionCommands())
 	syncer.actions = append(syncer.actions, syncer.getActionTimezone())
+	syncer.actions = append(syncer.actions, syncer.getActionSetDailyReminder())
+	syncer.actions = append(syncer.actions, syncer.getActionDeleteDailyReminder())
 
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)

@@ -1,6 +1,7 @@
 package formater
 
 import (
+	"fmt"
 	"strings"
 	"time"
 	"unicode"
@@ -27,7 +28,7 @@ func ToLocalTime(datetime time.Time, channel *database.Channel) string {
 }
 
 // ParseTime parses the time into the local timezone of a channel. If no timezone is given it defaults to UTC. Days without a time specified default to 9:00
-func ParseTime(msg string, channel *database.Channel) (time.Time, error) {
+func ParseTime(msg string, channel *database.Channel, rawDate bool) (time.Time, error) {
 	// Clear body from characters the library can not handle
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	strippedBody, _, err := transform.String(t, StripReply(msg))
@@ -49,15 +50,28 @@ func ParseTime(msg string, channel *database.Channel) (time.Time, error) {
 	}
 
 	// Past? then set to in an hour
-	if time.Until(parsedTime) <= 5*time.Minute {
+	if !rawDate && time.Until(parsedTime) <= 5*time.Minute {
 		parsedTime = time.Now().Add(time.Hour).In(loc)
 	}
 
 	// Midnight? Move to 9:00
-	timeString := parsedTime.In(loc).Format("15:04")
-	if timeString == "00:00" && !(strings.Contains(msg, "00:00") || strings.Contains(msg, "12am") || strings.Contains(msg, "24:00")) {
-		parsedTime = parsedTime.Add(9 * time.Hour)
+	if !rawDate {
+		timeString := parsedTime.In(loc).Format("15:04")
+		if timeString == "00:00" && !(strings.Contains(msg, "00:00") || strings.Contains(msg, "12am") || strings.Contains(msg, "24:00")) {
+			parsedTime = parsedTime.Add(9 * time.Hour)
+		}
 	}
 
 	return parsedTime, nil
+}
+
+// TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format
+func TimeToHourAndMinute(t time.Time) string {
+	hours := t.Hour()
+	minutes := t.Minute()
+	if minutes < 10 {
+		return fmt.Sprintf("%d:0%d", hours, minutes)
+	}
+
+	return fmt.Sprintf("%d:%d", hours, minutes)
 }

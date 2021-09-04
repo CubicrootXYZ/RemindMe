@@ -71,9 +71,7 @@ func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder 
 	}
 
 	channel.TimeZone = timeZone
-	if dailyReminder != nil {
-		channel.DailyReminder = dailyReminder
-	}
+	channel.DailyReminder = dailyReminder
 
 	err = d.db.Save(channel).Error
 	return channel, err

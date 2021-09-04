@@ -27,7 +27,7 @@ func (s *Syncer) newReminder(evt *event.Event, channel *database.Channel) (*data
 		return nil, errors.ErrMatrixEventWrongType
 	}
 
-	remindTime, err := formater.ParseTime(content.Body, channel)
+	remindTime, err := formater.ParseTime(content.Body, channel, false)
 	if err != nil {
 		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
 		return nil, err
