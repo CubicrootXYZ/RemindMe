@@ -35,6 +35,10 @@ func (s *Syncer) actionSetDailyReminder(evt *event.Event, channel *database.Chan
 	}
 
 	timeRemind, err := formater.ParseTime(content.Body, channel, true)
+	if err != nil {
+		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to understand the time.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
+		return err
+	}
 
 	minutesSinceMidnight := uint(timeRemind.Hour()*60 + timeRemind.Minute())
 
