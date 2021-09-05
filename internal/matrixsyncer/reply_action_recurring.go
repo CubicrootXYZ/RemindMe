@@ -16,7 +16,7 @@ func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *ReplyActio
 	action := &ReplyAction{
 		Name:         "Make a reminder recurring",
 		Examples:     []string{"every 10 days", "each twenty two hours and five seconds"},
-		Regex:        "(?i)(every|each|always|recurring|all|any).*(second|minute|day|hour)(|s)$",
+		Regex:        "(?i)(repeat|every|each|always|recurring|all|any).*(second|minute|day|hour)(|s)$",
 		ReplyToTypes: rtt,
 		Action:       s.replyActionRecurring,
 	}
