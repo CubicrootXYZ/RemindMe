@@ -82,7 +82,7 @@ To deactivate it:
 
 Different versions are available on docker hub:
 
-[Docker Hub](https://hub.docker.com/repository/docker/cubicrootxyz/remindme)
+[Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
 
 ## ❤️ Attribution
 
