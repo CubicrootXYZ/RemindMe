@@ -37,5 +37,6 @@ const (
 	ReactionActionTypeReminderRequest = ReactionActionType(string(database.MessageTypeReminderRequest))
 	ReactionActionTypeReminder        = ReactionActionType(string(database.MessageTypeReminder))
 	ReactionActionTypeReminderSuccess = ReactionActionType(string(database.MessageTypeReminderSuccess))
+	ReactionActionTypeDailyReminder   = ReactionActionType(string(database.MessageTypeDailyReminder))
 	ReactionActionTypeAll             = ReactionActionType("")
 )

@@ -48,7 +48,7 @@ func (s *Syncer) actionSetDailyReminder(evt *event.Event, channel *database.Chan
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I will send you a daily overview at %s", formater.TimeToHourAndMinute(timeRemind)), evt, c, database.MessageTypeDailyReminderUpdateSuccess)
+	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I will send you a daily overview at %s. To disable this message me with \"delete daily reminder\".", formater.TimeToHourAndMinute(timeRemind)), evt, c, database.MessageTypeDailyReminderUpdateSuccess)
 	return err
 }
 
@@ -81,6 +81,6 @@ func (s *Syncer) actionDeleteDailyReminder(evt *event.Event, channel *database.C
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent("I will no longer send you a daily message.", evt, c, database.MessageTypeDailyReminderDeleteSuccess)
+	_, err = s.messenger.SendReplyToEvent("I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\".", evt, c, database.MessageTypeDailyReminderDeleteSuccess)
 	return err
 }

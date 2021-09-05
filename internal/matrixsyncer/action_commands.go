@@ -46,11 +46,11 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 
 		for _, action := range s.reactionActions {
 			msg.BoldLine(action.Name)
-			msg.Text("Available for messages of the type " + string(action.Type) + ". Give the message one of these reactions: ")
+			msg.Text("Add one of these reactions ")
 			for _, reaction := range action.Keys {
 				msg.Text(reaction + " ")
 			}
-			msg.NewLine()
+			msg.TextLine(" to a message of the type " + string(action.Type))
 		}
 		msg.NewLine()
 	}
