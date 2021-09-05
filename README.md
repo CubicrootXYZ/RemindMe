@@ -10,15 +10,17 @@ A matrix bot that handles reminders and knows your agenda.
 ![Example list of reminders](Screenshots/reminders.png)
 ![Example list of commands](Screenshots/commands.png)
 
-## Features
+## 📋 Features
 
 * Schedule reminders
 * Edit and delete reminders
 * Timezone support
 * Natural language understanding
 * Quick actions via reactions
+* Daily message with open reminders for the day
+* Repeatable reminders
 
-## Contribute
+## 👥 Contribute
 
 I really enjoy help in making this bot even better. So we all can enjoy the work on this project please follow the rules. 
 
@@ -32,34 +34,43 @@ General ideas and concepts can be discussed in the "Discussions" section.
 
 Fork this repository and add your changes. Open a pull request to merge them in the master branch of this repository.
 
-## How to use it
+## ℹ️ How to use it
 
-After you have installed the bot he will invite you in a channel accept the invite and you are ready to interact with him. 
-
-Provided features:
-
-* Add reminders in natural language
-* Delete reminders
+After you have installed the bot he will invite every user in the config in a channel. Accept the invite and you are ready to interact with him.
 
 ### New Reminder
 
 To make a new reminder talk to the bot like this: 
-```
-Make laundry at Sunday 16:00
-```
+* `make laundry at sunday 16:00`
+* `walking with the dog 6am`
+* `brunch with alan at sunday`
 
 It tries to understand your natural language as best as it can. 
 
 ### List all available commands 
 
 To get all commands just type one of these lines:
-```
-commands
-list all commands
-show all commands
-```
+* `commands`
+* `list all commands`
+* `show all commands`
+* `help`
 
-## Installation
+### Set timezone
+
+* `set timezone Europe/Berlin`
+
+### Daily reminder overview
+
+To activate a daily message with the reminders of the day:
+
+* `set daily reminder at 10:00`
+* `change daily reminder to 10am`
+
+To deactivate it:
+
+* `delete daily reminder`
+
+## ⚙️ Installation
 
 ### Plain
 
@@ -73,7 +84,7 @@ Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/repository/docker/cubicrootxyz/remindme)
 
-## Attribution
+## ❤️ Attribution
 
 Great thanks to the libraries used in this project:
 
