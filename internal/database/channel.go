@@ -1,8 +1,10 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"gorm.io/gorm"
 )
 
@@ -114,7 +116,8 @@ func (d *Database) CleanChannels(keep []*Channel) error {
 		}
 
 		if remove {
-			err = d.db.Model(Reminder{}).Where("channel_id = ?", channel.ID).Updates(Reminder{Active: false}).Error
+			log.Info(fmt.Sprintf("Removing channel %d", channel.ID))
+			err = d.db.Model(&Reminder{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"active": 0}).Error
 			if err != nil {
 				return err
 			}
