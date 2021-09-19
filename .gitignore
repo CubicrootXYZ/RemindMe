@@ -1,3 +1,8 @@
 
 *.code-workspace
 config.yml
+.scannerwork/.sonar_lock
+.scannerwork/report-task.txt
+.scannerwork/sonar-go-to-slang-linux-amd64
+.vscode/project.json
+sonar-project.properties

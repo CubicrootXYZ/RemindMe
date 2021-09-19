@@ -94,3 +94,36 @@ func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
 	err = d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
 	return &channel, err
 }
+
+// DELETE DATA
+
+// CleanChannels removes all channels except the ones given in keep
+func (d *Database) CleanChannels(keep []*Channel) error {
+	channels, err := d.GetChannelList()
+	if err != nil {
+		return err
+	}
+
+	for _, channel := range channels {
+		remove := true
+		for _, channelKeep := range keep {
+			if channel.ID == channelKeep.ID && channel.ChannelIdentifier == channelKeep.ChannelIdentifier && channel.UserIdentifier == channelKeep.UserIdentifier {
+				remove = false
+				break
+			}
+		}
+
+		if remove {
+			err = d.db.Model(Reminder{}).Where("channel_id = ?", channel.ID).Updates(Reminder{Active: false}).Error
+			if err != nil {
+				return err
+			}
+			err = d.db.Delete(&channel).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}

@@ -70,6 +70,11 @@ func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
 
 // SendReminder sends a reminder to the user
 func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *database.Message) (*database.Message, error) {
+	// Channel is deleted do not send message
+	if reminder.Channel.ID == 0 || reminder.Channel.ChannelIdentifier == "" {
+		return nil, errors.ErrEmptyChannel
+	}
+
 	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
 	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
 

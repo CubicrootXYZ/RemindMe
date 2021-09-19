@@ -77,7 +77,9 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	}
 	log.Info("Logged in to matrix")
 
-	// Make channel for each user we do not know
+	// Make channel for each user we do not know and remove users we do not want
+	channels := make([]*database.Channel, 0)
+
 	for _, user := range s.users {
 		channel, err := s.daemon.Database.GetChannelByUserIdentifier(user)
 		if err == gorm.ErrRecordNotFound {
@@ -89,7 +91,15 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 			return err
 		}
 
+		channels = append(channels, channel)
+
 		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
+	}
+
+	err = s.daemon.Database.CleanChannels(channels)
+	if err != nil {
+		log.Warn("Can not clean channels list")
+		panic(err)
 	}
 
 	// Get messages
