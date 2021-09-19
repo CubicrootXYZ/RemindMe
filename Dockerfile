@@ -1,6 +1,6 @@
 FROM golang:1.16.3-alpine
 
-WORKDIR /app
+WORKDIR /run
 
 COPY ./ ./
 RUN go mod download
