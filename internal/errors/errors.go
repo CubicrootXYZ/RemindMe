@@ -14,4 +14,4 @@ var ErrAPIkeyCriteriaNotMet = errors.New("the api key does not met the minimum c
 
 // Gin errors
 var ErrMissingApiKey = errors.New("unauthenticated")
-var ErrMissingID = errors.New("Can not get ID from context")
+var ErrMissingID = errors.New("can not get ID from context")

@@ -9,8 +9,6 @@ import (
 
 // Calendar for creating ical files
 type Calendar struct {
-	name   string
-	id     uint64
 	events *[]database.Reminder
 }
 
