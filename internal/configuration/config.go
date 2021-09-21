@@ -6,6 +6,7 @@ type Config struct {
 	MatrixBotAccount Matrix
 	MatrixUsers      []string `required:"true"`
 	Database         Database
+	Webserver        Webserver
 }
 
 // Matrix holds the information for accessing the bots account
@@ -18,4 +19,10 @@ type Matrix struct {
 // Database holds all data for connection to the database
 type Database struct {
 	Connection string `required:"true"`
+}
+
+// Webserver holds all data for the webserver
+type Webserver struct {
+	Enabled bool `required:"true"`
+	APIkey  string
 }

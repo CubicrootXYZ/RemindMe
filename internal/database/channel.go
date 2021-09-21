@@ -31,6 +31,16 @@ func (c *Channel) Timezone() *time.Location {
 
 // GET DATA
 
+// GetChannel returns the channel
+func (d *Database) GetChannel(id uint) (*Channel, error) {
+	var channel Channel
+	err := d.db.First(&channel, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &channel, nil
+}
+
 // GetChannelByUserIdentifier returns the latest channel with the given user
 func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
 	var channel Channel

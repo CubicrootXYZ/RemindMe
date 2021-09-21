@@ -14,8 +14,16 @@ matrixbotaccount:
 matrixusers: 
   - "yourmatrixuser"
   - "anotheruser"
-# Database settings
+
+  # Database settings
 database:
   # MySQL connection string
   # https://github.com/go-sql-driver/mysql#dsn-data-source-name
   connection: "username:password@protocol(address)/dbname"
+
+# Webserver settings
+webserver:
+  # Set to true to enable the API
+  enabled: false 
+  # Apikey to authenticate against the API. At least 20 characters.
+  apikey: "1234"
