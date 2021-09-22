@@ -6,14 +6,12 @@ type ResponseMessage string
 const (
 	ResponseMessageInternalServerError = ResponseMessage("sorry, that went wrong on the server side")
 	ResponseMessageNotFound            = ResponseMessage("entity not found")
+	ResponseMessageUnauthorized        = ResponseMessage("Unauthorized")
 )
 
 type calendarResponse struct {
 	ID      uint
 	User    string
+	Token   string
 	Channel string
-}
-
-func responseMessageInvalidParameter(parameter string) ResponseMessage {
-	return ResponseMessage("parameter " + parameter + " is missing or of wrong format")
 }

@@ -28,24 +28,25 @@ func RequireAPIkey(apikey string) gin.HandlerFunc {
 			}
 		}
 
-		// Check URL
-		if !authenticated {
-			token := ctx.Query("token")
-			log.Info(token)
-			if token == apikey {
-				authenticated = true
-			}
-		}
-
 		if !authenticated {
 			response := types.MessageErrorResponse{
 				Message: "Unauthenticated",
 				Status:  "error",
 			}
-			ctx.JSON(http.StatusForbidden, response)
+			ctx.JSON(http.StatusUnauthorized, response)
 			ctx.AbortWithError(http.StatusForbidden, errors.ErrMissingApiKey)
 			return
 		}
+	}
+}
+
+// RequireCalendarSecret is a middleware that requires the calendar secret to be set as a query parameter.
+func RequireCalendarSecret() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.Query("token")
+		log.Info(token)
+
+		ctx.Set("token", token)
 	}
 }
 

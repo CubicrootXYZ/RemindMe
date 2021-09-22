@@ -35,7 +35,7 @@ func main() {
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUsers, messenger)
+	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUsers, messenger, config.Webserver.BaseURL)
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)

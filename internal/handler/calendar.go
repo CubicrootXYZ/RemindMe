@@ -27,7 +27,7 @@ func NewCalendarHandler(database types.Database) *CalendarHandler {
 // @Accept query
 // @Produce json
 // @Success 200 {object} types.DataResponse{Data=[]calendar}
-// @Failure 403 {object} types.Unauthenticated
+// @Failure 401 {object} types.Unauthenticated
 // @Router /calendar [get]
 func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 	calendars := make([]calendarResponse, 0)
@@ -42,6 +42,7 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 		calendars = append(calendars, calendarResponse{
 			ID:      channel.ID,
 			User:    channel.UserIdentifier,
+			Token:   channel.CalendarSecret,
 			Channel: channel.ChannelIdentifier,
 		})
 	}
@@ -60,19 +61,31 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 // @Accept query
 // @Produce plain
 // @Param id path int true "Calendar ID"
+// @Param token query string true "authentication token"
 // @Success 200 {string}
-// @Failure 403 {object} types.Unauthenticated
+// @Failure 401 {object} types.Unauthenticated
 // @Router /calendar/{id}/ical [get]
 func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
-	channelID, err := getIDfromContext(ctx)
+	token, err := getStringFromContext(ctx, "token")
 	if err != nil {
-		abort(ctx, http.StatusUnprocessableEntity, responseMessageInvalidParameter("id"), err)
+		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, err)
+		return
+	}
+
+	channelID, err := getUintFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, err)
 		return
 	}
 
 	channel, err := calendarHandler.database.GetChannel(channelID)
 	if err != nil {
-		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, err)
+		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, err)
+		return
+	}
+
+	if channel.CalendarSecret != token || len(channel.CalendarSecret) < 20 {
+		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, err)
 		return
 	}
 

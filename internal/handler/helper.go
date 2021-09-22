@@ -16,12 +16,22 @@ func abort(ctx *gin.Context, statusCode int, message ResponseMessage, err error)
 	ctx.AbortWithError(statusCode, err)
 }
 
-// getIDfromContext returns the ID from the context
-func getIDfromContext(ctx *gin.Context) (uint, error) {
-	id, ok := ctx.MustGet("id").(uint)
+// getUintFromContext returns the ID from the context
+func getUintFromContext(ctx *gin.Context, name string) (uint, error) {
+	id, ok := ctx.MustGet(name).(uint)
 	if !ok {
 		return 0, errors.ErrMissingID
 	}
 
 	return id, nil
+}
+
+// getStringFromContext returns the ID from the context
+func getStringFromContext(ctx *gin.Context, name string) (string, error) {
+	text, ok := ctx.MustGet(name).(string)
+	if !ok {
+		return "", errors.ErrMissingID // TODO make separate errors
+	}
+
+	return text, nil
 }

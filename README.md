@@ -19,6 +19,7 @@ A matrix bot that handles reminders and knows your agenda.
 * Quick actions via reactions
 * Daily message with open reminders for the day
 * Repeatable reminders
+* iCal export of all reminders
 
 ## 👥 Contribute
 
@@ -83,6 +84,33 @@ To deactivate it:
 Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
+
+## API
+
+The bot offers an API. 
+
+### Calendar
+
+**[GET] /calendar**
+
+Returns a list of available calendars (one per user and channel). The returned token is needed to access further information.
+
+Header-Parameters:
+
+* Authorization: String _your api key_
+
+**[GET] /calendar/{id}/ical**
+
+Returns an `ics` file with all reminders of that calendar.
+
+URL-Parameters:
+
+* ID: uint _the calendars id_
+
+Query-Parameters:
+
+* Token: string _the calendars token_
+
 
 ## ❤️ Attribution
 

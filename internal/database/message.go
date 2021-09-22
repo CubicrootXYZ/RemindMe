@@ -33,8 +33,12 @@ const (
 	MessageTypeReminderFail    = MessageType("REMINDER_FAIL")
 	MessageTypeReminder        = MessageType("REMINDER")
 	// Arbitrary actions
-	MessageTypeActions      = MessageType("ACTIONS")
-	MessageTypeReminderList = MessageType("REMINDER_LIST")
+	MessageTypeActions          = MessageType("ACTIONS")
+	MessageTypeReminderList     = MessageType("REMINDER_LIST")
+	MessageTypeIcalLink         = MessageType("ICAL_LINK")
+	MessageTypeIcalLinkRequest  = MessageType("ICAL_LINK_REQUEST")
+	MessageTypeIcalRenew        = MessageType("ICAL_RENEW")
+	MessageTypeIcalRenewRequest = MessageType("ICAL_RENEW_REQUEST")
 	// Reminder edits
 	MessageTypeReminderUpdate           = MessageType("REMINDER_UPDATE")
 	MessageTypeReminderUpdateFail       = MessageType("REMINDER_UPDATE_FAIL")

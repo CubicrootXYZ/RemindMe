@@ -37,8 +37,8 @@ func (server *Server) Start() {
 	calendarGroup.Use(RequireAPIkey(server.config.APIkey))
 	{
 		calendarGroup.GET("", server.calendar.GetCalendars)
-		calendarGroup.GET("/:id/ical", RequireIDInURI(), server.calendar.GetCalendarICal)
 	}
+	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
 	r.Run() // Port 8080
 }

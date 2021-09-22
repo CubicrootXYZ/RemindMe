@@ -72,6 +72,14 @@ func (f *Formater) List(items []string) {
 	f.msgFormatted.WriteString("</ul>")
 }
 
+// Spoiler adds a spoiler to the message
+func (f *Formater) Spoiler(text string) {
+	f.msg.WriteString(text)
+	f.msgFormatted.WriteString("<span data-mx-spoiler>")
+	f.msgFormatted.WriteString(text)
+	f.msgFormatted.WriteString("</span>")
+}
+
 // Build returns the build formatted and unformatted messages
 func (f *Formater) Build() (message, messageFormatted string) {
 	return f.msg.String(), f.msgFormatted.String()

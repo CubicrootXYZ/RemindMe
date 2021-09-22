@@ -25,4 +25,5 @@ type Database struct {
 type Webserver struct {
 	Enabled bool `required:"true"`
 	APIkey  string
+	BaseURL string
 }
