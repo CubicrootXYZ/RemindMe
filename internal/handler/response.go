@@ -6,6 +6,7 @@ type ResponseMessage string
 const (
 	ResponseMessageInternalServerError = ResponseMessage("sorry, that went wrong on the server side")
 	ResponseMessageNotFound            = ResponseMessage("entity not found")
+	ResponseMessageNoID                = ResponseMessage("missing ID in request")
 	ResponseMessageUnauthorized        = ResponseMessage("Unauthorized")
 )
 

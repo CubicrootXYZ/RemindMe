@@ -7,6 +7,7 @@ type Database interface {
 	// Channels
 	GetChannel(id uint) (*database.Channel, error)
 	GetChannelList() ([]database.Channel, error)
+	GenerateNewCalendarSecret(channel *database.Channel) error
 	// Reminders
 	GetPendingReminders(channel *database.Channel) ([]database.Reminder, error)
 }

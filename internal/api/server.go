@@ -37,6 +37,7 @@ func (server *Server) Start() {
 	calendarGroup.Use(RequireAPIkey(server.config.APIkey))
 	{
 		calendarGroup.GET("", server.calendar.GetCalendars)
+		calendarGroup.PATCH("/:id", RequireIDInURI(), server.calendar.PatchCalender)
 	}
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 

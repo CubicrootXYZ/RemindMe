@@ -99,3 +99,38 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 	ctx.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%d.ics\"", channelID))
 	ctx.String(http.StatusOK, calendar.ICal())
 }
+
+// PatchCalender godoc
+// @Summary Renew calendar secret
+// @Description Regenerates the calendars secret
+// @Accept query
+// @Produce json
+// @Param id path int true "Calendar ID"
+// @Success 200 {string}
+// @Failure 401 {object} types.Unauthenticated
+// @Router /calendar/{id} [patch]
+func (calendarHandler *CalendarHandler) PatchCalender(ctx *gin.Context) {
+	channelID, err := getUintFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	channel, err := calendarHandler.database.GetChannel(channelID)
+	if err != nil {
+		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, err)
+		return
+	}
+
+	err = calendarHandler.database.GenerateNewCalendarSecret(channel)
+	if err != nil {
+		abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+		return
+	}
+
+	response := types.MessageSuccessResponse{
+		Status:  "success",
+		Message: "Regenerated the secret.",
+	}
+	ctx.JSON(http.StatusOK, response)
+}
