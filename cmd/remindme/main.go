@@ -4,9 +4,11 @@ import (
 	"log"
 	"sync"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
@@ -33,7 +35,10 @@ func main() {
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUsers, messenger)
+	syncer := matrixsyncer.Create(config.MatrixBotAccount, config.MatrixUsers, messenger, config.Webserver.BaseURL)
+
+	// Create handler
+	calendarHandler := handler.NewCalendarHandler(db)
 
 	// Start event daemon
 	eventDaemon := eventdaemon.Create(db, syncer)
@@ -44,6 +49,13 @@ func main() {
 	reminderDaemon := reminderdaemon.Create(db, messenger)
 	wg.Add(1)
 	go reminderDaemon.Start(&wg)
+
+	// Start the Webserver
+	if config.Webserver.Enabled {
+		server := api.NewServer(&config.Webserver, calendarHandler)
+		wg.Add(1)
+		go server.Start()
+	}
 
 	wg.Wait()
 	log.Print("Stopped Bot")

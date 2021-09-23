@@ -17,6 +17,7 @@ import (
 // Syncer receives messages from a matrix channel
 type Syncer struct {
 	config          configuration.Matrix
+	baseURL         string
 	users           []string
 	client          *mautrix.Client
 	daemon          *eventdaemon.Daemon
@@ -28,9 +29,10 @@ type Syncer struct {
 }
 
 // Create creates a new syncer
-func Create(config configuration.Matrix, matrixUsers []string, messenger Messenger) *Syncer {
+func Create(config configuration.Matrix, matrixUsers []string, messenger Messenger, baseURL string) *Syncer {
 	syncer := &Syncer{
 		config:    config,
+		baseURL:   baseURL,
 		users:     matrixUsers,
 		messenger: messenger,
 	}
@@ -41,6 +43,8 @@ func Create(config configuration.Matrix, matrixUsers []string, messenger Messeng
 	syncer.actions = append(syncer.actions, syncer.getActionTimezone())
 	syncer.actions = append(syncer.actions, syncer.getActionSetDailyReminder())
 	syncer.actions = append(syncer.actions, syncer.getActionDeleteDailyReminder())
+	syncer.actions = append(syncer.actions, syncer.getActionIcal())
+	syncer.actions = append(syncer.actions, syncer.getActionIcalRegenerate())
 
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
 	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)
@@ -91,8 +95,15 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 			return err
 		}
 
-		channels = append(channels, channel)
+		if len(channel.CalendarSecret) < 20 {
+			err := s.daemon.Database.GenerateNewCalendarSecret(channel)
+			if err != nil {
+				panic(err)
+			}
+		}
 
+		channels = append(channels, channel)
+    
 		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
 	}
 

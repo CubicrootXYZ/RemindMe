@@ -13,18 +13,25 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+const (
+	// DateFormatICal is the date format used by iCal
+	DateFormatICal = "20060102T150405Z"
+	// DateFormatDefault is the default date format used by remindme
+	DateFormatDefault = "15:04 02.01.2006 (MST)"
+)
+
 // ToLocalTime converts the time object to a localized time string
 func ToLocalTime(datetime time.Time, channel *database.Channel) string {
 	if channel == nil || channel.TimeZone == "" {
-		return datetime.UTC().Format("15:04 02.01.2006 (MST)")
+		return datetime.UTC().Format(DateFormatDefault)
 	}
 
 	loc, err := time.LoadLocation(channel.TimeZone)
 	if err != nil {
-		return datetime.UTC().Format("15:04 02.01.2006 (MST)")
+		return datetime.UTC().Format(DateFormatDefault)
 	}
 
-	return datetime.In(loc).Format("15:04 02.01.2006 (MST)")
+	return datetime.In(loc).Format(DateFormatDefault)
 }
 
 // ParseTime parses the time into the local timezone of a channel. If no timezone is given it defaults to UTC. Days without a time specified default to 9:00

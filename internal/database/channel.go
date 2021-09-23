@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,7 @@ type Channel struct {
 	UserIdentifier    string
 	TimeZone          string
 	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
+	CalendarSecret    string
 }
 
 // Timezone returns the timezone of the channel
@@ -32,6 +34,16 @@ func (c *Channel) Timezone() *time.Location {
 }
 
 // GET DATA
+
+// GetChannel returns the channel
+func (d *Database) GetChannel(id uint) (*Channel, error) {
+	var channel Channel
+	err := d.db.First(&channel, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &channel, nil
+}
 
 // GetChannelByUserIdentifier returns the latest channel with the given user
 func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
@@ -77,6 +89,12 @@ func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder 
 
 	err = d.db.Save(channel).Error
 	return channel, err
+}
+
+// GenerateNewCalendarSecret generates and sets a new calendar secret
+func (d *Database) GenerateNewCalendarSecret(channel *Channel) error {
+	channel.CalendarSecret = random.String(30)
+	return d.db.Save(&channel).Error
 }
 
 // INSERT DATA
