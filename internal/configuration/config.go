@@ -23,7 +23,7 @@ type Database struct {
 
 // Webserver holds all data for the webserver
 type Webserver struct {
-	Enabled bool `required:"true"`
+	Enabled bool
 	APIkey  string
 	BaseURL string
 }
