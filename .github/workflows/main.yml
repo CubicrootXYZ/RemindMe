@@ -26,7 +26,7 @@ jobs:
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag@latest
       - name: Install redoc
-        run: apt install npm && npm install redoc 
+        run: sudo apt install npm && sudo npm install redoc 
       - name: Run tests
         run: go test ./...
       - name: Analyze Code with go vet

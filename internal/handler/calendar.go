@@ -101,6 +101,7 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 // PatchCalender godoc
 // @Summary Renew calendar secret
 // @Description Regenerates the calendars secret
+// @Security Admin-Authorization
 // @Produce json
 // @Param id path int true "Calendar ID"
 // @Success 200 {object} types.MessageSuccessResponse
