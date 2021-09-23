@@ -149,3 +149,6 @@ Great thanks to the libraries used in this project:
 * [Configor](https://github.com/jinzhu/configor)
 * [Uniuri](https://github.com/dchest/uniuri)
 * [Go-Naturalduration](https://github.com/CubicrootXYZ/gonaturalduration)
+* [Gorm](https://github.com/go-gorm/gorm)
+* [Stretchr/Testify](https://github.com/stretchr/testify)
+* [Gin](https://github.com/gin-gonic/gin)
