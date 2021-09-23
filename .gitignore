@@ -5,3 +5,4 @@ config.yml
 .vscode/**
 sonar-project.properties
 /*.sh
+/docs/**
