@@ -7,3 +7,5 @@ sonar-project.properties
 /*.sh
 /docs/**
 node_modules/**
+app
+package-lock.json
