@@ -4,3 +4,4 @@ config.yml
 .scannerwork/**
 .vscode/**
 sonar-project.properties
+/*.sh
