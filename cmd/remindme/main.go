@@ -16,18 +16,18 @@ import (
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
 // @version 1.0
-// @description API documentation for the matrix reminder and calendar bot
+// @description.markdown API documentation for the matrix reminder and calendar bot. \n\n [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
 
 // @contact.name Support
 // @contact.url https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-// @host your-bot-domain.tld
+// @host https://your-bot-domain.tld
 // @BasePath /
 // @query.collection.format multi
 
-// @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey Admin-Authentication
 // @in header
-// @name Admin-Authorization
+// @name Authorization
 
 func main() {
 	wg := sync.WaitGroup{}

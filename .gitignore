@@ -6,3 +6,4 @@ config.yml
 sonar-project.properties
 /*.sh
 /docs/**
+node_modules/**
