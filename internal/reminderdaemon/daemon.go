@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 )
 
@@ -49,7 +50,13 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 					continue
 				}
 				message, err := d.Messenger.SendReminder(&reminder, originalMessage)
-				if err != nil {
+				if err == errors.ErrEmptyChannel {
+					_, err = d.Database.SetReminderDone(&reminder)
+					if err != nil {
+						log.Warn("Can not set reminder done: " + err.Error())
+					}
+					continue
+				} else if err != nil {
 					log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminder.ID, err.Error()))
 					continue
 				}

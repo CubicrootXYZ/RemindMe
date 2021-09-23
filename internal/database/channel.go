@@ -1,9 +1,11 @@
 package database
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"gorm.io/gorm"
 )
 
@@ -111,4 +113,38 @@ func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
 	var channel Channel
 	err = d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
 	return &channel, err
+}
+
+// DELETE DATA
+
+// CleanChannels removes all channels except the ones given in keep
+func (d *Database) CleanChannels(keep []*Channel) error {
+	channels, err := d.GetChannelList()
+	if err != nil {
+		return err
+	}
+
+	for _, channel := range channels {
+		remove := true
+		for _, channelKeep := range keep {
+			if channel.ID == channelKeep.ID && channel.ChannelIdentifier == channelKeep.ChannelIdentifier && channel.UserIdentifier == channelKeep.UserIdentifier {
+				remove = false
+				break
+			}
+		}
+
+		if remove {
+			log.Info(fmt.Sprintf("Removing channel %d", channel.ID))
+			err = d.db.Model(&Reminder{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"active": 0}).Error
+			if err != nil {
+				return err
+			}
+			err = d.db.Delete(&channel).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

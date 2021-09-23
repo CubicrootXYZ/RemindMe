@@ -21,6 +21,8 @@ type Database interface {
 	UpdateReminder(reminderID uint, remindTime time.Time, repeatInterval uint64, repeatTimes uint64) (*database.Reminder, error)
 	GetMessagesByReminderID(id uint) ([]*database.Message, error)
 	GenerateNewCalendarSecret(channel *database.Channel) error
+	GetChannelList() ([]database.Channel, error)
+	CleanChannels(keep []*database.Channel) error
 }
 
 // Syncer is responsible for receiving messages from a messenger

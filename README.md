@@ -73,11 +73,25 @@ To deactivate it:
 
 ## ⚙️ Installation
 
+In any case you need a config file with your preferences and credentials.
+
+1. Copy the `config.example.yml` from the repository
+2. Rename it to `config.yml`
+3. Fill in the settings
+    1. `debug` do not touch unless you know what you are doing
+    2. `matrixbotaccount` those are the credentials and the homeserver (url of the matrix instance) of the bots account. You need to create one yourself.
+    3. `matrixusers` those users will be able to interact with the bot. Enter a username in the format `@username:instance.tld` so for the user "test123" at the instance "matrix.org" this would be `@test123:matrix.org`
+    4. `database` enter a database connection here. You need to enter a MySQL [connection string](https://github.com/go-sql-driver/mysql#dsn-data-source-name). If your database-server is running at the domain "mydatabase.org" at port 3306 and your credentials to log in are "root" and "12345" and the database you created is named "remindme_database" then your connection string would look like this: `root:12345@tcp(mydatabase.org:3306)/remindme_database`.
+4. Now you need to copy the file to the folder where the binary is executed.
+    * Using the "plain" method: put the binary you build and the config file in the same folder. Execute them from there.
+    * Using the pre-build docker image you need to mount the file to `/run/config.yml`
+
 ### Plain
 
 1. Download the code
 2. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
-3. Run the binary
+3. Setup your config file
+4. Run the binary
 
 ### Docker
 
@@ -134,3 +148,4 @@ Great thanks to the libraries used in this project:
 * [Naturaldate](https://github.com/tj/go-naturaldate)
 * [Configor](https://github.com/jinzhu/configor)
 * [Uniuri](https://github.com/dchest/uniuri)
+* [Go-Naturalduration](https://github.com/CubicrootXYZ/gonaturalduration)

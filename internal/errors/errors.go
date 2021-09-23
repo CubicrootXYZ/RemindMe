@@ -7,6 +7,7 @@ var ErrMatrixClientNotInitialized = errors.New("matrix client is not initialized
 var ErrMatrixEventWrongType = errors.New("the received event is of wrong type")
 
 // Generic errors
+var ErrEmptyChannel = errors.New("the given channel is empty")
 var ErrIdNotSet = errors.New("ID is not set")
 
 // Api errors
