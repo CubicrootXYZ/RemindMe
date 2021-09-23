@@ -36,7 +36,7 @@ jobs:
       - name: Build the app
         run: go build -o ./app ./cmd/remindme
       - name: Build the api documentation
-        run: swag init -d . -g cmd/remindme/main.go
+        run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Build static html
         run: npx redoc-cli bundle docs/swagger.yaml --output index.html
       - name: Commit static html back
