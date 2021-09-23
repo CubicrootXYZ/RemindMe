@@ -14,6 +14,21 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
 )
 
+// @title Matrix Reminder and Calendar Bot (RemindMe)
+// @version 1.0
+// @description API documentation for the matrix reminder and calendar bot. [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
+
+// @contact.name Support
+// @contact.url https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
+
+// @host https://your-bot-domain.tld
+// @BasePath /
+// @query.collection.format multi
+
+// @securityDefinitions.apikey Admin-Authentication
+// @in header
+// @name Authorization
+
 func main() {
 	wg := sync.WaitGroup{}
 	// Load config

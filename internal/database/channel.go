@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"gorm.io/gorm"
 )
 
