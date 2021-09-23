@@ -111,6 +111,18 @@ Query-Parameters:
 
 * Token: string _the calendars token_
 
+**[PATCH] /calendar/{id}**
+
+Generates a new secret/token for the calendar and removes the old one.
+
+URL-Parameters:
+
+* ID: uint _the calendars id_
+
+Header-Parameters:
+
+* Authorization: String _your api key_
+
 
 ## ❤️ Attribution
 
