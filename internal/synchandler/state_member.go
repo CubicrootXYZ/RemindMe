@@ -39,7 +39,7 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		return
 	}
 
-	if evt.Timestamp < time.Now().Unix()-60 {
+	if evt.Timestamp/1000 < time.Now().Unix()-60 {
 		return
 	}
 
