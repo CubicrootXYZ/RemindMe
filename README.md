@@ -101,41 +101,9 @@ Different versions are available on docker hub:
 
 ## API
 
-The bot offers an API. 
+The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 
-### Calendar
-
-**[GET] /calendar**
-
-Returns a list of available calendars (one per user and channel). The returned token is needed to access further information.
-
-Header-Parameters:
-
-* Authorization: String _your api key_
-
-**[GET] /calendar/{id}/ical**
-
-Returns an `ics` file with all reminders of that calendar.
-
-URL-Parameters:
-
-* ID: uint _the calendars id_
-
-Query-Parameters:
-
-* Token: string _the calendars token_
-
-**[PATCH] /calendar/{id}**
-
-Generates a new secret/token for the calendar and removes the old one.
-
-URL-Parameters:
-
-* ID: uint _the calendars id_
-
-Header-Parameters:
-
-* Authorization: String _your api key_
+The documentation can be found at [cubicrootxyz.github.io/matrix-reminder-and-calendar-bot/](https://cubicrootxyz.github.io/matrix-reminder-and-calendar-bot/).
 
 
 ## ❤️ Attribution

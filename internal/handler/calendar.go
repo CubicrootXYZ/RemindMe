@@ -24,10 +24,10 @@ func NewCalendarHandler(database types.Database) *CalendarHandler {
 // GetCalendars godoc
 // @Summary List all calendars
 // @Description List all available calendars
-// @Accept query
+// @Security Admin-Authentication
 // @Produce json
-// @Success 200 {object} types.DataResponse{Data=[]calendar}
-// @Failure 401 {object} types.Unauthenticated
+// @Success 200 {object} types.DataResponse{data=[]calendarResponse}
+// @Failure 401 {object} types.MessageErrorResponse
 // @Router /calendar [get]
 func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 	calendars := make([]calendarResponse, 0)
@@ -58,12 +58,11 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 // GetCalendarICal godoc
 // @Summary Get calendar (iCal)
 // @Description Get calendar as iCal
-// @Accept query
 // @Produce plain
 // @Param id path int true "Calendar ID"
 // @Param token query string true "authentication token"
-// @Success 200 {string}
-// @Failure 401 {object} types.Unauthenticated
+// @Success 200 {string} string
+// @Failure 401 {object} types.MessageErrorResponse
 // @Router /calendar/{id}/ical [get]
 func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 	token, err := getStringFromContext(ctx, "token")
@@ -103,11 +102,11 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 // PatchCalender godoc
 // @Summary Renew calendar secret
 // @Description Regenerates the calendars secret
-// @Accept query
+// @Security Admin-Authentication
 // @Produce json
 // @Param id path int true "Calendar ID"
-// @Success 200 {string}
-// @Failure 401 {object} types.Unauthenticated
+// @Success 200 {object} types.MessageSuccessResponse
+// @Failure 401 {object} types.MessageErrorResponse
 // @Router /calendar/{id} [patch]
 func (calendarHandler *CalendarHandler) PatchCalender(ctx *gin.Context) {
 	channelID, err := getUintFromContext(ctx, "id")
