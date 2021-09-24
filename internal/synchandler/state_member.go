@@ -21,13 +21,6 @@ type StateMemberHandler struct {
 	botInfo      *types.BotInfo
 }
 
-type joinInviteContent struct {
-	Sender     string
-	MxID       string
-	Token      string
-	Signatures interface{}
-}
-
 // NewStateMemberHandler returns a new StateMemberHandler
 func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo) *StateMemberHandler {
 	return &StateMemberHandler{
