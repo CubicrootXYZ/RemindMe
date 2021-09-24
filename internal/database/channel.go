@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,7 @@ type Channel struct {
 	TimeZone          string
 	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
 	CalendarSecret    string
+	Role              *roles.Role
 }
 
 // Timezone returns the timezone of the channel
@@ -77,7 +79,7 @@ func (d *Database) GetChannelList() ([]Channel, error) {
 // UPDATE DATA
 
 // UpdateChannel updates the given channel with the given information
-func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder *uint) (*Channel, error) {
+func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*Channel, error) {
 	channel := &Channel{}
 	err := d.db.First(channel, "id = ?", channelID).Error
 	if err != nil {
@@ -86,6 +88,7 @@ func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder 
 
 	channel.TimeZone = timeZone
 	channel.DailyReminder = dailyReminder
+	channel.Role = role
 
 	err = d.db.Save(channel).Error
 	return channel, err
@@ -100,11 +103,13 @@ func (d *Database) GenerateNewCalendarSecret(channel *Channel) error {
 // INSERT DATA
 
 // AddChannel adds a channel to the database
-func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
+func (d *Database) AddChannel(userID, channelID string, role roles.Role) (*Channel, error) {
 	err := d.db.Create(&Channel{
 		Created:           time.Now(),
 		ChannelIdentifier: channelID,
 		UserIdentifier:    userID,
+		Role:              &role,
+		CalendarSecret:    random.String(30),
 	}).Error
 	if err != nil {
 		return nil, err

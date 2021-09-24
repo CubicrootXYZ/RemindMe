@@ -1,13 +1,39 @@
 package types
 
-import "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+import (
+	"time"
+
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
+	"maunium.net/go/mautrix/event"
+)
 
 // Database defines an interface for a data storage provider
 type Database interface {
-	// Channels
-	GetChannel(id uint) (*database.Channel, error)
-	GetChannelList() ([]database.Channel, error)
-	GenerateNewCalendarSecret(channel *database.Channel) error
 	// Reminders
 	GetPendingReminders(channel *database.Channel) ([]database.Reminder, error)
+
+	AddReminder(remindTime time.Time, message string, active bool, repeatInterval uint64, channel *database.Channel) (*database.Reminder, error)
+
+	UpdateReminder(reminderID uint, remindTime time.Time, repeatInterval uint64, repeatTimes uint64) (*database.Reminder, error)
+
+	DeleteReminder(reminderID uint) (*database.Reminder, error)
+	// Messages
+	GetMessageByExternalID(externalID string) (*database.Message, error)
+	GetMessagesByReminderID(id uint) ([]*database.Message, error)
+
+	AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *database.Reminder, msgType database.MessageType, channel *database.Channel) (*database.Message, error)
+
+	// Channels
+	GetChannel(id uint) (*database.Channel, error)
+	GetChannelByUserIdentifier(userID string) (*database.Channel, error)
+	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
+	GetChannelList() ([]database.Channel, error)
+
+	GenerateNewCalendarSecret(channel *database.Channel) error
+	UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*database.Channel, error)
+
+	AddChannel(userID, channelID string, role roles.Role) (*database.Channel, error)
+
+	CleanChannels(keep []*database.Channel) error
 }

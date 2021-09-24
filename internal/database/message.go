@@ -39,6 +39,7 @@ const (
 	MessageTypeIcalLinkRequest  = MessageType("ICAL_LINK_REQUEST")
 	MessageTypeIcalRenew        = MessageType("ICAL_RENEW")
 	MessageTypeIcalRenewRequest = MessageType("ICAL_RENEW_REQUEST")
+	MessageTypeWelcome          = MessageType("WELCOME")
 	// Reminder edits
 	MessageTypeReminderUpdate           = MessageType("REMINDER_UPDATE")
 	MessageTypeReminderUpdateFail       = MessageType("REMINDER_UPDATE_FAIL")
