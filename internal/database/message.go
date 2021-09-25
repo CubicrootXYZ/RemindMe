@@ -12,14 +12,14 @@ type Message struct {
 	gorm.Model
 	Body               string
 	BodyHTML           string
-	ReminderID         *uint
+	ReminderID         *uint `gorm:"index"`
 	Reminder           Reminder
-	ResponseToMessage  string
+	ResponseToMessage  string `gorm:"index"`
 	Type               MessageType
-	ChannelID          uint
+	ChannelID          uint `gorm:"index"`
 	Channel            Channel
 	Timestamp          int64
-	ExternalIdentifier string
+	ExternalIdentifier string `gorm:"index"`
 }
 
 // MessageType defines different types of messages

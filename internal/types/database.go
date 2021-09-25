@@ -27,6 +27,7 @@ type Database interface {
 	// Channels
 	GetChannel(id uint) (*database.Channel, error)
 	GetChannelByUserIdentifier(userID string) (*database.Channel, error)
+	GetChannelsByChannelIdentifier(channelID string) ([]database.Channel, error)
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	GetChannelList() ([]database.Channel, error)
 
@@ -35,5 +36,6 @@ type Database interface {
 
 	AddChannel(userID, channelID string, role roles.Role) (*database.Channel, error)
 
-	CleanChannels(keep []*database.Channel) error
+	CleanAdminChannels(keep []*database.Channel) error
+	DeleteChannel(channel *database.Channel) error
 }

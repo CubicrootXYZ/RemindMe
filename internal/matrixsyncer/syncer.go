@@ -65,7 +65,8 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	s.daemon = daemon
 	s.botInfo = &types.BotInfo{
-		BotName: fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
+		BotName:      fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
+		AllowInvites: s.config.AllowInvites,
 	}
 
 	// Log into matrix
@@ -137,7 +138,7 @@ func (s *Syncer) syncChannels() error {
 	}
 
 	// Remove channels not needed anymore
-	err := s.daemon.Database.CleanChannels(channels)
+	err := s.daemon.Database.CleanAdminChannels(channels)
 	if err != nil {
 		log.Warn("Can not clean channels list")
 		panic(err)

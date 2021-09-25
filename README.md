@@ -12,6 +12,8 @@ A matrix bot that handles reminders and knows your agenda.
 
 ## 📋 Features
 
+**Currently the bot is not working with encrypted messages/channels**
+
 * Schedule reminders
 * Edit and delete reminders
 * Timezone support
@@ -21,7 +23,11 @@ A matrix bot that handles reminders and knows your agenda.
 * Repeatable reminders
 * iCal export of all reminders
 
-## 👥 Contribute
+The following features are seen as experimental, we do not recommend them for use in production. Data losses or data leaks might happen.
+
+* Allow bot invitations (beta)
+
+## 👩‍🔧 Contribute
 
 I really enjoy help in making this bot even better. So we all can enjoy the work on this project please follow the rules. 
 
@@ -35,7 +41,7 @@ General ideas and concepts can be discussed in the "Discussions" section.
 
 Fork this repository and add your changes. Open a pull request to merge them in the master branch of this repository.
 
-## ℹ️ How to use it
+## 🔍 How to use it
 
 After you have installed the bot he will invite every user in the config in a channel. Accept the invite and you are ready to interact with him.
 
@@ -99,7 +105,7 @@ Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
 
-## API
+## 📚 API
 
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 

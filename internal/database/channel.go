@@ -14,11 +14,11 @@ import (
 type Channel struct {
 	gorm.Model
 	Created           time.Time
-	ChannelIdentifier string
-	UserIdentifier    string
+	ChannelIdentifier string `gorm:"index;size:500"`
+	UserIdentifier    string `gorm:"index;size:500"`
 	TimeZone          string
-	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
-	CalendarSecret    string
+	DailyReminder     *uint  // minutes from midnight when to send the daily reminder. Null to deactivate.
+	CalendarSecret    string `gorm:"index"`
 	Role              *roles.Role
 }
 
@@ -55,6 +55,16 @@ func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
 		return nil, err
 	}
 	return &channel, nil
+}
+
+// GetChannelsByChannelIdentifier returns all channels with the given channel identifier
+func (d *Database) GetChannelsByChannelIdentifier(channelID string) ([]Channel, error) {
+	channels := make([]Channel, 0)
+	err := d.db.Find(&channels, "channel_identifier = ?", channelID).Error
+	if err != nil {
+		return nil, err
+	}
+	return channels, nil
 }
 
 // GetChannelByUserAndChannelIdentifier returns the latest channel with the given user and channel id
@@ -122,8 +132,8 @@ func (d *Database) AddChannel(userID, channelID string, role roles.Role) (*Chann
 
 // DELETE DATA
 
-// CleanChannels removes all channels except the ones given in keep
-func (d *Database) CleanChannels(keep []*Channel) error {
+// CleanAdminChannels removes all admin channels except the ones given in keep
+func (d *Database) CleanAdminChannels(keep []*Channel) error {
 	channels, err := d.GetChannelList()
 	if err != nil {
 		return err
@@ -136,6 +146,10 @@ func (d *Database) CleanChannels(keep []*Channel) error {
 				remove = false
 				break
 			}
+		}
+
+		if channel.Role != nil && *channel.Role != roles.RoleAdmin {
+			remove = false
 		}
 
 		if remove {
@@ -152,4 +166,9 @@ func (d *Database) CleanChannels(keep []*Channel) error {
 	}
 
 	return nil
+}
+
+// DeleteChannel deletes the given channel
+func (d *Database) DeleteChannel(channel *Channel) error {
+	return d.db.Delete(channel).Error
 }

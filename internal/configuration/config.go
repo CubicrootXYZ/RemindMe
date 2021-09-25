@@ -11,9 +11,10 @@ type Config struct {
 
 // Matrix holds the information for accessing the bots account
 type Matrix struct {
-	Username   string `required:"true"`
-	Password   string `required:"true"`
-	Homeserver string `required:"true"`
+	Username     string `required:"true"`
+	Password     string `required:"true"`
+	Homeserver   string `required:"true"`
+	AllowInvites bool
 }
 
 // Database holds all data for connection to the database

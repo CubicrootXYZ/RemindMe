@@ -1,6 +1,7 @@
 package synchandler
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -43,11 +44,21 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		return
 	}
 
+	// TODO remove
+	v, _ := json.Marshal(evt)
+	log.Info(fmt.Sprintf("HERE: %s", v))
+
 	switch content.Membership {
-	case event.MembershipInvite:
+	case event.MembershipInvite, event.MembershipJoin:
 		err := s.handleInvite(evt, content)
 		if err != nil {
 			log.Error("Failed to handle membership invite with: " + err.Error())
+		}
+		return
+	case event.MembershipBan, event.MembershipLeave:
+		err := s.handleLeave(evt, content)
+		if err != nil {
+			log.Error("Failed to handle membership leave with: " + err.Error())
 		}
 		return
 	}
@@ -56,8 +67,8 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 }
 
 func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.MemberEventContent) error {
-	// Ignore messages from the bot itself
-	if evt.Sender.String() == s.botInfo.BotName {
+	// Ignore messages from the bot itself or if invites are not allowed
+	if !s.botInfo.AllowInvites || evt.Sender.String() == s.botInfo.BotName {
 		return nil
 	}
 
@@ -96,4 +107,20 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeWelcome, 0)
 
 	return err
+}
+
+func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
+	channels, err := s.database.GetChannelsByChannelIdentifier(evt.RoomID.String())
+	if err != nil {
+		return err
+	}
+
+	for _, channel := range channels {
+		err := s.database.DeleteChannel(&channel)
+		if err != nil {
+			log.Error("Failed to delete channel with: " + err.Error())
+		}
+	}
+
+	return nil
 }

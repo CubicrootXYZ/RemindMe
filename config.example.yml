@@ -9,6 +9,8 @@ matrixbotaccount:
   password: fsddf
   # Matrix homeserver
   homeserver: fsdf
+  # Allow users to invite the bot
+  allowinvites: false
 
 # Matrix username to interact with
 matrixusers: 
