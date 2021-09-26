@@ -46,5 +46,10 @@ func (d *Database) initialize() error {
 		return err
 	}
 
+	err = d.db.AutoMigrate(&Event{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

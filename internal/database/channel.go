@@ -154,11 +154,7 @@ func (d *Database) CleanAdminChannels(keep []*Channel) error {
 
 		if remove {
 			log.Info(fmt.Sprintf("Removing channel %d", channel.ID))
-			err = d.db.Model(&Reminder{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"active": 0}).Error
-			if err != nil {
-				return err
-			}
-			err = d.db.Delete(&channel).Error
+			err = d.DeleteChannel(&channel)
 			if err != nil {
 				return err
 			}
@@ -170,5 +166,20 @@ func (d *Database) CleanAdminChannels(keep []*Channel) error {
 
 // DeleteChannel deletes the given channel
 func (d *Database) DeleteChannel(channel *Channel) error {
-	return d.db.Delete(channel).Error
+	err := d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
+	if err != nil {
+		return err
+	}
+
+	err = d.db.Unscoped().Delete(&Reminder{}, "channel_id = ?", channel.ID).Error
+	if err != nil {
+		return err
+	}
+
+	err = d.db.Unscoped().Delete(&Event{}, "channel_id = ?", channel.ID).Error
+	if err != nil {
+		return err
+	}
+
+	return d.db.Unscoped().Delete(channel).Error
 }

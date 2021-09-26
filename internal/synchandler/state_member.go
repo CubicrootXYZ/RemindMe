@@ -1,7 +1,6 @@
 package synchandler
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -44,9 +43,14 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		return
 	}
 
-	// TODO remove
-	v, _ := json.Marshal(evt)
-	log.Info(fmt.Sprintf("HERE: %s", v))
+	// Check if the event is known
+	known, err := s.database.IsEventKnown(evt.ID.String())
+	if known {
+		return
+	}
+	if err != nil {
+		log.Error(err.Error())
+	}
 
 	switch content.Membership {
 	case event.MembershipInvite, event.MembershipJoin:
@@ -89,22 +93,14 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 		return err
 	}
 
-	msg := formater.Formater{}
-	msg.Title("Welcome to RemindMe")
-	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
-	msg.Text("You want to now what I am capable of? Just text me ")
-	msg.BoldLine("list all commands")
-	msg.TextLine("First things you should do are setting your timezone and a daily reminder.")
-
-	msg.SubTitle("Attribution")
-	msg.TextLine("This bot is open for everyone and build with the help of voluntary software developers.")
-	msg.Text("The source code can be found at ")
-	msg.Link("GitHub", "https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot")
-	msg.TextLine(". Star it if you like the bot, open issues or discussions with your findings.")
-
-	message, messageFormatted := msg.Build()
+	message, messageFormatted := s.getWelcomeMessage()
 
 	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeWelcome, 0)
+	if err != nil {
+		return err
+	}
+
+	err = s.addMemberEventToDatabase(evt, content)
 
 	return err
 }
@@ -122,5 +118,43 @@ func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.Member
 		}
 	}
 
-	return nil
+	err = s.addMemberEventToDatabase(evt, content)
+
+	return err
+}
+
+func (s *StateMemberHandler) addMemberEventToDatabase(evt *event.Event, content *event.MemberEventContent) error {
+	event := database.Event{}
+	event.ExternalIdentifier = evt.ID.String()
+
+	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
+	if err != nil {
+		return err
+	}
+
+	event.Channel = *channel
+	event.ChannelID = channel.ID
+	event.Timestamp = evt.Timestamp / 1000
+	event.EventType = database.EventTypeMembership
+	event.EventSubType = string(content.Membership)
+	_, err = s.database.AddEvent(&event)
+
+	return err
+}
+
+func (s *StateMemberHandler) getWelcomeMessage() (string, string) {
+	msg := formater.Formater{}
+	msg.Title("Welcome to RemindMe")
+	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
+	msg.Text("You want to now what I am capable of? Just text me ")
+	msg.BoldLine("list all commands")
+	msg.TextLine("First things you should do are setting your timezone and a daily reminder.")
+
+	msg.SubTitle("Attribution")
+	msg.TextLine("This bot is open for everyone and build with the help of voluntary software developers.")
+	msg.Text("The source code can be found at ")
+	msg.Link("GitHub", "https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot")
+	msg.TextLine(". Star it if you like the bot, open issues or discussions with your findings.")
+
+	return msg.Build()
 }
