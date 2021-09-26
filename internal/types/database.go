@@ -30,6 +30,7 @@ type Database interface {
 	GetChannelsByChannelIdentifier(channelID string) ([]database.Channel, error)
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	GetChannelList() ([]database.Channel, error)
+	ChannelCount() (int64, error)
 
 	GenerateNewCalendarSecret(channel *database.Channel) error
 	UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*database.Channel, error)

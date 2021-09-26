@@ -7,14 +7,20 @@ type Config struct {
 	MatrixUsers      []string `required:"true"`
 	Database         Database
 	Webserver        Webserver
+	BotSettings      BotSettings
 }
 
 // Matrix holds the information for accessing the bots account
 type Matrix struct {
-	Username     string `required:"true"`
-	Password     string `required:"true"`
-	Homeserver   string `required:"true"`
+	Username   string `required:"true"`
+	Password   string `required:"true"`
+	Homeserver string `required:"true"`
+}
+
+// BotSettings holds information about the bot itself
+type BotSettings struct {
 	AllowInvites bool
+	MaxUser      int64 `default:"-1"`
 }
 
 // Database holds all data for connection to the database

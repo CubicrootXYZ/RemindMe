@@ -24,6 +24,7 @@ type Syncer struct {
 	adminUsers      []string
 	client          *mautrix.Client
 	daemon          *eventdaemon.Daemon
+	botSettings     *configuration.BotSettings
 	botInfo         *types.BotInfo
 	messenger       Messenger
 	actions         []*Action         // Actions based on direct messages from the user
@@ -32,12 +33,13 @@ type Syncer struct {
 }
 
 // Create creates a new syncer
-func Create(config configuration.Matrix, matrixAdminUsers []string, messenger Messenger, baseURL string) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger) *Syncer {
 	syncer := &Syncer{
-		config:     config,
-		baseURL:    baseURL,
-		adminUsers: matrixAdminUsers,
-		messenger:  messenger,
+		config:      config.MatrixBotAccount,
+		baseURL:     config.Webserver.BaseURL,
+		adminUsers:  matrixAdminUsers,
+		messenger:   messenger,
+		botSettings: &config.BotSettings,
 	}
 
 	// Add all actions
@@ -65,8 +67,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	s.daemon = daemon
 	s.botInfo = &types.BotInfo{
-		BotName:      fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
-		AllowInvites: s.config.AllowInvites,
+		BotName: fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
 	}
 
 	// Log into matrix
@@ -93,7 +94,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	}
 
 	// Initialize handler
-	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo)
+	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings)
 
 	// Get messages
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)

@@ -86,6 +86,13 @@ func (d *Database) GetChannelList() ([]Channel, error) {
 	return channel, err
 }
 
+// ChannelCount returns the amount of active channels
+func (d *Database) ChannelCount() (int64, error) {
+	var count int64
+	err := d.db.Model(&Channel{}).Count(&count).Error
+	return count, err
+}
+
 // UPDATE DATA
 
 // UpdateChannel updates the given channel with the given information
@@ -176,7 +183,7 @@ func (d *Database) DeleteChannel(channel *Channel) error {
 		return err
 	}
 
-	err = d.db.Unscoped().Delete(&Event{}, "channel_id = ?", channel.ID).Error
+	err = d.db.Model(&Event{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"channel_id": nil}).Error
 	if err != nil {
 		return err
 	}

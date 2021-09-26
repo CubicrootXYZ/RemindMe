@@ -9,15 +9,21 @@ matrixbotaccount:
   password: fsddf
   # Matrix homeserver
   homeserver: fsdf
-  # Allow users to invite the bot
-  allowinvites: false
 
 # Matrix username to interact with
 matrixusers: 
   - "yourmatrixuser"
   - "anotheruser"
 
-  # Database settings
+# Settings regarding the bot
+botsettings:
+  # Allow users to invite the bot
+  allowinvites: false
+  # Maximum parallel users that the bot will accept. -1 to have no limit.
+  # With to many users the bot might run into API rate limits of the matrix instance.
+  maxuser: 10
+
+# Database settings
 database:
   # MySQL connection string
   # https://github.com/go-sql-driver/mysql#dsn-data-source-name

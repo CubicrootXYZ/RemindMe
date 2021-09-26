@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 // Event holds information about a matrix event
 type Event struct {
 	gorm.Model
-	ChannelID          uint `gorm:"index"`
+	ChannelID          *uint `gorm:"index"`
 	Channel            Channel
 	Timestamp          int64
 	ExternalIdentifier string    `gorm:"uniqueIndex;size:500"`

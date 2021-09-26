@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
+	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
@@ -19,15 +21,17 @@ type StateMemberHandler struct {
 	messenger    types.Messenger
 	matrixClient *mautrix.Client
 	botInfo      *types.BotInfo
+	botSettings  *configuration.BotSettings
 }
 
 // NewStateMemberHandler returns a new StateMemberHandler
-func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo) *StateMemberHandler {
+func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo, botSettings *configuration.BotSettings) *StateMemberHandler {
 	return &StateMemberHandler{
 		database:     database,
 		messenger:    messenger,
 		matrixClient: matrixClient,
 		botInfo:      botInfo,
+		botSettings:  botSettings,
 	}
 }
 
@@ -71,12 +75,20 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 }
 
 func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.MemberEventContent) error {
-	// Ignore messages from the bot itself or if invites are not allowed
-	if !s.botInfo.AllowInvites || evt.Sender.String() == s.botInfo.BotName {
+	// Ignore messages from the bot itself
+	if evt.Sender.String() == s.botInfo.BotName {
 		return nil
 	}
 
-	_, err := s.matrixClient.JoinRoom(evt.RoomID.String(), "", nil)
+	declineInvites, err := s.maxUserReached()
+	if err != nil {
+		return err
+	}
+	if declineInvites {
+		return nil
+	}
+
+	_, err = s.matrixClient.JoinRoom(evt.RoomID.String(), "", nil)
 	if err != nil {
 		log.Error(fmt.Sprintf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error()))
 		return err
@@ -85,7 +97,7 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
 	if err == nil && channel != nil {
 		// We already know this user
-		return nil
+		return s.addMemberEventToDatabase(evt, content)
 	}
 
 	channel, err = s.database.AddChannel(evt.Sender.String(), evt.RoomID.String(), roles.RoleUser)
@@ -93,8 +105,7 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 		return err
 	}
 
-	message, messageFormatted := s.getWelcomeMessage()
-
+	message, messageFormatted := getWelcomeMessage()
 	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeWelcome, 0)
 	if err != nil {
 		return err
@@ -113,7 +124,7 @@ func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.Member
 
 	for _, channel := range channels {
 		err := s.database.DeleteChannel(&channel)
-		if err != nil {
+		if err != nil && err != gorm.ErrRecordNotFound {
 			log.Error("Failed to delete channel with: " + err.Error())
 		}
 	}
@@ -124,25 +135,28 @@ func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.Member
 }
 
 func (s *StateMemberHandler) addMemberEventToDatabase(evt *event.Event, content *event.MemberEventContent) error {
-	event := database.Event{}
-	event.ExternalIdentifier = evt.ID.String()
+	dbEvent := database.Event{}
+	dbEvent.ExternalIdentifier = evt.ID.String()
 
-	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
-	if err != nil {
-		return err
+	if content.Membership == event.MembershipInvite || content.Membership == event.MembershipJoin {
+		channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
+		if err != nil {
+			return err
+		}
+
+		dbEvent.Channel = *channel
+		dbEvent.ChannelID = &channel.ID
 	}
 
-	event.Channel = *channel
-	event.ChannelID = channel.ID
-	event.Timestamp = evt.Timestamp / 1000
-	event.EventType = database.EventTypeMembership
-	event.EventSubType = string(content.Membership)
-	_, err = s.database.AddEvent(&event)
+	dbEvent.Timestamp = evt.Timestamp / 1000
+	dbEvent.EventType = database.EventTypeMembership
+	dbEvent.EventSubType = string(content.Membership)
+	_, err := s.database.AddEvent(&dbEvent)
 
 	return err
 }
 
-func (s *StateMemberHandler) getWelcomeMessage() (string, string) {
+func getWelcomeMessage() (string, string) {
 	msg := formater.Formater{}
 	msg.Title("Welcome to RemindMe")
 	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
@@ -157,4 +171,25 @@ func (s *StateMemberHandler) getWelcomeMessage() (string, string) {
 	msg.TextLine(". Star it if you like the bot, open issues or discussions with your findings.")
 
 	return msg.Build()
+}
+
+func (s *StateMemberHandler) maxUserReached() (bool, error) {
+	if !s.botSettings.AllowInvites {
+		return true, nil
+	}
+
+	if s.botSettings.MaxUser >= 0 {
+		channelCount, err := s.database.ChannelCount()
+		if err != nil {
+			return true, err
+		}
+
+		if channelCount >= s.botSettings.MaxUser {
+			log.Info("Reached max channels - will no longer follow new invites.")
+			return true, nil
+		}
+
+	}
+
+	return false, nil
 }
