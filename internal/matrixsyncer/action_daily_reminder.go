@@ -42,7 +42,7 @@ func (s *Syncer) actionSetDailyReminder(evt *event.Event, channel *database.Chan
 
 	minutesSinceMidnight := uint(timeRemind.Hour()*60 + timeRemind.Minute())
 
-	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, &minutesSinceMidnight)
+	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, &minutesSinceMidnight, channel.Role)
 	if err != nil {
 		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to save that.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
 		return err
@@ -75,7 +75,7 @@ func (s *Syncer) actionDeleteDailyReminder(evt *event.Event, channel *database.C
 		log.Error("Could not save message: " + err.Error())
 	}
 
-	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil)
+	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
 		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to save that.", evt, channel, database.MessageTypeDailyReminderDeleteFail)
 		return err

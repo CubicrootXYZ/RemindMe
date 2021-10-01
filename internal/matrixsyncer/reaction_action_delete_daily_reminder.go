@@ -17,7 +17,7 @@ func (s *Syncer) getReactionActionDeleteDailyReminder(rat ReactionActionType) *R
 }
 
 func (s *Syncer) reactionActionDeleteDailyReminder(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error {
-	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil)
+	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
 		log.Error(err.Error())
 		msg := "Sorry I was not able to delete the daily reminder."

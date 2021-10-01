@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
 
 // Daemon is the event daemon collecting events from a messenger
 type Daemon struct {
-	Database Database
+	Database types.Database
 	syncer   Syncer
 }
 
@@ -22,7 +23,7 @@ const (
 )
 
 // Create returns a new event daemon
-func Create(database Database, syncer Syncer) *Daemon {
+func Create(database types.Database, syncer Syncer) *Daemon {
 	return &Daemon{
 		Database: database,
 		syncer:   syncer,

@@ -20,6 +20,12 @@ func (f *Formater) SubTitle(title string) {
 	f.msgFormatted.WriteString("<h4>" + title + "</h4>")
 }
 
+// Link adds a link to the formater
+func (f *Formater) Link(linkText string, url string) {
+	f.msg.WriteString(url)
+	f.msgFormatted.WriteString("<a href='" + url + "'>" + linkText + "</a>")
+}
+
 // NewLine adds a new line
 func (f *Formater) NewLine() {
 	f.msg.WriteString("\n")

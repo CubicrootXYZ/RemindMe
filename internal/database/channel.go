@@ -6,6 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +14,12 @@ import (
 type Channel struct {
 	gorm.Model
 	Created           time.Time
-	ChannelIdentifier string
-	UserIdentifier    string
+	ChannelIdentifier string `gorm:"index;size:500"`
+	UserIdentifier    string `gorm:"index;size:500"`
 	TimeZone          string
-	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
-	CalendarSecret    string
+	DailyReminder     *uint  // minutes from midnight when to send the daily reminder. Null to deactivate.
+	CalendarSecret    string `gorm:"index"`
+	Role              *roles.Role
 }
 
 // Timezone returns the timezone of the channel
@@ -55,6 +57,16 @@ func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
 	return &channel, nil
 }
 
+// GetChannelsByChannelIdentifier returns all channels with the given channel identifier
+func (d *Database) GetChannelsByChannelIdentifier(channelID string) ([]Channel, error) {
+	channels := make([]Channel, 0)
+	err := d.db.Find(&channels, "channel_identifier = ?", channelID).Error
+	if err != nil {
+		return nil, err
+	}
+	return channels, nil
+}
+
 // GetChannelByUserAndChannelIdentifier returns the latest channel with the given user and channel id
 func (d *Database) GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*Channel, error) {
 	var channel Channel
@@ -74,10 +86,17 @@ func (d *Database) GetChannelList() ([]Channel, error) {
 	return channel, err
 }
 
+// ChannelCount returns the amount of active channels
+func (d *Database) ChannelCount() (int64, error) {
+	var count int64
+	err := d.db.Model(&Channel{}).Count(&count).Error
+	return count, err
+}
+
 // UPDATE DATA
 
 // UpdateChannel updates the given channel with the given information
-func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder *uint) (*Channel, error) {
+func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*Channel, error) {
 	channel := &Channel{}
 	err := d.db.First(channel, "id = ?", channelID).Error
 	if err != nil {
@@ -86,6 +105,7 @@ func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder 
 
 	channel.TimeZone = timeZone
 	channel.DailyReminder = dailyReminder
+	channel.Role = role
 
 	err = d.db.Save(channel).Error
 	return channel, err
@@ -100,11 +120,13 @@ func (d *Database) GenerateNewCalendarSecret(channel *Channel) error {
 // INSERT DATA
 
 // AddChannel adds a channel to the database
-func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
+func (d *Database) AddChannel(userID, channelID string, role roles.Role) (*Channel, error) {
 	err := d.db.Create(&Channel{
 		Created:           time.Now(),
 		ChannelIdentifier: channelID,
 		UserIdentifier:    userID,
+		Role:              &role,
+		CalendarSecret:    random.String(30),
 	}).Error
 	if err != nil {
 		return nil, err
@@ -117,8 +139,8 @@ func (d *Database) AddChannel(userID, channelID string) (*Channel, error) {
 
 // DELETE DATA
 
-// CleanChannels removes all channels except the ones given in keep
-func (d *Database) CleanChannels(keep []*Channel) error {
+// CleanAdminChannels removes all admin channels except the ones given in keep
+func (d *Database) CleanAdminChannels(keep []*Channel) error {
 	channels, err := d.GetChannelList()
 	if err != nil {
 		return err
@@ -133,13 +155,13 @@ func (d *Database) CleanChannels(keep []*Channel) error {
 			}
 		}
 
+		if channel.Role != nil && *channel.Role != roles.RoleAdmin {
+			remove = false
+		}
+
 		if remove {
 			log.Info(fmt.Sprintf("Removing channel %d", channel.ID))
-			err = d.db.Model(&Reminder{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"active": 0}).Error
-			if err != nil {
-				return err
-			}
-			err = d.db.Delete(&channel).Error
+			err = d.DeleteChannel(&channel)
 			if err != nil {
 				return err
 			}
@@ -147,4 +169,24 @@ func (d *Database) CleanChannels(keep []*Channel) error {
 	}
 
 	return nil
+}
+
+// DeleteChannel deletes the given channel
+func (d *Database) DeleteChannel(channel *Channel) error {
+	err := d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
+	if err != nil {
+		return err
+	}
+
+	err = d.db.Unscoped().Delete(&Reminder{}, "channel_id = ?", channel.ID).Error
+	if err != nil {
+		return err
+	}
+
+	err = d.db.Model(&Event{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"channel_id": nil}).Error
+	if err != nil {
+		return err
+	}
+
+	return d.db.Unscoped().Delete(channel).Error
 }

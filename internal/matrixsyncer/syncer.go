@@ -12,16 +12,20 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/synchandler"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
 
 // Syncer receives messages from a matrix channel
 type Syncer struct {
 	config          configuration.Matrix
 	baseURL         string
-	users           []string
+	adminUsers      []string
 	client          *mautrix.Client
 	daemon          *eventdaemon.Daemon
-	botName         string
+	botSettings     *configuration.BotSettings
+	botInfo         *types.BotInfo
 	messenger       Messenger
 	actions         []*Action         // Actions based on direct messages from the user
 	reactionActions []*ReactionAction // Actions based on reactions by the user
@@ -29,12 +33,13 @@ type Syncer struct {
 }
 
 // Create creates a new syncer
-func Create(config configuration.Matrix, matrixUsers []string, messenger Messenger, baseURL string) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger) *Syncer {
 	syncer := &Syncer{
-		config:    config,
-		baseURL:   baseURL,
-		users:     matrixUsers,
-		messenger: messenger,
+		config:      config.MatrixBotAccount,
+		baseURL:     config.Webserver.BaseURL,
+		adminUsers:  matrixAdminUsers,
+		messenger:   messenger,
+		botSettings: &config.BotSettings,
 	}
 
 	// Add all actions
@@ -61,7 +66,9 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	log.Info(fmt.Sprintf("Starting Matrix syncer for user %s on server %s", s.config.Username, s.config.Homeserver))
 
 	s.daemon = daemon
-	s.botName = fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", ""))
+	s.botInfo = &types.BotInfo{
+		BotName: fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
+	}
 
 	// Log into matrix
 	client, err := mautrix.NewClient(s.config.Homeserver, "", "")
@@ -81,13 +88,38 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	}
 	log.Info("Logged in to matrix")
 
-	// Make channel for each user we do not know and remove users we do not want
+	err = s.syncChannels()
+	if err != nil {
+		return err
+	}
+
+	// Initialize handler
+	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings)
+
+	// Get messages
+	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
+	syncer.OnEventType(event.EventMessage, s.handleMessages)
+	syncer.OnEventType(event.EventReaction, s.handleReactionEvent)
+	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)
+	return client.Sync()
+}
+
+// Stop stops the syncer
+func (s *Syncer) Stop() {
+	s.client.StopSync()
+}
+
+// syncChannel keeps the channelös in sync with the config file and up to date
+func (s *Syncer) syncChannels() error {
+	log.Info("Syncing channels")
+
 	channels := make([]*database.Channel, 0)
 
-	for _, user := range s.users {
+	for _, user := range s.adminUsers {
+		// Get or create channel
 		channel, err := s.daemon.Database.GetChannelByUserIdentifier(user)
 		if err == gorm.ErrRecordNotFound {
-			channel, err = s.createChannel(user)
+			channel, err = s.createChannel(user, roles.RoleAdmin)
 			if err != nil {
 				return err
 			}
@@ -95,32 +127,42 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 			return err
 		}
 
-		if len(channel.CalendarSecret) < 20 {
-			err := s.daemon.Database.GenerateNewCalendarSecret(channel)
-			if err != nil {
-				panic(err)
-			}
+		// Upgrade to newest feature set
+		channel, err = s.upgradeChannel(channel, roles.RoleAdmin)
+		if err != nil {
+			log.Error(err.Error())
 		}
 
 		channels = append(channels, channel)
-    
+
 		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
 	}
 
-	err = s.daemon.Database.CleanChannels(channels)
+	// Remove channels not needed anymore
+	err := s.daemon.Database.CleanAdminChannels(channels)
 	if err != nil {
 		log.Warn("Can not clean channels list")
 		panic(err)
 	}
 
-	// Get messages
-	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
-	syncer.OnEventType(event.EventMessage, s.handleMessages)
-	syncer.OnEventType(event.EventReaction, s.handleReactions)
-	return client.Sync()
+	return nil
 }
 
-// Stop stops the syncer
-func (s *Syncer) Stop() {
-	s.client.StopSync()
+// upgradeChannel upgrades a channel to the newest features
+func (s *Syncer) upgradeChannel(channel *database.Channel, defaultRole roles.Role) (*database.Channel, error) {
+	var err error
+
+	// Update secret if not set
+	if len(channel.CalendarSecret) < 20 {
+		err = s.daemon.Database.GenerateNewCalendarSecret(channel)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if channel.Role == nil {
+		channel, err = s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, channel.DailyReminder, &defaultRole)
+	}
+
+	return channel, err
 }

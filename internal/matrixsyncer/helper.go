@@ -7,17 +7,18 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"maunium.net/go/mautrix/event"
 )
 
 // createChannel creates a new matrix channel
-func (s *Syncer) createChannel(userID string) (*database.Channel, error) {
+func (s *Syncer) createChannel(userID string, role roles.Role) (*database.Channel, error) {
 	roomCreated, err := s.messenger.CreateChannel(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.daemon.Database.AddChannel(userID, roomCreated.RoomID.String())
+	return s.daemon.Database.AddChannel(userID, roomCreated.RoomID.String(), role)
 }
 
 // newReminder parses a message for a reminder date

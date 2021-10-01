@@ -12,14 +12,14 @@ type Message struct {
 	gorm.Model
 	Body               string
 	BodyHTML           string
-	ReminderID         *uint
+	ReminderID         *uint `gorm:"index"`
 	Reminder           Reminder
-	ResponseToMessage  string
+	ResponseToMessage  string `gorm:"index"`
 	Type               MessageType
-	ChannelID          uint
+	ChannelID          uint `gorm:"index"`
 	Channel            Channel
 	Timestamp          int64
-	ExternalIdentifier string
+	ExternalIdentifier string `gorm:"index"`
 }
 
 // MessageType defines different types of messages
@@ -39,6 +39,7 @@ const (
 	MessageTypeIcalLinkRequest  = MessageType("ICAL_LINK_REQUEST")
 	MessageTypeIcalRenew        = MessageType("ICAL_RENEW")
 	MessageTypeIcalRenewRequest = MessageType("ICAL_RENEW_REQUEST")
+	MessageTypeWelcome          = MessageType("WELCOME")
 	// Reminder edits
 	MessageTypeReminderUpdate           = MessageType("REMINDER_UPDATE")
 	MessageTypeReminderUpdateFail       = MessageType("REMINDER_UPDATE_FAIL")
