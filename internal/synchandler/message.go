@@ -71,7 +71,7 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 		return
 	}
 
-	// If it is a reply check if a reply action matches first
+	// Check if it is a reply to a message we know
 	if s.checkReplyActions(evt, channel, content) {
 		return
 	}
@@ -97,7 +97,6 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 		return false
 	}
 
-	// Cycle through all registered actions
 	message := strings.ToLower(formater.StripReply(content.Body))
 	replyMessage, err := s.database.GetMessageByExternalID(content.RelatesTo.EventID.String())
 	if err != nil || replyMessage == nil {
@@ -105,6 +104,7 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 		return false
 	}
 
+	// Cycle through all registered actions
 	for _, action := range s.replyActions {
 		log.Info("Checking for match with " + action.Name)
 		log.Info(string(replyMessage.Type))
@@ -119,33 +119,42 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 				}
 			}
 		}
-
 	}
 
 	// Fallback change reminder date
 	if replyMessage.ReminderID != nil && *replyMessage.ReminderID > 0 {
-		remindTime, err := formater.ParseTime(content.Body, channel, false)
+		err = s.changeReminderDate(replyMessage, channel, content, evt)
 		if err != nil {
-			log.Warn(err.Error())
-			s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
-			return true
+			log.Error(err.Error())
 		}
-
-		reminder, err := s.database.UpdateReminder(*replyMessage.ReminderID, remindTime, 0, 0)
-		if err != nil {
-			log.Warn(err.Error())
-			return true
-		}
-
-		_, err = s.database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderUpdate, channel)
-		if err != nil {
-			log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
-		}
-
-		s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
+		return true
 	}
 
-	return true
+	return false
+}
+
+func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, channel *database.Channel, content *event.MessageEventContent, evt *event.Event) error {
+	remindTime, err := formater.ParseTime(content.Body, channel, false)
+	if err != nil {
+		log.Warn(err.Error())
+		s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
+		return err
+	}
+
+	reminder, err := s.database.UpdateReminder(*replyMessage.ReminderID, remindTime, 0, 0)
+	if err != nil {
+		log.Warn(err.Error())
+		return err
+	}
+
+	_, err = s.database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderUpdate, channel)
+	if err != nil {
+		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
+	}
+
+	s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
+
+	return nil
 }
 
 // checkActions checks if a message matches any special actions and performs them.

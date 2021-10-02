@@ -38,6 +38,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 		return
 	}
 
+	// Get all meta data
 	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
 	if err != nil {
 		log.Warn("Do not know that user and channel.")
@@ -60,6 +61,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 		return
 	}
 
+	// Cycle through all actions
 	for _, action := range s.actions {
 		log.Info("Checking for match with action " + action.Name)
 		if action.Type != types.ReactionActionType(message.Type) && action.Type != types.ReactionActionTypeAll {
