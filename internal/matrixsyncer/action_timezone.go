@@ -8,11 +8,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionTimezone() *Action {
-	action := &Action{
+func (s *Syncer) getActionTimezone() *types.Action {
+	action := &types.Action{
 		Name:     "Set my timezone",
 		Examples: []string{"set timezone Europe/Berlin", "set timezone America/Metropolis", "set timezone Asia/Shanghai"},
 		Regex:    "(?i)^set timezone .*$",

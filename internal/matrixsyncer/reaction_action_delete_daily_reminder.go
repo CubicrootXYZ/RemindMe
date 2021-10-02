@@ -3,11 +3,12 @@ package matrixsyncer
 import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReactionActionDeleteDailyReminder(rat ReactionActionType) *ReactionAction {
-	action := &ReactionAction{
+func (s *Syncer) getReactionActionDeleteDailyReminder(rat types.ReactionActionType) *types.ReactionAction {
+	action := &types.ReactionAction{
 		Name:   "Delete the daily message",
 		Keys:   []string{"❌"},
 		Action: s.reactionActionDeleteDailyReminder,

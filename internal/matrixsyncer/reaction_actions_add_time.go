@@ -7,72 +7,73 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReactionsAddTime(rat ReactionActionType) []*ReactionAction {
-	actions := make([]*ReactionAction, 0)
-	actions = append(actions, &ReactionAction{
+func (s *Syncer) getReactionsAddTime(rat types.ReactionActionType) []*types.ReactionAction {
+	actions := make([]*types.ReactionAction, 0)
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 1 hour",
 		Keys:   []string{"1️⃣"},
 		Action: s.reactionActionAdd1Hour,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 2 hours",
 		Keys:   []string{"2️⃣"},
 		Action: s.reactionActionAdd2Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 3 hours",
 		Keys:   []string{"3️⃣"},
 		Action: s.reactionActionAdd3Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 4 hours",
 		Keys:   []string{"4️⃣"},
 		Action: s.reactionActionAdd4Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 5 hours",
 		Keys:   []string{"5️⃣"},
 		Action: s.reactionActionAdd5Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 6 hours",
 		Keys:   []string{"6️⃣"},
 		Action: s.reactionActionAdd6Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 7 hours",
 		Keys:   []string{"7️⃣"},
 		Action: s.reactionActionAdd7Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 8 hours",
 		Keys:   []string{"8️⃣"},
 		Action: s.reactionActionAdd8Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 9 hours",
 		Keys:   []string{"9️⃣"},
 		Action: s.reactionActionAdd9Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 10 hours",
 		Keys:   []string{"🔟"},
 		Action: s.reactionActionAdd10Hours,
 		Type:   rat,
 	})
-	actions = append(actions, &ReactionAction{
+	actions = append(actions, &types.ReactionAction{
 		Name:   "Add 1 day",
 		Keys:   []string{"➕"},
 		Action: s.reactionActionAdd1Day,

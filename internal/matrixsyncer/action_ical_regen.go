@@ -7,11 +7,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionIcalRegenerate() *Action {
-	action := &Action{
+func (s *Syncer) getActionIcalRegenerate() *types.Action {
+	action := &types.Action{
 		Name:     "Renew calendar secret",
 		Examples: []string{"renew the calendar secret", "generate token"},
 		Regex:    "(?i)(make|generate|)[ ]*(renew|generate|delete|regenerate|renew|new)[ ]*(the|a|)[ ]+(ical|calendar|token|secret)",

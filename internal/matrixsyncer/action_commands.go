@@ -3,11 +3,12 @@ package matrixsyncer
 import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionCommands() *Action {
-	action := &Action{
+func (s *Syncer) getActionCommands() *types.Action {
+	action := &types.Action{
 		Name:     "List all commands",
 		Examples: []string{"show all commands", "list the commands", "commands"},
 		Regex:    "(?i)(^(show|list)( all| the| my)( command| commands)$|commands|help)",
@@ -24,7 +25,7 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 	msg.TextLine("You can interact with me in many ways, check out my features:")
 	msg.NewLine()
 
-	for _, action := range s.actions {
+	for _, action := range s.getActions() {
 		msg.BoldLine(action.Name)
 
 		if len(action.Examples) > 0 {
@@ -39,12 +40,13 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 	msg.List([]string{"Laundry at Sunday 12am", "Go shopping in 4 hours"})
 	msg.NewLine()
 
-	if len(s.reactionActions) > 0 {
+	reactionActions := s.getReactionActions()
+	if len(reactionActions) > 0 {
 		msg.SubTitle("Reactions")
 		msg.TextLine("I am able to understand a few reactions you can give to a message.")
 		msg.NewLine()
 
-		for _, action := range s.reactionActions {
+		for _, action := range reactionActions {
 			msg.BoldLine(action.Name)
 			msg.Text("Add one of these reactions ")
 			for _, reaction := range action.Keys {
@@ -59,8 +61,9 @@ func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) err
 	msg.TextLine("I can also understand some of your replies to messages.")
 	msg.NewLine()
 
-	if len(s.replyActions) > 0 {
-		for _, action := range s.replyActions {
+	replyActions := s.getReplyActions()
+	if len(replyActions) > 0 {
+		for _, action := range replyActions {
 			msg.BoldLine(action.Name)
 			msg.Text("Answer to a message of the type ")
 			if formater.EqMessageType(action.ReplyToTypes, database.MessageTypesWithReminder) {

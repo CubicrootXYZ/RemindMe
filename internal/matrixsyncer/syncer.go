@@ -19,17 +19,14 @@ import (
 
 // Syncer receives messages from a matrix channel
 type Syncer struct {
-	config          configuration.Matrix
-	baseURL         string
-	adminUsers      []string
-	client          *mautrix.Client
-	daemon          *eventdaemon.Daemon
-	botSettings     *configuration.BotSettings
-	botInfo         *types.BotInfo
-	messenger       Messenger
-	actions         []*Action         // Actions based on direct messages from the user
-	reactionActions []*ReactionAction // Actions based on reactions by the user
-	replyActions    []*ReplyAction    // Actions based on replies from the user on existing messages
+	config      configuration.Matrix
+	baseURL     string
+	adminUsers  []string
+	client      *mautrix.Client
+	daemon      *eventdaemon.Daemon
+	botSettings *configuration.BotSettings
+	botInfo     *types.BotInfo
+	messenger   Messenger
 }
 
 // Create creates a new syncer
@@ -41,22 +38,6 @@ func Create(config *configuration.Config, matrixAdminUsers []string, messenger M
 		messenger:   messenger,
 		botSettings: &config.BotSettings,
 	}
-
-	// Add all actions
-	syncer.actions = append(syncer.actions, syncer.getActionList())
-	syncer.actions = append(syncer.actions, syncer.getActionCommands())
-	syncer.actions = append(syncer.actions, syncer.getActionTimezone())
-	syncer.actions = append(syncer.actions, syncer.getActionSetDailyReminder())
-	syncer.actions = append(syncer.actions, syncer.getActionDeleteDailyReminder())
-	syncer.actions = append(syncer.actions, syncer.getActionIcal())
-	syncer.actions = append(syncer.actions, syncer.getActionIcalRegenerate())
-
-	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDelete(ReactionActionTypeReminderRequest))
-	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionsAddTime(ReactionActionTypeReminderRequest)...)
-	syncer.reactionActions = append(syncer.reactionActions, syncer.getReactionActionDeleteDailyReminder(ReactionActionTypeDailyReminder))
-
-	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionDelete(database.MessageTypesWithReminder))
-	syncer.replyActions = append(syncer.replyActions, syncer.getReplyActionRecurring(database.MessageTypesWithReminder))
 
 	return syncer
 }
@@ -93,13 +74,20 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		return err
 	}
 
+	// Load actions
+	messageActions := s.getActions()
+	replyActions := s.getReplyActions()
+	reactionActions := s.getReactionActions()
+
 	// Initialize handler
+	messageHandler := synchandler.NewMessageHandler(s.daemon.Database, s.messenger, s.botInfo, replyActions, messageActions)
 	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings)
+	reactionHandler := synchandler.NewReactionHandler(s.daemon.Database, s.messenger, s.botInfo, reactionActions)
 
 	// Get messages
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
-	syncer.OnEventType(event.EventMessage, s.handleMessages)
-	syncer.OnEventType(event.EventReaction, s.handleReactionEvent)
+	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)
+	syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)
 	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)
 	return client.Sync()
 }
@@ -165,4 +153,33 @@ func (s *Syncer) upgradeChannel(channel *database.Channel, defaultRole roles.Rol
 	}
 
 	return channel, err
+}
+
+func (s *Syncer) getActions() []*types.Action {
+	messageActions := make([]*types.Action, 0)
+	messageActions = append(messageActions, s.getActionList())
+	messageActions = append(messageActions, s.getActionCommands())
+	messageActions = append(messageActions, s.getActionTimezone())
+	messageActions = append(messageActions, s.getActionSetDailyReminder())
+	messageActions = append(messageActions, s.getActionDeleteDailyReminder())
+	messageActions = append(messageActions, s.getActionIcal())
+	messageActions = append(messageActions, s.getActionIcalRegenerate())
+	return messageActions
+}
+
+func (s *Syncer) getReplyActions() []*types.ReplyAction {
+	replyActions := make([]*types.ReplyAction, 0)
+	replyActions = append(replyActions, s.getReplyActionDelete(database.MessageTypesWithReminder))
+	replyActions = append(replyActions, s.getReplyActionRecurring(database.MessageTypesWithReminder))
+
+	return replyActions
+}
+
+func (s *Syncer) getReactionActions() []*types.ReactionAction {
+	reactionActions := make([]*types.ReactionAction, 0)
+	reactionActions = append(reactionActions, s.getReactionActionDelete(types.ReactionActionTypeReminderRequest))
+	reactionActions = append(reactionActions, s.getReactionsAddTime(types.ReactionActionTypeReminderRequest)...)
+	reactionActions = append(reactionActions, s.getReactionActionDeleteDailyReminder(types.ReactionActionTypeDailyReminder))
+
+	return reactionActions
 }

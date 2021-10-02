@@ -8,11 +8,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionSetDailyReminder() *Action {
-	action := &Action{
+func (s *Syncer) getActionSetDailyReminder() *types.Action {
+	action := &types.Action{
 		Name:     "Set daily reminder time",
 		Examples: []string{"daily reminder at 9am", "daily reminder at 13:00", "set the daily info at 4:00"},
 		Regex:    "(?i)^(set|update|change|)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*",
@@ -52,8 +53,8 @@ func (s *Syncer) actionSetDailyReminder(evt *event.Event, channel *database.Chan
 	return err
 }
 
-func (s *Syncer) getActionDeleteDailyReminder() *Action {
-	action := &Action{
+func (s *Syncer) getActionDeleteDailyReminder() *types.Action {
+	action := &types.Action{
 		Name:     "Delete daily reminder time",
 		Examples: []string{"remove daily reminder", "delete daily message"},
 		Regex:    "(?i)^(remove|delete|cancel)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*",

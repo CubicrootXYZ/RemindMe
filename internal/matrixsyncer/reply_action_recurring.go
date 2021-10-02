@@ -9,11 +9,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *ReplyAction {
-	action := &ReplyAction{
+func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *types.ReplyAction {
+	action := &types.ReplyAction{
 		Name:         "Make a reminder recurring",
 		Examples:     []string{"every 10 days", "each twenty two hours and five seconds"},
 		Regex:        "(?i)(repeat|every|each|always|recurring|all|any).*(second|minute|day|hour)(|s)$",

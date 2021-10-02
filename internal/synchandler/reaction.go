@@ -1,16 +1,36 @@
-package matrixsyncer
+package synchandler
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
 
-func (s *Syncer) handleReactionEvent(source mautrix.EventSource, evt *event.Event) {
+// ReactionHandler handles message events
+type ReactionHandler struct {
+	database  types.Database
+	messenger types.Messenger
+	botInfo   *types.BotInfo
+	actions   []*types.ReactionAction
+}
+
+// NewReactionHandler returns a new ReactionHandler
+func NewReactionHandler(database types.Database, messenger types.Messenger, botInfo *types.BotInfo, actions []*types.ReactionAction) *ReactionHandler {
+	return &ReactionHandler{
+		database:  database,
+		messenger: messenger,
+		botInfo:   botInfo,
+		actions:   actions,
+	}
+}
+
+// NewEvent takes a new matrix event and handles it
+func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
 	log.Debug(fmt.Sprintf("New reaction: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
 
 	// Do not answer our own and old messages
@@ -18,7 +38,7 @@ func (s *Syncer) handleReactionEvent(source mautrix.EventSource, evt *event.Even
 		return
 	}
 
-	channel, err := s.daemon.Database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
+	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
 	if err != nil {
 		log.Warn("Do not know that user and channel.")
 	}
@@ -34,15 +54,15 @@ func (s *Syncer) handleReactionEvent(source mautrix.EventSource, evt *event.Even
 		return
 	}
 
-	message, err := s.daemon.Database.GetMessageByExternalID(content.RelatesTo.EventID.String())
+	message, err := s.database.GetMessageByExternalID(content.RelatesTo.EventID.String())
 	if err != nil {
 		log.Info("Do not know the message related to the reaction.")
 		return
 	}
 
-	for _, action := range s.reactionActions {
+	for _, action := range s.actions {
 		log.Info("Checking for match with action " + action.Name)
-		if action.Type != ReactionActionType(message.Type) && action.Type != ReactionActionTypeAll {
+		if action.Type != types.ReactionActionType(message.Type) && action.Type != types.ReactionActionTypeAll {
 			continue
 		}
 
