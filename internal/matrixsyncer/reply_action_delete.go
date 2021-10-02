@@ -7,11 +7,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *ReplyAction {
-	action := &ReplyAction{
+func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *types.ReplyAction {
+	action := &types.ReplyAction{
 		Name:         "Delete a reminder",
 		Examples:     []string{"delete", "remove", "cancel"},
 		Regex:        "(?i)^(delete|remove|cancel)$",

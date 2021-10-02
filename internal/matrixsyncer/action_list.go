@@ -5,11 +5,12 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionList() *Action {
-	action := &Action{
+func (s *Syncer) getActionList() *types.Action {
+	action := &types.Action{
 		Name:     "List all reminders",
 		Examples: []string{"list", "list reminders", "show", "show reminders", "list my reminders", "reminders"},
 		Regex:    "(?i)((^list|^show)(| all| the)(| reminders| my reminders)(| please)$|^reminders$|^reminder$)",

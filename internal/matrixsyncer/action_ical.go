@@ -8,11 +8,12 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
 
-func (s *Syncer) getActionIcal() *Action {
-	action := &Action{
+func (s *Syncer) getActionIcal() *types.Action {
+	action := &types.Action{
 		Name:     "Get iCal link",
 		Examples: []string{"ical", "calendar link", "show me the calendar link please"},
 		Regex:    "(?i)(^ical$|(show|give|list|send|write|).*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))",
@@ -39,7 +40,7 @@ func (s *Syncer) actionIcal(evt *event.Event, channel *database.Channel) error {
 	if len(channel.CalendarSecret) < 20 {
 		msg.Text("This channel does not support calendar links. Ask your administrator to set a secret/token for you.")
 	} else {
-		msg.TextLine("With this link you can get access to the calendar (ics) file. Keep it secret! It will change on each call.")
+		msg.TextLine("With this link you can get access to the calendar (ics) file. Keep it secret!")
 		msg.Spoiler(s.baseURL + "/calendar/" + strconv.FormatUint(uint64(channel.ID), 10) + "/ical?token=" + channel.CalendarSecret)
 	}
 
