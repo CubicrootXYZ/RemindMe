@@ -11,16 +11,18 @@ import (
 type Server struct {
 	config   *configuration.Webserver
 	calendar *handler.CalendarHandler
+	database *handler.DatabaseHandler
 }
 
 // NewServer returns a new webserver
-func NewServer(config *configuration.Webserver, calendarHandler *handler.CalendarHandler) *Server {
+func NewServer(config *configuration.Webserver, calendarHandler *handler.CalendarHandler, databaseHandler *handler.DatabaseHandler) *Server {
 	if len(config.APIkey) < 20 {
 		panic(errors.ErrAPIkeyCriteriaNotMet)
 	}
 	return &Server{
 		config:   config,
 		calendar: calendarHandler,
+		database: databaseHandler,
 	}
 }
 
@@ -39,6 +41,14 @@ func (server *Server) Start() {
 		calendarGroup.GET("", server.calendar.GetCalendars)
 		calendarGroup.PATCH("/:id", RequireIDInURI(), server.calendar.PatchCalender)
 	}
+
+	channelGroup := r.Group("/channel")
+	channelGroup.Use(RequireAPIkey(server.config.APIkey))
+	{
+		channelGroup.GET("", server.database.GetChannels)
+		channelGroup.DELETE("/:id", RequireIDInURI(), server.database.DeleteChannel)
+	}
+
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
 	r.Run() // Port 8080
