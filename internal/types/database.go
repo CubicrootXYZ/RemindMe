@@ -39,6 +39,7 @@ type Database interface {
 
 	CleanAdminChannels(keep []*database.Channel) error
 	DeleteChannel(channel *database.Channel) error
+	DeleteChannelsFromUser(userID string) error
 
 	// Events
 	IsEventKnown(externalID string) (bool, error)

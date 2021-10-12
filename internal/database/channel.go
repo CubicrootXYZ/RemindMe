@@ -190,3 +190,21 @@ func (d *Database) DeleteChannel(channel *Channel) error {
 
 	return d.db.Unscoped().Delete(channel).Error
 }
+
+// DeleteChannelsFromUser removed all channels from the given matrix user
+func (d *Database) DeleteChannelsFromUser(userID string) error {
+	channels := make([]Channel, 0)
+	err := d.db.Find(&channels, "user_identifier = ? AND role != 'admin'", userID).Error
+	if err != nil {
+		return err
+	}
+
+	for _, channel := range channels {
+		err := d.DeleteChannel(&channel)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
