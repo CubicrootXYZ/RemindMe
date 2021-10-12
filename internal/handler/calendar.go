@@ -40,10 +40,10 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 
 	for _, channel := range channels {
 		calendars = append(calendars, calendarResponse{
-			ID:      channel.ID,
-			User:    channel.UserIdentifier,
-			Token:   channel.CalendarSecret,
-			Channel: channel.ChannelIdentifier,
+			ID:                channel.ID,
+			UserIdentifier:    channel.UserIdentifier,
+			Token:             channel.CalendarSecret,
+			ChannelIdentifier: channel.ChannelIdentifier,
 		})
 	}
 

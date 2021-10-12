@@ -54,6 +54,7 @@ func main() {
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)
+	databaseHandler := handler.NewDatabaseHandler(db)
 
 	// Start event daemon
 	eventDaemon := eventdaemon.Create(db, syncer)
@@ -67,7 +68,7 @@ func main() {
 
 	// Start the Webserver
 	if config.Webserver.Enabled {
-		server := api.NewServer(&config.Webserver, calendarHandler)
+		server := api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		wg.Add(1)
 		go server.Start()
 	}
