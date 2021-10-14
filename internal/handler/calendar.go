@@ -24,6 +24,7 @@ func NewCalendarHandler(database types.Database) *CalendarHandler {
 // GetCalendars godoc
 // @Summary List all calendars
 // @Description List all available calendars
+// @Tag Calendars
 // @Security Admin-Authentication
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]calendarResponse}
@@ -58,6 +59,7 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 // GetCalendarICal godoc
 // @Summary Get calendar (iCal)
 // @Description Get calendar as iCal
+// @Tag Calendars
 // @Produce plain
 // @Param id path int true "Calendar ID"
 // @Param token query string true "authentication token"
@@ -102,6 +104,7 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 // PatchCalender godoc
 // @Summary Renew calendar secret
 // @Description Regenerates the calendars secret
+// @Tag Calendars
 // @Security Admin-Authentication
 // @Produce json
 // @Param id path int true "Calendar ID"

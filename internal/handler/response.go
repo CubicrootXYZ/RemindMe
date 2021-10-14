@@ -30,5 +30,5 @@ type channelResponse struct {
 	UserIdentifier    string      `json:"user_id"`    // Matrix user identifier
 	TimeZone          string      `json:"timezone" default:""`
 	DailyReminder     bool        `json:"daily_reminder"` // Whether the daily reminder is activated or not
-	Role              *roles.Role `json:"role" enums:"user,admin"`
+	Role              *roles.Role `json:"role" enums:"user,admin" extensions:"x-nullable"`
 }
