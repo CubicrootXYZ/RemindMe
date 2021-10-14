@@ -22,7 +22,7 @@ func NewDatabaseHandler(database types.Database) *DatabaseHandler {
 // GetChannels godoc
 // @Summary List all channels
 // @Description List all channels
-// @Tag Channels
+// @Tags Channels
 // @Security Admin-Authentication
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]channelResponse}
@@ -60,12 +60,12 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 // DeleteChannel godoc
 // @Summary Delete a channel
 // @Description Delete a channel and remove access for this user. If the bot is open for invites the user can simply start a new chat.
-// @Tag Channels
+// @Tags Channels
 // @Security Admin-Authentication
 // @Produce json
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
-// @Router /channel/{id} [get]
+// @Router /channel/{id} [delete]
 func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 	channelID, err := getUintFromContext(ctx, "id")
 	if err != nil {
