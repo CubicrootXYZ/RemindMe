@@ -39,7 +39,7 @@ jobs:
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Add code samples to api documentation
-        run: openapi-code-sample-generator generate --input-file swagger.yaml --output-file out.yaml
+        run: openapi-code-sample-generator generate --input-file docs/swagger.yaml --output-file docs/out.yaml
       - name: Build static html
         run: npx redoc-cli bundle docs/out.yaml --output index.html
       - name: Commit static html back
