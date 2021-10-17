@@ -40,6 +40,7 @@ func testChannels() []*Channel {
 	channels := make([]*Channel, 0)
 
 	channels = append(channels, testChannel1())
+	channels = append(channels, testChannel2())
 
 	return channels
 }
