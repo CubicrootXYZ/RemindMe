@@ -38,10 +38,11 @@ jobs:
         run: go build -o ./app ./cmd/remindme
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
-      - name: Add code samples to api documentation
-        run: openapi-code-sample-generator generate --input-file docs/swagger.yaml --output-file docs/out.yaml
+      # Currently broken
+      #- name: Add code samples to api documentation
+      #  run: openapi-code-sample-generator generate --input-file docs/swagger.yaml --output-file docs/out.yaml
       - name: Build static html
-        run: npx redoc-cli bundle docs/out.yaml --output index.html
+        run: npx redoc-cli bundle docs/swagger.yaml --output index.html
       - name: Commit static html back
         uses: stefanzweifel/git-auto-commit-action@v4
 
