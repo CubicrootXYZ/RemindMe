@@ -466,8 +466,7 @@ func TestChannel_GenerateNewCalendarSecretOnSuccess(t *testing.T) {
 	db, mock := testDatabase()
 
 	for _, channel := range testChannels() {
-		var oldSecret string
-		oldSecret = channel.CalendarSecret
+		oldSecret := channel.CalendarSecret
 
 		mock.ExpectBegin()
 		mock.ExpectExec("UPDATE `channels`").WithArgs(
