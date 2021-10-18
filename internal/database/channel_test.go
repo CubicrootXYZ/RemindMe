@@ -34,19 +34,8 @@ func TestChannel_AddChannelOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
 			WithArgs(channel.UserIdentifier, channel.ChannelIdentifier).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		channelCreated, err := db.AddChannel(channel.UserIdentifier, channel.ChannelIdentifier, roles.RoleUser)
 		require.NoError(err)
@@ -122,19 +111,8 @@ func TestChannel_GetChannelOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
 			WithArgs(channel.ID).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		c, err := db.GetChannel(channel.ID)
 		require.NoError(err)
@@ -175,19 +153,8 @@ func TestChannel_GetChannelByUserIdentifierOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
 			WithArgs(channel.UserIdentifier).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		c, err := db.GetChannelByUserIdentifier(channel.UserIdentifier)
 		require.NoError(err)
@@ -227,31 +194,20 @@ func TestChannel_GetChannelByChannelIdentifierOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
 			WithArgs(channel.ChannelIdentifier).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				).AddRow(
-					channel.ID+10,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}).
+					AddRow(
+						channel.ID+10,
+						channel.CreatedAt,
+						channel.UpdatedAt,
+						channel.DeletedAt,
+						channel.Created,
+						channel.ChannelIdentifier,
+						channel.UserIdentifier,
+						channel.TimeZone,
+						channel.DailyReminder,
+						channel.CalendarSecret,
+						channel.Role,
+					))
 
 		cs, err := db.GetChannelsByChannelIdentifier(channel.ChannelIdentifier)
 		require.NoError(err)
@@ -299,19 +255,8 @@ func TestChannel_GetChannelByUserAndChannelIdentifierOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
 			WithArgs(channel.UserIdentifier, channel.ChannelIdentifier).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		c, err := db.GetChannelByUserAndChannelIdentifier(channel.UserIdentifier, channel.ChannelIdentifier)
 		require.NoError(err)
@@ -356,24 +301,7 @@ func TestChannel_GetChannelListOnSuccess(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 	db, mock := testDatabase()
-
-	response := sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"})
-
-	for _, channel := range testChannels() {
-		response.AddRow(
-			channel.ID,
-			channel.CreatedAt,
-			channel.UpdatedAt,
-			channel.DeletedAt,
-			channel.Created,
-			channel.ChannelIdentifier,
-			channel.UserIdentifier,
-			channel.TimeZone,
-			channel.DailyReminder,
-			channel.CalendarSecret,
-			channel.Role,
-		)
-	}
+	response := rowsForChannels(testChannels())
 
 	mock.ExpectQuery("SELECT (.*) FROM `channels`").WillReturnRows(response)
 
@@ -450,19 +378,8 @@ func TestChannel_UpdateChannelOnSuccess(t *testing.T) {
 				channel.ID,
 			).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		mock.ExpectBegin()
 		mock.ExpectExec("UPDATE `channels`").WithArgs(
@@ -506,19 +423,8 @@ func TestChannel_UpdateChannelOnFailure(t *testing.T) {
 				channel.ID,
 			).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}).AddRow(
-					channel.ID,
-					channel.CreatedAt,
-					channel.UpdatedAt,
-					channel.DeletedAt,
-					channel.Created,
-					channel.ChannelIdentifier,
-					channel.UserIdentifier,
-					channel.TimeZone,
-					channel.DailyReminder,
-					channel.CalendarSecret,
-					channel.Role,
-				))
+				rowsForChannels([]*Channel{channel}),
+			)
 
 		mock.ExpectBegin()
 		mock.ExpectExec("UPDATE `channels`").WithArgs(
@@ -552,4 +458,294 @@ func TestChannel_UpdateChannelOnFailure(t *testing.T) {
 	}
 
 	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_GenerateNewCalendarSecretOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		var oldSecret string
+		oldSecret = channel.CalendarSecret
+
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `channels`").WithArgs(
+			channel.CreatedAt,
+			sqlmock.AnyArg(),
+			channel.DeletedAt,
+			channel.Created,
+			channel.ChannelIdentifier,
+			channel.UserIdentifier,
+			channel.TimeZone,
+			channel.DailyReminder,
+			sqlmock.AnyArg(),
+			channel.Role,
+			channel.ID,
+		).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+
+		err := db.GenerateNewCalendarSecret(channel)
+		require.NoError(err)
+
+		assert.NotEqual(oldSecret, channel.CalendarSecret)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_GenerateNewCalendarSecretOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `channels`").WithArgs(
+			channel.CreatedAt,
+			sqlmock.AnyArg(),
+			channel.DeletedAt,
+			channel.Created,
+			channel.ChannelIdentifier,
+			channel.UserIdentifier,
+			channel.TimeZone,
+			channel.DailyReminder,
+			sqlmock.AnyArg(),
+			channel.Role,
+			channel.ID,
+		).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		err := db.GenerateNewCalendarSecret(channel)
+		require.Error(err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_DeleteChannelOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `events`").WithArgs(nil, sqlmock.AnyArg(), channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `channels`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+
+		err := db.DeleteChannel(channel)
+		require.NoError(err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_DeleteChannelOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `events`").WithArgs(nil, sqlmock.AnyArg(), channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `channels`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		err := db.DeleteChannel(channel)
+		assert.Error(err)
+	}
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `events`").WithArgs(nil, sqlmock.AnyArg(), channel.ID).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		err := db.DeleteChannel(channel)
+		assert.Error(err)
+	}
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		err := db.DeleteChannel(channel)
+		assert.Error(err)
+	}
+
+	for _, channel := range testChannels() {
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		err := db.DeleteChannel(channel)
+		assert.Error(err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_DeleteChannelsFromUserOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.UserIdentifier).
+			WillReturnRows(rowsForChannels([]*Channel{channel}))
+
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `events`").WithArgs(nil, sqlmock.AnyArg(), channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `channels`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+
+		err := db.DeleteChannelsFromUser(channel.UserIdentifier)
+		require.NoError(err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_DeleteChannelsFromUserOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.UserIdentifier).
+			WillReturnError(errors.New("test error"))
+
+		err := db.DeleteChannelsFromUser(channel.UserIdentifier)
+		require.Error(err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_CleanAdminChannelsOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+	response := rowsForChannels(testChannels())
+
+	mock.ExpectQuery("SELECT (.*) FROM `channels`").WillReturnRows(response)
+
+	for _, channel := range testChannels() {
+		if channel.Role != nil && *channel.Role != roles.RoleAdmin {
+			continue
+		}
+
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `reminders`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("UPDATE `events`").WithArgs(nil, sqlmock.AnyArg(), channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `channels`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
+		mock.ExpectCommit()
+	}
+
+	err := db.CleanAdminChannels([]*Channel{})
+	require.NoError(err)
+
+	assert.NoError(mock.ExpectationsWereMet())
+
+	mock.ExpectQuery("SELECT (.*) FROM `channels`").WillReturnRows(response)
+
+	err = db.CleanAdminChannels(testChannels())
+	require.NoError(err)
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_CleanAdminChannelsOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+	response := rowsForChannels(testChannels())
+
+	mock.ExpectQuery("SELECT (.*) FROM `channels`").WillReturnError(errors.New("test error"))
+
+	err := db.CleanAdminChannels([]*Channel{})
+	require.Error(err)
+	assert.NoError(mock.ExpectationsWereMet())
+
+	mock.ExpectQuery("SELECT (.*) FROM `channels`").WillReturnRows(response)
+
+	for _, channel := range testChannels() {
+		if channel.Role != nil && *channel.Role != roles.RoleAdmin {
+			continue
+		}
+
+		mock.ExpectBegin()
+		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
+		mock.ExpectRollback()
+
+		break
+	}
+
+	err = db.CleanAdminChannels([]*Channel{})
+	require.Error(err)
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+// HELPER
+
+func rowsForChannels(channels []*Channel) *sqlmock.Rows {
+	rows := sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"})
+
+	for _, channel := range channels {
+		rows.AddRow(
+			channel.ID,
+			channel.CreatedAt,
+			channel.UpdatedAt,
+			channel.DeletedAt,
+			channel.Created,
+			channel.ChannelIdentifier,
+			channel.UserIdentifier,
+			channel.TimeZone,
+			channel.DailyReminder,
+			channel.CalendarSecret,
+			channel.Role,
+		)
+	}
+
+	return rows
 }
