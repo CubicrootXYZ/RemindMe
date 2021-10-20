@@ -38,9 +38,10 @@ jobs:
         run: go build -o ./app ./cmd/remindme
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
-      # Currently broken
-      #- name: Add code samples to api documentation
-      #  run: openapi-code-sample-generator generate --input-file docs/swagger.yaml --output-file docs/out.yaml
+      - name: Convert to OpenApi 3
+        run: openapi-code-sample-generator convert --file docs/swagger.yaml --output-file docs/swagger3.yaml
+      - name: Add code samples to api documentation
+        run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/out.yaml
       - name: Build static html
         run: npx redoc-cli bundle docs/swagger.yaml --output index.html
       - name: Commit static html back
