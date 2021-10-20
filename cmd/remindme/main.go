@@ -21,7 +21,7 @@ import (
 // @contact.name Support
 // @contact.url https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-// @host https://your-bot-domain.tld
+// @host your-bot-domain.tld
 // @BasePath /
 // @query.collection.format multi
 
