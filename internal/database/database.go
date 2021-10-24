@@ -18,20 +18,27 @@ func Create(config configuration.Database) (*Database, error) {
 		config: config,
 	}
 
-	err := db.initialize()
+	err := db.connect()
+	if err != nil {
+		return nil, err
+	}
+	err = db.initialize()
 
 	return &db, err
 }
 
-func (d *Database) initialize() error {
+func (d *Database) connect() error {
 	db, err := gorm.Open(mysql.Open(d.config.Connection+"?parseTime=True"), &gorm.Config{})
 	if err != nil {
 		return err
 	}
 
 	d.db = *db
+	return nil
+}
 
-	err = d.db.AutoMigrate(&Reminder{})
+func (d *Database) initialize() error {
+	err := d.db.AutoMigrate(&Reminder{})
 	if err != nil {
 		return err
 	}

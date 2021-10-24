@@ -16,7 +16,7 @@ func ToNiceDuration(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%s%.0f seconds", pre, float64(d/time.Second))
 	} else if d < time.Hour {
-		return fmt.Sprintf("%s%.0f minutes", pre, float64(d/time.Second))
+		return fmt.Sprintf("%s%.0f minutes", pre, float64(d/time.Minute))
 	} else if d < 48*time.Hour {
 		return fmt.Sprintf("%s%.0f hours", pre, float64(d/time.Hour))
 	}

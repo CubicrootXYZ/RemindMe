@@ -126,3 +126,4 @@ Great thanks to the libraries used in this project:
 * [Gorm](https://github.com/go-gorm/gorm)
 * [Stretchr/Testify](https://github.com/stretchr/testify)
 * [Gin](https://github.com/gin-gonic/gin)
+* [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)
