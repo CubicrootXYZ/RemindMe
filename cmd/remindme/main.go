@@ -31,6 +31,7 @@ import (
 
 func main() {
 	wg := sync.WaitGroup{}
+
 	// Load config
 	config, err := configuration.Load([]string{"config.yml"})
 	if err != nil {
