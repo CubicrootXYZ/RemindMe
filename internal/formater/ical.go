@@ -19,14 +19,14 @@ func MinutesToIcalRecurrenceRule(minutes uint64, occurences uint64) string {
 	rule.WriteString("RRULE:")
 
 	if minutes%(60*24) == 0 {
-		days := minutes % (60 * 24)
+		days := minutes / (60 * 24)
 		rule.WriteString("FREQ=DAILY")
 		if days > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(days, 10))
 		}
 	} else if minutes%(60) == 0 {
-		hours := minutes % (60)
+		hours := minutes / (60)
 		rule.WriteString("FREQ=HOURLY")
 		if hours > 1 {
 			rule.WriteString(";INTERVAL=")
@@ -50,6 +50,9 @@ func MinutesToIcalRecurrenceRule(minutes uint64, occurences uint64) string {
 
 // ReminderToIcalEvent formats a reminder into an iCal event
 func ReminderToIcalEvent(reminder *database.Reminder) string {
+	if reminder == nil {
+		return ""
+	}
 	ical := strings.Builder{}
 	endTime := reminder.RemindTime.Add(5 * time.Minute)
 	ical.WriteString("BEGIN:VEVENT\nDTSTART:")

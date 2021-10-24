@@ -69,7 +69,7 @@ func ParseTime(msg string, channel *database.Channel, rawDate bool) (time.Time, 
 		}
 	}
 
-	return parsedTime, nil
+	return parsedTime.In(loc), nil
 }
 
 // TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format

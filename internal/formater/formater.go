@@ -44,8 +44,8 @@ func (f *Formater) BoldLine(text string) {
 	f.msgFormatted.WriteString("<b>" + text + "</b><br>")
 }
 
-// Quote quotes the text
-func (f *Formater) Quote(text string) {
+// QuoteLine quotes the text
+func (f *Formater) QuoteLine(text string) {
 	f.msg.WriteString("> " + text + "\n")
 	f.msgFormatted.WriteString("<blockquote>" + text + "</blockquote>" + "<br>")
 }

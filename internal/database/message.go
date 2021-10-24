@@ -105,10 +105,13 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 	message := Message{
 		ResponseToMessage:  relatesTo,
 		Type:               msgType,
-		ChannelID:          channel.ID,
-		Channel:            *channel,
 		Timestamp:          timestamp,
 		ExternalIdentifier: id,
+	}
+
+	if channel != nil {
+		message.ChannelID = channel.ID
+		message.Channel = *channel
 	}
 	message.Model.CreatedAt = time.Now().UTC()
 
