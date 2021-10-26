@@ -19,7 +19,7 @@ func TestFormater_StripReply(t *testing.T) {
 
 func TestFormater_StripReplyFormatted(t *testing.T) {
 	testCases := make(map[string]string)
-	// broken #42 testCases["Hello"] = "<mx-reply> My name is fjfjfjf</mx-reply>Hello<mx-reply> I am cool</mx-reply>"
+	testCases["Hello"] = "<mx-reply> My name is fjfjfjf</mx-reply>Hello<mx-reply> I am cool</mx-reply>"
 	testCases["some random text "] = "some random text <mx-reply>> I am cool</mx-reply>"
 	testCases["some random text "] = "<mx-reply>> I am cool</mx-reply>some random text "
 
