@@ -20,6 +20,6 @@ func StripReply(msg string) string {
 
 // StripReplyFormatted removes the quoted reply from a message
 func StripReplyFormatted(msg string) string {
-	re := regexp.MustCompile(`(?s)<mx-reply>.*<\/mx-reply>`)
+	re := regexp.MustCompile(`(?s)<mx-reply>.*?<\/mx-reply>`)
 	return re.ReplaceAllString(msg, "")
 }
