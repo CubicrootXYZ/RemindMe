@@ -8,6 +8,7 @@ require (
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/gin-gonic/gin v1.7.4
 	github.com/jinzhu/configor v1.2.1
+	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/proullon/ramsql v0.0.0-20210730175921-2692f3496a21 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tj/go-naturaldate v1.3.0
