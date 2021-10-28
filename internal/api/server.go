@@ -27,8 +27,14 @@ func NewServer(config *configuration.Webserver, calendarHandler *handler.Calenda
 }
 
 // Start starts the http server
-func (server *Server) Start() {
-	r := gin.Default()
+func (server *Server) Start(debug bool) {
+	r := gin.New()
+	r.Use(gin.Recovery())
+	r.Use(Logger())
+	if !debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",

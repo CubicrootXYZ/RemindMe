@@ -11,8 +11,9 @@ require (
 	github.com/proullon/ramsql v0.0.0-20210730175921-2692f3496a21 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tj/go-naturaldate v1.3.0
+	go.uber.org/zap v1.19.1
 	golang.org/x/text v0.3.6
 	gorm.io/driver/mysql v1.1.1
 	gorm.io/gorm v1.21.11
-	maunium.net/go/mautrix v0.9.24
+	maunium.net/go/mautrix v0.9.31
 )

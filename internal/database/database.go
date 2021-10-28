@@ -10,12 +10,14 @@ import (
 type Database struct {
 	config configuration.Database
 	db     gorm.DB
+	debug  bool
 }
 
 // Create creates a database object
-func Create(config configuration.Database) (*Database, error) {
+func Create(config configuration.Database, debug bool) (*Database, error) {
 	db := Database{
 		config: config,
+		debug:  debug,
 	}
 
 	err := db.connect()

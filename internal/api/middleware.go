@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -34,7 +35,7 @@ func RequireAPIkey(apikey string) gin.HandlerFunc {
 				Status:  "error",
 			}
 			ctx.JSON(http.StatusUnauthorized, response)
-			ctx.AbortWithError(http.StatusForbidden, errors.ErrMissingApiKey)
+			ctx.AbortWithError(http.StatusUnauthorized, errors.ErrMissingApiKey)
 			return
 		}
 	}
@@ -60,5 +61,50 @@ func RequireIDInURI() gin.HandlerFunc {
 		}
 
 		ctx.Set("id", requestModel.ID)
+	}
+}
+
+// Logger is a generic logger for gin
+func Logger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Start timer
+		start := time.Now()
+		path := c.Request.URL.Path
+		raw := c.Request.URL.RawQuery
+
+		// Process request
+		c.Next()
+
+		param := gin.LogFormatterParams{
+			Request: c.Request,
+			Keys:    c.Keys,
+		}
+
+		// Stop timer
+		param.TimeStamp = time.Now()
+		param.Latency = param.TimeStamp.Sub(start)
+
+		param.ClientIP = c.ClientIP()
+		param.Method = c.Request.Method
+		param.StatusCode = c.Writer.Status()
+		param.ErrorMessage = c.Errors.ByType(gin.ErrorTypePrivate).String()
+
+		param.BodySize = c.Writer.Size()
+
+		if raw != "" {
+			path = path + "?" + raw
+		}
+
+		param.Path = path
+
+		log.UInfo("New request",
+			"path", param.Path,
+			"status_code", param.StatusCode,
+			"method", param.Method,
+			"timestamp", param.TimeStamp.Unix(),
+			"duration", param.Latency.Seconds(),
+			"error", param.ErrorMessage,
+		)
+
 	}
 }

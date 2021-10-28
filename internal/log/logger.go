@@ -1,8 +1,7 @@
 package log
 
 import (
-	"fmt"
-	"time"
+	"go.uber.org/zap"
 )
 
 // ANSI colors: https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
@@ -14,27 +13,39 @@ var (
 	Blue   = "34"
 )
 
+var logger *zap.SugaredLogger
+
+// InitLogger initializes a new logger. Make sure to call defer logger.Sync().
+func InitLogger() *zap.SugaredLogger {
+	log, err := zap.NewProduction(zap.AddCallerSkip(1))
+	if err != nil {
+		panic(err)
+	}
+	logger = log.Sugar()
+	return logger
+}
+
 // Debug logs with tag debug
 func Debug(msg string) {
-	print(msg, "DEBUG", None)
+	logger.Debug("msg")
+}
+
+// UInfo unstructured info log
+func UInfo(msg string, args ...interface{}) {
+	logger.Infow(msg, args...)
 }
 
 // Info logs with tag info and in blue
 func Info(msg string) {
-	print(msg, "INFO", Blue)
+	logger.Info(msg)
 }
 
 // Warn logs with tag warn and in yellow
 func Warn(msg string) {
-	print(msg, "WARNING", Yellow)
+	logger.Warn(msg)
 }
 
 // Error logs with tag error and in red
 func Error(msg string) {
-	print(msg, "ERROR", Red)
-}
-
-func print(msg string, severity string, color string) {
-	currentTime := time.Now()
-	fmt.Printf("\033[0;%sm%s - [%s] --> %s\033[0m\n", color, currentTime.Format("2006-01-02 15:04:05"), severity, msg)
+	logger.Error(msg)
 }
