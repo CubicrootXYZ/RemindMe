@@ -15,6 +15,10 @@ var (
 
 var logger *zap.SugaredLogger
 
+func init() {
+	InitLogger()
+}
+
 // InitLogger initializes a new logger. Make sure to call defer logger.Sync().
 func InitLogger() *zap.SugaredLogger {
 	log, err := zap.NewProduction(zap.AddCallerSkip(1))

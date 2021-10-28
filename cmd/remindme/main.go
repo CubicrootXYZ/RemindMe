@@ -43,7 +43,7 @@ func main() {
 	}
 
 	// Set up database
-	db, err := database.Create(config.Database)
+	db, err := database.Create(config.Database, config.Debug)
 	if err != nil {
 		panic(err)
 	}
