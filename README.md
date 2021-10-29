@@ -128,3 +128,4 @@ Great thanks to the libraries used in this project:
 * [Gin](https://github.com/gin-gonic/gin)
 * [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)
 * [zap](https://github.com/uber-go/zap)
+* [CubicrootXYZ/gormlogger](https://github.com/CubicrootXYZ/gormlogger)

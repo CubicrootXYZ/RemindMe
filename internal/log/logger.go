@@ -4,17 +4,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// ANSI colors: https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
-var (
-	None   = "0"
-	Red    = "31"
-	Green  = "32"
-	Yellow = "33"
-	Blue   = "34"
-)
-
 var logger *zap.SugaredLogger
 
+// Workaround for testing
 func init() {
 	InitLogger()
 }

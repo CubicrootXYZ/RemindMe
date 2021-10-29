@@ -40,7 +40,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 
 	// Get all meta data
 	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
-	if err != nil {
+	if err != nil || channel == nil {
 		log.Warn("Do not know that user and channel.")
 	}
 
