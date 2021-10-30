@@ -8,22 +8,33 @@ var logger *zap.SugaredLogger
 
 // Workaround for testing
 func init() {
-	InitLogger()
+	InitLogger(true)
 }
 
 // InitLogger initializes a new logger. Make sure to call defer logger.Sync().
-func InitLogger() *zap.SugaredLogger {
-	log, err := zap.NewProduction(zap.AddCallerSkip(1))
-	if err != nil {
-		panic(err)
+func InitLogger(debug bool) *zap.SugaredLogger {
+	var err error
+	var log *zap.Logger
+
+	if debug {
+		log, err = zap.NewDevelopment(zap.AddCallerSkip(1))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		log, err = zap.NewProduction(zap.AddCallerSkip(1))
+		if err != nil {
+			panic(err)
+		}
 	}
+
 	logger = log.Sugar()
 	return logger
 }
 
 // Debug logs with tag debug
 func Debug(msg string) {
-	logger.Debug("msg")
+	logger.Debug(msg)
 }
 
 // UInfo unstructured info log

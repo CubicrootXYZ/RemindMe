@@ -35,7 +35,7 @@ func (s *Syncer) replyActionDeleteReminder(evt *event.Event, channel *database.C
 	if err != nil {
 		msg = fmt.Sprintf("Sorry, I could not delete the reminder %d.", replyMessage.ReminderID)
 		msgFormatted = msg
-		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, reminder.ID)
+		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, 0)
 		return err
 	}
 

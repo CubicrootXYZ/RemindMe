@@ -32,7 +32,7 @@ func Create(config configuration.Database, debug bool) (*Database, error) {
 }
 
 func (d *Database) connect() error {
-	logger := gormlogger.NewLogger()
+	logger := gormlogger.NewLogger(d.debug)
 
 	db, err := gorm.Open(mysql.Open(d.config.Connection+"?parseTime=True"), &gorm.Config{
 		Logger: logger,

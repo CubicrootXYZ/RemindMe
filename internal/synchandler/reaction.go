@@ -63,7 +63,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 
 	// Cycle through all actions
 	for _, action := range s.actions {
-		log.Info("Checking for match with action " + action.Name)
+		log.Debug("Checking for match with action " + action.Name)
 		if action.Type != types.ReactionActionType(message.Type) && action.Type != types.ReactionActionTypeAll {
 			continue
 		}

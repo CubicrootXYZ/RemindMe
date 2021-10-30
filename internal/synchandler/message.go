@@ -106,15 +106,15 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 
 	// Cycle through all registered actions
 	for _, action := range s.replyActions {
-		log.Info("Checking for match with " + action.Name)
-		log.Info(string(replyMessage.Type))
+		log.Debug("Checking for match with " + action.Name)
+		log.Debug(string(replyMessage.Type))
 
 		for _, rtt := range action.ReplyToTypes {
 			if rtt == replyMessage.Type {
-				log.Info("Regex matching: " + message)
+				log.Debug("Regex matching: " + message)
 				if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
 					_ = action.Action(evt, channel, replyMessage, content)
-					log.Info("Matched")
+					log.Debug("Matched")
 					return true
 				}
 			}
@@ -163,10 +163,10 @@ func (s *MessageHandler) checkActions(evt *event.Event, channel *database.Channe
 
 	// List action
 	for _, action := range s.actions {
-		log.Info("Checking for match with action " + action.Name)
+		log.Debug("Checking for match with action " + action.Name)
 		if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
 			_ = action.Action(evt, channel)
-			log.Info("Matched")
+			log.Debug("Matched")
 			return true
 		}
 	}

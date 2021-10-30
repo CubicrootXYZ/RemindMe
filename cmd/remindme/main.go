@@ -31,9 +31,6 @@ import (
 // @name Authorization
 
 func main() {
-	logger := log.InitLogger()
-	defer logger.Sync()
-
 	wg := sync.WaitGroup{}
 
 	// Load config
@@ -41,6 +38,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	logger := log.InitLogger(config.Debug)
+	defer logger.Sync()
 
 	// Set up database
 	db, err := database.Create(config.Database, config.Debug)
