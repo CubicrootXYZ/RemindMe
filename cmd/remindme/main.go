@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	pLog "log"
 	"sync"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
@@ -9,6 +9,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
@@ -38,8 +39,11 @@ func main() {
 		panic(err)
 	}
 
+	logger := log.InitLogger(config.Debug)
+	defer logger.Sync()
+
 	// Set up database
-	db, err := database.Create(config.Database)
+	db, err := database.Create(config.Database, config.Debug)
 	if err != nil {
 		panic(err)
 	}
@@ -71,9 +75,9 @@ func main() {
 	if config.Webserver.Enabled {
 		server := api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		wg.Add(1)
-		go server.Start()
+		go server.Start(config.Debug)
 	}
 
 	wg.Wait()
-	log.Print("Stopped Bot")
+	pLog.Print("Stopped Bot")
 }
