@@ -27,5 +27,5 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gorm.io/driver/mysql v1.1.3
 	gorm.io/gorm v1.22.2
-	maunium.net/go/mautrix v0.9.31
+	maunium.net/go/mautrix v0.10.0
 )
