@@ -7,6 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -54,8 +55,18 @@ func main() {
 		panic(err)
 	}
 
+	// Create encryption handler
+	sqlDB, err := db.SQLDB()
+	if err != nil {
+		panic(err)
+	}
+	cryptoStore, err := encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
+	if err != nil {
+		panic(err) // TODO properly handle
+	}
+
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger)
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore)
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)

@@ -95,16 +95,23 @@ In any case you need a config file with your preferences and credentials.
 
 ### Plain
 
-1. Download the code
-2. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
-3. Setup your config file
-4. Run the binary
+Plain installation requires knowledge about building go binaries and installing arbitrary packages. We recommend using the prebuild docker containers.
+
+1. Install the dependencies
+    1. You need `libolm-dev` with at least version 3 (e.g. for debian buster run `apt install libolm-dev/buster-backports -y`)
+    2. Install `gcc` which is required by cgo (e.g. for debian buster run `apt install gcc -y`)
+2. Download the code
+3. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
+4. Setup your config file
+5. Run the binary
 
 ### Docker
 
 Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
+
+You are missing a docker container for your architecture? We'd love to see you contributing to this project by opening a pull request with the build instructions for it.
 
 ## 📚 API
 

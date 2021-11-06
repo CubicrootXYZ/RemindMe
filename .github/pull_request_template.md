@@ -25,6 +25,7 @@ Please choose one of the tags in the braces above and give your pull request a s
 - [ ] Documentation states the newest version number
 - [ ] Pipeline/Action is executed successfully
 - [ ] Code is reviewed and approved
+- [ ] All `Todo`s in the code done
 
 ### After merge checklist (for code owners)
 

@@ -6,7 +6,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getActionList() *types.Action {
@@ -20,7 +19,7 @@ func (s *Syncer) getActionList() *types.Action {
 }
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
-func (s *Syncer) actionList(evt *event.Event, channel *database.Channel) error {
+func (s *Syncer) actionList(evt *types.MessageEvent, channel *database.Channel) error {
 	reminders, err := s.daemon.Database.GetPendingReminders(channel)
 	if err != nil {
 		return err

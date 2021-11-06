@@ -6,10 +6,12 @@ import (
 
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
@@ -27,16 +29,18 @@ type Syncer struct {
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
 	messenger   Messenger
+	cryptoStore crypto.Store
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
 		adminUsers:  matrixAdminUsers,
 		messenger:   messenger,
 		botSettings: &config.BotSettings,
+		cryptoStore: cryptoStore,
 	}
 
 	return syncer
@@ -53,6 +57,12 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	// Log into matrix
 	client, err := mautrix.NewClient(s.config.Homeserver, "", "")
+	if err != nil {
+		return err
+	}
+
+	olm := encryption.GetOlmMachine(client, s.cryptoStore)
+	err = olm.Load()
 	if err != nil {
 		return err
 	}
@@ -80,15 +90,24 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	reactionActions := s.getReactionActions()
 
 	// Initialize handler
-	messageHandler := synchandler.NewMessageHandler(s.daemon.Database, s.messenger, s.botInfo, replyActions, messageActions)
+	messageHandler := synchandler.NewMessageHandler(s.daemon.Database, s.messenger, s.botInfo, replyActions, messageActions, olm)
 	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings)
 	reactionHandler := synchandler.NewReactionHandler(s.daemon.Database, s.messenger, s.botInfo, reactionActions)
 
 	// Get messages
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
+	syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
+		olm.ProcessSyncResponse(resp, since)
+		return true
+	})
+	syncer.OnEventType(event.StateMember, func(source mautrix.EventSource, evt *event.Event) {
+		olm.HandleMemberEvent(evt)
+	})
+
 	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)
 	syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)
 	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)
+	syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
 	return client.Sync()
 }
 

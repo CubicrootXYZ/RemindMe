@@ -4,7 +4,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getActionCommands() *types.Action {
@@ -18,7 +17,7 @@ func (s *Syncer) getActionCommands() *types.Action {
 }
 
 // actionCommands lists all available commands
-func (s *Syncer) actionCommands(evt *event.Event, channel *database.Channel) error {
+func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Channel) error {
 	msg := formater.Formater{}
 
 	msg.Title("Available Commands")

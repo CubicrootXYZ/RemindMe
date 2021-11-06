@@ -20,6 +20,7 @@ type Channel struct {
 	DailyReminder     *uint  // minutes from midnight when to send the daily reminder. Null to deactivate.
 	CalendarSecret    string `gorm:"index"`
 	Role              *roles.Role
+	IsEncrypted       bool
 }
 
 // Timezone returns the timezone of the channel

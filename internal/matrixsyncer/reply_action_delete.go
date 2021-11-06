@@ -8,7 +8,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *types.ReplyAction {
@@ -22,7 +21,7 @@ func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *types.ReplyAc
 	return action
 }
 
-func (s *Syncer) replyActionDeleteReminder(evt *event.Event, channel *database.Channel, replyMessage *database.Message, content *event.MessageEventContent) error {
+func (s *Syncer) replyActionDeleteReminder(evt *types.MessageEvent, channel *database.Channel, replyMessage *database.Message) error {
 	var msg string
 	var msgFormatted string
 	if replyMessage.ReminderID == nil {
@@ -44,7 +43,7 @@ func (s *Syncer) replyActionDeleteReminder(evt *event.Event, channel *database.C
 		return err
 	}
 
-	err = s.messenger.DeleteMessage(evt.ID.String(), channel.ChannelIdentifier)
+	err = s.messenger.DeleteMessage(evt.Event.ID.String(), channel.ChannelIdentifier)
 	if err != nil {
 		return err
 	}
@@ -62,9 +61,9 @@ func (s *Syncer) replyActionDeleteReminder(evt *event.Event, channel *database.C
 		log.Warn(fmt.Sprintf("Failed to get messages for reminder %d: %s", reminder.ID, err.Error()))
 	}
 
-	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderDelete, channel)
+	_, err = s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), evt.Event.Timestamp, evt.Content, reminder, database.MessageTypeReminderDelete, channel)
 	if err != nil {
-		log.Warn(fmt.Sprintf("Failed to add delete message %s to database: %s", evt.ID.String(), err.Error()))
+		log.Warn(fmt.Sprintf("Failed to add delete message %s to database: %s", evt.Event.ID.String(), err.Error()))
 	}
 
 	msg = fmt.Sprintf("I deleted the reminder \"%s\" (at %s) for you.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))

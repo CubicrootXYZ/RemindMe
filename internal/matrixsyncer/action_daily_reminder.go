@@ -5,11 +5,9 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getActionSetDailyReminder() *types.Action {
@@ -23,19 +21,13 @@ func (s *Syncer) getActionSetDailyReminder() *types.Action {
 }
 
 // actionSetDailyReminder sets the daily reminder time
-func (s *Syncer) actionSetDailyReminder(evt *event.Event, channel *database.Channel) error {
-	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
-	if !ok {
-		log.Warn("Event is not a message event. Can not handle it")
-		return errors.ErrMatrixEventWrongType
-	}
-
-	_, err := s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), time.Now().Unix(), content, nil, database.MessageTypeDailyReminderUpdate, channel)
+func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *database.Channel) error {
+	_, err := s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), time.Now().Unix(), evt.Content, nil, database.MessageTypeDailyReminderUpdate, channel)
 	if err != nil {
 		log.Error("Could not save message: " + err.Error())
 	}
 
-	timeRemind, err := formater.ParseTime(content.Body, channel, true)
+	timeRemind, err := formater.ParseTime(evt.Content.Body, channel, true)
 	if err != nil {
 		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to understand the time.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
 		return err
@@ -64,14 +56,8 @@ func (s *Syncer) getActionDeleteDailyReminder() *types.Action {
 }
 
 // actionDeleteDailyReminder deletes the daily reminder
-func (s *Syncer) actionDeleteDailyReminder(evt *event.Event, channel *database.Channel) error {
-	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
-	if !ok {
-		log.Warn("Event is not a message event. Can not handle it")
-		return errors.ErrMatrixEventWrongType
-	}
-
-	_, err := s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), time.Now().Unix(), content, nil, database.MessageTypeDailyReminderDelete, channel)
+func (s *Syncer) actionDeleteDailyReminder(evt *types.MessageEvent, channel *database.Channel) error {
+	_, err := s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), time.Now().Unix(), evt.Content, nil, database.MessageTypeDailyReminderDelete, channel)
 	if err != nil {
 		log.Error("Could not save message: " + err.Error())
 	}

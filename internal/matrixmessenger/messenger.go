@@ -9,6 +9,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"github.com/dchest/uniuri"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
@@ -110,24 +111,19 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 }
 
 // SendReplyToEvent sends a message in reply to the given replyEvent, if the event is nil or of wrogn format a normal message will be sent
-func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
+func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
 	var message MatrixMessage
 	if replyEvent != nil {
-		content, ok := replyEvent.Content.Parsed.(*event.MessageEventContent)
-		if !ok {
-			return nil, errors.ErrMatrixEventWrongType
+		oldFormattedBody := formater.StripReply(replyEvent.Content.Body)
+		if len(replyEvent.Content.FormattedBody) > 1 {
+			oldFormattedBody = formater.StripReplyFormatted(replyEvent.Content.FormattedBody)
 		}
 
-		oldFormattedBody := formater.StripReply(content.Body)
-		if len(content.FormattedBody) > 1 {
-			oldFormattedBody = formater.StripReplyFormatted(content.FormattedBody)
-		}
-
-		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(content.Body), oldFormattedBody, replyEvent.Sender.String(), channel.ChannelIdentifier, replyEvent.ID.String())
+		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(replyEvent.Content.Body), oldFormattedBody, replyEvent.Event.Sender.String(), channel.ChannelIdentifier, replyEvent.Event.ID.String())
 
 		message.Body = body
 		message.FormattedBody = bodyFormatted
-		message.RelatesTo.InReplyTo.EventID = replyEvent.ID.String()
+		message.RelatesTo.InReplyTo.EventID = replyEvent.Event.ID.String()
 	} else {
 		message.Body = msg
 		message.FormattedBody = msg
@@ -144,7 +140,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channe
 		dbMessage := &database.Message{
 			Body:               msg,
 			BodyHTML:           msg,
-			ResponseToMessage:  replyEvent.ID.String(),
+			ResponseToMessage:  replyEvent.Event.ID.String(),
 			Type:               msgType,
 			ChannelID:          channel.ID,
 			Channel:            *channel,
@@ -152,7 +148,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channe
 			ExternalIdentifier: resp.EventID.String(),
 		}
 
-		origMessage, err := m.db.GetMessageByExternalID(replyEvent.ID.String())
+		origMessage, err := m.db.GetMessageByExternalID(replyEvent.Event.ID.String())
 		if err == nil && origMessage.ReminderID != nil && *origMessage.ReminderID != 0 {
 			dbMessage.ReminderID = origMessage.ReminderID
 		}
