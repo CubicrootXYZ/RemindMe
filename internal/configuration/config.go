@@ -17,6 +17,7 @@ type Matrix struct {
 	Homeserver string `required:"true"`
 	DeviceID   string `default:"123456"`
 	DeviceKey  string `required:"true"`
+	E2EE       bool   `default:"false"`
 }
 
 // BotSettings holds information about the bot itself

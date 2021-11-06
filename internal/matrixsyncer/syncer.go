@@ -61,10 +61,13 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		return err
 	}
 
-	olm := encryption.GetOlmMachine(client, s.cryptoStore)
-	err = olm.Load()
-	if err != nil {
-		return err
+	var olm *crypto.OlmMachine
+	if s.config.E2EE {
+		olm = encryption.GetOlmMachine(client, s.cryptoStore)
+		err = olm.Load()
+		if err != nil {
+			return err
+		}
 	}
 
 	s.client = client
@@ -96,18 +99,22 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	// Get messages
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
-	syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
-		olm.ProcessSyncResponse(resp, since)
-		return true
-	})
-	syncer.OnEventType(event.StateMember, func(source mautrix.EventSource, evt *event.Event) {
-		olm.HandleMemberEvent(evt)
-	})
+
+	if s.config.E2EE {
+		syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
+			olm.ProcessSyncResponse(resp, since)
+			return true
+		})
+		syncer.OnEventType(event.StateMember, func(source mautrix.EventSource, evt *event.Event) {
+			olm.HandleMemberEvent(evt)
+		})
+		syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
+	}
 
 	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)
 	syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)
 	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)
-	syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
+
 	return client.Sync()
 }
 

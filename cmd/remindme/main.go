@@ -14,6 +14,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
+	"maunium.net/go/mautrix/crypto"
 )
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
@@ -56,13 +57,16 @@ func main() {
 	}
 
 	// Create encryption handler
-	sqlDB, err := db.SQLDB()
-	if err != nil {
-		panic(err)
-	}
-	cryptoStore, err := encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
-	if err != nil {
-		panic(err) // TODO properly handle
+	var cryptoStore crypto.Store
+	if config.MatrixBotAccount.E2EE {
+		sqlDB, err := db.SQLDB()
+		if err != nil {
+			panic(err)
+		}
+		cryptoStore, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
+		if err != nil {
+			panic(err) // TODO properly handle
+		}
 	}
 
 	// Create matrix syncer
