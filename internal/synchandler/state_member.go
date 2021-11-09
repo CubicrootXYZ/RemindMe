@@ -12,6 +12,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 )
 
@@ -22,21 +23,28 @@ type StateMemberHandler struct {
 	matrixClient *mautrix.Client
 	botInfo      *types.BotInfo
 	botSettings  *configuration.BotSettings
+	olm          *crypto.OlmMachine
 }
 
 // NewStateMemberHandler returns a new StateMemberHandler
-func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo, botSettings *configuration.BotSettings) *StateMemberHandler {
+func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo, botSettings *configuration.BotSettings, olm *crypto.OlmMachine) *StateMemberHandler {
 	return &StateMemberHandler{
 		database:     database,
 		messenger:    messenger,
 		matrixClient: matrixClient,
 		botInfo:      botInfo,
 		botSettings:  botSettings,
+		olm:          olm,
 	}
 }
 
 // NewEvent takes a new matrix event and handles it
 func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
+	if s.olm != nil {
+		log.Warn(("EVENT"))
+		s.olm.HandleMemberEvent(evt)
+	}
+
 	content, ok := evt.Content.Parsed.(*event.MemberEventContent)
 	if !ok {
 		log.Warn("Event is not a member event. Can not handle it.")

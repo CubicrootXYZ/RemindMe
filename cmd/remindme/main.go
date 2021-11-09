@@ -58,11 +58,11 @@ func main() {
 
 	// Create encryption handler
 	var cryptoStore crypto.Store
+	sqlDB, err := db.SQLDB()
+	if err != nil {
+		panic(err)
+	}
 	if config.MatrixBotAccount.E2EE {
-		sqlDB, err := db.SQLDB()
-		if err != nil {
-			panic(err)
-		}
 		cryptoStore, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
 		if err != nil {
 			panic(err) // TODO properly handle

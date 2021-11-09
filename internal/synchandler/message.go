@@ -226,6 +226,7 @@ func (s *MessageHandler) parseMessageEvent(evt *event.Event) (*types.MessageEven
 	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
 	if ok {
 		decrypted, err := s.olm.DecryptMegolmEvent(evt)
+
 		if err != nil {
 			return nil, err
 		}

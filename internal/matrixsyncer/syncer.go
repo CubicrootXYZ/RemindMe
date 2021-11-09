@@ -8,6 +8,7 @@ import (
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/id"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -63,7 +64,9 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
-		olm = encryption.GetOlmMachine(client, s.cryptoStore)
+		olm = encryption.GetOlmMachine(client, s.cryptoStore, s.daemon.Database)
+		olm.AllowUnverifiedDevices = true
+		olm.ShareKeysToUnverifiedDevices = true
 		err = olm.Load()
 		if err != nil {
 			return err
@@ -75,6 +78,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		Type:             "m.login.password",
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: s.config.Username},
 		Password:         s.config.Password,
+		DeviceID:         id.DeviceID(s.config.DeviceID),
 		StoreCredentials: true,
 	})
 	if err != nil {
@@ -94,7 +98,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	// Initialize handler
 	messageHandler := synchandler.NewMessageHandler(s.daemon.Database, s.messenger, s.botInfo, replyActions, messageActions, olm)
-	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings)
+	stateMemberHandler := synchandler.NewStateMemberHandler(s.daemon.Database, s.messenger, s.client, s.botInfo, s.botSettings, olm)
 	reactionHandler := synchandler.NewReactionHandler(s.daemon.Database, s.messenger, s.botInfo, reactionActions)
 
 	// Get messages
@@ -104,9 +108,6 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
 			olm.ProcessSyncResponse(resp, since)
 			return true
-		})
-		syncer.OnEventType(event.StateMember, func(source mautrix.EventSource, evt *event.Event) {
-			olm.HandleMemberEvent(evt)
 		})
 		syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
 	}

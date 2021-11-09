@@ -6,6 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
@@ -32,7 +33,7 @@ func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, err
 }
 
 // GetOlmMachine initializes a new olm machine
-func GetOlmMachine(client *mautrix.Client, store crypto.Store) *crypto.OlmMachine {
+func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Database) *crypto.OlmMachine {
 	if client == nil {
 		log.Warn("client nil")
 		panic("client nil")
@@ -41,8 +42,8 @@ func GetOlmMachine(client *mautrix.Client, store crypto.Store) *crypto.OlmMachin
 		log.Warn("store nil")
 		panic("store nil")
 	}
-	// TODO crypto state
-	machine := crypto.NewOlmMachine(client, cryptoLogger{"Crypto"}, store, NewStateStore())
+
+	machine := crypto.NewOlmMachine(client, cryptoLogger{"Crypto"}, store, NewStateStore(database))
 
 	return machine
 }

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -35,6 +36,7 @@ type Database interface {
 
 	GenerateNewCalendarSecret(channel *database.Channel) error
 	UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*database.Channel, error)
+	ChannelSaveChanges(channel *database.Channel) error
 
 	AddChannel(userID, channelID string, role roles.Role) (*database.Channel, error)
 
@@ -54,4 +56,6 @@ type Database interface {
 	AddUserToBlocklist(userID string, reason string) error
 
 	RemoveUserFromBlocklist(userID string) error
+
+	SQLDB() (*sql.DB, error)
 }
