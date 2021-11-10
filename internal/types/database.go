@@ -20,6 +20,8 @@ type Database interface {
 
 	DeleteReminder(reminderID uint) (*database.Reminder, error)
 	// Messages
+	AddMessage(message *database.Message) (*database.Message, error)
+
 	GetMessageByExternalID(externalID string) (*database.Message, error)
 	GetMessagesByReminderID(id uint) ([]*database.Message, error)
 

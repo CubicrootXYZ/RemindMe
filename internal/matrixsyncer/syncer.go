@@ -31,10 +31,11 @@ type Syncer struct {
 	botInfo     *types.BotInfo
 	messenger   Messenger
 	cryptoStore crypto.Store
+	stateStore  *encryption.StateStore
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
@@ -42,6 +43,7 @@ func Create(config *configuration.Config, matrixAdminUsers []string, messenger M
 		messenger:   messenger,
 		botSettings: &config.BotSettings,
 		cryptoStore: cryptoStore,
+		stateStore:  stateStore,
 	}
 
 	return syncer
@@ -64,7 +66,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
-		olm = encryption.GetOlmMachine(client, s.cryptoStore, s.daemon.Database)
+		olm = encryption.GetOlmMachine(client, s.cryptoStore, s.daemon.Database, s.stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
 		err = olm.Load()
@@ -110,6 +112,10 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 			return true
 		})
 		syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
+		syncer.OnEventType(event.StateEncryption, func(_ mautrix.EventSource, event *event.Event) {
+			s.stateStore.SetEncryptionEvent(event)
+		})
+
 	}
 
 	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)

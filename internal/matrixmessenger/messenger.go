@@ -6,27 +6,25 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"github.com/dchest/uniuri"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
 
 // Messenger holds all information for messaging
 type Messenger struct {
-	config *configuration.Matrix
-	client *mautrix.Client
-	db     Database
-}
-
-// Database defines the database interface
-type Database interface {
-	AddMessage(message *database.Message) (*database.Message, error)
-	GetMessageByExternalID(externalID string) (*database.Message, error)
+	config     *configuration.Matrix
+	client     *mautrix.Client
+	db         types.Database
+	olm        *crypto.OlmMachine
+	stateStore *encryption.StateStore
 }
 
 // MatrixMessage holds information for a matrix response message
@@ -44,11 +42,22 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
+func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore) (*Messenger, error) {
 	// Log into matrix
 	client, err := mautrix.NewClient(config.Homeserver, "", "")
 	if err != nil {
 		return nil, err
+	}
+
+	var olm *crypto.OlmMachine
+	if config.E2EE {
+		olm = encryption.GetOlmMachine(client, cryptoStore, db, stateStore)
+		olm.AllowUnverifiedDevices = true
+		olm.ShareKeysToUnverifiedDevices = true
+		err = olm.Load()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	_, err = client.Login(&mautrix.ReqLogin{
@@ -63,9 +72,11 @@ func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
 	log.Info("Logged in to matrix")
 
 	return &Messenger{
-		config: config,
-		client: client,
-		db:     db,
+		config:     config,
+		client:     client,
+		db:         db,
+		olm:        olm,
+		stateStore: stateStore,
 	}, nil
 }
 
@@ -180,6 +191,33 @@ func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error
 // sendMessage sends a message to a matrix room
 func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
 	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
+
+	if m.stateStore != nil {
+		log.Info("Check if is encrypted")
+		// TODO fallback to unencrpyted if encrpytion fails
+		if m.stateStore.IsEncrypted(id.RoomID(roomID)) && m.olm != nil {
+			log.Info("Channel is encrypted")
+			encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+			// These three errors mean we have to make a new Megolm session
+			if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
+				log.Info(fmt.Sprint(m.getUserIDs(id.RoomID(roomID))))
+				err = m.olm.ShareGroupSession(id.RoomID(roomID), m.getUserIDs(id.RoomID(roomID)))
+				if err != nil {
+					panic(err) // TODO do not panic
+				}
+				encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+			}
+			if err != nil {
+				panic(err)
+			}
+			resp, err := m.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
+			return resp, err
+
+		}
+	}
+
+	log.Info("Sending unencrpyted")
+
 	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
 }
 
@@ -235,4 +273,20 @@ func (m *Messenger) SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent,
 	}
 
 	return m.sendMessage(&message, roomID)
+}
+
+func (m *Messenger) getUserIDs(roomID id.RoomID) []id.UserID {
+	userIDs := make([]id.UserID, 0)
+	members, err := m.client.JoinedMembers(roomID)
+	if err != nil {
+		log.Warn(err.Error())
+		return userIDs
+	}
+
+	i := 0
+	for userID := range members.Joined {
+		userIDs = append(userIDs, userID)
+		i++
+	}
+	return userIDs
 }

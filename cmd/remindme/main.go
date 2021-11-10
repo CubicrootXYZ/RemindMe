@@ -50,14 +50,9 @@ func main() {
 		panic(err)
 	}
 
-	// Create messenger
-	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db)
-	if err != nil {
-		panic(err)
-	}
-
 	// Create encryption handler
 	var cryptoStore crypto.Store
+	var stateStore *encryption.StateStore
 	sqlDB, err := db.SQLDB()
 	if err != nil {
 		panic(err)
@@ -67,10 +62,17 @@ func main() {
 		if err != nil {
 			panic(err) // TODO properly handle
 		}
+		stateStore = encryption.NewStateStore(db)
+	}
+
+	// Create messenger
+	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db, cryptoStore, stateStore)
+	if err != nil {
+		panic(err)
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore)
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore)
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)

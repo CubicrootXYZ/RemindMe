@@ -33,7 +33,7 @@ func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, err
 }
 
 // GetOlmMachine initializes a new olm machine
-func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Database) *crypto.OlmMachine {
+func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Database, stateStore *StateStore) *crypto.OlmMachine {
 	if client == nil {
 		log.Warn("client nil")
 		panic("client nil")
@@ -43,7 +43,7 @@ func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Da
 		panic("store nil")
 	}
 
-	machine := crypto.NewOlmMachine(client, cryptoLogger{"Crypto"}, store, NewStateStore(database))
+	machine := crypto.NewOlmMachine(client, cryptoLogger{"Crypto"}, store, stateStore)
 
 	return machine
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 
-	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
@@ -17,7 +16,7 @@ type StateStore struct {
 }
 
 // NewStateStore returns a new state store
-func NewStateStore(database types.Database) crypto.StateStore {
+func NewStateStore(database types.Database) *StateStore {
 	return &StateStore{
 		database: database,
 	}
@@ -96,4 +95,19 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 			log.Warn("Failed saving encryption event: " + err.Error())
 		}
 	}
+}
+
+func (store *StateStore) GetUserIDs(roomID string) []id.UserID {
+	userIDs := make([]id.UserID, 0)
+
+	channels, err := store.database.GetChannelsByChannelIdentifier(roomID)
+	if err != nil {
+		log.Warn("Failed getting rooms: " + err.Error())
+	}
+
+	for _, channel := range channels {
+		userIDs = append(userIDs, id.UserID(channel.UserIdentifier))
+	}
+
+	return userIDs
 }
