@@ -17,6 +17,7 @@ type ReactionHandler struct {
 	messenger types.Messenger
 	botInfo   *types.BotInfo
 	actions   []*types.ReactionAction
+	started   int64
 }
 
 // NewReactionHandler returns a new ReactionHandler
@@ -26,6 +27,7 @@ func NewReactionHandler(database types.Database, messenger types.Messenger, botI
 		messenger: messenger,
 		botInfo:   botInfo,
 		actions:   actions,
+		started:   time.Now().Unix(),
 	}
 }
 
@@ -34,7 +36,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 	log.Debug(fmt.Sprintf("New reaction: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= time.Now().Unix()-60 {
+	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= s.started {
 		return
 	}
 

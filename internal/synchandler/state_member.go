@@ -24,6 +24,7 @@ type StateMemberHandler struct {
 	botInfo      *types.BotInfo
 	botSettings  *configuration.BotSettings
 	olm          *crypto.OlmMachine
+	started      int64
 }
 
 // NewStateMemberHandler returns a new StateMemberHandler
@@ -35,13 +36,15 @@ func NewStateMemberHandler(database types.Database, messenger types.Messenger, m
 		botInfo:      botInfo,
 		botSettings:  botSettings,
 		olm:          olm,
+		started:      time.Now().Unix(),
 	}
 }
 
 // NewEvent takes a new matrix event and handles it
 func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
 	if s.olm != nil {
-		log.Warn(("EVENT"))
+		s.olm.AllowUnverifiedDevices = true
+		s.olm.ShareKeysToUnverifiedDevices = true
 		s.olm.HandleMemberEvent(evt)
 	}
 
@@ -51,7 +54,7 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		return
 	}
 
-	if evt.Timestamp/1000 < time.Now().Unix()-60 {
+	if evt.Timestamp/1000 < s.started {
 		return
 	}
 

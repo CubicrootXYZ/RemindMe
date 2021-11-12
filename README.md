@@ -104,6 +104,7 @@ Plain installation requires knowledge about building go binaries and installing 
 3. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
 4. Setup your config file
 5. Run the binary
+6. Make sure to persists the `data` folder as it contains important data for the service 
 
 ### Docker
 

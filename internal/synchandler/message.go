@@ -26,6 +26,7 @@ type MessageHandler struct {
 	replyActions []*types.ReplyAction
 	actions      []*types.Action
 	olm          *crypto.OlmMachine
+	started      int64
 }
 
 // NewMessageHandler returns a new MessageHandler
@@ -37,16 +38,16 @@ func NewMessageHandler(database types.Database, messenger types.Messenger, botIn
 		replyActions: replyActions,
 		actions:      messageAction,
 		olm:          olm,
+		started:      time.Now().Unix(),
 	}
 }
 
 // NewEvent takes a new matrix event and handles it
 func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
 	log.Debug(fmt.Sprintf("New message: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
-	log.Info(fmt.Sprint(evt))
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= time.Now().Unix()-60 {
+	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= s.started {
 		return
 	}
 	// TODO check if the message is already known
@@ -225,6 +226,8 @@ func (s *MessageHandler) parseMessageEvent(evt *event.Event) (*types.MessageEven
 
 	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
 	if ok {
+		s.olm.AllowUnverifiedDevices = true
+		s.olm.ShareKeysToUnverifiedDevices = true
 		decrypted, err := s.olm.DecryptMegolmEvent(evt)
 
 		if err != nil {

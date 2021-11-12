@@ -9,8 +9,6 @@ type cryptoLogger struct {
 	prefix string
 }
 
-// TODO move to zap
-
 func (c cryptoLogger) Error(message string, args ...interface{}) {
 	log.Printf(fmt.Sprintf("[%s/Error] %s", c.prefix, message), args...)
 }

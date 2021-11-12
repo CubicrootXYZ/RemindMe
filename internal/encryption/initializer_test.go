@@ -42,12 +42,6 @@ func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
 	assert.NotNil(t, store)
 }
 
-func TestEncryption_GetOlmMachineOnSuccess(t *testing.T) {
-	olm := GetOlmMachine(getTestClient(), getTestStore())
-
-	assert.NotNil(t, olm)
-}
-
 func getTestClient() *mautrix.Client {
 	client, err := mautrix.NewClient("https://mydomain.tld", "", "")
 	if err != nil {

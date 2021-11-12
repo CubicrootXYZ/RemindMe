@@ -2,6 +2,7 @@ package main
 
 import (
 	pLog "log"
+	"os"
 	"sync"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
@@ -35,6 +36,12 @@ import (
 func main() {
 	wg := sync.WaitGroup{}
 
+	// Make data directory
+	err := os.MkdirAll("data", 0755)
+	if err != nil {
+		panic(err)
+	}
+
 	// Load config
 	config, err := configuration.Load([]string{"config.yml"})
 	if err != nil {
@@ -60,7 +67,7 @@ func main() {
 	if config.MatrixBotAccount.E2EE {
 		cryptoStore, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
 		if err != nil {
-			panic(err) // TODO properly handle
+			panic(err)
 		}
 		stateStore = encryption.NewStateStore(db)
 	}

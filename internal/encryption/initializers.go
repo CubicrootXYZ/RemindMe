@@ -18,8 +18,8 @@ import (
 func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, error) {
 	account := fmt.Sprintf("%s/%s", config.Username, config.DeviceID)
 
-	// TODO get propper sql support to work?
-	db, err := sql.Open("sqlite3", "olm.db")
+	// Currently the library does not support MySQL
+	db, err := sql.Open("sqlite3", "data/olm.db")
 	if err != nil {
 		log.Warn(err.Error())
 		panic(err)

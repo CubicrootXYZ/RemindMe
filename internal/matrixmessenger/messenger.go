@@ -175,7 +175,6 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent,
 
 // CreateChannel creates a new matrix channel
 func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error) {
-	// TODO use another alias name that is more unique
 	room := mautrix.ReqCreateRoom{
 		Visibility:    "private",
 		RoomAliasName: "RemindMe-" + uniuri.NewLen(5),
@@ -190,35 +189,36 @@ func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error
 
 // sendMessage sends a message to a matrix room
 func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
-	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
-
 	if m.stateStore != nil {
-		log.Info("Check if is encrypted")
-		// TODO fallback to unencrpyted if encrpytion fails
 		if m.stateStore.IsEncrypted(id.RoomID(roomID)) && m.olm != nil {
-			log.Info("Channel is encrypted")
-			encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
-			// These three errors mean we have to make a new Megolm session
-			if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
-				log.Info(fmt.Sprint(m.getUserIDs(id.RoomID(roomID))))
-				err = m.olm.ShareGroupSession(id.RoomID(roomID), m.getUserIDs(id.RoomID(roomID)))
-				if err != nil {
-					panic(err) // TODO do not panic
-				}
-				encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+			resp, err = m.sendEncryptedMessage(message, roomID)
+			if err == nil {
+				return
 			}
-			if err != nil {
-				panic(err)
-			}
-			resp, err := m.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
-			return resp, err
-
 		}
 	}
 
-	log.Info("Sending unencrpyted")
-
+	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
 	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
+}
+
+func (m *Messenger) sendEncryptedMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+
+	if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
+		err = m.olm.ShareGroupSession(id.RoomID(roomID), m.getUserIDs(id.RoomID(roomID)))
+		if err != nil {
+			return nil, err
+		}
+
+		encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info(fmt.Sprintf("Sending encrypted message to room %s", roomID))
+	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
 }
 
 // SendFormattedMessage sends a HTML formatted message to the given room
