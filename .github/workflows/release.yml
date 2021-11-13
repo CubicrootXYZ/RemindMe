@@ -7,13 +7,10 @@ jobs:
   # Builds the image and publishes it on docker hub
   build_and_push_docker:
     runs-on: ubuntu-latest
+    container: cubicrootxyz/matrix-go:latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
-      - name: Setup go environment
-        uses: actions/setup-go@v2
-        with:
-          go-version: '^1.16.3'
       - name: Build container
         run: docker build -t cubicrootxyz/remindme:latest .
       - name: Login to Docker Hub
