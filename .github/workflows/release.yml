@@ -7,7 +7,9 @@ jobs:
   # Builds the image and publishes it on docker hub
   build_and_push_docker:
     runs-on: ubuntu-latest
-    container: cubicrootxyz/matrix-go:latest
+    container: 
+      image: cubicrootxyz/matrix-go:latest
+      options: --user 1001
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
