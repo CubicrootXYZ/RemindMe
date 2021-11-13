@@ -11,7 +11,9 @@ jobs:
   # Checks the code
   test_analyze_and_build:
     runs-on: ubuntu-latest
-    container: cubicrootxyz/matrix-go:latest
+    container: 
+      image: cubicrootxyz/matrix-go:latest
+      options: --user root
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -32,7 +34,7 @@ jobs:
       - name: Add code samples to api documentation
         run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/out.yaml
       - name: Build static html
-        run: sudo npx redoc-cli bundle docs/out.yaml --output index.html
+        run: npx redoc-cli bundle docs/out.yaml --output index.html
       - name: Commit static html back
         uses: stefanzweifel/git-auto-commit-action@v4
 
