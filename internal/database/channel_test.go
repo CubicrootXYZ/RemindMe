@@ -28,7 +28,9 @@ func TestChannel_AddChannelOnSuccess(t *testing.T) {
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
-			roles.RoleUser).WillReturnResult(sqlmock.NewResult(1, 1))
+			roles.RoleUser,
+			sqlmock.AnyArg(),
+		).WillReturnResult(sqlmock.NewResult(1, 1))
 		mock.ExpectCommit()
 
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").
@@ -65,7 +67,9 @@ func TestChannel_AddChannelOnFailure(t *testing.T) {
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
-			roles.RoleUser).WillReturnError(errors.New("test error"))
+			roles.RoleUser,
+			sqlmock.AnyArg(),
+		).WillReturnError(errors.New("test error"))
 		mock.ExpectRollback()
 
 		_, err := db.AddChannel(channel.UserIdentifier, channel.ChannelIdentifier, roles.RoleUser)
@@ -251,6 +255,7 @@ func TestChannel_GetChannelByChannelIdentifierOnSuccess(t *testing.T) {
 						channel.DailyReminder,
 						channel.CalendarSecret,
 						channel.Role,
+						channel.LastCryptoEvent,
 					))
 
 		cs, err := db.GetChannelsByChannelIdentifier(channel.ChannelIdentifier)
@@ -437,6 +442,7 @@ func TestChannel_UpdateChannelOnSuccess(t *testing.T) {
 			&remindTime,
 			channel.CalendarSecret,
 			&role,
+			sqlmock.AnyArg(),
 			channel.ID,
 		).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -482,6 +488,7 @@ func TestChannel_UpdateChannelOnFailure(t *testing.T) {
 			&remindTime,
 			channel.CalendarSecret,
 			&role,
+			sqlmock.AnyArg(),
 			channel.ID,
 		).WillReturnError(errors.New("test error"))
 
@@ -524,6 +531,7 @@ func TestChannel_GenerateNewCalendarSecretOnSuccess(t *testing.T) {
 			channel.DailyReminder,
 			sqlmock.AnyArg(),
 			channel.Role,
+			sqlmock.AnyArg(),
 			channel.ID,
 		).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -555,6 +563,7 @@ func TestChannel_GenerateNewCalendarSecretOnFailure(t *testing.T) {
 			channel.DailyReminder,
 			sqlmock.AnyArg(),
 			channel.Role,
+			sqlmock.AnyArg(),
 			channel.ID,
 		).WillReturnError(errors.New("test error"))
 		mock.ExpectRollback()
@@ -772,7 +781,7 @@ func TestChannel_CleanAdminChannelsOnFailure(t *testing.T) {
 // HELPER
 
 func rowsForChannels(channels []*Channel) *sqlmock.Rows {
-	rows := sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"})
+	rows := sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role", "last_crypto_event"})
 
 	for _, channel := range channels {
 		rows.AddRow(
@@ -787,6 +796,7 @@ func rowsForChannels(channels []*Channel) *sqlmock.Rows {
 			channel.DailyReminder,
 			channel.CalendarSecret,
 			channel.Role,
+			channel.LastCryptoEvent,
 		)
 	}
 
