@@ -15,6 +15,8 @@ jobs:
       image: cubicrootxyz/matrix-go:latest
       options: --user root
     steps:
+      - name: Adjust permissions
+        run: sudo chmod 776 -R /home/github/actions-runner/_work/matrix-reminder-and-calendar-bot
       - name: Checkout the repository
         uses: actions/checkout@v2
         with:
