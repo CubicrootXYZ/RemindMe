@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: cubicrootxyz/matrix-go:latest
-      options: --user 1001
+      options: --user root
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: cubicrootxyz/matrix-go:latest
-      options: --user 1001
+      options: --user root
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout the repository
