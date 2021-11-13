@@ -13,10 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: cubicrootxyz/matrix-go:latest
-      options: --user root
+      options: --user 1001
     steps:
-      - name: Adjust permissions
-        run: sudo chmod 776 -R /home/github/actions-runner/_work/matrix-reminder-and-calendar-bot
       - name: Checkout the repository
         uses: actions/checkout@v2
         with:
@@ -31,6 +29,8 @@ jobs:
       #  run: go build -o ./app ./cmd/remindme
       - name: CD
         run: ls -la
+      - name: Debug
+        run: whoami
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Convert to OpenApi 3
