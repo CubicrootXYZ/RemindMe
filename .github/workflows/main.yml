@@ -17,14 +17,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-      - name: Run tests
-        run: go test ./...
-      - name: Analyze Code with go vet
-        run: go vet ./...
-      - name: Run staticcheck
-        run: staticcheck ./...
-      - name: Build the app
-        run: go build -o ./app ./cmd/remindme
+      #- name: Run tests
+      #  run: go test ./...
+      #- name: Analyze Code with go vet
+      #  run: go vet ./...
+      #- name: Run staticcheck
+      #  run: staticcheck ./...
+      #- name: Build the app
+      #  run: go build -o ./app ./cmd/remindme
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Convert to OpenApi 3
@@ -32,7 +32,7 @@ jobs:
       - name: Add code samples to api documentation
         run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/out.yaml
       - name: Build static html
-        run: npx redoc-cli bundle docs/out.yaml --output index.html
+        run: sudo npx redoc-cli bundle docs/out.yaml --output index.html
       - name: Commit static html back
         uses: stefanzweifel/git-auto-commit-action@v4
 
