@@ -3,6 +3,7 @@ package encryption
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -18,8 +19,13 @@ import (
 func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, error) {
 	account := fmt.Sprintf("%s/%s", config.Username, config.DeviceID)
 
+	err := os.MkdirAll("data", 0755)
+	if err != nil {
+		panic(err)
+	}
+
 	// Currently the library does not support MySQL
-	db, err := sql.Open("sqlite3", "data/olm.db")
+	db, err = sql.Open("sqlite3", "data/olm.db")
 	if err != nil {
 		log.Warn(err.Error())
 		panic(err)
