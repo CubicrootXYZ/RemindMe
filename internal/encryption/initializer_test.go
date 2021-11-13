@@ -8,8 +8,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/stretchr/testify/assert"
-	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/crypto"
 )
 
 var testDb *sql.DB
@@ -42,6 +40,8 @@ func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
 	assert.NotNil(t, store)
 }
 
+/*
+Currently not in use
 func getTestClient() *mautrix.Client {
 	client, err := mautrix.NewClient("https://mydomain.tld", "", "")
 	if err != nil {
@@ -63,3 +63,4 @@ func getTestStore() crypto.Store {
 
 	return store
 }
+*/

@@ -53,6 +53,10 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 	// TODO check if the message is already known
 
 	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
+	if err != nil {
+		log.Warn("Error when getting channgel: " + err.Error())
+		return
+	}
 
 	msgEvt, err := s.parseMessageEvent(evt)
 	if err != nil {

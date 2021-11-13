@@ -39,12 +39,11 @@ func (store *StateStore) GetEncryptionEvent(roomID id.RoomID) *event.EncryptionE
 			continue
 		}
 
-		var encryptionEventJson []byte
-		encryptionEventJson = []byte(channel.LastCryptoEvent)
+		encryptionEventJSON := []byte(channel.LastCryptoEvent)
 
 		var encryptionEvent event.EncryptionEventContent
-		if err := json.Unmarshal(encryptionEventJson, &encryptionEvent); err != nil {
-			log.Warn(fmt.Sprintf("Failed to unmarshal encryption event JSON: %s. Error: %s", encryptionEventJson, err))
+		if err := json.Unmarshal(encryptionEventJSON, &encryptionEvent); err != nil {
+			log.Warn(fmt.Sprintf("Failed to unmarshal encryption event JSON: %s. Error: %s", encryptionEventJSON, err))
 			return nil
 		}
 		return &encryptionEvent

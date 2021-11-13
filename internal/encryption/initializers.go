@@ -16,6 +16,7 @@ import (
 )
 
 // GetCryptoStore initializes a sql crypto store
+//lint:ignore SA4009 Try to move to MySQL later
 func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, error) {
 	account := fmt.Sprintf("%s/%s", config.Username, config.DeviceID)
 
