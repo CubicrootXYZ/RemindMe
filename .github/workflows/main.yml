@@ -28,7 +28,7 @@ jobs:
       #- name: Build the app
       #  run: go build -o ./app ./cmd/remindme
       - name: CD
-        run: cd /github/workspace
+        run: ls -la
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Convert to OpenApi 3
