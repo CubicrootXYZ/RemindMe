@@ -81,6 +81,63 @@ func TestBlocklist_IsUserBlockedOnFailure(t *testing.T) {
 	}
 }
 
+func TestBlocklist_AddUserToBlocklistOnSuccess(t *testing.T) {
+	db, mock := testDatabase()
+
+	for _, bl := range testBlocklists() {
+		mock.ExpectQuery("SELECT (.*) FROM `blocklists`").WithArgs(bl.UserIdentifier).
+			WillReturnRows(rowsForBlocklists([]*Blocklist{}))
+
+		mock.ExpectBegin()
+		mock.ExpectExec("INSERT INTO `blocklists`").WithArgs(
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil,
+			bl.UserIdentifier,
+			bl.Reason,
+		).WillReturnResult(sqlmock.NewResult(int64(bl.ID), 1))
+		mock.ExpectCommit()
+
+		err := db.AddUserToBlocklist(bl.UserIdentifier, bl.Reason)
+
+		require.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	}
+
+	for _, bl := range testBlocklists() {
+		mock.ExpectQuery("SELECT (.*) FROM `blocklists`").WithArgs(bl.UserIdentifier).
+			WillReturnRows(rowsForBlocklists([]*Blocklist{bl}))
+
+		err := db.AddUserToBlocklist(bl.UserIdentifier, bl.Reason)
+
+		require.NoError(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	}
+}
+
+func TestBlocklist_AddUserToBlocklistOnFailure(t *testing.T) {
+	db, mock := testDatabase()
+
+	for _, bl := range testBlocklists() {
+		mock.ExpectQuery("SELECT (.*) FROM `blocklists`").WithArgs(bl.UserIdentifier).
+			WillReturnRows(rowsForBlocklists([]*Blocklist{}))
+
+		mock.ExpectBegin()
+		mock.ExpectExec("INSERT INTO `blocklists`").WithArgs(
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil,
+			bl.UserIdentifier,
+			bl.Reason,
+		).WillReturnResult(sqlmock.NewErrorResult(errors.New("test error")))
+
+		err := db.AddUserToBlocklist(bl.UserIdentifier, bl.Reason)
+
+		require.Error(t, err)
+		assert.NoError(t, mock.ExpectationsWereMet())
+	}
+}
+
 // HELPER
 
 func rowsForBlocklists(blocklists []*Blocklist) *sqlmock.Rows {
