@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 // Blocklist holds data about blocked users
 type Blocklist struct {
 	gorm.Model
-	UserIdentifier string `gorm:"uniqueIndex"`
+	UserIdentifier string `gorm:"uniqueIndex,type:varchar(500)"`
 	Reason         string `gorm:"type:text"`
 }
 

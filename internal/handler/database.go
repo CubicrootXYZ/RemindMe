@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"github.com/gin-gonic/gin"
 )
@@ -63,6 +65,7 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 // @Tags Channels
 // @Security Admin-Authentication
 // @Produce json
+// @Param id path string true "Internal channel ID"
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
 // @Router /channel/{id} [delete]
@@ -91,4 +94,67 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, response)
+}
+
+// PutUser godoc
+// @Summary Change a User
+// @Description Changes the settings or data for a matrix user.
+// @Tags Users
+// @Security Admin-Authentication
+// @Accept json
+// @Produce json
+// @Param id path string true "Matrix account ID, user URL encoding where required"
+// @Param blocked query boolean false "user state, if blocked no interaction with the bot is possible"
+// @Param block_reason query string false "internally displayed reason for a block"
+// @Success 200 {object} types.MessageSuccessResponse
+// @Failure 401 {object} types.MessageErrorResponse
+// @Router /user/{id} [put]
+func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
+	userID, err := getStringFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	data := &putUserData{}
+	err = ctx.BindJSON(data)
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+	log.Warn(fmt.Sprint(data))
+
+	if data.Blocked != nil && *data.Blocked {
+		channels, err := databaseHandler.database.GetChannelsByUserIdentifier(userID)
+		if err != nil {
+			abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+			return
+		}
+
+		for _, channel := range channels {
+			err = databaseHandler.database.DeleteChannel(&channel)
+			if err != nil {
+				abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+				return
+			}
+		}
+
+		err = databaseHandler.database.AddUserToBlocklist(userID, data.BlockReason)
+		if err != nil {
+			abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+			return
+		}
+	}
+
+	response := types.MessageSuccessResponse{
+		Status:  "success",
+		Message: "Updated the user",
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+type putUserData struct {
+	Blocked     *bool  `json:"blocked"`
+	BlockReason string `json:"block_reason"`
 }

@@ -27,6 +27,7 @@ type Database interface {
 	// Channels
 	GetChannel(id uint) (*database.Channel, error)
 	GetChannelByUserIdentifier(userID string) (*database.Channel, error)
+	GetChannelsByUserIdentifier(userID string) ([]database.Channel, error)
 	GetChannelsByChannelIdentifier(channelID string) ([]database.Channel, error)
 	GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*database.Channel, error)
 	GetChannelList() ([]database.Channel, error)
@@ -45,4 +46,9 @@ type Database interface {
 	IsEventKnown(externalID string) (bool, error)
 
 	AddEvent(event *database.Event) (*database.Event, error)
+
+	// Blocklist
+	IsUserBlocked(userID string) (bool, error)
+
+	AddUserToBlocklist(userID string, reason string) error
 }

@@ -57,6 +57,16 @@ func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
 	return &channel, nil
 }
 
+// GetChannelsByUserIdentifier returns all channels with the given user
+func (d *Database) GetChannelsByUserIdentifier(userID string) ([]Channel, error) {
+	channels := make([]Channel, 0)
+	err := d.db.Find(&channels, "user_identifier = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
+	return channels, nil
+}
+
 // GetChannelsByChannelIdentifier returns all channels with the given channel identifier
 func (d *Database) GetChannelsByChannelIdentifier(channelID string) ([]Channel, error) {
 	channels := make([]Channel, 0)

@@ -55,6 +55,12 @@ func (server *Server) Start(debug bool) {
 		channelGroup.DELETE("/:id", RequireIDInURI(), server.database.DeleteChannel)
 	}
 
+	userGroup := r.Group("/user")
+	userGroup.Use(RequireAPIkey(server.config.APIkey))
+	{
+		userGroup.PUT("/:id", RequireStringIDInURI(), server.database.PutUser)
+	}
+
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
 	r.Run() // Port 8080

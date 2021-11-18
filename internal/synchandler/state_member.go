@@ -84,7 +84,12 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 	if err != nil {
 		return err
 	}
-	if declineInvites {
+	isUserBlocked, err := s.database.IsUserBlocked(evt.Sender.String())
+	if err != nil {
+		return err
+	}
+	if declineInvites || isUserBlocked {
+		log.Info(evt.Sender.String() + " is blocked or bot reached max users")
 		return nil
 	}
 
