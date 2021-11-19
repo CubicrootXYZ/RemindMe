@@ -95,7 +95,7 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Matrix account ID, user URL encoding where required"
-// @Param payload body putUserData false
+// @Param payload body putUserData false ""
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
 // @Router /user/{id} [put]
