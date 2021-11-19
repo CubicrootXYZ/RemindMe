@@ -156,7 +156,7 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 // @Tags Users
 // @Security Admin-Authentication
 // @Produce json
-// @Param include[] query string false "Comma separated list of additional users to include. One of: blocked" collectionFormat(multi)
+// @Param include[] query []string false "Comma separated list of additional users to include. One of: blocked" collectionFormat(multi)
 // @Success 200 {object} types.DataResponse{data=[]userResponse}
 // @Failure 401 {object} types.MessageErrorResponse
 // @Router /user [get]
