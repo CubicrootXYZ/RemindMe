@@ -22,6 +22,7 @@ A matrix bot that handles reminders and knows your agenda.
 * Daily message with open reminders for the day
 * Repeatable reminders
 * iCal export of all reminders
+* Block users
 
 The following features are seen as experimental, we do not recommend them for use in production. Data losses or data leaks might happen.
 
