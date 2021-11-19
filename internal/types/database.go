@@ -49,6 +49,9 @@ type Database interface {
 
 	// Blocklist
 	IsUserBlocked(userID string) (bool, error)
+	GetBlockedUserList() ([]database.Blocklist, error)
 
 	AddUserToBlocklist(userID string, reason string) error
+
+	RemoveUserFromBlocklist(userID string) error
 }

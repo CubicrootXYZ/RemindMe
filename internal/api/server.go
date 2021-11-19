@@ -58,6 +58,7 @@ func (server *Server) Start(debug bool) {
 	userGroup := r.Group("/user")
 	userGroup.Use(RequireAPIkey(server.config.APIkey))
 	{
+		userGroup.GET("", server.database.GetUsers)
 		userGroup.PUT("/:id", RequireStringIDInURI(), server.database.PutUser)
 	}
 

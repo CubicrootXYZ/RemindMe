@@ -24,12 +24,22 @@ func (d *Database) IsUserBlocked(userID string) (bool, error) {
 	return true, err
 }
 
+// GetBlockedUserList lists all blocked users
+func (d *Database) GetBlockedUserList() ([]Blocklist, error) {
+	blocklists := make([]Blocklist, 0)
+	err := d.db.Find(&blocklists).Error
+	return blocklists, err
+}
+
 // INSERT DATA
 
 // AddUserToBlocklist blocks the given user with the given reason. The reason is only for internal usecases.
 func (d *Database) AddUserToBlocklist(userID string, reason string) error {
-	if isBlocked, err := d.IsUserBlocked(userID); isBlocked && err == nil {
+	isBlocked, err := d.IsUserBlocked(userID)
+	if isBlocked && err == nil {
 		return nil
+	} else if err != nil {
+		return err
 	}
 
 	blocklist := &Blocklist{
@@ -38,4 +48,11 @@ func (d *Database) AddUserToBlocklist(userID string, reason string) error {
 	}
 
 	return d.db.Save(blocklist).Error
+}
+
+// DELETE DATA
+
+// RemoveUserFromBlocklist removes the given user from the blocklist
+func (d *Database) RemoveUserFromBlocklist(userID string) error {
+	return d.db.Exec("DELETE FROM `blocklists` WHERE user_identifier = ?", userID).Error
 }
