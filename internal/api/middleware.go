@@ -14,7 +14,11 @@ type idInURI struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
-// RequireAPIkey is a middleware that requires the given api key to be present in the headers authorization field or as a url parameter.
+type stringIDInURI struct {
+	ID string `uri:"id" binding:"required"`
+}
+
+// RequireAPIkey is a middleware that requires the given api key to be present in the headers authorization field.
 func RequireAPIkey(apikey string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		headers := ctx.Request.Header
@@ -51,10 +55,23 @@ func RequireCalendarSecret() gin.HandlerFunc {
 	}
 }
 
-// RequireIDInURI returns a Gin middleware which requires an ID to be supplied in the URI of the request.
+// RequireIDInURI returns a Gin middleware which requires an ID of the type uint to be supplied in the URI of the request.
 func RequireIDInURI() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestModel idInURI
+
+		if err := ctx.BindUri(&requestModel); err != nil {
+			return
+		}
+
+		ctx.Set("id", requestModel.ID)
+	}
+}
+
+// RequireStringIDInURI returns a Gin middleware which requires an ID of the type string to be supplied in the URI of the request.
+func RequireStringIDInURI() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var requestModel stringIDInURI
 
 		if err := ctx.BindUri(&requestModel); err != nil {
 			return

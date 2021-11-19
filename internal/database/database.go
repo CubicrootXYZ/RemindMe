@@ -70,5 +70,10 @@ func (d *Database) initialize() error {
 		return err
 	}
 
+	err = d.db.AutoMigrate(&Blocklist{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

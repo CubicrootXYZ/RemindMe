@@ -32,3 +32,10 @@ type channelResponse struct {
 	DailyReminder     bool        `json:"daily_reminder"` // Whether the daily reminder is activated or not
 	Role              *roles.Role `json:"role" enums:"user,admin" extensions:"x-nullable"`
 }
+
+type userResponse struct {
+	UserIdentifier string            `json:"user_id"` // Matrix user identifier
+	Blocked        bool              `json:"blocked"`
+	Channels       []channelResponse `json:"channels"` // All channels known with the user
+	Comment        string            `json:"comment"`
+}

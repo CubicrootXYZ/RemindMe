@@ -185,6 +185,50 @@ func TestChannel_GetChannelByUserIdentifierOnFailure(t *testing.T) {
 	assert.NoError(mock.ExpectationsWereMet())
 }
 
+func TestChannel_GetChannelsByUserIdentifierOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").
+			WithArgs(channel.UserIdentifier).
+			WillReturnRows(
+				rowsForChannels([]*Channel{channel}),
+			)
+
+		c, err := db.GetChannelsByUserIdentifier(channel.UserIdentifier)
+		require.NoError(err)
+		require.Greater(len(c), 0)
+
+		assert.Equal(channel.ChannelIdentifier, c[0].ChannelIdentifier)
+		assert.Equal(channel.UserIdentifier, c[0].UserIdentifier)
+		assert.Equal(channel.ID, c[0].ID)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestChannel_GetChannelsByUserIdentifierOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, channel := range testChannels() {
+
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").
+			WithArgs(channel.UserIdentifier).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "created", "channel_identifier", "user_identifier", "time_zone", "daily_reminder", "calendar_secret", "role"}))
+
+		c, err := db.GetChannelsByUserIdentifier(channel.UserIdentifier)
+		assert.NoError(err)
+		assert.Equal(len(c), 0)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
 func TestChannel_GetChannelByChannelIdentifierOnSuccess(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
