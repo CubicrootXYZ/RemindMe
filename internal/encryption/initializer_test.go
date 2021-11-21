@@ -31,7 +31,7 @@ func cleanUp() {
 }
 
 func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
-	store, err := GetCryptoStore(testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(testDb, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})
