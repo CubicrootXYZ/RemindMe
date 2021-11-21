@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -17,8 +18,9 @@ import (
 
 // GetCryptoStore initializes a sql crypto store
 //lint:ignore SA4009 Try to move to MySQL later
-func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, error) {
-	account := fmt.Sprintf("%s/%s", config.Username, config.DeviceID)
+func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, id.DeviceID, error) {
+	var deviceID id.DeviceID
+	username := fmt.Sprintf("@%s:%s", config.Username, strings.ReplaceAll(strings.ReplaceAll(config.Homeserver, "https://", ""), "http://", ""))
 
 	err := os.MkdirAll("data", 0755)
 	if err != nil {
@@ -32,11 +34,20 @@ func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, err
 		panic(err)
 	}
 
-	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", account, id.DeviceID(config.DeviceID), []byte(config.DeviceKey), cryptoLogger{"Crypto"})
+	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(config.DeviceID), []byte(config.DeviceKey), cryptoLogger{"Crypto"})
 
 	err = cryptoStore.CreateTables()
+	if err != nil {
+		return nil, deviceID, err
+	}
 
-	return cryptoStore, err
+	// Use device ID from database if available otherwise fallback to settings
+	err2 := db.QueryRow("SELECT device_id FROM crypto_account WHERE account_id=$1", username).Scan(&deviceID)
+	if err2 != nil && err2 != sql.ErrNoRows {
+		log.Warn("Failed to scan device ID: " + err.Error())
+	}
+
+	return cryptoStore, deviceID, err
 }
 
 // GetOlmMachine initializes a new olm machine

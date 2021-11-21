@@ -64,6 +64,7 @@ func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.
 		Type:             "m.login.password",
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: config.Username},
 		Password:         config.Password,
+		DeviceID:         id.DeviceID(config.DeviceID),
 		StoreCredentials: true,
 	})
 	if err != nil {
