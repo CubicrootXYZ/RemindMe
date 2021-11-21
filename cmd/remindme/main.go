@@ -61,7 +61,7 @@ func main() {
 	// Create encryption handler
 	var cryptoStore crypto.Store
 	var stateStore *encryption.StateStore
-	deviceID := id.DeviceID(config.MatrixBotAccount.DeviceID)
+	deviceID := id.DeviceID(config.MatrixBotAccount.DeviceID) //lint:ignore SA4006 Needed as backup here
 
 	sqlDB, err := db.SQLDB()
 	if err != nil {
