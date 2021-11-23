@@ -8,13 +8,15 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/stretchr/testify/assert"
+	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 )
 
 var testDb *sql.DB
 
 func TestMain(m *testing.M) {
 	cleanUp()
-	db, err := sql.Open("sqlite3", "testdb.db")
+	db, err := sql.Open("sqlite3", "data/olm.db")
 	if err != nil {
 		log.Warn(err.Error())
 		panic(err)
@@ -27,7 +29,7 @@ func TestMain(m *testing.M) {
 }
 
 func cleanUp() {
-	os.Remove("testdb.db")
+	os.Remove("data/olm.db")
 }
 
 func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
@@ -40,8 +42,12 @@ func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
 	assert.NotNil(t, store)
 }
 
-/*
-Currently not in use
+func TestEncryption_GetOlmMachineOnSuccess(t *testing.T) {
+	mach := GetOlmMachine(getTestClient(), getTestStore(), nil, nil)
+
+	assert.NotNil(t, mach)
+}
+
 func getTestClient() *mautrix.Client {
 	client, err := mautrix.NewClient("https://mydomain.tld", "", "")
 	if err != nil {
@@ -52,7 +58,7 @@ func getTestClient() *mautrix.Client {
 }
 
 func getTestStore() crypto.Store {
-	store, err := GetCryptoStore(testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(testDb, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})
@@ -63,4 +69,3 @@ func getTestStore() crypto.Store {
 
 	return store
 }
-*/

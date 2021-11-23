@@ -34,7 +34,11 @@ func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, id.
 		panic(err)
 	}
 
-	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(config.DeviceID), []byte(config.DeviceKey), cryptoLogger{"Crypto"})
+	logger, err := newCryptoLogger(false)
+	if err != nil {
+		panic(err)
+	}
+	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(config.DeviceID), []byte(config.DeviceKey), logger)
 
 	err = cryptoStore.CreateTables()
 	if err != nil {
@@ -61,7 +65,11 @@ func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Da
 		panic("store nil")
 	}
 
-	machine := crypto.NewOlmMachine(client, cryptoLogger{"Crypto"}, store, stateStore)
+	logger, err := newCryptoLogger(false)
+	if err != nil {
+		panic(err)
+	}
+	machine := crypto.NewOlmMachine(client, logger, store, stateStore)
 
 	return machine
 }
