@@ -36,7 +36,7 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 	log.Debug(fmt.Sprintf("New reaction: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= s.started {
+	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 < s.started {
 		return
 	}
 
