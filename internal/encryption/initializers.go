@@ -34,21 +34,22 @@ func GetCryptoStore(db *sql.DB, config *configuration.Matrix) (crypto.Store, id.
 		panic(err)
 	}
 
-	logger, err := newCryptoLogger(false)
+	// Use device ID from database if available otherwise fallback to settings
+	err2 := db.QueryRow("SELECT device_id FROM crypto_account WHERE account_id=$1", username).Scan(&deviceID)
+	if err2 != nil && err2 != sql.ErrNoRows {
+		log.Warn("Failed to scan device ID: " + err2.Error())
+		deviceID = id.DeviceID(config.DeviceID)
+	}
+
+	logger, err := newCryptoLogger(true)
 	if err != nil {
 		panic(err)
 	}
-	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(config.DeviceID), []byte(config.DeviceKey), logger)
+	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(deviceID), []byte(config.DeviceKey), logger)
 
 	err = cryptoStore.CreateTables()
 	if err != nil {
 		return nil, deviceID, err
-	}
-
-	// Use device ID from database if available otherwise fallback to settings
-	err2 := db.QueryRow("SELECT device_id FROM crypto_account WHERE account_id=$1", username).Scan(&deviceID)
-	if err2 != nil && err2 != sql.ErrNoRows {
-		log.Warn("Failed to scan device ID: " + err.Error())
 	}
 
 	return cryptoStore, deviceID, err
@@ -65,7 +66,7 @@ func GetOlmMachine(client *mautrix.Client, store crypto.Store, database types.Da
 		panic("store nil")
 	}
 
-	logger, err := newCryptoLogger(false)
+	logger, err := newCryptoLogger(true)
 	if err != nil {
 		panic(err)
 	}

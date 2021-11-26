@@ -72,7 +72,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		stateStore = encryption.NewStateStore(db)
+		stateStore = encryption.NewStateStore(db, &config.MatrixBotAccount)
 		config.MatrixBotAccount.DeviceID = deviceID.String()
 	}
 

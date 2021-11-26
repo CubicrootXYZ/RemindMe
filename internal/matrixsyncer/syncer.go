@@ -63,6 +63,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	if err != nil {
 		return err
 	}
+	client.Store = mautrix.NewInMemoryStore()
 
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
@@ -107,6 +108,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
 
 	if s.config.E2EE {
+		log.Info("Listening for E2EE events.")
 		syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
 			olm.ProcessSyncResponse(resp, since)
 			return true

@@ -3,7 +3,9 @@ package encryption
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 
@@ -13,12 +15,14 @@ import (
 
 type StateStore struct {
 	database types.Database
+	config   *configuration.Matrix
 }
 
 // NewStateStore returns a new state store
-func NewStateStore(database types.Database) *StateStore {
+func NewStateStore(database types.Database, config *configuration.Matrix) *StateStore {
 	return &StateStore{
 		database: database,
+		config:   config,
 	}
 }
 
@@ -61,7 +65,9 @@ func (store *StateStore) FindSharedRooms(userId id.UserID) []id.RoomID {
 	}
 
 	for _, channel := range channels {
-		rooms = append(rooms, id.RoomID(channel.ChannelIdentifier))
+		if channel.LastCryptoEvent != "" {
+			rooms = append(rooms, id.RoomID(channel.ChannelIdentifier))
+		}
 	}
 
 	return rooms
@@ -98,6 +104,7 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 
 func (store *StateStore) GetUserIDs(roomID string) []id.UserID {
 	userIDs := make([]id.UserID, 0)
+	userIDs = append(userIDs, id.UserID(fmt.Sprintf("@%s:%s", store.config.Username, strings.ReplaceAll(strings.ReplaceAll(store.config.Homeserver, "https://", ""), "http://", ""))))
 
 	channels, err := store.database.GetChannelsByChannelIdentifier(roomID)
 	if err != nil {
