@@ -101,7 +101,7 @@ In any case you need a config file with your preferences and credentials.
     * Using the "plain" method: put the binary you build and the config file in the same folder. Execute them from there.
     * Using the pre-build docker image you need to mount the file to `/run/config.yml`
 
-You should persist the data stored in `data/` and frequently back it up. There is crucial information for the end to end encryption stored in.
+You should persist the data stored in `data/` (`/run/data/` in the docker image) and frequently back it up. There is crucial information for the end to end encryption stored in.
 
 ### Plain
 
