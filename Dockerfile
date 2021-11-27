@@ -1,4 +1,4 @@
-FROM golang:1.16.3-alpine
+FROM cubicrootxyz/matrix-go:latest
 
 WORKDIR /run
 

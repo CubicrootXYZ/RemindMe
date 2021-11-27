@@ -47,9 +47,6 @@ jobs:
     needs: test_analyze_and_build
     runs-on: ubuntu-latest
     if: "${{ github.ref == 'refs/heads/main' }}"
-    container: 
-      image: cubicrootxyz/matrix-go:latest
-      options: --user root
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
