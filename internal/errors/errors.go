@@ -16,3 +16,8 @@ var ErrAPIkeyCriteriaNotMet = errors.New("the api key does not met the minimum c
 // Gin errors
 var ErrMissingApiKey = errors.New("unauthenticated")
 var ErrMissingID = errors.New("can not get ID from context")
+var ErrMissingIDString = errors.New("can not get ID (string) from context")
+
+// Encryption errors
+var ErrOlmNotSetUp = errors.New("not set up to handle encryption with olm")
+var ErrRoomNotEncrypted = errors.New("the given room is not encrpyted")

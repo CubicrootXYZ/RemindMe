@@ -13,6 +13,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
@@ -24,16 +25,20 @@ type MessageHandler struct {
 	botInfo      *types.BotInfo
 	replyActions []*types.ReplyAction
 	actions      []*types.Action
+	olm          *crypto.OlmMachine
+	started      int64
 }
 
 // NewMessageHandler returns a new MessageHandler
-func NewMessageHandler(database types.Database, messenger types.Messenger, botInfo *types.BotInfo, replyActions []*types.ReplyAction, messageAction []*types.Action) *MessageHandler {
+func NewMessageHandler(database types.Database, messenger types.Messenger, botInfo *types.BotInfo, replyActions []*types.ReplyAction, messageAction []*types.Action, olm *crypto.OlmMachine) *MessageHandler {
 	return &MessageHandler{
 		database:     database,
 		messenger:    messenger,
 		botInfo:      botInfo,
 		replyActions: replyActions,
 		actions:      messageAction,
+		olm:          olm,
+		started:      time.Now().Unix(),
 	}
 }
 
@@ -42,16 +47,20 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 	log.Debug(fmt.Sprintf("New message: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= time.Now().Unix()-60 {
+	if evt.Sender == id.UserID(s.botInfo.BotName) || evt.Timestamp/1000 <= s.started {
 		return
 	}
 	// TODO check if the message is already known
 
 	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
+	if err != nil {
+		log.Warn("Error when getting channgel: " + err.Error())
+		return
+	}
 
-	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
-	if !ok {
-		log.Warn("Event is not a message event. Can not handle it")
+	msgEvt, err := s.parseMessageEvent(evt)
+	if err != nil {
+		log.Info("Can not handle event: " + err.Error())
 		return
 	}
 
@@ -61,7 +70,7 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 		// But we know the user
 		if channel2 != nil {
 			log.Info("User messaged us in a Channel we do not know")
-			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", evt, &database.Channel{ChannelIdentifier: evt.RoomID.String()}, database.MessageTypeDoNotSave)
+			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", msgEvt, &database.Channel{ChannelIdentifier: evt.RoomID.String()}, database.MessageTypeDoNotSave)
 			if err != nil {
 				log.Warn(err.Error())
 			}
@@ -72,33 +81,33 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 	}
 
 	// Check if it is a reply to a message we know
-	if s.checkReplyActions(evt, channel, content) {
+	if s.checkReplyActions(msgEvt, channel) {
 		return
 	}
 
 	// Check if a action matches
-	if s.checkActions(evt, channel, content) {
+	if s.checkActions(msgEvt, channel) {
 		return
 	}
 
 	// Nothing left so it must be a reminder
-	_, err = s.newReminder(evt, channel)
+	_, err = s.newReminder(msgEvt, channel)
 	if err != nil {
 		log.Warn(fmt.Sprintf("Failed parsing the Reminder with: %s", err.Error()))
 		return
 	}
 }
 
-func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
-	if content.RelatesTo == nil || channel == nil {
+func (s *MessageHandler) checkReplyActions(evt *types.MessageEvent, channel *database.Channel) (matched bool) {
+	if evt == nil || evt.Content == nil || evt.Content.RelatesTo == nil || channel == nil || evt.Event == nil {
 		return false
 	}
-	if len(content.RelatesTo.EventID) < 2 {
+	if len(evt.Content.RelatesTo.EventID) < 2 {
 		return false
 	}
 
-	message := strings.ToLower(formater.StripReply(content.Body))
-	replyMessage, err := s.database.GetMessageByExternalID(content.RelatesTo.EventID.String())
+	message := strings.ToLower(formater.StripReply(evt.Content.Body))
+	replyMessage, err := s.database.GetMessageByExternalID(evt.Content.RelatesTo.EventID.String())
 	if err != nil || replyMessage == nil {
 		log.Info("Message replies to unknown message")
 		return false
@@ -113,7 +122,7 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 			if rtt == replyMessage.Type {
 				log.Debug("Regex matching: " + message)
 				if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
-					_ = action.Action(evt, channel, replyMessage, content)
+					_ = action.Action(evt, channel, replyMessage)
 					log.Debug("Matched")
 					return true
 				}
@@ -123,7 +132,7 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 
 	// Fallback change reminder date
 	if replyMessage.ReminderID != nil && *replyMessage.ReminderID > 0 {
-		err = s.changeReminderDate(replyMessage, channel, content, evt)
+		err = s.changeReminderDate(replyMessage, channel, evt.Content, evt)
 		if err != nil {
 			log.Error(err.Error())
 		}
@@ -133,7 +142,7 @@ func (s *MessageHandler) checkReplyActions(evt *event.Event, channel *database.C
 	return false
 }
 
-func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, channel *database.Channel, content *event.MessageEventContent, evt *event.Event) error {
+func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, channel *database.Channel, content *event.MessageEventContent, evt *types.MessageEvent) error {
 	remindTime, err := formater.ParseTime(content.Body, channel, false)
 	if err != nil {
 		log.Warn(err.Error())
@@ -147,9 +156,9 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 		return err
 	}
 
-	_, err = s.database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderUpdate, channel)
+	_, err = s.database.AddMessageFromMatrix(evt.Event.ID.String(), evt.Event.Timestamp, content, reminder, database.MessageTypeReminderUpdate, channel)
 	if err != nil {
-		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.ID.String()))
+		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.Event.ID.String()))
 	}
 
 	s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
@@ -158,8 +167,8 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 }
 
 // checkActions checks if a message matches any special actions and performs them.
-func (s *MessageHandler) checkActions(evt *event.Event, channel *database.Channel, content *event.MessageEventContent) (matched bool) {
-	message := strings.ToLower(content.Body)
+func (s *MessageHandler) checkActions(evt *types.MessageEvent, channel *database.Channel) (matched bool) {
+	message := strings.ToLower(evt.Content.Body)
 
 	// List action
 	for _, action := range s.actions {
@@ -174,24 +183,19 @@ func (s *MessageHandler) checkActions(evt *event.Event, channel *database.Channe
 	return false
 }
 
-func (s *MessageHandler) newReminder(evt *event.Event, channel *database.Channel) (*database.Reminder, error) {
-	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
-	if !ok {
-		return nil, errors.ErrMatrixEventWrongType
-	}
-
-	remindTime, err := formater.ParseTime(content.Body, channel, false)
+func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.Channel) (*database.Reminder, error) {
+	remindTime, err := formater.ParseTime(evt.Content.Body, channel, false)
 	if err != nil {
 		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
 		return nil, err
 	}
 
-	reminder, err := s.database.AddReminder(remindTime, content.Body, true, uint64(0), channel)
+	reminder, err := s.database.AddReminder(remindTime, evt.Content.Body, true, uint64(0), channel)
 	if err != nil {
 		log.Warn("Error when inserting reminder: " + err.Error())
 		return reminder, err
 	}
-	_, err = s.database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp/1000, content, reminder, database.MessageTypeReminderRequest, channel)
+	_, err = s.database.AddMessageFromMatrix(evt.Event.ID.String(), evt.Event.Timestamp/1000, evt.Content, reminder, database.MessageTypeReminderRequest, channel)
 	if err != nil {
 		log.Warn("Was not able to save a message to the database: " + err.Error())
 	}
@@ -205,4 +209,42 @@ func (s *MessageHandler) newReminder(evt *event.Event, channel *database.Channel
 	}
 
 	return reminder, err
+}
+
+// parseMessageEvent parses a message event to the internally used data structure
+func (s *MessageHandler) parseMessageEvent(evt *event.Event) (*types.MessageEvent, error) {
+	msgEvt := types.MessageEvent{
+		Event: evt,
+	}
+
+	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
+	if ok {
+		msgEvt.Content = content
+		msgEvt.IsEncrypted = false
+		return &msgEvt, nil
+	}
+
+	if s.olm == nil {
+		return nil, errors.ErrOlmNotSetUp
+	}
+
+	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
+	if ok {
+		s.olm.AllowUnverifiedDevices = true
+		s.olm.ShareKeysToUnverifiedDevices = true
+		decrypted, err := s.olm.DecryptMegolmEvent(evt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		content, ok = decrypted.Content.Parsed.(*event.MessageEventContent)
+		if ok {
+			msgEvt.Content = content
+			msgEvt.IsEncrypted = true
+			return &msgEvt, nil
+		}
+	}
+
+	return nil, errors.ErrMatrixEventWrongType
 }

@@ -6,26 +6,25 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"github.com/dchest/uniuri"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
 
 // Messenger holds all information for messaging
 type Messenger struct {
-	config *configuration.Matrix
-	client *mautrix.Client
-	db     Database
-}
-
-// Database defines the database interface
-type Database interface {
-	AddMessage(message *database.Message) (*database.Message, error)
-	GetMessageByExternalID(externalID string) (*database.Message, error)
+	config     *configuration.Matrix
+	client     *mautrix.Client
+	db         types.Database
+	olm        *crypto.OlmMachine
+	stateStore *encryption.StateStore
 }
 
 // MatrixMessage holds information for a matrix response message
@@ -43,17 +42,29 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
+func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore) (*Messenger, error) {
 	// Log into matrix
 	client, err := mautrix.NewClient(config.Homeserver, "", "")
 	if err != nil {
 		return nil, err
 	}
 
+	var olm *crypto.OlmMachine
+	if config.E2EE {
+		olm = encryption.GetOlmMachine(client, cryptoStore, db, stateStore)
+		olm.AllowUnverifiedDevices = true
+		olm.ShareKeysToUnverifiedDevices = true
+		err = olm.Load()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	_, err = client.Login(&mautrix.ReqLogin{
 		Type:             "m.login.password",
 		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: config.Username},
 		Password:         config.Password,
+		DeviceID:         id.DeviceID(config.DeviceID),
 		StoreCredentials: true,
 	})
 	if err != nil {
@@ -62,9 +73,11 @@ func Create(config *configuration.Matrix, db Database) (*Messenger, error) {
 	log.Info("Logged in to matrix")
 
 	return &Messenger{
-		config: config,
-		client: client,
-		db:     db,
+		config:     config,
+		client:     client,
+		db:         db,
+		olm:        olm,
+		stateStore: stateStore,
 	}, nil
 }
 
@@ -110,24 +123,19 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 }
 
 // SendReplyToEvent sends a message in reply to the given replyEvent, if the event is nil or of wrogn format a normal message will be sent
-func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
+func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
 	var message MatrixMessage
 	if replyEvent != nil {
-		content, ok := replyEvent.Content.Parsed.(*event.MessageEventContent)
-		if !ok {
-			return nil, errors.ErrMatrixEventWrongType
+		oldFormattedBody := formater.StripReply(replyEvent.Content.Body)
+		if len(replyEvent.Content.FormattedBody) > 1 {
+			oldFormattedBody = formater.StripReplyFormatted(replyEvent.Content.FormattedBody)
 		}
 
-		oldFormattedBody := formater.StripReply(content.Body)
-		if len(content.FormattedBody) > 1 {
-			oldFormattedBody = formater.StripReplyFormatted(content.FormattedBody)
-		}
-
-		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(content.Body), oldFormattedBody, replyEvent.Sender.String(), channel.ChannelIdentifier, replyEvent.ID.String())
+		body, bodyFormatted := makeResponse(msg, msg, formater.StripReply(replyEvent.Content.Body), oldFormattedBody, replyEvent.Event.Sender.String(), channel.ChannelIdentifier, replyEvent.Event.ID.String())
 
 		message.Body = body
 		message.FormattedBody = bodyFormatted
-		message.RelatesTo.InReplyTo.EventID = replyEvent.ID.String()
+		message.RelatesTo.InReplyTo.EventID = replyEvent.Event.ID.String()
 	} else {
 		message.Body = msg
 		message.FormattedBody = msg
@@ -144,7 +152,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channe
 		dbMessage := &database.Message{
 			Body:               msg,
 			BodyHTML:           msg,
-			ResponseToMessage:  replyEvent.ID.String(),
+			ResponseToMessage:  replyEvent.Event.ID.String(),
 			Type:               msgType,
 			ChannelID:          channel.ID,
 			Channel:            *channel,
@@ -152,7 +160,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channe
 			ExternalIdentifier: resp.EventID.String(),
 		}
 
-		origMessage, err := m.db.GetMessageByExternalID(replyEvent.ID.String())
+		origMessage, err := m.db.GetMessageByExternalID(replyEvent.Event.ID.String())
 		if err == nil && origMessage.ReminderID != nil && *origMessage.ReminderID != 0 {
 			dbMessage.ReminderID = origMessage.ReminderID
 		}
@@ -168,7 +176,6 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *event.Event, channe
 
 // CreateChannel creates a new matrix channel
 func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error) {
-	// TODO use another alias name that is more unique
 	room := mautrix.ReqCreateRoom{
 		Visibility:    "private",
 		RoomAliasName: "RemindMe-" + uniuri.NewLen(5),
@@ -183,8 +190,36 @@ func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error
 
 // sendMessage sends a message to a matrix room
 func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	if m.stateStore != nil {
+		if m.stateStore.IsEncrypted(id.RoomID(roomID)) && m.olm != nil {
+			resp, err = m.sendEncryptedMessage(message, roomID)
+			if err == nil {
+				return
+			}
+		}
+	}
+
 	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
 	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
+}
+
+func (m *Messenger) sendEncryptedMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
+	encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+
+	if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
+		err = m.olm.ShareGroupSession(id.RoomID(roomID), m.getUserIDs(id.RoomID(roomID)))
+		if err != nil {
+			return nil, err
+		}
+
+		encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info(fmt.Sprintf("Sending encrypted message to room %s", roomID))
+	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
 }
 
 // SendFormattedMessage sends a HTML formatted message to the given room
@@ -239,4 +274,20 @@ func (m *Messenger) SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent,
 	}
 
 	return m.sendMessage(&message, roomID)
+}
+
+func (m *Messenger) getUserIDs(roomID id.RoomID) []id.UserID {
+	userIDs := make([]id.UserID, 0)
+	members, err := m.client.JoinedMembers(roomID)
+	if err != nil {
+		log.Warn(err.Error())
+		return userIDs
+	}
+
+	i := 0
+	for userID := range members.Joined {
+		userIDs = append(userIDs, userID)
+		i++
+	}
+	return userIDs
 }

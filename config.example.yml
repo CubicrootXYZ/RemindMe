@@ -9,6 +9,14 @@ matrixbotaccount:
   password: fsddf
   # Matrix homeserver
   homeserver: fsdf
+  # Device ID for the bot, used to identify the server connection
+  deviceid: "my-bot-12345"
+  
+  ## EXPERIMENTAL ##
+  # Set to true to allow end to end encryption
+  e2ee: false
+  # Device key for encryption
+  devicekey: "dlfjgaöldf"
 
 # Matrix username to interact with
 matrixusers: 

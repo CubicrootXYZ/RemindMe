@@ -30,7 +30,7 @@ func getUintFromContext(ctx *gin.Context, name string) (uint, error) {
 func getStringFromContext(ctx *gin.Context, name string) (string, error) {
 	text, ok := ctx.MustGet(name).(string)
 	if !ok {
-		return "", errors.ErrMissingID // TODO make separate errors
+		return "", errors.ErrMissingIDString
 	}
 
 	return text, nil

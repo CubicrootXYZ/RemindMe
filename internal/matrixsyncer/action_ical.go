@@ -5,11 +5,9 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getActionIcal() *types.Action {
@@ -23,14 +21,8 @@ func (s *Syncer) getActionIcal() *types.Action {
 }
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
-func (s *Syncer) actionIcal(evt *event.Event, channel *database.Channel) error {
-	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
-	if !ok {
-		log.Warn("Event is not a message event. Can not handle it")
-		return errors.ErrMatrixEventWrongType
-	}
-
-	_, err := s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), time.Now().Unix(), content, nil, database.MessageTypeIcalLinkRequest, channel)
+func (s *Syncer) actionIcal(evt *types.MessageEvent, channel *database.Channel) error {
+	_, err := s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), time.Now().Unix(), evt.Content, nil, database.MessageTypeIcalLinkRequest, channel)
 	if err != nil {
 		log.Warn("Can not save message to database.")
 	}

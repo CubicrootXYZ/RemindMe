@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+
 	"github.com/CubicrootXYZ/gormlogger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"gorm.io/driver/mysql"
@@ -76,4 +78,9 @@ func (d *Database) initialize() error {
 	}
 
 	return nil
+}
+
+// SQLDB returns the raw sql.DB
+func (d *Database) SQLDB() (*sql.DB, error) {
+	return d.db.DB()
 }

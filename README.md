@@ -21,16 +21,24 @@ A matrix bot that handles reminders and knows your agenda.
 * Quick actions via reactions
 * Daily message with open reminders for the day
 * Repeatable reminders
-* iCal export of all reminders
-* Block users
+* iCal export of all reminders _(via API)_
+* Block users _(via API)_
 
-The following features are seen as experimental, we do not recommend them for use in production. Data losses or data leaks might happen.
+The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
-* Allow bot invitations (beta)
+* Allow bot invitations _(enable in settings)_
+* End to end encrypted channels _(enable in settings)_
 
 ## 👩‍🔧 Contribute
 
 I really enjoy help in making this bot even better. So we all can enjoy the work on this project please follow the rules. 
+
+You can contribute in many ways to this project:
+
+* Report issues and improvement ideas
+* Test new features
+* Improve the code basis (open a pull request)
+* Add new features (open a pull request)
 
 ### Issues, ideas and more
 
@@ -40,9 +48,9 @@ General ideas and concepts can be discussed in the "Discussions" section.
 
 ### Contributing code
 
-Fork this repository and add your changes. Open a pull request to merge them in the master branch of this repository.
+Fork this repository and add your changes. Open a pull request to merge them in the main branch of this repository.
 
-## 🔍 How to use it
+## 🔍 How to use the bot
 
 After you have installed the bot he will invite every user in the config in a channel. Accept the invite and you are ready to interact with him.
 
@@ -93,12 +101,20 @@ In any case you need a config file with your preferences and credentials.
     * Using the "plain" method: put the binary you build and the config file in the same folder. Execute them from there.
     * Using the pre-build docker image you need to mount the file to `/run/config.yml`
 
+You should persist the data stored in `data/` (`/run/data/` in the docker image) and frequently back it up. There is crucial information for the end to end encryption stored in.
+
 ### Plain
 
-1. Download the code
-2. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
-3. Setup your config file
-4. Run the binary
+Plain installation requires knowledge about building go binaries and installing arbitrary packages. We recommend using the prebuild docker containers.
+
+1. Install the dependencies
+    1. You need `libolm-dev` with at least version 3 (e.g. for debian buster run `apt install libolm-dev/buster-backports -y`)
+    2. Install `gcc` which is required by cgo (e.g. for debian buster run `apt install gcc -y`)
+2. Download the code
+3. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
+4. Setup your config file
+5. Run the binary
+6. Make sure to persists the `data` folder as it contains important data for the service 
 
 ### Docker
 
@@ -106,7 +122,13 @@ Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
 
-## 📚 API
+You are missing a docker container for your architecture? We'd love to see you contributing to this project by opening a pull request with the build instructions for it.
+
+## 📚 Further documentation 
+
+Take a look into our [wiki](https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/wiki). It provides you with further information and troubleshooting guides.
+
+### API
 
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 

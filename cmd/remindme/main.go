@@ -2,21 +2,25 @@ package main
 
 import (
 	pLog "log"
+	"os"
 	"sync"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
+	"maunium.net/go/mautrix/crypto"
+	"maunium.net/go/mautrix/id"
 )
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
-// @version 1.3.0
+// @version 1.3.1
 // @description API documentation for the matrix reminder and calendar bot. [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
 
 // @contact.name Support
@@ -33,6 +37,12 @@ import (
 func main() {
 	wg := sync.WaitGroup{}
 
+	// Make data directory
+	err := os.MkdirAll("data", 0755)
+	if err != nil {
+		panic(err)
+	}
+
 	// Load config
 	config, err := configuration.Load([]string{"config.yml"})
 	if err != nil {
@@ -48,14 +58,32 @@ func main() {
 		panic(err)
 	}
 
+	// Create encryption handler
+	var cryptoStore crypto.Store
+	var stateStore *encryption.StateStore
+	deviceID := id.DeviceID(config.MatrixBotAccount.DeviceID) //lint:ignore SA4006 Needed as backup here
+
+	sqlDB, err := db.SQLDB()
+	if err != nil {
+		panic(err)
+	}
+	if config.MatrixBotAccount.E2EE {
+		cryptoStore, deviceID, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
+		if err != nil {
+			panic(err)
+		}
+		stateStore = encryption.NewStateStore(db, &config.MatrixBotAccount)
+		config.MatrixBotAccount.DeviceID = deviceID.String()
+	}
+
 	// Create messenger
-	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db)
+	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db, cryptoStore, stateStore)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger)
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore)
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)
@@ -80,4 +108,5 @@ func main() {
 
 	wg.Wait()
 	pLog.Print("Stopped Bot")
+
 }

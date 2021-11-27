@@ -20,6 +20,7 @@ type Channel struct {
 	DailyReminder     *uint  // minutes from midnight when to send the daily reminder. Null to deactivate.
 	CalendarSecret    string `gorm:"index"`
 	Role              *roles.Role
+	LastCryptoEvent   string `gorm:"type:text"`
 }
 
 // Timezone returns the timezone of the channel
@@ -119,6 +120,11 @@ func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder 
 
 	err = d.db.Save(channel).Error
 	return channel, err
+}
+
+// ChannelSaveChanges saves the changes in the given channel
+func (d *Database) ChannelSaveChanges(channel *Channel) error {
+	return d.db.Save(channel).Error
 }
 
 // GenerateNewCalendarSecret generates and sets a new calendar secret

@@ -10,7 +10,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
-	"maunium.net/go/mautrix/event"
 )
 
 func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *types.ReplyAction {
@@ -24,7 +23,7 @@ func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *types.Repl
 	return action
 }
 
-func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channel, replyMessage *database.Message, content *event.MessageEventContent) error {
+func (s *Syncer) replyActionRecurring(evt *types.MessageEvent, channel *database.Channel, replyMessage *database.Message) error {
 	if replyMessage.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", replyMessage.ReminderID)
 		msgFormatted := msg
@@ -33,7 +32,7 @@ func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channe
 	}
 
 	// Get duration from message
-	duration := gonaturalduration.ParseNumber(content.Body)
+	duration := gonaturalduration.ParseNumber(evt.Content.Body)
 	if duration <= time.Minute {
 		log.Info("Duration was < 0")
 		return nil
@@ -48,9 +47,9 @@ func (s *Syncer) replyActionRecurring(evt *event.Event, channel *database.Channe
 		return err
 	}
 
-	_, err = s.daemon.Database.AddMessageFromMatrix(evt.ID.String(), evt.Timestamp, content, reminder, database.MessageTypeReminderRecurringRequest, channel)
+	_, err = s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), evt.Event.Timestamp, evt.Content, reminder, database.MessageTypeReminderRecurringRequest, channel)
 	if err != nil {
-		log.Warn(fmt.Sprintf("Failed to add recurring message %s to database: %s", evt.ID.String(), err.Error()))
+		log.Warn(fmt.Sprintf("Failed to add recurring message %s to database: %s", evt.Event.ID.String(), err.Error()))
 	}
 
 	lastRemind := reminder.RemindTime.Add(duration * repeatTimes)
