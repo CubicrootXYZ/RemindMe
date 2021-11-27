@@ -7,8 +7,6 @@ on:
       - '**.jpeg'
       - '**.png'
       - 'index.html'
-    tags-ignore:
-      - '*.*.*'
 jobs: 
   # Checks the code
   test_analyze_and_build:
