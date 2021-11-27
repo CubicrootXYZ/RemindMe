@@ -24,7 +24,7 @@ A matrix bot that handles reminders and knows your agenda.
 * iCal export of all reminders _(via API)_
 * Block users _(via API)_
 
-The following features are seen as experimental, we do not recommend them for use in production. Data losses or data leaks might happen.
+The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
 * Allow bot invitations _(enable in settings)_
 * End to end encrypted channels _(enable in settings)_
@@ -124,7 +124,11 @@ Different versions are available on docker hub:
 
 You are missing a docker container for your architecture? We'd love to see you contributing to this project by opening a pull request with the build instructions for it.
 
-## 📚 API
+## 📚 Further documentation 
+
+Take a look into our [wiki](https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/wiki). It provides you with further information and troubleshooting guides.
+
+### API
 
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 

@@ -48,13 +48,13 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		s.olm.HandleMemberEvent(evt)
 	}
 
-	content, ok := evt.Content.Parsed.(*event.MemberEventContent)
-	if !ok {
-		log.Warn("Event is not a member event. Can not handle it.")
+	if evt.Timestamp/1000 < s.started {
 		return
 	}
 
-	if evt.Timestamp/1000 < s.started {
+	content, ok := evt.Content.Parsed.(*event.MemberEventContent)
+	if !ok {
+		log.Warn("Event is not a member event. Can not handle it.")
 		return
 	}
 
