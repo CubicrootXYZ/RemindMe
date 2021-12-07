@@ -134,6 +134,11 @@ The bot offers an API. It needs to be enabled in the settings where the api key 
 
 The documentation can be found at [cubicrootxyz.github.io/matrix-reminder-and-calendar-bot/](https://cubicrootxyz.github.io/matrix-reminder-and-calendar-bot/).
 
+## 🎁 Related projects
+
+Any project missing? Open a pull request!
+
+* [RemindMe-Web](https://github.com/CubicrootXYZ/RemindMe-Web) - Web UI for controlling the bot
 
 ## ❤️ Attribution
 
