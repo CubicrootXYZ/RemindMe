@@ -12,14 +12,14 @@ Please choose one of the tags in the braces above and give your pull request a s
 2. on how to test your changes
 3. Step by step
 
-### Dependecies
+### Dependencies
 
 - List all new dependencies here
 - any directly imported package
 
 ### Before merge checklist
 
-- [ ] Branch ist up to date with `main`
+- [ ] Branch is up to date with `main`
 - [ ] Changes are tested (code is actually executed and proofed working)
 - [ ] Documentation reflects the changes if necessary
 - [ ] Documentation states the newest version number
