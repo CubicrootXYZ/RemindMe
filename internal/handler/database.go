@@ -28,6 +28,7 @@ func NewDatabaseHandler(database types.Database) *DatabaseHandler {
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]channelResponse}
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 500 ""
 // @Router /channel [get]
 func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 	channelsPublic := make([]channelResponse, 0)
@@ -59,6 +60,9 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 // @Param id path string true "Internal channel ID"
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 404 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
 // @Router /channel/{id} [delete]
 func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 	channelID, err := getUintFromContext(ctx, "id")
@@ -98,6 +102,8 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 // @Param payload body putUserData true "payload"
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
 // @Router /user/{id} [put]
 func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 	userID, err := getStringFromContext(ctx, "id")
@@ -107,7 +113,7 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 	}
 
 	data := &putUserData{}
-	err = ctx.BindJSON(data)
+	err = ctx.ShouldBindJSON(data)
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
 		return
@@ -158,10 +164,12 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 // @Param include[] query []string false "Comma separated list of additional users to include. One of: blocked" collectionFormat(multi)
 // @Success 200 {object} types.DataResponse{data=[]userResponse}
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
 // @Router /user [get]
 func (databaseHandler *DatabaseHandler) GetUsers(ctx *gin.Context) {
 	data := &getUsersData{}
-	err := ctx.Bind(data)
+	err := ctx.ShouldBind(data)
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
 		return

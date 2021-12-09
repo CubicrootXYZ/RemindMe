@@ -29,6 +29,7 @@ func NewCalendarHandler(database types.Database) *CalendarHandler {
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]calendarResponse}
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 500 ""
 // @Router /calendar [get]
 func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 	calendars := make([]calendarResponse, 0)
@@ -65,6 +66,7 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 // @Param token query string true "authentication token"
 // @Success 200 {string} string
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 500 ""
 // @Router /calendar/{id}/ical [get]
 func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 	token, err := getStringFromContext(ctx, "token")
@@ -110,6 +112,9 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 // @Param id path int true "Calendar ID"
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 404 {object} types.MessageErrorResponse
+// @Failure 500 ""
 // @Router /calendar/{id} [patch]
 func (calendarHandler *CalendarHandler) PatchCalender(ctx *gin.Context) {
 	channelID, err := getUintFromContext(ctx, "id")
