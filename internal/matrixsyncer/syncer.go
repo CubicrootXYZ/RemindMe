@@ -32,6 +32,7 @@ type Syncer struct {
 	messenger   Messenger
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
+	debug       bool
 }
 
 // Create creates a new syncer
@@ -44,6 +45,7 @@ func Create(config *configuration.Config, matrixAdminUsers []string, messenger M
 		botSettings: &config.BotSettings,
 		cryptoStore: cryptoStore,
 		stateStore:  stateStore,
+		debug:       config.Debug,
 	}
 
 	return syncer
@@ -67,7 +69,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
-		olm = encryption.GetOlmMachine(client, s.cryptoStore, s.daemon.Database, s.stateStore)
+		olm = encryption.GetOlmMachine(s.debug, client, s.cryptoStore, s.daemon.Database, s.stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
 		err = olm.Load()

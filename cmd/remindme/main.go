@@ -68,7 +68,7 @@ func main() {
 		panic(err)
 	}
 	if config.MatrixBotAccount.E2EE {
-		cryptoStore, deviceID, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
+		cryptoStore, deviceID, err = encryption.GetCryptoStore(config.Debug, sqlDB, &config.MatrixBotAccount)
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +77,7 @@ func main() {
 	}
 
 	// Create messenger
-	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db, cryptoStore, stateStore)
+	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore)
 	if err != nil {
 		panic(err)
 	}

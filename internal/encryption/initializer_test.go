@@ -33,7 +33,7 @@ func cleanUp() {
 }
 
 func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
-	store, _, err := GetCryptoStore(testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(false, testDb, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})
@@ -43,7 +43,7 @@ func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
 }
 
 func TestEncryption_GetOlmMachineOnSuccess(t *testing.T) {
-	mach := GetOlmMachine(getTestClient(), getTestStore(), nil, nil)
+	mach := GetOlmMachine(false, getTestClient(), getTestStore(), nil, nil)
 
 	assert.NotNil(t, mach)
 }
@@ -58,7 +58,7 @@ func getTestClient() *mautrix.Client {
 }
 
 func getTestStore() crypto.Store {
-	store, _, err := GetCryptoStore(testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(false, testDb, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})
