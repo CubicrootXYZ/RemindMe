@@ -107,7 +107,7 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 	}
 
 	data := &putUserData{}
-	err = ctx.BindJSON(data)
+	err = ctx.ShouldBindJSON(data)
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
 		return
@@ -161,7 +161,7 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 // @Router /user [get]
 func (databaseHandler *DatabaseHandler) GetUsers(ctx *gin.Context) {
 	data := &getUsersData{}
-	err := ctx.Bind(data)
+	err := ctx.ShouldBind(data)
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
 		return
