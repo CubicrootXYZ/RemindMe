@@ -20,7 +20,7 @@ import (
 )
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
-// @version 1.3.1
+// @version 1.3.2
 // @description API documentation for the matrix reminder and calendar bot. [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
 
 // @contact.name Support
@@ -33,7 +33,6 @@ import (
 // @securityDefinitions.apikey Admin-Authentication
 // @in header
 // @name Authorization
-
 func main() {
 	wg := sync.WaitGroup{}
 
@@ -68,7 +67,7 @@ func main() {
 		panic(err)
 	}
 	if config.MatrixBotAccount.E2EE {
-		cryptoStore, deviceID, err = encryption.GetCryptoStore(sqlDB, &config.MatrixBotAccount)
+		cryptoStore, deviceID, err = encryption.GetCryptoStore(config.Debug, sqlDB, &config.MatrixBotAccount)
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +76,7 @@ func main() {
 	}
 
 	// Create messenger
-	messenger, err := matrixmessenger.Create(&config.MatrixBotAccount, db, cryptoStore, stateStore)
+	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore)
 	if err != nil {
 		panic(err)
 	}
