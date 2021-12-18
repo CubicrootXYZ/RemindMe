@@ -25,6 +25,7 @@ type Messenger struct {
 	db         types.Database
 	olm        *crypto.OlmMachine
 	stateStore *encryption.StateStore
+	debug      bool
 }
 
 // MatrixMessage holds information for a matrix response message
@@ -42,7 +43,7 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore) (*Messenger, error) {
+func Create(debug bool, config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore) (*Messenger, error) {
 	// Log into matrix
 	client, err := mautrix.NewClient(config.Homeserver, "", "")
 	if err != nil {
@@ -51,7 +52,7 @@ func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.
 
 	var olm *crypto.OlmMachine
 	if config.E2EE {
-		olm = encryption.GetOlmMachine(client, cryptoStore, db, stateStore)
+		olm = encryption.GetOlmMachine(debug, client, cryptoStore, db, stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
 		err = olm.Load()
@@ -78,6 +79,7 @@ func Create(config *configuration.Matrix, db types.Database, cryptoStore crypto.
 		db:         db,
 		olm:        olm,
 		stateStore: stateStore,
+		debug:      debug,
 	}, nil
 }
 
