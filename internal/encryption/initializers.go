@@ -24,14 +24,14 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 
 	err := os.MkdirAll("data", 0755)
 	if err != nil {
-		panic(err)
+		return nil, deviceID, err
 	}
 
 	// Currently the library does not support MySQL
 	db, err = sql.Open("sqlite3", "data/olm.db")
 	if err != nil {
 		log.Warn(err.Error())
-		panic(err)
+		return nil, deviceID, err
 	}
 
 	// Use device ID from database if available otherwise fallback to settings
@@ -43,7 +43,7 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 
 	logger, err := newCryptoLogger(debug)
 	if err != nil {
-		panic(err)
+		return nil, deviceID, err
 	}
 	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(deviceID), []byte(config.DeviceKey), logger)
 
