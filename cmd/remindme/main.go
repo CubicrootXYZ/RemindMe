@@ -35,7 +35,7 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	for true {
+	for {
 		err := startup()
 
 		if err == nil {
