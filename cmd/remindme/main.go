@@ -4,6 +4,7 @@ import (
 	pLog "log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
@@ -34,18 +35,33 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	for {
+		err := startup()
+
+		if err == nil {
+			log.Info("Bot stopped cleanly - exiting")
+			break
+		}
+
+		log.Info("Bot stopped due to error: " + err.Error())
+		log.Info("Will retry in 3 minutes")
+		time.Sleep(3 * time.Minute)
+	}
+}
+
+func startup() error {
 	wg := sync.WaitGroup{}
 
 	// Make data directory
 	err := os.MkdirAll("data", 0755)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Load config
 	config, err := configuration.Load([]string{"config.yml"})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	logger := log.InitLogger(config.Debug)
@@ -54,7 +70,7 @@ func main() {
 	// Set up database
 	db, err := database.Create(config.Database, config.Debug)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Create encryption handler
@@ -64,12 +80,12 @@ func main() {
 
 	sqlDB, err := db.SQLDB()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if config.MatrixBotAccount.E2EE {
 		cryptoStore, deviceID, err = encryption.GetCryptoStore(config.Debug, sqlDB, &config.MatrixBotAccount)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		stateStore = encryption.NewStateStore(db, &config.MatrixBotAccount)
 		config.MatrixBotAccount.DeviceID = deviceID.String()
@@ -78,7 +94,7 @@ func main() {
 	// Create messenger
 	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Create matrix syncer
@@ -107,4 +123,6 @@ func main() {
 
 	wg.Wait()
 	pLog.Print("Stopped Bot")
+
+	return nil
 }

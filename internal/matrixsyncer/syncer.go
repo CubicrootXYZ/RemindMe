@@ -181,7 +181,7 @@ func (s *Syncer) upgradeChannel(channel *database.Channel, defaultRole roles.Rol
 	if len(channel.CalendarSecret) < 20 {
 		err = s.daemon.Database.GenerateNewCalendarSecret(channel)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 	}
 
