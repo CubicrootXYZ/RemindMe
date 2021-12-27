@@ -8,7 +8,7 @@ on:
       - '**.png'
       - 'index.html'
     tags-ignore:
-      - ''
+      - '*'
 
 jobs: 
   # Checks the code
