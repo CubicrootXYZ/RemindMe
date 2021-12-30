@@ -8,6 +8,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"gorm.io/gorm"
+	"maunium.net/go/mautrix/id"
 )
 
 // Channel holds data about a messaging channel
@@ -189,6 +190,13 @@ func (d *Database) CleanAdminChannels(keep []*Channel) error {
 
 // DeleteChannel deletes the given channel
 func (d *Database) DeleteChannel(channel *Channel) error {
+	if d.matrixClient != nil {
+		_, err := d.matrixClient.LeaveRoom(id.RoomID(channel.ChannelIdentifier))
+		if err != nil {
+			log.Warn("Failed to leave room with: " + err.Error())
+		}
+	}
+
 	err := d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
 	if err != nil {
 		return err

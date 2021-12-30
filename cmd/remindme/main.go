@@ -1,7 +1,6 @@
 package main
 
 import (
-	pLog "log"
 	"os"
 	"sync"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
+	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
 )
@@ -50,6 +50,7 @@ func main() {
 }
 
 func startup() error {
+	log.Info("Starting up bot")
 	wg := sync.WaitGroup{}
 
 	// Make data directory
@@ -64,65 +65,117 @@ func startup() error {
 		return err
 	}
 
+	// Initialize logger
 	logger := log.InitLogger(config.Debug)
 	defer logger.Sync()
 
 	// Set up database
+	log.Debug("Initializing database")
 	db, err := database.Create(config.Database, config.Debug)
 	if err != nil {
 		return err
 	}
 
 	// Create encryption handler
-	var cryptoStore crypto.Store
-	var stateStore *encryption.StateStore
-	deviceID := id.DeviceID(config.MatrixBotAccount.DeviceID) //lint:ignore SA4006 Needed as backup here
-
-	sqlDB, err := db.SQLDB()
+	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
 	if err != nil {
 		return err
 	}
-	if config.MatrixBotAccount.E2EE {
-		cryptoStore, deviceID, err = encryption.GetCryptoStore(config.Debug, sqlDB, &config.MatrixBotAccount)
-		if err != nil {
-			return err
-		}
-		stateStore = encryption.NewStateStore(db, &config.MatrixBotAccount)
-		config.MatrixBotAccount.DeviceID = deviceID.String()
+
+	// Create matrix client
+	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
+	if err != nil {
+		return err
 	}
 
+	// Inject matrix client into database
+	db.SetMatrixClient(matrixClient)
+
 	// Create messenger
-	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore)
+	log.Debug("Creating messenger")
+	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore, matrixClient)
 	if err != nil {
 		return err
 	}
 
 	// Create matrix syncer
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore)
+	log.Debug("Creating syncer and handlers")
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
 
 	// Create handler
 	calendarHandler := handler.NewCalendarHandler(db)
 	databaseHandler := handler.NewDatabaseHandler(db)
 
 	// Start event daemon
+	log.Debug("Starting up event daemon")
 	eventDaemon := eventdaemon.Create(db, syncer)
 	wg.Add(1)
 	go eventDaemon.Start(&wg)
 
 	// Start the reminder daemon
+	log.Debug("Starting up reminder daemon")
 	reminderDaemon := reminderdaemon.Create(db, messenger)
 	wg.Add(1)
 	go reminderDaemon.Start(&wg)
 
 	// Start the Webserver
 	if config.Webserver.Enabled {
+		log.Debug("Starting up webserver")
 		server := api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		wg.Add(1)
 		go server.Start(config.Debug)
 	}
 
+	log.Info("Started successfully :)")
 	wg.Wait()
-	pLog.Print("Stopped Bot")
+	log.Info("Stopped Bot")
 
 	return nil
+}
+
+func initializeEncryptionSetup(config *configuration.Matrix, db *database.Database, debug bool) (cryptoStore crypto.Store, stateStore *encryption.StateStore, deviceID id.DeviceID, err error) {
+	log.Debug("Initializing encryption setup ...")
+
+	deviceID = id.DeviceID(config.DeviceID)
+
+	sqlDB, err := db.SQLDB()
+	if err != nil {
+		return
+	}
+	if config.E2EE {
+		cryptoStore, deviceID, err = encryption.GetCryptoStore(debug, sqlDB, config)
+		if err != nil {
+			return
+		}
+		stateStore = encryption.NewStateStore(db, config)
+		config.DeviceID = deviceID.String()
+	}
+
+	log.Debug("... finished initializing encryption setup")
+
+	return
+}
+
+func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix.Client, err error) {
+	log.Debug("Initializing matrix client ...")
+
+	matrixClient, err = mautrix.NewClient(config.Homeserver, "", "")
+	if err != nil {
+		return
+	}
+
+	_, err = matrixClient.Login(&mautrix.ReqLogin{
+		Type:             "m.login.password",
+		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: config.Username},
+		Password:         config.Password,
+		DeviceID:         id.DeviceID(config.DeviceID),
+		StoreCredentials: true,
+	})
+	if err != nil {
+		return
+	}
+
+	log.Debug("... finished initializing matrix client")
+
+	return
 }

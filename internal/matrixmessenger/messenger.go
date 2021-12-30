@@ -43,39 +43,21 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(debug bool, config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore) (*Messenger, error) {
-	// Log into matrix
-	client, err := mautrix.NewClient(config.Homeserver, "", "")
-	if err != nil {
-		return nil, err
-	}
-
+func Create(debug bool, config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) (*Messenger, error) {
 	var olm *crypto.OlmMachine
 	if config.E2EE {
-		olm = encryption.GetOlmMachine(debug, client, cryptoStore, db, stateStore)
+		olm = encryption.GetOlmMachine(debug, matrixClient, cryptoStore, db, stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
-		err = olm.Load()
+		err := olm.Load()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	_, err = client.Login(&mautrix.ReqLogin{
-		Type:             "m.login.password",
-		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: config.Username},
-		Password:         config.Password,
-		DeviceID:         id.DeviceID(config.DeviceID),
-		StoreCredentials: true,
-	})
-	if err != nil {
-		return nil, err
-	}
-	log.Info("Logged in to matrix")
-
 	return &Messenger{
 		config:     config,
-		client:     client,
+		client:     matrixClient,
 		db:         db,
 		olm:        olm,
 		stateStore: stateStore,
