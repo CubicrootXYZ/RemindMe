@@ -8,7 +8,6 @@ import (
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -36,7 +35,7 @@ type Syncer struct {
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
@@ -46,6 +45,7 @@ func Create(config *configuration.Config, matrixAdminUsers []string, messenger M
 		cryptoStore: cryptoStore,
 		stateStore:  stateStore,
 		debug:       config.Debug,
+		client:      matrixClient,
 	}
 
 	return syncer
@@ -60,38 +60,20 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		BotName: fmt.Sprintf("@%s:%s", s.config.Username, strings.ReplaceAll(strings.ReplaceAll(s.config.Homeserver, "https://", ""), "http://", "")),
 	}
 
-	// Log into matrix
-	client, err := mautrix.NewClient(s.config.Homeserver, "", "")
-	if err != nil {
-		return err
-	}
-	client.Store = mautrix.NewInMemoryStore()
+	s.client.Store = mautrix.NewInMemoryStore()
 
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
-		olm = encryption.GetOlmMachine(s.debug, client, s.cryptoStore, s.daemon.Database, s.stateStore)
+		olm = encryption.GetOlmMachine(s.debug, s.client, s.cryptoStore, s.daemon.Database, s.stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
-		err = olm.Load()
+		err := olm.Load()
 		if err != nil {
 			return err
 		}
 	}
 
-	s.client = client
-	_, err = s.client.Login(&mautrix.ReqLogin{
-		Type:             "m.login.password",
-		Identifier:       mautrix.UserIdentifier{Type: mautrix.IdentifierTypeUser, User: s.config.Username},
-		Password:         s.config.Password,
-		DeviceID:         id.DeviceID(s.config.DeviceID),
-		StoreCredentials: true,
-	})
-	if err != nil {
-		return err
-	}
-	log.Info("Logged in to matrix")
-
-	err = s.syncChannels()
+	err := s.syncChannels()
 	if err != nil {
 		return err
 	}
@@ -126,7 +108,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)
 	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)
 
-	return client.Sync()
+	return s.client.Sync()
 }
 
 // Stop stops the syncer

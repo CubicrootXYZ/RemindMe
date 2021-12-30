@@ -8,13 +8,15 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
+	"maunium.net/go/mautrix"
 )
 
 // Database holds all information for connecting to the database
 type Database struct {
-	config configuration.Database
-	db     gorm.DB
-	debug  bool
+	config       configuration.Database
+	db           gorm.DB
+	debug        bool
+	matrixClient *mautrix.Client
 }
 
 // Create creates a database object
@@ -31,6 +33,10 @@ func Create(config configuration.Database, debug bool) (*Database, error) {
 	err = db.initialize()
 
 	return &db, err
+}
+
+func (d *Database) SetMatrixClient(matrixClient *mautrix.Client) {
+	d.matrixClient = matrixClient
 }
 
 func (d *Database) connect() error {
