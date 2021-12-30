@@ -84,6 +84,9 @@ func startup() error {
 
 	// Create matrix client
 	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
+	if err != nil {
+		return err
+	}
 
 	// Inject matrix client into database
 	db.SetMatrixClient(matrixClient)
