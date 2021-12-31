@@ -21,7 +21,7 @@ import (
 )
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
-// @version 1.3.2
+// @version 1.4.0
 // @description API documentation for the matrix reminder and calendar bot. [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
 
 // @contact.name Support
@@ -93,7 +93,7 @@ func startup() error {
 
 	// Create messenger
 	log.Debug("Creating messenger")
-	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore, matrixClient)
+	messenger, err := matrixmessenger.Create(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
 	if err != nil {
 		return err
 	}
@@ -176,6 +176,5 @@ func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix
 	}
 
 	log.Debug("... finished initializing matrix client")
-
 	return
 }

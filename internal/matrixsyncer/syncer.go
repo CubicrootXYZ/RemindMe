@@ -28,14 +28,14 @@ type Syncer struct {
 	daemon      *eventdaemon.Daemon
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
-	messenger   Messenger
+	messenger   types.Messenger
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
 	debug       bool
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger types.Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
@@ -198,7 +198,9 @@ func (s *Syncer) getReplyActions() []*types.ReplyAction {
 func (s *Syncer) getReactionActions() []*types.ReactionAction {
 	reactionActions := make([]*types.ReactionAction, 0)
 	reactionActions = append(reactionActions, s.getReactionActionDelete(types.ReactionActionTypeReminderRequest))
+	reactionActions = append(reactionActions, s.getReactionActionDelete(types.ReactionActionTypeReminder))
 	reactionActions = append(reactionActions, s.getReactionsAddTime(types.ReactionActionTypeReminderRequest)...)
+	reactionActions = append(reactionActions, s.getReactionsAddTime(types.ReactionActionTypeReminder)...)
 	reactionActions = append(reactionActions, s.getReactionActionDeleteDailyReminder(types.ReactionActionTypeDailyReminder))
 
 	return reactionActions

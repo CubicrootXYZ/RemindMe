@@ -12,4 +12,5 @@ type Messenger interface {
 	SendFormattedMessage(msg, msgFormatted string, channel *database.Channel, msgType database.MessageType, relatedReminderID uint) (resp *mautrix.RespSendEvent, err error)
 	DeleteMessage(messageID, roomID string) error
 	SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent, err error)
+	SendReaction(reaction string, toMessage string, channel *database.Channel) (resp *mautrix.RespSendEvent, err error)
 }

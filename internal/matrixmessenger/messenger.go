@@ -20,7 +20,7 @@ import (
 
 // Messenger holds all information for messaging
 type Messenger struct {
-	config     *configuration.Matrix
+	config     *configuration.Config
 	client     *mautrix.Client
 	db         types.Database
 	olm        *crypto.OlmMachine
@@ -30,12 +30,15 @@ type Messenger struct {
 
 // MatrixMessage holds information for a matrix response message
 type MatrixMessage struct {
-	Body          string `json:"body"`
-	Format        string `json:"format"`
+	Body          string `json:"body,omitempty"`
+	Format        string `json:"format,omitempty"`
 	FormattedBody string `json:"formatted_body,omitempty"`
-	MsgType       string `json:"msgtype"`
+	MsgType       string `json:"msgtype,omitempty"`
 	Type          string `json:"type"`
 	RelatesTo     struct {
+		EventID   string `json:"event_id,omitempty"`
+		Key       string `json:"key,omitempty"`
+		RelType   string `json:"rel_type,omitempty"`
 		InReplyTo struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
@@ -43,9 +46,9 @@ type MatrixMessage struct {
 }
 
 // Create creates a new matrix messenger
-func Create(debug bool, config *configuration.Matrix, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) (*Messenger, error) {
+func Create(debug bool, config *configuration.Config, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) (*Messenger, error) {
 	var olm *crypto.OlmMachine
-	if config.E2EE {
+	if config.MatrixBotAccount.E2EE {
 		olm = encryption.GetOlmMachine(debug, matrixClient, cryptoStore, db, stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
@@ -87,9 +90,16 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 
 	matrixMessage.RelatesTo.InReplyTo.EventID = respondToMessage.ExternalIdentifier
 
-	evt, err := m.sendMessage(&matrixMessage, reminder.Channel.ChannelIdentifier)
+	evt, err := m.sendMessage(&matrixMessage, reminder.Channel.ChannelIdentifier, event.EventMessage)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, reaction := range types.ReactionsReminderRequest {
+		_, err = m.SendReaction(reaction, string(evt.EventID), &reminder.Channel)
+		if err != nil {
+			log.Warn(err.Error())
+		}
 	}
 
 	message := database.Message{
@@ -129,7 +139,7 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent,
 	message.MsgType = "m.text"
 	message.Type = "m.room.message"
 
-	resp, err = m.sendMessage(&message, channel.ChannelIdentifier)
+	resp, err = m.sendMessage(&message, channel.ChannelIdentifier, event.EventMessage)
 
 	// Add message to the database
 	if msgType != database.MessageTypeDoNotSave {
@@ -173,10 +183,10 @@ func (m *Messenger) CreateChannel(userID string) (*mautrix.RespCreateRoom, error
 }
 
 // sendMessage sends a message to a matrix room
-func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
-	if m.stateStore != nil {
+func (m *Messenger) sendMessage(message *MatrixMessage, roomID string, eventType event.Type) (resp *mautrix.RespSendEvent, err error) {
+	if m.stateStore != nil && eventType != event.EventReaction {
 		if m.stateStore.IsEncrypted(id.RoomID(roomID)) && m.olm != nil {
-			resp, err = m.sendEncryptedMessage(message, roomID)
+			resp, err = m.sendEncryptedMessage(message, roomID, eventType)
 			if err == nil {
 				return
 			}
@@ -184,11 +194,11 @@ func (m *Messenger) sendMessage(message *MatrixMessage, roomID string) (resp *ma
 	}
 
 	log.Info(fmt.Sprintf("Sending message to room %s", roomID))
-	return m.client.SendMessageEvent(id.RoomID(roomID), event.EventMessage, &message)
+	return m.client.SendMessageEvent(id.RoomID(roomID), eventType, &message)
 }
 
-func (m *Messenger) sendEncryptedMessage(message *MatrixMessage, roomID string) (resp *mautrix.RespSendEvent, err error) {
-	encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+func (m *Messenger) sendEncryptedMessage(message *MatrixMessage, roomID string, eventType event.Type) (resp *mautrix.RespSendEvent, err error) {
+	encrypted, err := m.olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, message)
 
 	if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
 		err = m.olm.ShareGroupSession(id.RoomID(roomID), m.getUserIDs(id.RoomID(roomID)))
@@ -196,7 +206,7 @@ func (m *Messenger) sendEncryptedMessage(message *MatrixMessage, roomID string) 
 			return nil, err
 		}
 
-		encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), event.EventMessage, message)
+		encrypted, err = m.olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, message)
 	}
 	if err != nil {
 		return nil, err
@@ -216,7 +226,7 @@ func (m *Messenger) SendFormattedMessage(msg, msgFormatted string, channel *data
 		Format:        "org.matrix.custom.html",
 	}
 
-	resp, err = m.sendMessage(&message, channel.ChannelIdentifier)
+	resp, err = m.sendMessage(&message, channel.ChannelIdentifier, event.EventMessage)
 
 	// Add message to the database
 	if msgType != database.MessageTypeDoNotSave {
@@ -257,7 +267,7 @@ func (m *Messenger) SendNotice(msg, roomID string) (resp *mautrix.RespSendEvent,
 		Type:    "m.room.message",
 	}
 
-	return m.sendMessage(&message, roomID)
+	return m.sendMessage(&message, roomID, event.EventMessage)
 }
 
 func (m *Messenger) getUserIDs(roomID id.RoomID) []id.UserID {
@@ -274,4 +284,17 @@ func (m *Messenger) getUserIDs(roomID id.RoomID) []id.UserID {
 		i++
 	}
 	return userIDs
+}
+
+func (m *Messenger) SendReaction(reaction string, toMessage string, channel *database.Channel) (resp *mautrix.RespSendEvent, err error) {
+	if !m.config.BotSettings.SendReactions {
+		return nil, errors.ErrReactionsDisabled
+	}
+	var message MatrixMessage
+	message.Type = "m.reaction"
+	message.RelatesTo.EventID = toMessage
+	message.RelatesTo.Key = reaction
+	message.RelatesTo.RelType = "m.annotation"
+
+	return m.sendMessage(&message, channel.ChannelIdentifier, event.EventReaction)
 }

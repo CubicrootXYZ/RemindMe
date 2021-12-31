@@ -21,3 +21,6 @@ var ErrMissingIDString = errors.New("can not get ID (string) from context")
 // Encryption errors
 var ErrOlmNotSetUp = errors.New("not set up to handle encryption with olm")
 var ErrRoomNotEncrypted = errors.New("the given room is not encrpyted")
+
+// Config related errors
+var ErrReactionsDisabled = errors.New("reactions are not enabled")

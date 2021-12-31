@@ -208,6 +208,13 @@ func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.
 		log.Warn("Was not able to send success message to user")
 	}
 
+	for _, reaction := range types.ReactionsReminderRequest {
+		_, err = s.messenger.SendReaction(reaction, string(evt.Event.ID), channel)
+		if err != nil && err != errors.ErrReactionsDisabled {
+			log.Warn(err.Error())
+		}
+	}
+
 	return reminder, err
 }
 
