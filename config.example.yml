@@ -30,6 +30,8 @@ botsettings:
   # Maximum parallel users that the bot will accept. -1 to have no limit.
   # With to many users the bot might run into API rate limits of the matrix instance.
   maxuser: 10
+  # Set to true to let the bot send reactions
+  sendreactions: false
 
 # Database settings
 database:

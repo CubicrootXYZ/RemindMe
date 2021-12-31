@@ -93,7 +93,7 @@ func startup() error {
 
 	// Create messenger
 	log.Debug("Creating messenger")
-	messenger, err := matrixmessenger.Create(config.Debug, &config.MatrixBotAccount, db, cryptoStore, stateStore, matrixClient)
+	messenger, err := matrixmessenger.Create(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
 	if err != nil {
 		return err
 	}
@@ -176,6 +176,5 @@ func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix
 	}
 
 	log.Debug("... finished initializing matrix client")
-
 	return
 }
