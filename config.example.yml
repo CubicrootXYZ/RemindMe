@@ -31,6 +31,7 @@ botsettings:
   # With to many users the bot might run into API rate limits of the matrix instance.
   maxuser: 10
   # Set to true to let the bot send reactions
+  # enabling this will drastically increase send events, for heavy use you might run into rate limits of the bots instance
   sendreactions: false
 
 # Database settings
