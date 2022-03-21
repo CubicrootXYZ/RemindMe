@@ -190,14 +190,19 @@ func (d *Database) CleanAdminChannels(keep []*Channel) error {
 
 // DeleteChannel deletes the given channel
 func (d *Database) DeleteChannel(channel *Channel) error {
-	if d.matrixClient != nil {
+	channels, err := d.GetChannelsByChannelIdentifier(channel.ChannelIdentifier)
+	if err != nil {
+		return err
+	}
+
+	if d.matrixClient != nil && len(channels) == 1 {
 		_, err := d.matrixClient.LeaveRoom(id.RoomID(channel.ChannelIdentifier))
 		if err != nil {
 			log.Warn("Failed to leave room with: " + err.Error())
 		}
 	}
 
-	err := d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
+	err = d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
 	if err != nil {
 		return err
 	}

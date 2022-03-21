@@ -88,13 +88,13 @@ func (f *Formater) Spoiler(text string) {
 
 // Username adds a username reference to the message
 func (f *Formater) Username(username string) {
-	f.msgFormatted.WriteString("<a href=\"https://matrix.to/#/@")
+	f.msgFormatted.WriteString("<a href=\"https://matrix.to/#/")
 	f.msgFormatted.WriteString(username)
 	f.msgFormatted.WriteString("\">")
-	f.msgFormatted.WriteString(strings.Split(username, ":")[0])
+	f.msgFormatted.WriteString(strings.TrimPrefix(strings.Split(username, ":")[0], "@"))
 	f.msgFormatted.WriteString("</a>")
 
-	f.msg.WriteString(strings.Split(username, ":")[0])
+	f.msg.WriteString(strings.TrimPrefix(strings.Split(username, ":")[0], "@"))
 }
 
 // Build returns the build formatted and unformatted messages
