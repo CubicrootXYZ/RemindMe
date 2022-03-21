@@ -5,8 +5,10 @@ import (
 	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
+	"gorm.io/gorm"
 	"maunium.net/go/mautrix/id"
 )
 
@@ -43,22 +45,30 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 		return err
 	}
 
-	found := false
+	addUser := false
 	for user := range users.Joined {
 		if exactMatch {
 			if user.String() == username {
-				found = true
+				addUser = true
 				break
 			}
 		} else {
 			if "@"+username == strings.Split(user.String(), ":")[0] {
-				found = true
+				addUser = true
 				break
 			}
 		}
 	}
 
-	if found {
+	_, err = s.daemon.Database.GetChannelByUserAndChannelIdentifier(username, channel.ChannelIdentifier)
+	if err == nil {
+		msg = "User is already added"
+		addUser = false
+	} else if err != gorm.ErrRecordNotFound {
+		return err
+	}
+
+	if addUser {
 		_, err = s.daemon.Database.AddChannel(username, channel.ChannelIdentifier, roles.RoleUser)
 		if err != nil {
 			msg := "Sorry, sonething went wrong here"
@@ -66,7 +76,13 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 			return err
 		}
 
-		msg = "Added this user to the channel" // TODO message
+		form := formater.Formater{}
+		form.Text("Added ")
+		form.Username(username)
+		form.Text(" to the channel")
+		msg, msgFormatted := form.Build()
+		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeDoNotSave, 0)
+		return err
 	}
 
 	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
