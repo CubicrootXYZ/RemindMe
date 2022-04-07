@@ -69,6 +69,7 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 
 	switch content.Membership {
 	case event.MembershipInvite, event.MembershipJoin:
+		// TODO do not follow invites if we are already in that room (only first inviter should be admin)
 		err := s.handleInvite(evt, content)
 		if err != nil {
 			log.Error("Failed to handle membership invite with: " + err.Error())

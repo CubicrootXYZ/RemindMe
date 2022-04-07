@@ -43,7 +43,7 @@ func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content
 
 	err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
 	if err != nil {
-		return err
+		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
 	}
 
 	// Delete all messages regarding this reminder
