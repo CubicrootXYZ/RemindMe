@@ -25,7 +25,7 @@ type Reminder struct {
 func (d *Database) GetPendingReminders(channel *Channel) ([]Reminder, error) {
 	reminders := make([]Reminder, 0)
 
-	err := d.db.Find(&reminders, "channel_id = ? AND active = ?", channel.ID, true).Error
+	err := d.db.Joins("Channel").Find(&reminders, "Channel.channel_identifier = ? AND active = ?", channel.ChannelIdentifier, true).Error
 
 	return reminders, err
 }
@@ -48,7 +48,7 @@ func (d *Database) GetPendingReminder() (*[]Reminder, error) {
 // GetDailyReminder returns the reminders alerting in the next 24 hours
 func (d *Database) GetDailyReminder(channel *Channel) (*[]Reminder, error) {
 	reminder := make([]Reminder, 0)
-	err := d.db.Order("remind_time asc").Find(&reminder, "channel_id = ? AND remind_time <= ? AND active = ?", channel.ID, time.Now().Add(time.Hour*24), true).Error
+	err := d.db.Order("remind_time asc").Joins("Channel").Find(&reminder, "channel_identifier = ? AND remind_time <= ? AND active = ?", channel.ChannelIdentifier, time.Now().Add(time.Hour*24), true).Error
 
 	return &reminder, err
 }
