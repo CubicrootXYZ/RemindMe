@@ -100,6 +100,17 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 	if err != nil {
 		return err
 	}
+
+	channels, err := s.database.GetChannelsByChannelIdentifier(evt.RoomID.String())
+	if err != nil {
+		return err
+	}
+
+	if len(channels) > 0 {
+		// Only allow one user per channel to be auto added, others can than be added manually
+		declineInvites = true
+	}
+
 	if declineInvites || isUserBlocked {
 		log.Info(evt.Sender.String() + " is blocked or bot reached max users")
 		return nil
