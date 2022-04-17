@@ -17,7 +17,7 @@ func TestReminder_GetPendingRemindersOnSuccess(t *testing.T) {
 	for _, reminder := range testReminders() {
 		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
 			WithArgs(
-				reminder.ChannelID,
+				reminder.Channel.ChannelIdentifier,
 				true,
 			).
 			WillReturnRows(rowsForReminders([]*Reminder{reminder}))
@@ -47,7 +47,7 @@ func TestReminder_GetPendingRemindersOnFailure(t *testing.T) {
 	for _, reminder := range testReminders() {
 		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
 			WithArgs(
-				reminder.ChannelID,
+				reminder.Channel.ChannelIdentifier,
 				true,
 			).
 			WillReturnError(errors.New("test error"))
@@ -197,7 +197,7 @@ func TestReminder_GetDailyReminderOnSuccess(t *testing.T) {
 	for _, reminder := range testReminders() {
 		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
 			WithArgs(
-				reminder.ChannelID,
+				reminder.Channel.ChannelIdentifier,
 				sqlmock.AnyArg(),
 				true,
 			).
@@ -229,7 +229,7 @@ func TestReminder_GetDailyReminderOnFailure(t *testing.T) {
 	for _, reminder := range testReminders() {
 		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
 			WithArgs(
-				reminder.ChannelID,
+				reminder.Channel.ChannelIdentifier,
 				sqlmock.AnyArg(),
 				true,
 			).
