@@ -23,11 +23,12 @@ A matrix bot that handles reminders and knows your agenda.
 * Repeatable reminders
 * iCal export of all reminders _(via API)_
 * Block users _(via API)_
+* Allow bot to be invited _(enable in settings)_
+* End to end encrypted channels _(enable in settings)_
 
 The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
-* Allow bot invitations _(enable in settings)_
-* End to end encrypted channels _(enable in settings)_
+* Multi-User channels
 
 ## 👩‍🔧 Contribute
 
@@ -85,6 +86,14 @@ To activate a daily message with the reminders of the day:
 To deactivate it:
 
 * `delete daily reminder`
+
+### Setup a multi user channel
+
+1. Create a new matrix group channel
+2. Invite the bot - you are the admin of the channel now
+3. Invite any user you want to participate
+4. Add user that should be able to interact with the bot with `add user @username`
+
 
 ## ⚙️ Installation
 

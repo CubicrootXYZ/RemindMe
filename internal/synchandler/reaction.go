@@ -75,6 +75,8 @@ func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event)
 				err = action.Action(message, content, evt, channel)
 				if err == nil {
 					return
+				} else {
+					log.Error(err.Error())
 				}
 			}
 		}

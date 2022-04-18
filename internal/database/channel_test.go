@@ -581,6 +581,7 @@ func TestChannel_DeleteChannelOnSuccess(t *testing.T) {
 	db, mock := testDatabase()
 
 	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -606,6 +607,7 @@ func TestChannel_DeleteChannelOnFailure(t *testing.T) {
 	db, mock := testDatabase()
 
 	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -624,6 +626,7 @@ func TestChannel_DeleteChannelOnFailure(t *testing.T) {
 	}
 
 	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -639,6 +642,7 @@ func TestChannel_DeleteChannelOnFailure(t *testing.T) {
 	}
 
 	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -651,6 +655,7 @@ func TestChannel_DeleteChannelOnFailure(t *testing.T) {
 	}
 
 	for _, channel := range testChannels() {
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
 		mock.ExpectRollback()
@@ -671,6 +676,7 @@ func TestChannel_DeleteChannelsFromUserOnSuccess(t *testing.T) {
 		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.UserIdentifier).
 			WillReturnRows(rowsForChannels([]*Channel{channel}))
 
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -720,6 +726,7 @@ func TestChannel_CleanAdminChannelsOnSuccess(t *testing.T) {
 			continue
 		}
 
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnResult(sqlmock.NewResult(int64(channel.ID), 1))
 		mock.ExpectCommit()
@@ -766,6 +773,7 @@ func TestChannel_CleanAdminChannelsOnFailure(t *testing.T) {
 			continue
 		}
 
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").WithArgs(channel.ChannelIdentifier).WillReturnRows(rowsForChannels([]*Channel{channel}))
 		mock.ExpectBegin()
 		mock.ExpectExec("DELETE FROM `messages`").WithArgs(channel.ID).WillReturnError(errors.New("test error"))
 		mock.ExpectRollback()

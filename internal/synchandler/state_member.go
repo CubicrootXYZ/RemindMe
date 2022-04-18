@@ -74,7 +74,7 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 			log.Error("Failed to handle membership invite with: " + err.Error())
 		}
 		return
-	case event.MembershipBan, event.MembershipLeave:
+	case event.MembershipLeave:
 		err := s.handleLeave(evt, content)
 		if err != nil {
 			log.Error("Failed to handle membership leave with: " + err.Error())
@@ -99,6 +99,17 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 	if err != nil {
 		return err
 	}
+
+	channels, err := s.database.GetChannelsByChannelIdentifier(evt.RoomID.String())
+	if err != nil {
+		return err
+	}
+
+	if len(channels) > 0 {
+		// Only allow one user per channel to be auto added, others can than be added manually
+		declineInvites = true
+	}
+
 	if declineInvites || isUserBlocked {
 		log.Info(evt.Sender.String() + " is blocked or bot reached max users")
 		return nil
@@ -133,16 +144,15 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 }
 
 func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
-	channels, err := s.database.GetChannelsByChannelIdentifier(evt.RoomID.String())
+
+	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Unsigned.PrevSender.String(), evt.RoomID.String())
 	if err != nil {
 		return err
 	}
 
-	for _, channel := range channels {
-		err := s.database.DeleteChannel(&channel)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			log.Error("Failed to delete channel with: " + err.Error())
-		}
+	err = s.database.DeleteChannel(channel)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Error("Failed to delete channel with: " + err.Error())
 	}
 
 	err = s.addMemberEventToDatabase(evt, content)
