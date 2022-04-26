@@ -74,7 +74,7 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 			log.Error("Failed to handle membership invite with: " + err.Error())
 		}
 		return
-	case event.MembershipLeave:
+	case event.MembershipLeave, event.MembershipBan:
 		err := s.handleLeave(evt, content)
 		if err != nil {
 			log.Error("Failed to handle membership leave with: " + err.Error())
@@ -144,8 +144,11 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 }
 
 func (s *StateMemberHandler) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
+	if evt.StateKey == nil {
+		return nil
+	}
 
-	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Unsigned.PrevSender.String(), evt.RoomID.String())
+	channel, err := s.database.GetChannelByUserAndChannelIdentifier(*evt.StateKey, evt.RoomID.String())
 	if err != nil {
 		return err
 	}
