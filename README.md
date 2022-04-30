@@ -12,8 +12,6 @@ A matrix bot that handles reminders and knows your agenda.
 
 ## 📋 Features
 
-**Currently the bot is not working with encrypted messages/channels**
-
 * Schedule reminders
 * Edit and delete reminders
 * Timezone support
