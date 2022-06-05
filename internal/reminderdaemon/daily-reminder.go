@@ -38,7 +38,8 @@ func (d *Daemon) CheckForDailyReminder() error {
 		}
 
 		// Check if we already sent the reminder message
-		if time.Since(lastMessage.CreatedAt) < 23*time.Hour+58*time.Minute {
+
+		if lastMessage.CreatedAt.In(tz).Day() == now.Day() {
 			continue
 		}
 
