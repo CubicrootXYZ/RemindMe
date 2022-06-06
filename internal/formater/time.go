@@ -40,7 +40,7 @@ func ParseTime(msg string, channel *database.Channel, rawDate bool) (time.Time, 
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	strippedBody, _, err := transform.String(t, StripReply(msg))
 	if err == nil {
-		msg = strippedBody
+		msg = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strippedBody, ".", " "), ",", " "), "#", " "), ";", " ")
 	}
 
 	loc := time.UTC
