@@ -3,6 +3,8 @@ github.com/BurntSushi/toml v0.4.1 h1:GaI7EiDXDRfa8VshkTj7Fym7ha+y8/XxIgD2okUIjLw
 github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/CubicrootXYZ/gonaturalduration v0.0.0-20211017132232-aa3bbfc675a0 h1:8QVW2T0KN6TMKEQ9L0P9KIZVHtzy96kJ7QsvKIoOEAQ=
 github.com/CubicrootXYZ/gonaturalduration v0.0.0-20211017132232-aa3bbfc675a0/go.mod h1:Sn9uZgVJrzOIf7VX2giR51RvLuEj8ypphbJ0QdEWKRA=
+github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220607181758-35e7a64965f5 h1:v2etSxKLVXpf+9tHU7Wf6gd2xAX6hMQzxJHUWst9sm8=
+github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220607181758-35e7a64965f5/go.mod h1:Sn9uZgVJrzOIf7VX2giR51RvLuEj8ypphbJ0QdEWKRA=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89hSJJF9Ut/5FmkVwbgKW6VgnvaNseoB+uC+Ro=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d/go.mod h1:CN47TkXtxcVeEZ9KqqwEoRKVsfqTh2pl0XKPWIB/Z8o=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=

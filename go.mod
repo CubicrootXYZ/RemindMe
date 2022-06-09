@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/BurntSushi/toml v0.4.1 // indirect
-	github.com/CubicrootXYZ/gonaturalduration v0.0.0-20211017132232-aa3bbfc675a0
+	github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220607181758-35e7a64965f5
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
