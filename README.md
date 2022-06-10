@@ -4,11 +4,13 @@
 [![GitHub issues](https://img.shields.io/github/issues/CubicrootXYZ/matrix-reminder-and-calendar-bot)](https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/issues)
 [![Actions Status](https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/workflows/Main/badge.svg?branch=main)](https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/actions)
 
+![Logo](media/Logo.png)
 
 A matrix bot that handles reminders and knows your agenda.
 
-![Example list of reminders](Screenshots/reminders.png)
-![Example list of commands](Screenshots/commands.png)
+## Example
+
+![Example chat interaction](media/Chat_Example.png)
 
 ## 📋 Features
 
