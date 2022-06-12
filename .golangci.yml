@@ -1,8 +1,23 @@
 linters:
   enable-all: true
-  disable: []
+  disable: 
+    - gofumpt # Only formatting 
+    - godot # Only formatting
+    - varnamelen # Imho not important
+    - wrapcheck # This project does not use error wrapping
+    - paralleltest # This project is not using parallel testing
+    - nlreturn # Only formatting
+    - ireturn # This project sometimes uses interfaces
+    - gomnd # This project has some hardcoded numbers for times and delays
+    - goerr113 # This project has not yet moved to static errors
+    - gochecknoglobals # This project still uses some global variables
+    - exhaustivestruct # This projects relies on using only parts of structs
+    - errorlint # This project has not yet moved to static errors
+    - wsl # Formatting
+    - misspell # My english is just not that good
+    - lll # Formatting
 
 issues:
   exclude:
-    - 'SA4009: argument db is overwritten before first use (staticcheck)'
+    - 'SA4009: argument db is overwritten before first use (staticcheck)' # This two are excluded since the code is already prepared for later migration to SQL
     - 'SA4009(related information): assignment to db (staticcheck)'
