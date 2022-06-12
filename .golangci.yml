@@ -1,0 +1,8 @@
+linters:
+  enable-all: true
+  disable: []
+
+issues:
+  exclude:
+    - 'SA4009: argument db is overwritten before first use (staticcheck)'
+    - 'SA4009(related information): assignment to db (staticcheck)'

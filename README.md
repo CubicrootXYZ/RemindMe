@@ -124,12 +124,45 @@ Plain installation requires knowledge about building go binaries and installing 
 4. Setup your config file
 5. Run the binary
 6. Make sure to persists the `data` folder as it contains important data for the service 
+7. The application will serve the API at port 8080
 
 ### Docker
 
 Different versions are available on docker hub:
 
 [Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
+
+Use this example `docker-compose.yml` to configure your container:
+```
+version: '3.2'
+
+services:
+  remindme:
+    image: cubicrootxyz/remindme:latest
+    volumes:
+      - "./config.yml:/run/config.yml"
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+    ports:
+      - 80:8080
+
+  remindme-db:
+    image: mysql:8.0
+    volumes:
+      - "./db-data:/var/lib/mysql"
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=mypass'
+      - 'MYSQL_DATABASE=remindme'
+    networks:
+      - remindme
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - remindme
+
+networks:
+  remindme:
+```
 
 You are missing a docker container for your architecture? We'd love to see you contributing to this project by opening a pull request with the build instructions for it.
 

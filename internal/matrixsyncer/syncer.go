@@ -142,7 +142,7 @@ func (s *Syncer) syncChannels() error {
 
 		channels = append(channels, channel)
 
-		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
+		_, _ = s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
 	}
 
 	// Remove channels not needed anymore

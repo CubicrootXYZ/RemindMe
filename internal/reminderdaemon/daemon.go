@@ -34,7 +34,10 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 		// Check for daily reminder every 5 minutes
 		if i%5 == 0 {
 			i = 0
-			d.CheckForDailyReminder()
+			err := d.CheckForDailyReminder()
+			if err != nil {
+				log.Error(fmt.Sprintf("Error while checking daily reminders: %s", err.Error()))
+			}
 		}
 
 		// Check for reminders every minute

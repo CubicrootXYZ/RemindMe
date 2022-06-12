@@ -13,7 +13,7 @@ func abort(ctx *gin.Context, statusCode int, message ResponseMessage, err error)
 		Message: string(message),
 	}
 	ctx.JSON(statusCode, response)
-	ctx.AbortWithError(statusCode, err)
+	_ = ctx.AbortWithError(statusCode, err)
 }
 
 // getUintFromContext returns the ID from the context

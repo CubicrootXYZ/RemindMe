@@ -146,7 +146,7 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 	remindTime, err := formater.ParseTime(content.Body, channel, false)
 	if err != nil {
 		log.Warn(err.Error())
-		s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
+		_, _ = s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
 		return err
 	}
 
@@ -161,9 +161,9 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.Event.ID.String()))
 	}
 
-	s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
+	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
 
-	return nil
+	return err
 }
 
 // checkActions checks if a message matches any special actions and performs them.
@@ -186,7 +186,7 @@ func (s *MessageHandler) checkActions(evt *types.MessageEvent, channel *database
 func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.Channel) (*database.Reminder, error) {
 	remindTime, err := formater.ParseTime(evt.Content.Body, channel, false)
 	if err != nil {
-		s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
+		_, _ = s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
 		return nil, err
 	}
 

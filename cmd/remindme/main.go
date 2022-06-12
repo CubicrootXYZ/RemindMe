@@ -67,7 +67,12 @@ func startup() error {
 
 	// Initialize logger
 	logger := log.InitLogger(config.Debug)
-	defer logger.Sync()
+	defer func() {
+		err = logger.Sync()
+		if err != nil {
+			log.Error("Failed to sync logger: " + err.Error())
+		}
+	}()
 
 	// Set up database
 	log.Debug("Initializing database")
@@ -116,7 +121,12 @@ func startup() error {
 	log.Debug("Starting up reminder daemon")
 	reminderDaemon := reminderdaemon.Create(db, messenger)
 	wg.Add(1)
-	go reminderDaemon.Start(&wg)
+	go func() {
+		err = reminderDaemon.Start(&wg)
+		if err != nil {
+			log.Error("Error while starting reminder daemon: " + err.Error())
+		}
+	}()
 
 	// Start the Webserver
 	if config.Webserver.Enabled {

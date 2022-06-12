@@ -1,9 +1,12 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -64,5 +67,8 @@ func (server *Server) Start(debug bool) {
 
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
-	r.Run() // Port 8080
+	err := r.Run() // Port 8080
+	if err != nil {
+		log.Error(fmt.Sprintf("Error when starting server: %s", err.Error()))
+	}
 }

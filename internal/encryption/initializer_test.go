@@ -23,9 +23,11 @@ func TestMain(m *testing.M) {
 	}
 	testDb = db
 
-	m.Run()
+	exitCode := m.Run()
 
 	cleanUp()
+
+	os.Exit(exitCode)
 }
 
 func cleanUp() {

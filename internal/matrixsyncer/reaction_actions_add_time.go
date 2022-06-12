@@ -132,7 +132,7 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 	if message.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
 		msgFormatted := msg
-		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
 		return errors.ErrIdNotSet
 	}
 
