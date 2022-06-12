@@ -12,10 +12,16 @@ linters:
     - goerr113 # This project has not yet moved to static errors
     - gochecknoglobals # This project still uses some global variables
     - exhaustivestruct # This projects relies on using only parts of structs
+    - exhaustruct # This projects relies on using only parts of structs
     - errorlint # This project has not yet moved to static errors
     - wsl # Formatting
     - misspell # My english is just not that good
     - lll # Formatting
+    - tagliatelle # Formatting
+
+linters-settings:
+  cyclop:
+    max-complexity: 30
 
 issues:
   exclude:
