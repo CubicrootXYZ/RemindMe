@@ -18,12 +18,30 @@ linters:
     - misspell # My english is just not that good
     - lll # Formatting
     - tagliatelle # Formatting
+    - gochecknoinits # issue 84
+    - gocritic # Formatting
+    - godox # Formatting
+    # deprecated
+    - scopelint
+    - maligned
+    - interfacer
+    - golint
 
 linters-settings:
   cyclop:
     max-complexity: 30
+  funlen: 
+    lines: 100
+    statements: 80
+  gocognit:
+    min-complexity: 40 # not ideal, should be improved
 
 issues:
+  exclude-rules:
+    - path: '(.*)_test\.go'
+      linters:
+        - funlen
   exclude:
     - 'SA4009: argument db is overwritten before first use (staticcheck)' # This two are excluded since the code is already prepared for later migration to SQL
     - 'SA4009(related information): assignment to db (staticcheck)'
+    - 'string `11:45 12.11.2014 (UTC)` has 3 occurrences, make it a constant' # Used for test validation
