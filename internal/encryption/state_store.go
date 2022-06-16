@@ -94,9 +94,9 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 		encryptionEventJSON = nil
 	}
 
-	for _, channel := range channels {
-		channel.LastCryptoEvent = string(encryptionEventJSON)
-		if err := store.database.ChannelSaveChanges(&channel); err != nil {
+	for i := range channels {
+		channels[i].LastCryptoEvent = string(encryptionEventJSON)
+		if err := store.database.ChannelSaveChanges(&channels[i]); err != nil {
 			log.Warn("Failed saving encryption event: " + err.Error())
 		}
 	}

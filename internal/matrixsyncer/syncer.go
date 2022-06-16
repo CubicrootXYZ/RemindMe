@@ -73,8 +73,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		}
 	}
 
-	err := s.syncChannels()
-	if err != nil {
+	if err := s.syncChannels(); err != nil {
 		return err
 	}
 
@@ -104,7 +103,6 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		syncer.OnEventType(event.StateEncryption, func(_ mautrix.EventSource, event *event.Event) {
 			s.stateStore.SetEncryptionEvent(event)
 		})
-
 	}
 
 	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)

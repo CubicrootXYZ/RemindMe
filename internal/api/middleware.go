@@ -122,6 +122,5 @@ func Logger() gin.HandlerFunc {
 			"duration", param.Latency.Seconds(),
 			"error", param.ErrorMessage,
 		)
-
 	}
 }

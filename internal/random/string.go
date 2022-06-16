@@ -20,8 +20,9 @@ func String(n int) string {
 		if err != nil {
 			randomInt = mrand.Intn(len(letters))
 			log.Error("Can not generate random integers, fallback to insecure method! " + err.Error())
+		} else {
+			randomInt = int(randomBigInt.Int64())
 		}
-		randomInt = int(randomBigInt.Int64())
 
 		s[i] = letters[randomInt]
 	}

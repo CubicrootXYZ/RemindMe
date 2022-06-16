@@ -215,7 +215,6 @@ func (s *StateMemberHandler) maxUserReached() (bool, error) {
 			log.Info("Reached max channels - will no longer follow new invites.")
 			return true, nil
 		}
-
 	}
 
 	return false, nil

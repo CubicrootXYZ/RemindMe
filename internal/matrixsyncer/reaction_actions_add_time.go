@@ -130,7 +130,7 @@ func (s *Syncer) reactionActionAdd1Day(message *database.Message, content *event
 
 // reactionAddXHours to referentiate all other actions here
 func (s *Syncer) reactionActionAddXHours(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel, duration time.Duration) error {
-	log.Debug(fmt.Sprintf("Adding %d minutes, with reaction %s", duration/time.Minute, content.RelatesTo.Key))
+	log.Debug(fmt.Sprintf("Adding %d minutes, with reaction %s (event %s)", duration/time.Minute, content.RelatesTo.Key, evt.ID))
 
 	if message.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
