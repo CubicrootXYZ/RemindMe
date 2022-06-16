@@ -45,26 +45,26 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 		if err != nil {
 			log.Warn("Not able to get Reminders from database: " + err.Error())
 		} else {
-			log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(*reminders)))
-			for _, reminder := range *reminders {
-				originalMessage, err := d.Database.GetMessageFromReminder(reminder.ID, database.MessageTypeReminderRequest)
+			log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(reminders)))
+			for i := range reminders {
+				originalMessage, err := d.Database.GetMessageFromReminder(reminders[i].ID, database.MessageTypeReminderRequest)
 				if err != nil {
 					log.Warn("Can not get original message: " + err.Error())
 					continue
 				}
-				message, err := d.Messenger.SendReminder(&reminder, originalMessage)
+				message, err := d.Messenger.SendReminder(&reminders[i], originalMessage)
 				if err == errors.ErrEmptyChannel {
-					_, err = d.Database.SetReminderDone(&reminder)
+					_, err = d.Database.SetReminderDone(&reminders[i])
 					if err != nil {
 						log.Warn("Can not set reminder done: " + err.Error())
 					}
 					continue
 				} else if err != nil {
-					log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminder.ID, err.Error()))
+					log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminders[i].ID, err.Error()))
 					continue
 				}
 
-				_, err = d.Database.SetReminderDone(&reminder)
+				_, err = d.Database.SetReminderDone(&reminders[i])
 				if err != nil {
 					log.Warn("Can not set reminder done: " + err.Error())
 				}

@@ -41,6 +41,8 @@ issues:
     - path: '(.*)_test\.go'
       linters:
         - funlen
+    - path: '(.*)\/string.go'
+      text: "G404: Use of weak random number generator" # Used as fallback
   exclude:
     - 'SA4009: argument db is overwritten before first use (staticcheck)' # This two are excluded since the code is already prepared for later migration to SQL
     - 'SA4009(related information): assignment to db (staticcheck)'

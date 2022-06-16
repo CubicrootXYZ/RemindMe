@@ -38,11 +38,11 @@ func (d *Database) GetMessageFromReminder(reminderID uint, msgType MessageType) 
 }
 
 // GetPendingReminder returns all reminders that are due
-func (d *Database) GetPendingReminder() (*[]Reminder, error) {
+func (d *Database) GetPendingReminder() ([]Reminder, error) {
 	reminder := make([]Reminder, 0)
 	err := d.db.Debug().Preload("Channel").Find(&reminder, "active = ? AND remind_time <= ?", 1, time.Now().UTC()).Error
 
-	return &reminder, err
+	return reminder, err
 }
 
 // GetDailyReminder returns the reminders alerting in the next 24 hours

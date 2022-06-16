@@ -163,22 +163,22 @@ func (d *Database) CleanAdminChannels(keep []*Channel) error {
 		return err
 	}
 
-	for _, channel := range channels {
+	for i := range channels {
 		remove := true
 		for _, channelKeep := range keep {
-			if channel.ID == channelKeep.ID && channel.ChannelIdentifier == channelKeep.ChannelIdentifier && channel.UserIdentifier == channelKeep.UserIdentifier {
+			if channels[i].ID == channelKeep.ID && channels[i].ChannelIdentifier == channelKeep.ChannelIdentifier && channels[i].UserIdentifier == channelKeep.UserIdentifier {
 				remove = false
 				break
 			}
 		}
 
-		if channel.Role != nil && *channel.Role != roles.RoleAdmin {
+		if channels[i].Role != nil && *channels[i].Role != roles.RoleAdmin {
 			remove = false
 		}
 
 		if remove {
-			log.Info(fmt.Sprintf("Removing channel %d", channel.ID))
-			err = d.DeleteChannel(&channel)
+			log.Info(fmt.Sprintf("Removing channel %d", channels[i].ID))
+			err = d.DeleteChannel(&channels[i])
 			if err != nil {
 				return err
 			}
@@ -228,8 +228,8 @@ func (d *Database) DeleteChannelsFromUser(userID string) error {
 		return err
 	}
 
-	for _, channel := range channels {
-		err := d.DeleteChannel(&channel)
+	for i := range channels {
+		err := d.DeleteChannel(&channels[i])
 		if err != nil {
 			return err
 		}

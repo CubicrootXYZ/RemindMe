@@ -79,11 +79,11 @@ func TestReminder_GetPendingReminderOnSuccess(t *testing.T) {
 
 	newReminders, err := db.GetPendingReminder()
 	require.NoError(t, err)
-	require.Equal(t, len(testReminders()), len(*newReminders))
+	require.Equal(t, len(testReminders()), len(newReminders))
 
 	for _, reminder := range testReminders() {
 		found := false
-		for _, newReminder := range *newReminders {
+		for _, newReminder := range newReminders {
 
 			if reminder.ID == newReminder.ID {
 				found = true
