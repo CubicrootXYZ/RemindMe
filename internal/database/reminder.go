@@ -59,7 +59,6 @@ func (d *Database) GetDailyReminder(channel *Channel) (*[]Reminder, error) {
 func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
 	if reminder.Repeated != nil {
 		if reminder.RepeatMax > *reminder.Repeated && reminder.RepeatInterval > 0 {
-
 			reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
 		} else {
 			reminder.Active = false

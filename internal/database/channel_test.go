@@ -16,7 +16,6 @@ func TestChannel_AddChannelOnSuccess(t *testing.T) {
 	db, mock := testDatabase()
 
 	for _, channel := range testChannels() {
-
 		mock.ExpectBegin()
 		mock.ExpectExec("INSERT INTO `channels`").WithArgs(
 			sqlmock.AnyArg(),
@@ -272,7 +271,6 @@ func TestChannel_GetChannelByChannelIdentifierOnSuccess(t *testing.T) {
 		}
 
 		assert.True(found, "Channel not found in returned list: ", channel.ID)
-
 	}
 
 	assert.NoError(mock.ExpectationsWereMet())
@@ -366,7 +364,6 @@ func TestChannel_GetChannelListOnSuccess(t *testing.T) {
 				assert.Equal(channel.UserIdentifier, c.UserIdentifier)
 				assert.Equal(channel.ID, c.ID)
 			}
-
 		}
 		assert.True(found, "Channel ID not found in response: ", channel.ID)
 	}

@@ -73,16 +73,14 @@ func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Eve
 		if err != nil {
 			log.Error("Failed to handle membership invite with: " + err.Error())
 		}
-		return
 	case event.MembershipLeave, event.MembershipBan:
 		err := s.handleLeave(evt, content)
 		if err != nil {
 			log.Error("Failed to handle membership leave with: " + err.Error())
 		}
-		return
+	default:
+		log.Info(fmt.Sprintf("No handling of this event as Membership %s is unknown.", content.Membership))
 	}
-
-	log.Info(fmt.Sprintf("No handling of this event as Membership %s is unknown.", content.Membership))
 }
 
 func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.MemberEventContent) error {

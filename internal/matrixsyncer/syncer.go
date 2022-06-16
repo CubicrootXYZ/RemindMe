@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -67,8 +68,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		olm = encryption.GetOlmMachine(s.debug, s.client, s.cryptoStore, s.daemon.Database, s.stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
-		err := olm.Load()
-		if err != nil {
+		if err := olm.Load(); err != nil {
 			return err
 		}
 	}
@@ -89,7 +89,10 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	reactionHandler := synchandler.NewReactionHandler(s.daemon.Database, s.messenger, s.botInfo, reactionActions)
 
 	// Get messages
-	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
+	syncer, ok := s.client.Syncer.(*mautrix.DefaultSyncer)
+	if !ok {
+		return errors.New("Syncer of wrong type")
+	}
 
 	if s.config.E2EE {
 		log.Info("Listening for E2EE events.")

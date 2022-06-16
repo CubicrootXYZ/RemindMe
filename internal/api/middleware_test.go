@@ -67,7 +67,7 @@ func TestRequireAPIkey_Empty(t *testing.T) {
 
 	assert.Equal(t, w.Code, 401)
 	require.Equal(t, 1, len(c.Errors))
-	assert.Equal(t, errors.ErrMissingApiKey.Error(), c.Errors[0].Error())
+	assert.Equal(t, errors.ErrMissingAPIKey.Error(), c.Errors[0].Error())
 	assert.Equal(t, `{"message":"Unauthenticated","status":"error"}`, w.Body.String())
 }
 
@@ -88,7 +88,7 @@ func TestRequireAPIkey_Wrong(t *testing.T) {
 
 	assert.Equal(t, w.Code, 401)
 	require.Equal(t, 1, len(c.Errors))
-	assert.Equal(t, errors.ErrMissingApiKey.Error(), c.Errors[0].Error())
+	assert.Equal(t, errors.ErrMissingAPIKey.Error(), c.Errors[0].Error())
 	assert.Equal(t, `{"message":"Unauthenticated","status":"error"}`, w.Body.String())
 }
 
@@ -108,7 +108,7 @@ func TestRequireAPIkey_NotSet(t *testing.T) {
 
 	assert.Equal(t, w.Code, 401)
 	require.Equal(t, 1, len(c.Errors))
-	assert.Equal(t, errors.ErrMissingApiKey.Error(), c.Errors[0].Error())
+	assert.Equal(t, errors.ErrMissingAPIKey.Error(), c.Errors[0].Error())
 	assert.Equal(t, `{"message":"Unauthenticated","status":"error"}`, w.Body.String())
 }
 

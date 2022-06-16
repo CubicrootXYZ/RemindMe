@@ -28,7 +28,7 @@ func newCryptoLogger(debug bool) (*cryptoLogger, error) {
 
 	return &cryptoLogger{
 		log: logger,
-	}, nil
+	}, err
 }
 
 func (c cryptoLogger) Error(message string, args ...interface{}) {
