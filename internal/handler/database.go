@@ -39,8 +39,8 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 		return
 	}
 
-	for _, channel := range channels {
-		channelsPublic = append(channelsPublic, channelToChannelResponse(&channel))
+	for i := range channels {
+		channelsPublic = append(channelsPublic, channelToChannelResponse(&channels[i]))
 	}
 
 	response := types.DataResponse{
@@ -221,18 +221,18 @@ func channelsToUserList(channels []database.Channel) []*userResponse {
 	responseData := make([]*userResponse, 0)
 
 CHANNELS:
-	for _, channel := range channels {
-		for _, user := range responseData {
-			if user.UserIdentifier == channel.UserIdentifier {
-				user.Channels = append(user.Channels, channelToChannelResponse(&channel))
+	for i := range channels {
+		for j := range responseData {
+			if responseData[j].UserIdentifier == channels[i].UserIdentifier {
+				responseData[j].Channels = append(responseData[j].Channels, channelToChannelResponse(&channels[i]))
 				continue CHANNELS
 			}
 		}
 
 		responseData = append(responseData, &userResponse{
-			UserIdentifier: channel.UserIdentifier,
+			UserIdentifier: channels[i].UserIdentifier,
 			Blocked:        false,
-			Channels:       []channelResponse{channelToChannelResponse(&channel)},
+			Channels:       []channelResponse{channelToChannelResponse(&channels[i])},
 		})
 	}
 

@@ -84,7 +84,6 @@ func TestReminder_GetPendingReminderOnSuccess(t *testing.T) {
 	for _, reminder := range testReminders() {
 		found := false
 		for _, newReminder := range newReminders {
-
 			if reminder.ID == newReminder.ID {
 				found = true
 				// RemindTime seems to get fucked up in conversions
