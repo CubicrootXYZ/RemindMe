@@ -19,20 +19,20 @@ func (d *Daemon) CheckForDailyReminder() error {
 		return err
 	}
 
-	for _, channel := range channels {
-		if channel.DailyReminder == nil {
+	for i := range channels {
+		if channels[i].DailyReminder == nil {
 			continue
 		}
 
-		tz := channel.Timezone()
+		tz := channels[i].Timezone()
 		now := time.Now().In(tz)
 
 		// We did not yet pass the daily reminder time
-		if (now.Hour()*60 + now.Minute()) < int(*channel.DailyReminder) {
+		if (now.Hour()*60 + now.Minute()) < int(*channels[i].DailyReminder) {
 			continue
 		}
 
-		lastMessage, err := d.Database.GetLastMessageByType(database.MessageTypeDailyReminder, &channel)
+		lastMessage, err := d.Database.GetLastMessageByType(database.MessageTypeDailyReminder, &channels[i])
 		if err != nil && err != gorm.ErrRecordNotFound {
 			continue
 		}
@@ -43,20 +43,20 @@ func (d *Daemon) CheckForDailyReminder() error {
 			continue
 		}
 
-		dailyReminder, err := d.Database.GetDailyReminder(&channel)
+		dailyReminder, err := d.Database.GetDailyReminder(&channels[i])
 		if err != nil {
 			log.Error(err.Error())
 			continue
 		}
 
-		log.Info(fmt.Sprintf("Sending out daily reminder to channel id %d", channel.ID))
+		log.Info(fmt.Sprintf("Sending out daily reminder to channel id %d", channels[i].ID))
 
 		msg := &formater.Formater{}
 		msg.Title("Your reminders for today")
 		for _, reminder := range *dailyReminder {
 			msg.BoldLine(reminder.Message)
 			msg.Text("At ")
-			msg.Text(formater.ToLocalTime(reminder.RemindTime, &channel))
+			msg.Text(formater.ToLocalTime(reminder.RemindTime, &channels[i]))
 			if reminder.Repeated != nil && reminder.RepeatMax > *reminder.Repeated {
 				msg.ItalicLine(" (repeat every " + formater.ToNiceDuration(time.Minute*time.Duration(reminder.RepeatInterval)) + ")")
 			} else {
@@ -70,7 +70,7 @@ func (d *Daemon) CheckForDailyReminder() error {
 		}
 
 		body, bodyFormatted := msg.Build()
-		_, err = d.Messenger.SendFormattedMessage(body, bodyFormatted, &channel, database.MessageTypeDailyReminder, 0)
+		_, err = d.Messenger.SendFormattedMessage(body, bodyFormatted, &channels[i], database.MessageTypeDailyReminder, 0)
 		if err != nil {
 			log.Error(err.Error())
 			continue

@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -67,14 +68,12 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		olm = encryption.GetOlmMachine(s.debug, s.client, s.cryptoStore, s.daemon.Database, s.stateStore)
 		olm.AllowUnverifiedDevices = true
 		olm.ShareKeysToUnverifiedDevices = true
-		err := olm.Load()
-		if err != nil {
+		if err := olm.Load(); err != nil {
 			return err
 		}
 	}
 
-	err := s.syncChannels()
-	if err != nil {
+	if err := s.syncChannels(); err != nil {
 		return err
 	}
 
@@ -89,7 +88,10 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	reactionHandler := synchandler.NewReactionHandler(s.daemon.Database, s.messenger, s.botInfo, reactionActions)
 
 	// Get messages
-	syncer := s.client.Syncer.(*mautrix.DefaultSyncer)
+	syncer, ok := s.client.Syncer.(*mautrix.DefaultSyncer)
+	if !ok {
+		return errors.New("Syncer of wrong type")
+	}
 
 	if s.config.E2EE {
 		log.Info("Listening for E2EE events.")
@@ -101,7 +103,6 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 		syncer.OnEventType(event.StateEncryption, func(_ mautrix.EventSource, event *event.Event) {
 			s.stateStore.SetEncryptionEvent(event)
 		})
-
 	}
 
 	syncer.OnEventType(event.EventMessage, messageHandler.NewEvent)
@@ -142,7 +143,7 @@ func (s *Syncer) syncChannels() error {
 
 		channels = append(channels, channel)
 
-		s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
+		_, _ = s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
 	}
 
 	// Remove channels not needed anymore

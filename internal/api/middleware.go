@@ -39,7 +39,7 @@ func RequireAPIkey(apikey string) gin.HandlerFunc {
 				Status:  "error",
 			}
 			ctx.JSON(http.StatusUnauthorized, response)
-			ctx.AbortWithError(http.StatusUnauthorized, errors.ErrMissingApiKey)
+			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.ErrMissingAPIKey)
 			return
 		}
 	}
@@ -122,6 +122,5 @@ func Logger() gin.HandlerFunc {
 			"duration", param.Latency.Seconds(),
 			"error", param.ErrorMessage,
 		)
-
 	}
 }

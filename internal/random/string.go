@@ -1,6 +1,12 @@
 package random
 
-import "math/rand"
+import (
+	"crypto/rand"
+	"math/big"
+	mrand "math/rand"
+
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+)
 
 // String returns a random string of length n
 func String(n int) string {
@@ -8,7 +14,17 @@ func String(n int) string {
 
 	s := make([]rune, n)
 	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
+		var randomInt int
+
+		randomBigInt, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			randomInt = mrand.Intn(len(letters))
+			log.Error("Can not generate random integers, fallback to insecure method! " + err.Error())
+		} else {
+			randomInt = int(randomBigInt.Int64())
+		}
+
+		s[i] = letters[randomInt]
 	}
 	return string(s)
 }

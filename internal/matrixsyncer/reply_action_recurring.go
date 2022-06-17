@@ -27,8 +27,8 @@ func (s *Syncer) replyActionRecurring(evt *types.MessageEvent, channel *database
 	if replyMessage.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", replyMessage.ReminderID)
 		msgFormatted := msg
-		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
-		return errors.ErrIdNotSet
+		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		return errors.ErrIDNotSet
 	}
 
 	// Get duration from message

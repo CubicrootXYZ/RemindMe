@@ -38,11 +38,11 @@ func (d *Database) GetMessageFromReminder(reminderID uint, msgType MessageType) 
 }
 
 // GetPendingReminder returns all reminders that are due
-func (d *Database) GetPendingReminder() (*[]Reminder, error) {
+func (d *Database) GetPendingReminder() ([]Reminder, error) {
 	reminder := make([]Reminder, 0)
 	err := d.db.Debug().Preload("Channel").Find(&reminder, "active = ? AND remind_time <= ?", 1, time.Now().UTC()).Error
 
-	return &reminder, err
+	return reminder, err
 }
 
 // GetDailyReminder returns the reminders alerting in the next 24 hours
@@ -59,7 +59,6 @@ func (d *Database) GetDailyReminder(channel *Channel) (*[]Reminder, error) {
 func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
 	if reminder.Repeated != nil {
 		if reminder.RepeatMax > *reminder.Repeated && reminder.RepeatInterval > 0 {
-
 			reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
 		} else {
 			reminder.Active = false

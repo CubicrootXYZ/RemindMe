@@ -21,7 +21,6 @@ func (s *Syncer) getActionIcalRegenerate() *types.Action {
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
 func (s *Syncer) actionIcalRegenerate(evt *types.MessageEvent, channel *database.Channel) error {
-
 	_, err := s.daemon.Database.AddMessageFromMatrix(evt.Event.ID.String(), time.Now().Unix(), evt.Content, nil, database.MessageTypeIcalRenewRequest, channel)
 	if err != nil {
 		log.Warn("Can not save message to database.")

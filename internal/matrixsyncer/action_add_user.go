@@ -102,6 +102,5 @@ func getUsernameFromLink(link string) string {
 }
 
 func getUsernameFromText(text string) string {
-
 	return strings.TrimPrefix(text, "add user ")
 }

@@ -18,21 +18,22 @@ func MinutesToIcalRecurrenceRule(minutes uint64, occurences uint64) string {
 	rule := strings.Builder{}
 	rule.WriteString("RRULE:")
 
-	if minutes%(60*24) == 0 {
+	switch {
+	case minutes%(60*24) == 0:
 		days := minutes / (60 * 24)
 		rule.WriteString("FREQ=DAILY")
 		if days > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(days, 10))
 		}
-	} else if minutes%(60) == 0 {
+	case minutes%(60) == 0:
 		hours := minutes / (60)
 		rule.WriteString("FREQ=HOURLY")
 		if hours > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(hours, 10))
 		}
-	} else {
+	default:
 		rule.WriteString("FREQ=MINUTELY")
 		if minutes > 1 {
 			rule.WriteString(";INTERVAL=")

@@ -39,8 +39,8 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 		return
 	}
 
-	for _, channel := range channels {
-		channelsPublic = append(channelsPublic, channelToChannelResponse(&channel))
+	for i := range channels {
+		channelsPublic = append(channelsPublic, channelToChannelResponse(&channels[i]))
 	}
 
 	response := types.DataResponse{
@@ -120,27 +120,13 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 	}
 
 	if data.Blocked != nil && *data.Blocked {
-		channels, err := databaseHandler.database.GetChannelsByUserIdentifier(userID)
-		if err != nil {
-			abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
-			return
-		}
-
-		for _, channel := range channels {
-			err = databaseHandler.database.DeleteChannel(&channel)
-			if err != nil {
-				abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
-				return
-			}
-		}
-
-		err = databaseHandler.database.AddUserToBlocklist(userID, data.BlockReason)
+		err := databaseHandler.blockUserID(userID, data.BlockReason)
 		if err != nil {
 			abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
 			return
 		}
 	} else if data.Blocked != nil && !*data.Blocked {
-		err = databaseHandler.database.RemoveUserFromBlocklist(userID)
+		err = databaseHandler.unblockUserID(userID)
 		if err != nil {
 			abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
 			return
@@ -153,6 +139,31 @@ func (databaseHandler *DatabaseHandler) PutUser(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (databaseHandler *DatabaseHandler) blockUserID(userID string, blockReason string) error {
+	channels, err := databaseHandler.database.GetChannelsByUserIdentifier(userID)
+	if err != nil {
+		return err
+	}
+
+	for i := range channels {
+		err = databaseHandler.database.DeleteChannel(&channels[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	err = databaseHandler.database.AddUserToBlocklist(userID, blockReason)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (databaseHandler *DatabaseHandler) unblockUserID(userID string) error {
+	return databaseHandler.database.RemoveUserFromBlocklist(userID)
 }
 
 // GetUsers godoc
@@ -210,18 +221,18 @@ func channelsToUserList(channels []database.Channel) []*userResponse {
 	responseData := make([]*userResponse, 0)
 
 CHANNELS:
-	for _, channel := range channels {
-		for _, user := range responseData {
-			if user.UserIdentifier == channel.UserIdentifier {
-				user.Channels = append(user.Channels, channelToChannelResponse(&channel))
+	for i := range channels {
+		for j := range responseData {
+			if responseData[j].UserIdentifier == channels[i].UserIdentifier {
+				responseData[j].Channels = append(responseData[j].Channels, channelToChannelResponse(&channels[i]))
 				continue CHANNELS
 			}
 		}
 
 		responseData = append(responseData, &userResponse{
-			UserIdentifier: channel.UserIdentifier,
+			UserIdentifier: channels[i].UserIdentifier,
 			Blocked:        false,
-			Channels:       []channelResponse{channelToChannelResponse(&channel)},
+			Channels:       []channelResponse{channelToChannelResponse(&channels[i])},
 		})
 	}
 

@@ -56,9 +56,9 @@ func (store *StateStore) GetEncryptionEvent(roomID id.RoomID) *event.EncryptionE
 	return nil
 }
 
-func (store *StateStore) FindSharedRooms(userId id.UserID) []id.RoomID {
+func (store *StateStore) FindSharedRooms(userID id.UserID) []id.RoomID {
 	rooms := make([]id.RoomID, 0)
-	channels, err := store.database.GetChannelsByUserIdentifier(userId.String())
+	channels, err := store.database.GetChannelsByUserIdentifier(userID.String())
 	if err != nil {
 		log.Warn("Could not fetch users rooms: " + err.Error())
 		return rooms
@@ -88,15 +88,15 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 		return
 	}
 
-	var encryptionEventJson []byte
-	encryptionEventJson, err = json.Marshal(event)
+	var encryptionEventJSON []byte
+	encryptionEventJSON, err = json.Marshal(event)
 	if err != nil {
-		encryptionEventJson = nil
+		encryptionEventJSON = nil
 	}
 
-	for _, channel := range channels {
-		channel.LastCryptoEvent = string(encryptionEventJson)
-		if err := store.database.ChannelSaveChanges(&channel); err != nil {
+	for i := range channels {
+		channels[i].LastCryptoEvent = string(encryptionEventJSON)
+		if err := store.database.ChannelSaveChanges(&channels[i]); err != nil {
 			log.Warn("Failed saving encryption event: " + err.Error())
 		}
 	}

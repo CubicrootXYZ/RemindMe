@@ -7,6 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 )
@@ -129,11 +130,13 @@ func (s *Syncer) reactionActionAdd1Day(message *database.Message, content *event
 
 // reactionAddXHours to referentiate all other actions here
 func (s *Syncer) reactionActionAddXHours(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel, duration time.Duration) error {
+	log.Debug(fmt.Sprintf("Adding %d minutes, with reaction %s (event %s)", duration/time.Minute, content.RelatesTo.Key, evt.ID))
+
 	if message.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
 		msgFormatted := msg
-		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
-		return errors.ErrIdNotSet
+		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		return errors.ErrIDNotSet
 	}
 
 	reminder, err := s.daemon.Database.UpdateReminder(*message.ReminderID, addTimeOrFromNow(message.Reminder.RemindTime, duration), 0, 0)
@@ -149,9 +152,7 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 
 // addTimeOrFromNow If baseTime is in future add the duration to the basetime otherwise add it to the current time
 func addTimeOrFromNow(baseTime time.Time, duration time.Duration) time.Time {
-	now := time.Now()
-
-	if baseTime.Sub(now) < 0 {
+	if now := time.Now(); baseTime.Sub(now) < 0 {
 		return now.Add(duration)
 	}
 

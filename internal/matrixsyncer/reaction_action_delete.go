@@ -30,8 +30,8 @@ func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content
 	if message.ReminderID == nil {
 		msg = fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
 		msgFormatted = msg
-		s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, 0)
-		return errors.ErrIdNotSet
+		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderDeleteFail, 0)
+		return errors.ErrIDNotSet
 	}
 	reminder, err := s.daemon.Database.DeleteReminder(*message.ReminderID)
 	if err != nil || reminder == nil {

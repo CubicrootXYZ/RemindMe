@@ -1,0 +1,57 @@
+linters:
+  enable-all: true
+  disable: 
+    - gofumpt # Only formatting 
+    - godot # Only formatting
+    - varnamelen # Imho not important
+    - wrapcheck # This project does not use error wrapping
+    - paralleltest # This project is not using parallel testing
+    - nlreturn # Only formatting
+    - ireturn # This project sometimes uses interfaces
+    - gomnd # This project has some hardcoded numbers for times and delays
+    - goerr113 # This project has not yet moved to static errors
+    - gochecknoglobals # This project still uses some global variables
+    - exhaustivestruct # This projects relies on using only parts of structs
+    - exhaustruct # This projects relies on using only parts of structs
+    - errorlint # This project has not yet moved to static errors
+    - wsl # Formatting
+    - misspell # My english is just not that good
+    - lll # Formatting
+    - tagliatelle # Formatting
+    - gochecknoinits # issue 84
+    - gocritic # Formatting
+    - godox # Formatting
+    - durationcheck # Using duration multiplication a few times
+    - gci # Formatting
+    - nonamedreturns # Do not agree with this linter
+    - stylecheck # Formatting
+    - testpackage # Naming
+    - exhaustive # To many false positives
+    # deprecated
+    - scopelint
+    - maligned
+    - interfacer
+    - golint
+
+linters-settings:
+  cyclop:
+    max-complexity: 30
+  funlen: 
+    lines: 100
+    statements: 80
+  gocognit:
+    min-complexity: 40 # not ideal, should be improved
+
+issues:
+  exclude-rules:
+    - path: '(.*)_test\.go'
+      linters:
+        - funlen
+    - path: '(.*)\/string\.go'
+      text: 'G404: Use of weak random number generator' # Used as fallback
+    - path: '(.*)\/initializers\.go'
+      text: 'SA4009: argument db is overwritten before first use' # Preparation for later usage
+    - path: '(.*)\/initializers\.go'
+      text: 'SA4009\(related information\): assignment to db' # Preparation for later usage
+  exclude:
+    - 'string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant' # Used for test validation

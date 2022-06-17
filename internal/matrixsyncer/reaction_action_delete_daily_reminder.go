@@ -22,7 +22,7 @@ func (s *Syncer) reactionActionDeleteDailyReminder(message *database.Message, co
 	if err != nil {
 		log.Error(err.Error())
 		msg := "Sorry I was not able to delete the daily reminder."
-		s.messenger.SendFormattedMessage(msg, msg, c, database.MessageTypeDailyReminderDeleteSuccess, 0)
+		_, _ = s.messenger.SendFormattedMessage(msg, msg, c, database.MessageTypeDailyReminderDeleteSuccess, 0)
 	}
 
 	msg := "I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\"."

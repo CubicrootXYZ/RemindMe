@@ -69,7 +69,6 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 				msg.Text("reminder or reminder edits")
 			} else {
 				for _, rtt := range action.ReplyToTypes {
-
 					msg.Text(string(rtt) + " ")
 				}
 			}

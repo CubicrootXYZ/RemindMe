@@ -132,7 +132,6 @@ func (d *Database) AddMessageFromMatrix(id string, timestamp int64, content *eve
 
 // AddMessage adds a message to the database
 func (d *Database) AddMessage(message *Message) (*Message, error) {
-
 	err := d.db.Create(message).Error
 
 	return message, err

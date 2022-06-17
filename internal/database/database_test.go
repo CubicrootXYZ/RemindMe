@@ -1,6 +1,7 @@
 package database
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -11,8 +12,8 @@ import (
 )
 
 func TestMain(m *testing.M) {
-
-	m.Run()
+	exitCode := m.Run()
+	os.Exit(exitCode)
 }
 
 func testDatabase() (*Database, sqlmock.Sqlmock) {

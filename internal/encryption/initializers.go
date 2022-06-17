@@ -13,7 +13,7 @@ import (
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // driver for sqlite3
 )
 
 // GetCryptoStore initializes a sql crypto store
@@ -45,7 +45,7 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 	if err != nil {
 		return nil, deviceID, err
 	}
-	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, id.DeviceID(deviceID), []byte(config.DeviceKey), logger)
+	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, deviceID, []byte(config.DeviceKey), logger)
 
 	err = cryptoStore.CreateTables()
 	if err != nil {

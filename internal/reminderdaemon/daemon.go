@@ -34,7 +34,10 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 		// Check for daily reminder every 5 minutes
 		if i%5 == 0 {
 			i = 0
-			d.CheckForDailyReminder()
+			err := d.CheckForDailyReminder()
+			if err != nil {
+				log.Error(fmt.Sprintf("Error while checking daily reminders: %s", err.Error()))
+			}
 		}
 
 		// Check for reminders every minute
@@ -42,35 +45,8 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 		if err != nil {
 			log.Warn("Not able to get Reminders from database: " + err.Error())
 		} else {
-			log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(*reminders)))
-			for _, reminder := range *reminders {
-				originalMessage, err := d.Database.GetMessageFromReminder(reminder.ID, database.MessageTypeReminderRequest)
-				if err != nil {
-					log.Warn("Can not get original message: " + err.Error())
-					continue
-				}
-				message, err := d.Messenger.SendReminder(&reminder, originalMessage)
-				if err == errors.ErrEmptyChannel {
-					_, err = d.Database.SetReminderDone(&reminder)
-					if err != nil {
-						log.Warn("Can not set reminder done: " + err.Error())
-					}
-					continue
-				} else if err != nil {
-					log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminder.ID, err.Error()))
-					continue
-				}
-
-				_, err = d.Database.SetReminderDone(&reminder)
-				if err != nil {
-					log.Warn("Can not set reminder done: " + err.Error())
-				}
-
-				_, err = d.Database.AddMessage(message)
-				if err != nil {
-					log.Warn("Can not save message: " + err.Error())
-				}
-			}
+			log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(reminders)))
+			d.sendOutReminders(reminders)
 		}
 
 		sleepTime := time.Until(start.Add(time.Minute * 1))
@@ -80,4 +56,35 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 	}
 	//wg.Done()
 	//return nil
+}
+
+func (d *Daemon) sendOutReminders(reminders []database.Reminder) {
+	for i := range reminders {
+		originalMessage, err := d.Database.GetMessageFromReminder(reminders[i].ID, database.MessageTypeReminderRequest)
+		if err != nil {
+			log.Warn("Can not get original message: " + err.Error())
+			continue
+		}
+		message, err := d.Messenger.SendReminder(&reminders[i], originalMessage)
+		if err == errors.ErrEmptyChannel {
+			_, err = d.Database.SetReminderDone(&reminders[i])
+			if err != nil {
+				log.Warn("Can not set reminder done: " + err.Error())
+			}
+			continue
+		} else if err != nil {
+			log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminders[i].ID, err.Error()))
+			continue
+		}
+
+		_, err = d.Database.SetReminderDone(&reminders[i])
+		if err != nil {
+			log.Warn("Can not set reminder done: " + err.Error())
+		}
+
+		_, err = d.Database.AddMessage(message)
+		if err != nil {
+			log.Warn("Can not save message: " + err.Error())
+		}
+	}
 }

@@ -11,7 +11,7 @@ type Database interface {
 	AddMessage(message *database.Message) (*database.Message, error)
 	GetLastMessageByType(msgType database.MessageType, channel *database.Channel) (*database.Message, error)
 	// Reminder
-	GetPendingReminder() (*[]database.Reminder, error)
+	GetPendingReminder() ([]database.Reminder, error)
 	GetMessageFromReminder(reminderID uint, msgType database.MessageType) (*database.Message, error)
 	SetReminderDone(*database.Reminder) (*database.Reminder, error)
 	GetDailyReminder(channel *database.Channel) (*[]database.Reminder, error)

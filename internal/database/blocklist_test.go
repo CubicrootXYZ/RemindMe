@@ -198,7 +198,6 @@ func TestBlocklist_GetBlockedUserListOnSuccess(t *testing.T) {
 	}
 
 	assert.NoError(mock.ExpectationsWereMet())
-
 }
 
 func TestBlocklist_GetBlockedUserListOnFailure(t *testing.T) {

@@ -1,6 +1,7 @@
 package calendar
 
 import (
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -26,7 +27,8 @@ func TestMain(m *testing.M) {
 
 	reminders = &reminderList
 
-	m.Run()
+	exitCode := m.Run()
+	os.Exit(exitCode)
 }
 
 func TestCalendar_ICal(t *testing.T) {

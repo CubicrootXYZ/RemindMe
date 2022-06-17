@@ -12,7 +12,7 @@ import (
 	"maunium.net/go/mautrix/crypto"
 )
 
-var testDb *sql.DB
+var testDB *sql.DB
 
 func TestMain(m *testing.M) {
 	cleanUp()
@@ -21,11 +21,13 @@ func TestMain(m *testing.M) {
 		log.Warn(err.Error())
 		panic(err)
 	}
-	testDb = db
+	testDB = db
 
-	m.Run()
+	exitCode := m.Run()
 
 	cleanUp()
+
+	os.Exit(exitCode)
 }
 
 func cleanUp() {
@@ -33,7 +35,7 @@ func cleanUp() {
 }
 
 func TestEncryption_GetCryptoStoreOnSuccess(t *testing.T) {
-	store, _, err := GetCryptoStore(false, testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(false, testDB, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})
@@ -58,7 +60,7 @@ func getTestClient() *mautrix.Client {
 }
 
 func getTestStore() crypto.Store {
-	store, _, err := GetCryptoStore(false, testDb, &configuration.Matrix{
+	store, _, err := GetCryptoStore(false, testDB, &configuration.Matrix{
 		DeviceID: "1234",
 		Username: "admin",
 	})

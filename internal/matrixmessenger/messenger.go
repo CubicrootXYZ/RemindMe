@@ -188,7 +188,7 @@ func (m *Messenger) sendMessage(message *MatrixMessage, roomID string, eventType
 		if m.stateStore.IsEncrypted(id.RoomID(roomID)) && m.olm != nil {
 			resp, err = m.sendEncryptedMessage(message, roomID, eventType)
 			if err == nil {
-				return
+				return resp, nil
 			}
 		}
 	}
@@ -250,7 +250,7 @@ func (m *Messenger) SendFormattedMessage(msg, msgFormatted string, channel *data
 		}
 	}
 
-	return
+	return resp, err
 }
 
 // DeleteMessage deletes a message in matrix
