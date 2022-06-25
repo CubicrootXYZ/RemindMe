@@ -49,6 +49,8 @@ issues:
         - funlen
     - path: '(.*)\/string\.go'
       text: 'G404: Use of weak random number generator' # Used as fallback
+        - path: '(.*)\/motivational_sentence\.go'
+      text: 'G404: Use of weak random number generator' # Not important
     - path: '(.*)\/initializers\.go'
       text: 'SA4009: argument db is overwritten before first use' # Preparation for later usage
     - path: '(.*)\/initializers\.go'
