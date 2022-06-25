@@ -1,4 +1,4 @@
-name: Bug Report (New)
+name: Bug Report
 description: File a bug report
 title: "[Bug]: "
 labels: ["bug"]
@@ -8,19 +8,28 @@ body:
     id: description
     attributes:
       label: Describe the bug
-      description: A clear and concise description of what behavior you did expect and what behavior you actually saw. 
+      description: A clear and concise description of what behavior you did expect and what behavior you actually saw.
       placeholder: 'In a direct message room with the bot (unencrypted) I wrote "buy milk at saturday". I expected the bot to add a reminder for saturday, but instead it crashed.'
-      render: Markdown
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
       label: Reproduce the bug
-      description: Please give a step by step manual to reproduce the bug
-      placeholder: "Do a\n Do b"
-      render: Markdown
-  - type: textarea
+      description: Please give a step by step manual to reproduce the bug.
+      placeholder: "* Do a\n* Do b"
+  - type: dropdown
+    id: severity
+    attributes:
+      label: How sever is this bug?
+      options:
+        - HIGH (security related)
+        - HIGH (main user interaction affected)
+        - MID (default)
+        - LOW (visual, tiny user base affected)
+    validations:
+      required: true
+  - type: input
     id: version
     attributes:
       label: Version

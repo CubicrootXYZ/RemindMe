@@ -1,0 +1,54 @@
+name: Documentation enhancement
+description: Suggest improvements to the documentation
+title: "[DOCU]: "
+labels: ["documentation"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for giving feedback to this project. We really enjoy it! Maybe you even want to contribute further and open a pull request with your proposed improvements?
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe your improvement
+      description: A clear and concise description of what improvement you propose.
+      placeholder: 'When trying to deploy the bot to my kubernetes I missed a description of all available environment variables. Please add a list with all available env vars to the documentation.'
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: What part does your request relates to?
+      options:
+        - Installation
+        - Configuration
+        - API documentation
+        - Code documentation
+        - Usage of the bot
+        - Multiple of above
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: place
+    attributes:
+      label: Where do you expect this information to be?
+      options:
+        - README (main page of the repository)
+        - API documentation
+        - Wiki
+        - In the code
+        - Unsure
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have performed the following steps
+      options:
+        - label: I was not able to finde the proposed information in the [README](https://github.com/CubicrootXYZ/RemindMe), [API docu](https://cubicrootxyz.github.io/RemindMe/) and [Wiki](https://github.com/CubicrootXYZ/RemindMe/wiki)
+          required: true
+        - label: I confirmed that there is no other issue requesting the same improvements
+          required: true

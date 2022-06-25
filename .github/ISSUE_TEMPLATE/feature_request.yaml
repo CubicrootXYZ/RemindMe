@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an idea for this project
+title: "[FEATURE]: "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for giving feedback to this project. We really enjoy it! Maybe you even want to contribute further and open a pull request with your proposed improvements?
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the feature
+      description: A clear and concise description of what improvement you propose.
+      placeholder: 'I propose adding "months" and "years" to the bot, so those units can be used to schedule reminders.'
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: Describe the issue you want to resolve
+      description: A clear and concise description of what issues your feature will resolve.
+      placeholder: 'I often want to schedule reminders for appointments in the next year, but the bot can only handle date units up to "days".'
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have performed the following steps
+      options:
+        - label: This feature is not already added in the newest version
+          required: true
+        - label: I confirmed that there is no other issue requesting the same improvements
+          required: true
