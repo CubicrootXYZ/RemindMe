@@ -140,6 +140,10 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent,
 	message.Type = "m.room.message"
 
 	resp, err = m.sendMessage(&message, channel.ChannelIdentifier, event.EventMessage)
+	if err != nil {
+		log.Warn("Could not send message: " + err.Error())
+		return nil, err
+	}
 
 	// Add message to the database
 	if msgType != database.MessageTypeDoNotSave {
