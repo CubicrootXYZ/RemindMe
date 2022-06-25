@@ -1,34 +1,39 @@
-## [BUG/FEATURE/ENHANCEMENT/DOCU]: Your title
+## Describe your changes
 
-Please choose one of the tags in the braces above and give your pull request a strong name. Add a description about that it changes and what the changes are doing here. 
+## Type of change
 
-**Related Issues:**
+- [ ] Documentation
+- [ ] New Feature
+- [ ] Bugfix
+- [ ] Improvements
 
-- Here you can link to issues or requests related to your merge request
+## Related issue(s)
 
-### Testing
+## Test plan
 
-1. Give some advice 
-2. on how to test your changes
-3. Step by step
+_Please provide a test plan so other people can test your code faster_
+## Checklists
 
-### Dependencies
+### Before requesting a review
 
-- List all new dependencies here
-- any directly imported package
+- [ ] I reviewed all of my code changes
+- [ ] I compiled and executed the code including all changes
+- [ ] I added documentation for new API endpoints
+- [ ] All jobs are succeeding
+- [ ] All `Todo`s in the code done
+- [ ] There are no other pull requests open for the same issues
 
-### Before merge checklist
+For improved code quality we propose those additional steps:
+
+- [ ] I added (unit)testing for my changes
+
+### Before merging
 
 - [ ] Branch is up to date with `main`
-- [ ] Changes are tested (code is actually executed and proofed working)
-- [ ] Documentation reflects the changes if necessary
+- [ ] Changes are tested, reviewed and approved by a maintainer
 - [ ] Documentation states the newest version number
-- [ ] Pipeline/Action is executed successfully
-- [ ] Code is reviewed and approved
-- [ ] All `Todo`s in the code done
 
-### After merge checklist (for code owners)
+### After merging
 
-- [ ] Version number increased if necessary 
-- [ ] Version number increased in documentation if necessary
-- [ ] Changes added to draft of next release
+- New release published or changes added to draft of next release
+
