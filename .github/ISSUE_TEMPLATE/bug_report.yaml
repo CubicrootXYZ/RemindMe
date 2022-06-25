@@ -1,0 +1,40 @@
+name: Bug Report (New)
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what behavior you did expect and what behavior you actually saw. 
+      placeholder: 'In a direct message room with the bot (unencrypted) I wrote "buy milk at saturday". I expected the bot to add a reminder for saturday, but instead it crashed.'
+      render: Markdown
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduce the bug
+      description: Please give a step by step manual to reproduce the bug
+      placeholder: "Do a\n Do b"
+      render: Markdown
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: Which version of the bot did you run?
+      placeholder: v1.5.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm you have performed the following steps
+      options:
+        - label: I was able to reproduce the bug with the newest version of the bot
+          required: false
+        - label: I confirmed that there is no other issue reporting the same bug
+          required: true
