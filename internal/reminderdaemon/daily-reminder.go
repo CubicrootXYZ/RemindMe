@@ -7,6 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"gorm.io/gorm"
 )
 
@@ -52,7 +53,12 @@ func (d *Daemon) CheckForDailyReminder() error {
 		log.Info(fmt.Sprintf("Sending out daily reminder to channel id %d", channels[i].ID))
 
 		msg := &formater.Formater{}
-		msg.Title("Your reminders for today")
+		if len(*dailyReminder) > 0 {
+			msg.Title("Your reminders for today")
+		} else {
+			msg.Text("Nothing to do today 🥳. " + random.MotivationalSentence())
+		}
+
 		for _, reminder := range *dailyReminder {
 			msg.BoldLine(reminder.Message)
 			msg.Text("At ")
@@ -63,10 +69,6 @@ func (d *Daemon) CheckForDailyReminder() error {
 				msg.NewLine()
 			}
 			msg.NewLine()
-		}
-
-		if len(*dailyReminder) == 0 {
-			msg.TextLine("Nothing todo for today.")
 		}
 
 		body, bodyFormatted := msg.Build()
