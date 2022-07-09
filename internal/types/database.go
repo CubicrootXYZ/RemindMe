@@ -13,6 +13,7 @@ import (
 type Database interface {
 	// Reminders
 	GetPendingReminders(channel *database.Channel) ([]database.Reminder, error)
+	etReminderForChannelIDByID(channelID string, reminderID int) (*database.Reminder, error)
 
 	AddReminder(remindTime time.Time, message string, active bool, repeatInterval uint64, channel *database.Channel) (*database.Reminder, error)
 

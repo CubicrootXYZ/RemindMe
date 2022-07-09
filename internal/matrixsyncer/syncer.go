@@ -186,6 +186,7 @@ func (s *Syncer) getActions() []*types.Action {
 	messageActions = append(messageActions, s.getActionIcalRegenerate())
 	messageActions = append(messageActions, s.getActionDelete())
 	messageActions = append(messageActions, s.getActionAddUser())
+	messageActions = append(messageActions, s.getActionDeleteReminder())
 	return messageActions
 }
 

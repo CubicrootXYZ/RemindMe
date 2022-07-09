@@ -21,6 +21,14 @@ type Reminder struct {
 
 // GET DATA
 
+// GetReminderForChannelIDByID returns the reminder with the given ID if it relates to the given channel ID
+func (d *Database) GetReminderForChannelIDByID(channelID string, reminderID int) (*Reminder, error) {
+	reminder := &Reminder{}
+	err := d.db.Joins("Channel").First(&reminder, "Channel.channel_identifier = ? AND Reminder.id = ?", channelID, reminderID).Error
+
+	return reminder, err
+}
+
 // GetPendingReminders returns a list with all pending reminders for the given channel
 func (d *Database) GetPendingReminders(channel *Channel) ([]Reminder, error) {
 	reminders := make([]Reminder, 0)
