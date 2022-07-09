@@ -22,7 +22,7 @@ func (s *Syncer) getActionDeleteReminder() *types.Action {
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
 func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database.Channel) error {
-	reminderID, err := getSuffixInt(evt.Content.Body)
+	reminderID, err := formater.GetSuffixInt(evt.Content.Body)
 	if err != nil {
 		log.Error(err.Error())
 		msg := "Whupsy, I expected a number in that message but could not find it."
