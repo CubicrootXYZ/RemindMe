@@ -14,7 +14,7 @@ func (s *Syncer) getActionDeleteReminder() *types.Action {
 	action := &types.Action{
 		Name:     "Delete a reminder by ID",
 		Examples: []string{"delete reminder 1", "remove 68"},
-		Regex:    "(?i)(^(delete|remove)[ ]*(reminder|)[ ]+[0-9]+)",
+		Regex:    "(?i)(^(delete|remove)[ ]*(reminder|)[ ]+[0-9]+)$",
 		Action:   s.actionDeleteReminder,
 	}
 	return action
