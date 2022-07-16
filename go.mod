@@ -17,6 +17,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.9
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/stretchr/testify v1.7.0
+	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
 	github.com/tj/go-naturaldate v1.3.0
 	github.com/ugorji/go v1.2.6 // indirect
 	go.uber.org/atomic v1.9.0 // indirect

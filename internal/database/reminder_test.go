@@ -10,6 +10,51 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestReminder_GetReminderForChannelIDByIDOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, reminder := range testReminders() {
+		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
+			WithArgs(
+				"!abcdefghijklmop",
+				reminder.ID,
+			).
+			WillReturnRows(rowsForReminders([]*Reminder{reminder}))
+
+		c := &Channel{}
+		c.ID = reminder.ChannelID
+		retReminder, err := db.GetReminderForChannelIDByID("!abcdefghijklmop", int(reminder.ID))
+		require.NoError(t, err)
+
+		require.False(t, retReminder == nil)
+		assert.Equal(reminder.RemindTime, retReminder.RemindTime)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestReminder_GetReminderForChannelIDByIDOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, reminder := range testReminders() {
+		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
+			WithArgs(
+				"!abcdefghijklmop",
+				reminder.ID,
+			).
+			WillReturnError(errors.New("test error"))
+
+		c := &Channel{}
+		c.ID = reminder.ChannelID
+		_, err := db.GetReminderForChannelIDByID("!abcdefghijklmop", int(reminder.ID))
+		require.Error(t, err)
+	}
+
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
 func TestReminder_GetPendingRemindersOnSuccess(t *testing.T) {
 	assert := assert.New(t)
 	db, mock := testDatabase()
