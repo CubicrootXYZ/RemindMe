@@ -2,6 +2,7 @@ package matrixsyncer
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -47,6 +48,19 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 		msg := "Whups, this did not work, sorry."
 		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
 		return err
+	}
+
+	// Delete all messages regarding this reminder
+	messages, err := s.daemon.Database.GetMessagesByReminderID(reminder.ID)
+	if err == nil {
+		for _, message := range messages {
+			err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
+			if err != nil {
+				log.Warn(fmt.Sprintf("Failed to delete message %s with: %s", message.ExternalIdentifier, err.Error()))
+			}
+		}
+	} else {
+		log.Warn(fmt.Sprintf("Failed to get messages for reminder %d: %s", reminder.ID, err.Error()))
 	}
 
 	msgFormater := formater.Formater{}

@@ -13,9 +13,9 @@ var regexChangeReminder = regexp.MustCompile("((change|update|set)[ ]+(reminder|
 
 func (s *Syncer) getActionChangeReminder() *types.Action {
 	action := &types.Action{
-		Name:     "Delete a reminder by ID",
-		Examples: []string{"delete reminder 1", "remove 68"},
-		Regex:    "(?i)(^(change|update|set)[ ]+(reminder|reminder id|)[ ]*[0-9]+)$",
+		Name:     "Change a reminder by ID",
+		Examples: []string{"change reminder 1 to tomorrow", "update 68 to Saturday 4 pm"},
+		Regex:    "(?i)(^(change|update|set)[ ]+(reminder|reminder id|)[ ]*[0-9]+)",
 		Action:   s.actionChangeReminder,
 	}
 	return action
@@ -65,7 +65,7 @@ func (s *Syncer) actionChangeReminder(evt *types.MessageEvent, channel *database
 	msgFormater.Text("to ")
 	msgFormater.Text(formater.ToLocalTime(newTime, channel))
 
-	formattedMsg, msg := msgFormater.Build()
+	msg, formattedMsg := msgFormater.Build()
 	_, err = s.messenger.SendFormattedMessage(msg, formattedMsg, channel, database.MessageTypeReminderUpdate, reminder.ID)
 
 	return err
