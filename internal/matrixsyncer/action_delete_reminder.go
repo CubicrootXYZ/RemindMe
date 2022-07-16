@@ -37,7 +37,7 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 		return err
 	} else if err != nil {
 		log.Error(err.Error())
-		msg := "Whups, this did not work, sorry."
+		msg := "Oh no, this did not work, sorry."
 		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
 		return err
 	}
@@ -45,7 +45,7 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 	_, err = s.daemon.Database.DeleteReminder(reminder.ID)
 	if err != nil {
 		log.Error(err.Error())
-		msg := "Whups, this did not work, sorry."
+		msg := "Sorry, this did not work."
 		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
 		return err
 	}
