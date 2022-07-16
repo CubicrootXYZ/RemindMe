@@ -20,7 +20,6 @@ func (s *Syncer) getActionDeleteReminder() *types.Action {
 	return action
 }
 
-// actionList performs the action "list" that writes all pending reminders to the given channel
 func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database.Channel) error {
 	reminderID, err := formater.GetSuffixInt(evt.Content.Body)
 	if err != nil {
