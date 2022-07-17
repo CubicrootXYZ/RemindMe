@@ -32,24 +32,7 @@ The following features are seen as **experimental**, we do not recommend them fo
 
 ## 👩‍🔧 Contribute
 
-I really enjoy help in making this bot even better. So we all can enjoy the work on this project please follow the rules. 
-
-You can contribute in many ways to this project:
-
-* Report issues and improvement ideas
-* Test new features
-* Improve the code basis (open a pull request)
-* Add new features (open a pull request)
-
-### Issues, ideas and more
-
-Please submit your issues or specific feature requests as "Issues". 
-
-General ideas and concepts can be discussed in the "Discussions" section.
-
-### Contributing code
-
-Fork this repository and add your changes. Open a pull request to merge them in the main branch of this repository.
+See our [contribution guidelines](https://github.com/CubicrootXYZ/RemindMe/blob/main/CONTRIBUTING.md).
 
 ## 🔍 How to use the bot
 
@@ -71,29 +54,6 @@ To get all commands just type one of these lines:
 * `list all commands`
 * `show all commands`
 * `help`
-
-### Set timezone
-
-* `set timezone Europe/Berlin`
-
-### Daily reminder overview
-
-To activate a daily message with the reminders of the day:
-
-* `set daily reminder at 10:00`
-* `change daily reminder to 10am`
-
-To deactivate it:
-
-* `delete daily reminder`
-
-### Setup a multi user channel
-
-1. Create a new matrix group channel
-2. Invite the bot - you are the admin of the channel now
-3. Invite any user you want to participate
-4. Add user that should be able to interact with the bot with `add user @username`
-
 
 ## ⚙️ Installation
 
