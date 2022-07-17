@@ -1,6 +1,8 @@
 package matrixsyncer
 
 import (
+	"regexp"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -10,7 +12,7 @@ func (s *Syncer) getActionCommands() *types.Action {
 	action := &types.Action{
 		Name:     "List all commands",
 		Examples: []string{"show all commands", "list the commands", "commands"},
-		Regex:    "(?i)(^(show|list)( all| the| my)( command| commands)$|commands|help)",
+		Regex:    regexp.MustCompile("(?i)(^(show|list)( all| the| my)( command| commands)$|commands|help)"),
 		Action:   s.actionCommands,
 	}
 	return action

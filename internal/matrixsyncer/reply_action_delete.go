@@ -2,6 +2,7 @@ package matrixsyncer
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
@@ -14,7 +15,7 @@ func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *types.ReplyAc
 	action := &types.ReplyAction{
 		Name:         "Delete a reminder",
 		Examples:     []string{"delete", "remove", "cancel"},
-		Regex:        "(?i)^(delete|remove|cancel)$",
+		Regex:        regexp.MustCompile("(?i)^(delete|remove|cancel)$"),
 		ReplyToTypes: rtt,
 		Action:       s.replyActionDeleteReminder,
 	}

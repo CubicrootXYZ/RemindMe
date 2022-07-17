@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"regexp"
 	"strconv"
 	"time"
 
@@ -14,7 +15,7 @@ func (s *Syncer) getActionIcal() *types.Action {
 	action := &types.Action{
 		Name:     "Get iCal link",
 		Examples: []string{"ical", "calendar link", "show me the calendar link please"},
-		Regex:    "(?i)(^ical$|(show|give|list|send|write|).*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))",
+		Regex:    regexp.MustCompile("(?i)(^ical$|(show|give|list|send|write|).*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))"),
 		Action:   s.actionIcal,
 	}
 	return action

@@ -2,6 +2,7 @@ package matrixsyncer
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -14,7 +15,7 @@ func (s *Syncer) getActionSetDailyReminder() *types.Action {
 	action := &types.Action{
 		Name:     "Set daily reminder time",
 		Examples: []string{"daily reminder at 9am", "daily reminder at 13:00", "set the daily info at 4:00"},
-		Regex:    "(?i)^(set|update|change|)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*",
+		Regex:    regexp.MustCompile("(?i)^(set|update|change|)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*"),
 		Action:   s.actionSetDailyReminder,
 	}
 	return action
@@ -49,7 +50,7 @@ func (s *Syncer) getActionDeleteDailyReminder() *types.Action {
 	action := &types.Action{
 		Name:     "Delete daily reminder time",
 		Examples: []string{"remove daily reminder", "delete daily message"},
-		Regex:    "(?i)^(remove|delete|cancel)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*",
+		Regex:    regexp.MustCompile("(?i)^(remove|delete|cancel)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*"),
 		Action:   s.actionDeleteDailyReminder,
 	}
 	return action

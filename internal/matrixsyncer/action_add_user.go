@@ -16,7 +16,7 @@ func (s *Syncer) getActionAddUser() *types.Action {
 	action := &types.Action{
 		Name:     "Add user to interact with the bot",
 		Examples: []string{"add user @bestbuddy"},
-		Regex:    "(?i)(^add user).*",
+		Regex:    regexp.MustCompile("(?i)(^add user).*"),
 		Action:   s.actionAddUser,
 	}
 	return action

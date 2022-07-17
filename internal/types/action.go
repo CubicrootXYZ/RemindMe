@@ -1,6 +1,8 @@
 package types
 
 import (
+	"regexp"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix/event"
 )
@@ -9,16 +11,16 @@ import (
 type ReplyAction struct {
 	Name         string                 // Name of the action just for displaying
 	Examples     []string               // Example commands to trigger the action
-	Regex        string                 // Regex the message must match to trigger the action
+	Regex        *regexp.Regexp         // Regex the message must match to trigger the action
 	ReplyToTypes []database.MessageType // Kind of message the reply is for
 	Action       func(evt *MessageEvent, channel *database.Channel, replyMessage *database.Message) error
 }
 
 // Action defines an action the user can perform
 type Action struct {
-	Name     string   // Name of the action just for displaying
-	Examples []string // Example commands to trigger the action
-	Regex    string   // Regex the message must match to trigger the action
+	Name     string         // Name of the action just for displaying
+	Examples []string       // Example commands to trigger the action
+	Regex    *regexp.Regexp // Regex the message must match to trigger the action
 	Action   func(evt *MessageEvent, channel *database.Channel) error
 }
 

@@ -2,7 +2,6 @@ package synchandler
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
@@ -121,7 +120,7 @@ func (s *MessageHandler) checkReplyActions(evt *types.MessageEvent, channel *dat
 		for _, rtt := range action.ReplyToTypes {
 			if rtt == replyMessage.Type {
 				log.Debug("Regex matching: " + message)
-				if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
+				if matched := action.Regex.Match([]byte(message)); matched {
 					_ = action.Action(evt, channel, replyMessage)
 					log.Debug("Matched")
 					return true
@@ -173,7 +172,7 @@ func (s *MessageHandler) checkActions(evt *types.MessageEvent, channel *database
 	// List action
 	for _, action := range s.actions {
 		log.Debug("Checking for match with action " + action.Name)
-		if matched, err := regexp.Match(action.Regex, []byte(message)); matched && err == nil {
+		if matched := action.Regex.Match([]byte(message)); matched {
 			_ = action.Action(evt, channel)
 			log.Debug("Matched")
 			return true
