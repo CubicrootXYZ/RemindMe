@@ -1,6 +1,8 @@
 package matrixsyncer
 
 import (
+	"regexp"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -10,7 +12,7 @@ func (s *Syncer) getActionDelete() *types.Action {
 	action := &types.Action{
 		Name:     "Delete all data from current user",
 		Examples: []string{"delete all my data from remindme", "remove my data at remindme"},
-		Regex:    "(?i)((^delete|^remove)(| all|)( my| every| the) data( from| at) remindme$)",
+		Regex:    regexp.MustCompile("(?i)((^delete|^remove)(| all|)( my| every| the) data( from| at) remindme$)"),
 		Action:   s.actionDelete,
 	}
 	return action

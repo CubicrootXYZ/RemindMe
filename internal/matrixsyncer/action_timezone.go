@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,7 +15,7 @@ func (s *Syncer) getActionTimezone() *types.Action {
 	action := &types.Action{
 		Name:     "Set my timezone",
 		Examples: []string{"set timezone Europe/Berlin", "set timezone America/Metropolis", "set timezone Asia/Shanghai"},
-		Regex:    "(?i)^set timezone .*$",
+		Regex:    regexp.MustCompile("(?i)^set timezone .*$"),
 		Action:   s.actionTimezone,
 	}
 	return action

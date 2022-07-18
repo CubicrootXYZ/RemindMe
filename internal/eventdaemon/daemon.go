@@ -39,7 +39,7 @@ func (d *Daemon) Start(wg *sync.WaitGroup) {
 		if err != nil {
 			log.Error("Syncer returned error: " + err.Error())
 		}
-		time.Sleep(time.Minute * 5)
+		time.Sleep(time.Minute * 2)
 	}
 	//wg.Done()
 }

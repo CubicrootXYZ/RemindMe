@@ -15,7 +15,7 @@ func (s *Syncer) getActionChangeReminder() *types.Action {
 	action := &types.Action{
 		Name:     "Change a reminder by ID",
 		Examples: []string{"change reminder 1 to tomorrow", "update 68 to Saturday 4 pm"},
-		Regex:    "(?i)(^(change|update|set)[ ]+(reminder|reminder id|)[ ]*[0-9]+)",
+		Regex:    regexp.MustCompile("(?i)(^(change|update|set)[ ]+(reminder|reminder id|)[ ]*[0-9]+)"),
 		Action:   s.actionChangeReminder,
 	}
 	return action
