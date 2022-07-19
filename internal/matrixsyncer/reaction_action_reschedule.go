@@ -30,6 +30,31 @@ func (s *Syncer) reactionActionRescheduleReminder(message *database.Message, con
 		return ErrMessageHasNoReminder
 	}
 
+	respondToEvent := &types.MessageEvent{
+		Event: &event.Event{
+			Sender: id.UserID(message.Channel.UserIdentifier),
+			ID:     id.EventID(message.ExternalIdentifier),
+		},
+		Content: &event.MessageEventContent{
+			FormattedBody: message.BodyHTML,
+			Body:          message.Body,
+		},
+	}
+
+	requestMessage, err := s.daemon.Database.GetLastMessageByTypeForReminder(database.MessageTypeReminderRequest, *message.ReminderID)
+	if err == nil {
+		respondToEvent = &types.MessageEvent{
+			Event: &event.Event{
+				Sender: id.UserID(requestMessage.Channel.UserIdentifier),
+				ID:     id.EventID(requestMessage.ExternalIdentifier),
+			},
+			Content: &event.MessageEventContent{
+				FormattedBody: requestMessage.BodyHTML,
+				Body:          requestMessage.Body,
+			},
+		}
+	}
+
 	reminder, err := s.daemon.Database.GetReminderForChannelIDByID(channel.ChannelIdentifier, int(*message.ReminderID))
 	if err != nil {
 		log.Error(err.Error())
@@ -53,15 +78,6 @@ func (s *Syncer) reactionActionRescheduleReminder(message *database.Message, con
 	}
 
 	msg := "Rescheduled that reminder to tomorrow."
-	_, err = s.messenger.SendReplyToEvent(msg, &types.MessageEvent{
-		Event: &event.Event{
-			Sender: id.UserID(message.Channel.UserIdentifier),
-			ID:     id.EventID(message.ExternalIdentifier),
-		},
-		Content: &event.MessageEventContent{
-			FormattedBody: message.BodyHTML,
-			Body:          message.Body,
-		},
-	}, channel, database.MessageTypeReminderDeleteSuccess)
+	_, err = s.messenger.SendReplyToEvent(msg, respondToEvent, channel, database.MessageTypeReminderDeleteSuccess)
 	return err
 }

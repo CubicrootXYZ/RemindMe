@@ -24,13 +24,11 @@ func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *
 		return errors.ErrEmptyChannel
 	}
 
-	err := s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
-	if err != nil {
-		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
+	if message.ReminderID == nil {
+		return ErrMessageHasNoReminder
 	}
 
-	msg := "Great work!"
-	_, err = s.messenger.SendReplyToEvent(msg, &types.MessageEvent{
+	respondToEvent := &types.MessageEvent{
 		Event: &event.Event{
 			Sender: id.UserID(message.Channel.UserIdentifier),
 			ID:     id.EventID(message.ExternalIdentifier),
@@ -39,6 +37,28 @@ func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *
 			FormattedBody: message.BodyHTML,
 			Body:          message.Body,
 		},
-	}, channel, database.MessageTypeReminderDeleteSuccess)
+	}
+
+	requestMessage, err := s.daemon.Database.GetLastMessageByTypeForReminder(database.MessageTypeReminderRequest, *message.ReminderID)
+	if err == nil {
+		respondToEvent = &types.MessageEvent{
+			Event: &event.Event{
+				Sender: id.UserID(requestMessage.Channel.UserIdentifier),
+				ID:     id.EventID(requestMessage.ExternalIdentifier),
+			},
+			Content: &event.MessageEventContent{
+				FormattedBody: requestMessage.BodyHTML,
+				Body:          requestMessage.Body,
+			},
+		}
+	}
+
+	err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
+	if err != nil {
+		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
+	}
+
+	msg := "Great work! I marked that reminder as done."
+	_, err = s.messenger.SendReplyToEvent(msg, respondToEvent, channel, database.MessageTypeReminderDeleteSuccess)
 	return err
 }

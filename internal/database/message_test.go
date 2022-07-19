@@ -197,6 +197,78 @@ func TestMessage_GetLastMessageByTypeOnFailure(t *testing.T) {
 	assert.NoError(mock.ExpectationsWereMet())
 }
 
+func TestMessage_GetLastMessageByTypeForReminderOnSuccess(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, message := range testMessages() {
+		if message.ReminderID == nil {
+			continue
+		}
+		mock.ExpectQuery("SELECT (.*) FROM `messages`").
+			WithArgs(
+				*message.ReminderID,
+				message.Type,
+			).
+			WillReturnRows(rowsForMessages([]*Message{message}))
+
+		c := &Channel{}
+		c.ID = message.ChannelID
+		newMsg, err := db.GetLastMessageByTypeForReminder(message.Type, *message.ReminderID)
+
+		require.NoError(t, err)
+		assert.Equal(message.ExternalIdentifier, newMsg.ExternalIdentifier)
+		assert.Equal(message.Body, newMsg.Body)
+		assert.Equal(message.BodyHTML, newMsg.BodyHTML)
+		assert.Equal(message.ResponseToMessage, newMsg.ResponseToMessage)
+		assert.Equal(message.Type, newMsg.Type)
+		assert.Equal(message.Timestamp, newMsg.Timestamp)
+	}
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
+func TestMessage_GetLastMessageByTypeForReminderOnFailure(t *testing.T) {
+	assert := assert.New(t)
+	db, mock := testDatabase()
+
+	for _, message := range testMessages() {
+		if message.ReminderID == nil {
+			continue
+		}
+		mock.ExpectQuery("SELECT (.*) FROM `messages`").
+			WithArgs(
+				*message.ReminderID,
+				message.Type,
+			).
+			WillReturnRows(rowsForMessages([]*Message{}))
+
+		c := &Channel{}
+		c.ID = message.ChannelID
+		_, err := db.GetLastMessageByTypeForReminder(message.Type, *message.ReminderID)
+
+		assert.Error(err)
+	}
+
+	for _, message := range testMessages() {
+		if message.ReminderID == nil {
+			continue
+		}
+		mock.ExpectQuery("SELECT (.*) FROM `messages`").
+			WithArgs(
+				*message.ReminderID,
+				message.Type,
+			).
+			WillReturnError(errors.New("test error"))
+
+		c := &Channel{}
+		c.ID = message.ChannelID
+		_, err := db.GetLastMessageByTypeForReminder(message.Type, *message.ReminderID)
+
+		assert.Error(err)
+	}
+	assert.NoError(mock.ExpectationsWereMet())
+}
+
 func TestMessage_AddMessageOnSuccess(t *testing.T) {
 	assert := assert.New(t)
 	db, mock := testDatabase()

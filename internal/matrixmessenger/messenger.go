@@ -34,7 +34,7 @@ type MatrixMessage struct {
 	Format        string `json:"format,omitempty"`
 	FormattedBody string `json:"formatted_body,omitempty"`
 	MsgType       string `json:"msgtype,omitempty"`
-	Type          string `json:"type"`
+	Type          string `json:"type,omitempty"`
 	RelatesTo     struct {
 		EventID   string `json:"event_id,omitempty"`
 		Key       string `json:"key,omitempty"`

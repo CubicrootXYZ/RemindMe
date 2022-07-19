@@ -74,7 +74,7 @@ var MessageTypesWithReminder = []MessageType{MessageTypeReminderRequest, Message
 // GetMessageByExternalID returns if found the message with the given external id
 func (d *Database) GetMessageByExternalID(externalID string) (*Message, error) {
 	message := &Message{}
-	err := d.db.Preload("Reminder").First(&message, "external_identifier = ?", externalID).Error
+	err := d.db.Preload("Reminder").Preload("Channel").First(&message, "external_identifier = ?", externalID).Error
 	return message, err
 }
 
@@ -90,6 +90,14 @@ func (d *Database) GetMessagesByReminderID(id uint) ([]*Message, error) {
 func (d *Database) GetLastMessageByType(msgType MessageType, channel *Channel) (*Message, error) {
 	message := &Message{}
 	err := d.db.Order("timestamp desc").First(message, "channel_id = ? AND type = ?", channel.ID, msgType).Error
+
+	return message, err
+}
+
+// GetLastMessageByTypeForReminder returns the last message of the specified type tied to the given reminder id
+func (d *Database) GetLastMessageByTypeForReminder(msgType MessageType, reminderID uint) (*Message, error) {
+	message := &Message{}
+	err := d.db.Joins("Channel").Order("timestamp desc").First(message, "reminder_id = ? AND type = ?", reminderID, msgType).Error
 
 	return message, err
 }
