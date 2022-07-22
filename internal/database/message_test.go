@@ -21,6 +21,11 @@ func TestMessage_GetMessageByExternalIDOnSuccess(t *testing.T) {
 				message.ExternalIdentifier,
 			).
 			WillReturnRows(rowsForMessages([]*Message{message}))
+		mock.ExpectQuery("SELECT (.*) FROM `channels`").
+			WithArgs(
+				message.ChannelID,
+			).
+			WillReturnRows(rowsForChannels([]*Channel{}))
 		mock.ExpectQuery("SELECT (.*) FROM `reminders`").
 			WithArgs(
 				message.ReminderID,
