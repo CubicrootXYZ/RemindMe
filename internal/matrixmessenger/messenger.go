@@ -104,7 +104,7 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 
 	for _, reaction := range types.ReactionsReminder {
 		_, err = m.SendReaction(reaction, string(evt.EventID), &reminder.Channel)
-		time.Sleep(time.Second) // Avoid getting blocked
+		time.Sleep(time.Millisecond * 300) // Avoid getting blocked
 		if err != nil {
 			log.Warn(err.Error())
 		}

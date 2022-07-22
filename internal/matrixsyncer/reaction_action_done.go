@@ -4,6 +4,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -58,7 +59,7 @@ func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *
 		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
 	}
 
-	msg := "Great work! I marked that reminder as done."
+	msg := "I marked that reminder as done. " + random.MotivationalSentence()
 	_, err = s.messenger.SendReplyToEvent(msg, respondToEvent, channel, database.MessageTypeReminderDeleteSuccess)
 	return err
 }

@@ -8,6 +8,8 @@ var motivationalSentences = []string{
 	"Have fun today, I will be here if you need me. 🙌",
 	"You are doing great! 🤗",
 	"Keep up your hard work. 💪",
+	"Great work! 💪",
+	"Nice, don't forget to take some time to relax! 😉",
 }
 
 // MotivationalSentence returns a random motivational sentence.

@@ -61,8 +61,8 @@ func (s *Syncer) reactionActionRescheduleReminder(message *database.Message, con
 		return err
 	}
 
-	newRemindTime := reminder.RemindTime
-	for newRemindTime.Sub(reminder.RemindTime) < 24*time.Hour {
+	newRemindTime := reminder.RemindTime.Add(24 * time.Hour)
+	for time.Until(newRemindTime) < 1*time.Hour {
 		newRemindTime = newRemindTime.Add(24 * time.Hour)
 	}
 
