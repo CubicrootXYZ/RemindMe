@@ -34,7 +34,7 @@ type MatrixMessage struct {
 	Format        string `json:"format,omitempty"`
 	FormattedBody string `json:"formatted_body,omitempty"`
 	MsgType       string `json:"msgtype,omitempty"`
-	Type          string `json:"type"`
+	Type          string `json:"type,omitempty"`
 	RelatesTo     struct {
 		EventID   string `json:"event_id,omitempty"`
 		Key       string `json:"key,omitempty"`
@@ -43,6 +43,13 @@ type MatrixMessage struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
 	} `json:"m.relates_to,omitempty"`
+	MSC1767Message []MatrixMSC1767Message `json:"org.matrix.msc1767.message,omitempty"`
+}
+
+// MatrixMSC1767Message defines a MSC1767 message
+type MatrixMSC1767Message struct {
+	Body     string `json:"body"`
+	Mimetype string `json:"mimetype"`
 }
 
 // Create creates a new matrix messenger
@@ -95,8 +102,9 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 		return nil, err
 	}
 
-	for _, reaction := range types.ReactionsReminderRequest {
+	for _, reaction := range types.ReactionsReminder {
 		_, err = m.SendReaction(reaction, string(evt.EventID), &reminder.Channel)
+		time.Sleep(time.Millisecond * 300) // Avoid getting blocked
 		if err != nil {
 			log.Warn(err.Error())
 		}
@@ -119,6 +127,8 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 // SendReplyToEvent sends a message in reply to the given replyEvent, if the event is nil or of wrogn format a normal message will be sent
 func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent, channel *database.Channel, msgType database.MessageType) (resp *mautrix.RespSendEvent, err error) {
 	var message MatrixMessage
+	message.MSC1767Message = make([]MatrixMSC1767Message, 2)
+
 	if replyEvent != nil {
 		oldFormattedBody := formater.StripReply(replyEvent.Content.Body)
 		if len(replyEvent.Content.FormattedBody) > 1 {
@@ -129,10 +139,27 @@ func (m *Messenger) SendReplyToEvent(msg string, replyEvent *types.MessageEvent,
 
 		message.Body = body
 		message.FormattedBody = bodyFormatted
-		message.RelatesTo.InReplyTo.EventID = replyEvent.Event.ID.String()
+
+		message.MSC1767Message[0] = MatrixMSC1767Message{
+			Body:     body,
+			Mimetype: "text/plain",
+		}
+		message.MSC1767Message[1] = MatrixMSC1767Message{
+			Body:     bodyFormatted,
+			Mimetype: "text/html",
+		}
 	} else {
 		message.Body = msg
 		message.FormattedBody = msg
+
+		message.MSC1767Message[0] = MatrixMSC1767Message{
+			Body:     msg,
+			Mimetype: "text/plain",
+		}
+		message.MSC1767Message[1] = MatrixMSC1767Message{
+			Body:     msg,
+			Mimetype: "text/html",
+		}
 	}
 
 	message.Format = "org.matrix.custom.html"

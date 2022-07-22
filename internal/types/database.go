@@ -25,6 +25,7 @@ type Database interface {
 
 	GetMessageByExternalID(externalID string) (*database.Message, error)
 	GetMessagesByReminderID(id uint) ([]*database.Message, error)
+	GetLastMessageByTypeForReminder(msgType database.MessageType, reminderID uint) (*database.Message, error)
 
 	AddMessageFromMatrix(id string, timestamp int64, content *event.MessageEventContent, reminder *database.Reminder, msgType database.MessageType, channel *database.Channel) (*database.Message, error)
 

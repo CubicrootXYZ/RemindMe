@@ -20,6 +20,11 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
 
+// Errors the service exposes to be checked by third parties
+var (
+	ErrMessageHasNoReminder = errors.New("need the message to be assigned to a reminder but is not")
+)
+
 // Syncer receives messages from a matrix channel
 type Syncer struct {
 	config      configuration.Matrix
@@ -206,6 +211,8 @@ func (s *Syncer) getReactionActions() []*types.ReactionAction {
 	reactionActions = append(reactionActions, s.getReactionsAddTime(types.ReactionActionTypeReminderRequest)...)
 	reactionActions = append(reactionActions, s.getReactionsAddTime(types.ReactionActionTypeReminder)...)
 	reactionActions = append(reactionActions, s.getReactionActionDeleteDailyReminder(types.ReactionActionTypeDailyReminder))
+	reactionActions = append(reactionActions, s.getReactionActionDone(types.ReactionActionTypeReminder))
+	reactionActions = append(reactionActions, s.getReactionActionReschedule(types.ReactionActionTypeReminder))
 
 	return reactionActions
 }
