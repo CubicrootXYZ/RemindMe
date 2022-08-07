@@ -52,7 +52,7 @@ func (s *Syncer) getReactionsFormatted(msg *formater.Formater) {
 					nameToActionToType[action.Name][key] = make([]string, 0)
 				}
 
-				nameToActionToType[action.Name][key] = append(nameToActionToType[action.Name][key], string(action.Type))
+				nameToActionToType[action.Name][key] = append(nameToActionToType[action.Name][key], action.Type.HumanReadable())
 			}
 		}
 
@@ -71,8 +71,8 @@ func (s *Syncer) getReactionsFormatted(msg *formater.Formater) {
 				actionTypes = append(actionTypes, actionType...)
 			}
 
-			msg.Bold(" " + actionName + " ")
 			msg.Text(strings.Join(keys, ", "))
+			msg.Bold(" " + actionName + " ")
 			msg.TextLine(" avalaible on " + strings.Join(actionTypes, ", "))
 		}
 
@@ -117,7 +117,6 @@ func (s *Syncer) getCommandsFormatted(msg *formater.Formater) {
 		msg.BoldLine(action.Name)
 
 		if len(action.Examples) > 0 {
-			msg.TextLine("Here are some examples how you can tell me to perform this action:")
 			msg.List(action.Examples)
 		}
 		msg.NewLine()
