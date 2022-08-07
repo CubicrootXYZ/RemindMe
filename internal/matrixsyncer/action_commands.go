@@ -2,6 +2,7 @@ package matrixsyncer
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -47,14 +48,35 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 		msg.TextLine("I am able to understand a few reactions you can give to a message.")
 		msg.NewLine()
 
+		nameToActionToType := make(map[string]map[string][]string)
 		for _, action := range reactionActions {
-			msg.BoldLine(action.Name)
-			msg.Text("Add one of these reactions ")
-			for _, reaction := range action.Keys {
-				msg.Text(reaction + " ")
+			if _, exists := nameToActionToType[action.Name]; !exists {
+				nameToActionToType[action.Name] = make(map[string][]string)
 			}
-			msg.TextLine(" to a message of the type " + string(action.Type))
+
+			for _, key := range action.Keys {
+				if _, exists := nameToActionToType[action.Name][key]; !exists {
+					nameToActionToType[action.Name][key] = make([]string, 0)
+				}
+
+				nameToActionToType[action.Name][key] = append(nameToActionToType[action.Name][key], string(action.Type))
+			}
 		}
+
+		for actionName, keyToActionType := range nameToActionToType {
+			msg.Bold(actionName + ": ")
+
+			keys := make([]string, 0)
+			actionTypes := make([]string, 0)
+			for key, actionType := range keyToActionType {
+				keys = append(keys, key)
+				actionTypes = append(actionTypes, actionType...)
+			}
+
+			msg.Text(strings.Join(keys, ", "))
+			msg.Text(" avalaible on " + strings.Join(actionTypes, ", "))
+		}
+
 		msg.NewLine()
 	}
 

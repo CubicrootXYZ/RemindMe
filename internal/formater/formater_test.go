@@ -57,3 +57,12 @@ func TestFormater_UsernameWithAt(t *testing.T) {
 	assert.Equal(t, "abcdefgh", msg)
 	assert.Equal(t, "<a href=\"https://matrix.to/#/@abcdefgh:matrix.org\">abcdefgh</a>", msgFormatted)
 }
+
+func TestFormater_Bold(t *testing.T) {
+	formater := Formater{}
+	formater.Bold("This is bold")
+	msg, msgFormatted := formater.Build()
+
+	assert.Equal(t, "THIS IS BOLD", msg)
+	assert.Equal(t, "<b>This is bold</b>", msgFormatted)
+}
