@@ -44,6 +44,12 @@ func (f *Formater) BoldLine(text string) {
 	f.msgFormatted.WriteString("<b>" + text + "</b><br>")
 }
 
+// Bold adds bold text
+func (f *Formater) Bold(text string) {
+	f.msg.WriteString(strings.ToUpper(text))
+	f.msgFormatted.WriteString("<b>" + text + "</b>")
+}
+
 // QuoteLine quotes the text
 func (f *Formater) QuoteLine(text string) {
 	f.msg.WriteString("> " + text + "\n")

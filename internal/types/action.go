@@ -35,6 +35,23 @@ const (
 	ReactionActionTypeAll             = ReactionActionType("")
 )
 
+func (reactionActionType *ReactionActionType) HumanReadable() string {
+	switch *reactionActionType {
+	case ReactionActionTypeReminderRequest:
+		return "reminder request"
+	case ReactionActionTypeReminder:
+		return "reminder message"
+	case ReactionActionTypeReminderSuccess:
+		return "reminder confirmation"
+	case ReactionActionTypeDailyReminder:
+		return "daily reminder"
+	case ReactionActionTypeAll:
+		return "all messages"
+	default:
+		return "unknown message"
+	}
+}
+
 // ReactionAction defines an action performed on receiving a reaction
 type ReactionAction struct {
 	Name   string   // Name of the action just for displaying

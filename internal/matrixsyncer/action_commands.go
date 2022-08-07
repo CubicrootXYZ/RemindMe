@@ -2,6 +2,8 @@ package matrixsyncer
 
 import (
 	"regexp"
+	"sort"
+	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -22,42 +24,63 @@ func (s *Syncer) getActionCommands() *types.Action {
 func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Channel) error {
 	msg := formater.Formater{}
 
-	msg.Title("Available Commands")
-	msg.TextLine("You can interact with me in many ways, check out my features:")
-	msg.NewLine()
+	s.getCommandsFormatted(&msg)
+	s.getReactionsFormatted(&msg)
+	s.getRepliesFormatted(&msg)
 
-	for _, action := range s.getActions() {
-		msg.BoldLine(action.Name)
+	message, messageFormatted := msg.Build()
 
-		if len(action.Examples) > 0 {
-			msg.TextLine("Here are some examples how you can tell me to perform this action:")
-			msg.List(action.Examples)
-		}
-		msg.NewLine()
-	}
+	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeActions, 0)
+	return err
+}
 
-	msg.BoldLine("Make a new Reminder")
-	msg.TextLine("To make a new reminder I will process all messages that are not part of one of the above commands. Try it with:")
-	msg.List([]string{"Laundry at Sunday 12am", "Go shopping in 4 hours"})
-	msg.NewLine()
-
+func (s *Syncer) getReactionsFormatted(msg *formater.Formater) {
 	reactionActions := s.getReactionActions()
 	if len(reactionActions) > 0 {
 		msg.SubTitle("Reactions")
 		msg.TextLine("I am able to understand a few reactions you can give to a message.")
 		msg.NewLine()
 
+		nameToActionToType := make(map[string]map[string][]string)
 		for _, action := range reactionActions {
-			msg.BoldLine(action.Name)
-			msg.Text("Add one of these reactions ")
-			for _, reaction := range action.Keys {
-				msg.Text(reaction + " ")
+			if _, exists := nameToActionToType[action.Name]; !exists {
+				nameToActionToType[action.Name] = make(map[string][]string)
 			}
-			msg.TextLine(" to a message of the type " + string(action.Type))
+
+			for _, key := range action.Keys {
+				if _, exists := nameToActionToType[action.Name][key]; !exists {
+					nameToActionToType[action.Name][key] = make([]string, 0)
+				}
+
+				nameToActionToType[action.Name][key] = append(nameToActionToType[action.Name][key], action.Type.HumanReadable())
+			}
 		}
+
+		actionNames := make([]string, 0)
+		for name := range nameToActionToType {
+			actionNames = append(actionNames, name)
+		}
+
+		sort.Strings(actionNames)
+
+		for _, actionName := range actionNames {
+			keys := make([]string, 0)
+			actionTypes := make([]string, 0)
+			for key, actionType := range nameToActionToType[actionName] {
+				keys = append(keys, key)
+				actionTypes = append(actionTypes, actionType...)
+			}
+
+			msg.Text(strings.Join(keys, ", "))
+			msg.Bold(" " + actionName + " ")
+			msg.TextLine(" avalaible on " + strings.Join(actionTypes, ", "))
+		}
+
 		msg.NewLine()
 	}
+}
 
+func (s *Syncer) getRepliesFormatted(msg *formater.Formater) {
 	msg.SubTitle("Replies")
 	msg.TextLine("I can also understand some of your replies to messages.")
 	msg.NewLine()
@@ -83,9 +106,24 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 	msg.BoldLine("Change reminder time")
 	msg.TextLine("You can achieve this with a reply to a message of the type reminder or reminder edits with one of this examples:")
 	msg.List([]string{"sunday 5pm", "monday 15:57", "in 5 hours"})
+}
 
-	message, messageFormatted := msg.Build()
+func (s *Syncer) getCommandsFormatted(msg *formater.Formater) {
+	msg.Title("Available Commands")
+	msg.TextLine("You can interact with me in many ways, check out my features:")
+	msg.NewLine()
 
-	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeActions, 0)
-	return err
+	for _, action := range s.getActions() {
+		msg.BoldLine(action.Name)
+
+		if len(action.Examples) > 0 {
+			msg.List(action.Examples)
+		}
+		msg.NewLine()
+	}
+
+	msg.BoldLine("Make a new Reminder")
+	msg.TextLine("To make a new reminder I will process all messages that are not part of one of the above commands. Try it with:")
+	msg.List([]string{"Laundry at Sunday 12am", "Go shopping in 4 hours"})
+	msg.NewLine()
 }
