@@ -86,5 +86,6 @@ func (d *Daemon) sendOutReminders(reminders []database.Reminder) {
 		if err != nil {
 			log.Warn("Can not save message: " + err.Error())
 		}
+		time.Sleep(time.Millisecond * 500) // Avoid running in rate limits
 	}
 }
