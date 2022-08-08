@@ -21,12 +21,12 @@ const (
 )
 
 // ToLocalTime converts the time object to a localized time string
-func ToLocalTime(datetime time.Time, channel *database.Channel) string {
-	if channel == nil || channel.TimeZone == "" {
+func ToLocalTime(datetime time.Time, timezone string) string {
+	if timezone == "" {
 		return datetime.UTC().Format(DateFormatDefault)
 	}
 
-	loc, err := time.LoadLocation(channel.TimeZone)
+	loc, err := time.LoadLocation(timezone)
 	if err != nil {
 		return datetime.UTC().Format(DateFormatDefault)
 	}
