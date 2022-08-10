@@ -38,13 +38,13 @@ func (response *Response) getResponseMessage() (message, messageFormatted string
 	return message, messageFormatted
 }
 
-func (response *Response) toMatrixMessage() *MatrixMessage {
+func (response *Response) toEvent() *messageEvent {
 	message, messageFormatted := response.getResponseMessage()
-	matrixMessage := &MatrixMessage{
+	matrixMessage := &messageEvent{
 		Body:          message,
 		FormattedBody: messageFormatted,
-		MsgType:       MessageTypeText,
-		Format:        FormatCustomHTML,
+		MsgType:       messageTypeText,
+		Format:        formatCustomHTML,
 	}
 	matrixMessage.RelatesTo.InReplyTo.EventID = response.RespondToEventID
 

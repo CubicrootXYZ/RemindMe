@@ -2,21 +2,20 @@ package asyncmessenger
 
 // MessageTypes available
 var (
-	MessageTypeText = "m.text"
+	messageTypeText = "m.text"
 )
 
 // EventTypes available
 var (
-	EventTypeRoomMessage = "m.room.message"
+	eventTypeRoomMessage = "m.room.message"
 )
 
 // Formats available
 var (
-	FormatCustomHTML = "org.matrix.custom.html"
+	formatCustomHTML = "org.matrix.custom.html"
 )
 
-// MatrixMessage holds information for a matrix response message
-type MatrixMessage struct {
+type messageEvent struct {
 	Body          string `json:"body,omitempty"`
 	Format        string `json:"format,omitempty"`
 	FormattedBody string `json:"formatted_body,omitempty"`
@@ -30,11 +29,11 @@ type MatrixMessage struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
 	} `json:"m.relates_to,omitempty"`
-	MSC1767Message []MatrixMSC1767Message `json:"org.matrix.msc1767.message,omitempty"`
+	MSC1767Message []matrixMSC1767Message `json:"org.matrix.msc1767.message,omitempty"`
 }
 
 // MatrixMSC1767Message defines a MSC1767 message
-type MatrixMSC1767Message struct {
+type matrixMSC1767Message struct {
 	Body     string `json:"body"`
 	Mimetype string `json:"mimetype"`
 }

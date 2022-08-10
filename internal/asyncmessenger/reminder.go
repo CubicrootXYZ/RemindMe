@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO move this away from here
 // Reminder holds all information about a reminder
 type Reminder struct {
 	gorm.Model
