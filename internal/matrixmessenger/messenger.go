@@ -258,6 +258,9 @@ func (m *Messenger) SendFormattedMessage(msg, msgFormatted string, channel *data
 	}
 
 	resp, err = m.sendMessage(&message, channel.ChannelIdentifier, event.EventMessage)
+	if err != nil {
+		return nil, err
+	}
 
 	// Add message to the database
 	if msgType != database.MessageTypeDoNotSave {
