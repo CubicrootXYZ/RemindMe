@@ -15,6 +15,12 @@ var (
 	formatCustomHTML = "org.matrix.custom.html"
 )
 
+// Mimetypes available for MSC1767 events https://github.com/matrix-org/matrix-spec-proposals/blob/matthew/msc1767/proposals/1767-extensible-events.md
+var (
+	mimetypeTextPlain = "text/plain"
+	mimetypeTextHTML  = "text/html"
+)
+
 type messageEvent struct {
 	Body          string `json:"body,omitempty"`
 	Format        string `json:"format,omitempty"`
@@ -29,11 +35,11 @@ type messageEvent struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
 	} `json:"m.relates_to,omitempty"`
-	MSC1767Message []matrixMSC1767Message `json:"org.matrix.msc1767.message,omitempty"`
+	MSC1767Message []matrixMSC1767Event `json:"org.matrix.msc1767.message,omitempty"`
 }
 
 // MatrixMSC1767Message defines a MSC1767 message
-type matrixMSC1767Message struct {
+type matrixMSC1767Event struct {
 	Body     string `json:"body"`
 	Mimetype string `json:"mimetype"`
 }

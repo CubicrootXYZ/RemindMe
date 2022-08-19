@@ -3,6 +3,7 @@ package asyncmessenger
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
@@ -20,12 +21,18 @@ type messenger struct {
 	db          types.Database
 	debug       bool
 	cryptoTools *cryptoTools
+	state       *state
 }
 
 type cryptoTools struct {
 	olm         *crypto.OlmMachine
 	stateStore  *encryption.StateStore
 	cryptoMutex sync.Mutex // Since the crypto foo relies on a single sqlite, only one process at a time is allowed to access it
+}
+
+type state struct {
+	rateLimitedUntil      time.Time // If we run into a rate limit this will tell us to stop operation
+	rateLimitedUntilMutex sync.Mutex
 }
 
 func NewMessenger(debug bool, config *configuration.Config, db types.Database, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) (Messenger, error) {
@@ -41,13 +48,18 @@ func NewMessenger(debug bool, config *configuration.Config, db types.Database, c
 	}
 
 	return &messenger{
-		config:      config,
-		client:      matrixClient,
-		db:          db,
-		olm:         olm,
-		stateStore:  stateStore,
-		debug:       debug,
-		cryptoMutex: sync.Mutex{},
+		config: config,
+		client: matrixClient,
+		db:     db,
+		debug:  debug,
+		state: &state{
+			rateLimitedUntilMutex: sync.Mutex{},
+		},
+		cryptoTools: {
+			olm:         olm,
+			stateStore:  stateStore,
+			cryptoMutex: sync.Mutex{},
+		},
 	}, nil
 }
 
@@ -72,7 +84,7 @@ func (messenger *messenger) sendMessageEventEncrypted(messageEvent *messageEvent
 	encrypted, err := messenger.cryptoTools.olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, messageEvent)
 
 	if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
-		err = messenger.cryptoTools.olm.ShareGroupSession(id.RoomID(roomID), messenger.getUserIDs(id.RoomID(roomID)))
+		err = messenger.cryptoTools.olm.ShareGroupSession(id.RoomID(roomID), messenger.getUserIDsInRoom(id.RoomID(roomID)))
 		if err != nil {
 			messenger.cryptoTools.cryptoMutex.Unlock()
 			return nil, err
@@ -87,4 +99,27 @@ func (messenger *messenger) sendMessageEventEncrypted(messageEvent *messageEvent
 
 	log.Info(fmt.Sprintf("Sending encrypted message to room %s", roomID))
 	return messenger.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
+}
+
+func (messenger *messenger) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
+	// Todo future improvement: cache the result for a short time
+	userIDs := make([]id.UserID, 0)
+	members, err := messenger.client.JoinedMembers(roomID)
+	if err != nil {
+		log.Warn(err.Error())
+		return userIDs
+	}
+
+	i := 0
+	for userID := range members.Joined {
+		userIDs = append(userIDs, userID)
+		i++
+	}
+	return userIDs
+}
+
+func (messenger *messenger) encounteredRateLimit() {
+	messenger.state.rateLimitedUntilMutex.Lock()
+	messenger.state.rateLimitedUntil = time.Now().Add(time.Minute)
+	messenger.state.rateLimitedUntilMutex.Unlock()
 }
