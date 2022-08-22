@@ -53,7 +53,7 @@ type MessageResponse struct {
 // SendMessageAsync sends the given message via matrix without blocking the current thread.
 // If you need the MessageResponse use SendMessage.
 func (messenger *messenger) SendMessageAsync(message *Message) error {
-	go messenger.sendMessage(message, 10, time.Second*10)
+	go messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 10, time.Second*10)
 
 	return nil
 }
@@ -61,15 +61,14 @@ func (messenger *messenger) SendMessageAsync(message *Message) error {
 // SendMessage sends the given message via matrix.
 // This will wait for rate limits to expire, thus the request can take some time.
 func (messenger *messenger) SendMessage(message *Message) (*MessageResponse, error) {
-	return messenger.sendMessage(message, 3, time.Second*5)
+	return messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 3, time.Second*5)
 }
 
 // sendMessage will take care of sending the message via matrix
 // The message sending will be tried for retries times and the time between retries is retry * retryTime
-func (messenger *messenger) sendMessage(message *Message, retries uint, retryTime time.Duration) (*MessageResponse, error) {
+func (messenger *messenger) sendMessage(messageEvent *messageEvent, channel string, retries uint, retryTime time.Duration) (*MessageResponse, error) {
 	var err error
 	maxRetries := retries
-	messageEvent := message.toEvent()
 
 	for retries > 0 {
 		// Wait until the rate limit is gone again
@@ -78,7 +77,7 @@ func (messenger *messenger) sendMessage(message *Message, retries uint, retryTim
 			continue
 		}
 
-		response, err := messenger.sendMessageEvent(messageEvent, message.ChannelExternalIdentifier, event.EventMessage)
+		response, err := messenger.sendMessageEvent(messageEvent, channel, event.EventMessage)
 		if err == nil {
 			// No error, fine return the result
 			return messenger.mautrixRespSendEventToMessageResponse(response), nil

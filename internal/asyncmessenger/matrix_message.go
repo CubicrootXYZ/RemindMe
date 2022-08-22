@@ -2,7 +2,8 @@ package asyncmessenger
 
 // MessageTypes available
 var (
-	messageTypeText = "m.text"
+	messageTypeText     = "m.text"
+	messageTypeReaction = "m.reaction"
 )
 
 // EventTypes available
@@ -13,6 +14,11 @@ var (
 // Formats available
 var (
 	formatCustomHTML = "org.matrix.custom.html"
+)
+
+// Relations available
+var (
+	relationAnnotiation = "m.annotation"
 )
 
 // Mimetypes available for MSC1767 events https://github.com/matrix-org/matrix-spec-proposals/blob/matthew/msc1767/proposals/1767-extensible-events.md
