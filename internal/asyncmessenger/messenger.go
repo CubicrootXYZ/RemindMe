@@ -101,6 +101,11 @@ func (messenger *messenger) sendMessageEventEncrypted(messageEvent *messageEvent
 	return messenger.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
 }
 
+func (messenger *messenger) sendRedactEvent(roomID string, eventID string) error {
+	_, err := messenger.client.RedactEvent(id.RoomID(roomID), id.EventID(eventID))
+	return err
+}
+
 func (messenger *messenger) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
 	// Todo future improvement: cache the result for a short time
 	userIDs := make([]id.UserID, 0)
