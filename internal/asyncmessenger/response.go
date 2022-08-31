@@ -2,6 +2,7 @@ package asyncmessenger
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 )
@@ -14,6 +15,7 @@ type Response struct {
 	RespondToUserID           string
 	RoomID                    string
 	RespondToEventID          string
+	ChannelExternalIdentifier string
 }
 
 func (response *Response) getResponseMessage() (message, messageFormatted string) {
@@ -49,4 +51,18 @@ func (response *Response) toEvent() *messageEvent {
 	matrixMessage.RelatesTo.InReplyTo.EventID = response.RespondToEventID
 
 	return matrixMessage
+}
+
+// SendResponseAsync sends the given response via matrix without blocking the current thread.
+// If you need the MessageResponse use SendMessage.
+func (messenger *messenger) SendResponseAsync(response *Response) error {
+	go messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 10, time.Second*10)
+
+	return nil
+}
+
+// SendResponse sends the given response via matrix.
+// This will wait for rate limits to expire, thus the request can take some time.
+func (messenger *messenger) SendResponse(response *Response) (*MessageResponse, error) {
+	return messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 3, time.Second*5)
 }
