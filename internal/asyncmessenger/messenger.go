@@ -17,7 +17,7 @@ import (
 
 type messenger struct {
 	config      *configuration.Config
-	client      *mautrix.Client
+	client      *mautrix.Client // Todo abstract this in an interface
 	db          types.Database
 	debug       bool
 	cryptoTools *cryptoTools
@@ -55,7 +55,7 @@ func NewMessenger(debug bool, config *configuration.Config, db types.Database, c
 		state: &state{
 			rateLimitedUntilMutex: sync.Mutex{},
 		},
-		cryptoTools: {
+		cryptoTools: &cryptoTools{
 			olm:         olm,
 			stateStore:  stateStore,
 			cryptoMutex: sync.Mutex{},

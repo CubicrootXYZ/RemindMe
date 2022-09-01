@@ -1,6 +1,12 @@
 package asyncmessenger
 
-import "errors"
+import (
+	"errors"
+
+	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/id"
+)
 
 // Messenger provides an interface for sending and handling matrix events
 // The Queue... methods work asynchronous but do not provide any information about the sent message
@@ -12,10 +18,16 @@ type Messenger interface {
 	SendResponseAsync(response *Response) error
 	SendResponse(response *Response) (*MessageResponse, error)
 	SendRedactAsync(redact *Redact) error
-	SendEditAsync(edit *Edit) error
 }
 
 // Errors returned by the messenger
 var (
 	ErrRetriesExceeded = errors.New("amount of retries exceeded")
 )
+
+// MatrixClient defines an interface to wrap the matrix API
+type MatrixClient interface {
+	SendMessageEvent(roomID id.RoomID, eventType event.Type, contentJSON interface{}, extra ...mautrix.ReqSendEvent) (resp *mautrix.RespSendEvent, err error)
+	RedactEvent(roomID id.RoomID, eventID id.EventID, extra ...mautrix.ReqRedact) (resp *mautrix.RespSendEvent, err error)
+	JoinedMembers(roomID id.RoomID) (resp *mautrix.RespJoinedMembers, err error)
+}

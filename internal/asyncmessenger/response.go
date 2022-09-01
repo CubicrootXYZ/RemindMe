@@ -13,7 +13,6 @@ type Response struct {
 	RespondToMessage          string
 	RespondToMessageFormatted string
 	RespondToUserID           string
-	RoomID                    string
 	RespondToEventID          string
 	ChannelExternalIdentifier string
 }
@@ -28,7 +27,7 @@ func (response *Response) getResponseMessage() (message, messageFormatted string
 
 	messageFormatted = fmt.Sprintf(
 		"<mx-reply><blockquote><a href=\"https://matrix.to/#/%s/%s?via=%s\">In reply to</a> <a href=\"https://matrix.to/#/%s\">%s</a><br>%s</blockquote></mx-reply>%s",
-		response.RoomID,
+		response.ChannelExternalIdentifier,
 		response.RespondToEventID,
 		formater.GetHomeserverFromUserID(response.RespondToUserID),
 		response.RespondToUserID,

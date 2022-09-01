@@ -13,8 +13,8 @@ func TestResponse_GetResponseMessage(t *testing.T) {
 		"The message",
 		"The message",
 		"@user:example.com",
-		"!12345",
 		"!abcde-1234",
+		"!12345",
 	}
 
 	msg, msgFormatted := response.getResponseMessage()
