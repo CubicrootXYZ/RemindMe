@@ -21,9 +21,7 @@ func TestFormater_ToLocalTime(t *testing.T) {
 	testCases["Asia/Jakarta"] = "18:45 12.11.2014 (WIB)"
 
 	for timeZone, should := range testCases {
-		is := ToLocalTime(refTime, &database.Channel{
-			TimeZone: timeZone,
-		})
+		is := ToLocalTime(refTime, timeZone)
 
 		assert.Equal(t, should, is)
 	}

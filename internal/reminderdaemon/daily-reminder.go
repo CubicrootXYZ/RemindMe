@@ -62,7 +62,7 @@ func (d *Daemon) CheckForDailyReminder() error {
 		for _, reminder := range *dailyReminder {
 			msg.BoldLine(reminder.Message)
 			msg.Text("At ")
-			msg.Text(formater.ToLocalTime(reminder.RemindTime, &channels[i]))
+			msg.Text(formater.ToLocalTime(reminder.RemindTime, channels[i].TimeZone))
 			if reminder.Repeated != nil && reminder.RepeatMax > *reminder.Repeated {
 				msg.ItalicLine(" (repeat every " + formater.ToNiceDuration(time.Minute*time.Duration(reminder.RepeatInterval)) + ")")
 			} else {

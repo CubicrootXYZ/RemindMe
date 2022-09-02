@@ -160,7 +160,7 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.Event.ID.String()))
 	}
 
-	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
+	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone)), evt, channel, database.MessageTypeReminderUpdateSuccess)
 
 	return err
 }
@@ -199,7 +199,7 @@ func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.
 		log.Warn("Was not able to save a message to the database: " + err.Error())
 	}
 
-	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
+	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
 
 	log.Info(msg)
 	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderSuccess)

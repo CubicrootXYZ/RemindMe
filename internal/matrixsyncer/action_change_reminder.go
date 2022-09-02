@@ -63,7 +63,7 @@ func (s *Syncer) actionChangeReminder(evt *types.MessageEvent, channel *database
 	msgFormater.TextLine("I rescheduled your reminder")
 	msgFormater.QuoteLine(reminder.Message)
 	msgFormater.Text("to ")
-	msgFormater.Text(formater.ToLocalTime(newTime, channel))
+	msgFormater.Text(formater.ToLocalTime(newTime, channel.TimeZone))
 
 	msg, formattedMsg := msgFormater.Build()
 	_, err = s.messenger.SendFormattedMessage(msg, formattedMsg, channel, database.MessageTypeReminderUpdate, reminder.ID)

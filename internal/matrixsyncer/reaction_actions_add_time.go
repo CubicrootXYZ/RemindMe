@@ -144,7 +144,7 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 		return err
 	}
 
-	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel))
+	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
 
 	_, err = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeReminderUpdateSuccess, reminder.ID)
 	return err

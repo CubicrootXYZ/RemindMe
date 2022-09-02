@@ -18,6 +18,7 @@ type Messenger interface {
 	SendResponseAsync(response *Response) error
 	SendResponse(response *Response) (*MessageResponse, error)
 	SendRedactAsync(redact *Redact) error
+	CreateChannel(userID string) (*ChannelResponse, error)
 }
 
 // Errors returned by the messenger
@@ -30,4 +31,5 @@ type MatrixClient interface {
 	SendMessageEvent(roomID id.RoomID, eventType event.Type, contentJSON interface{}, extra ...mautrix.ReqSendEvent) (resp *mautrix.RespSendEvent, err error)
 	RedactEvent(roomID id.RoomID, eventID id.EventID, extra ...mautrix.ReqRedact) (resp *mautrix.RespSendEvent, err error)
 	JoinedMembers(roomID id.RoomID) (resp *mautrix.RespJoinedMembers, err error)
+	CreateRoom(req *mautrix.ReqCreateRoom) (resp *mautrix.RespCreateRoom, err error)
 }

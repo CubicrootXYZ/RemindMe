@@ -34,7 +34,7 @@ func (s *Syncer) actionList(evt *types.MessageEvent, channel *database.Channel) 
 
 	for _, reminder := range reminders {
 		msg.BoldLine(reminder.Message)
-		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + formater.ToLocalTime(reminder.RemindTime, channel))
+		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
 		msg.NewLine()
 	}
 

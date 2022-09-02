@@ -17,7 +17,7 @@ import (
 
 type messenger struct {
 	config      *configuration.Config
-	client      *mautrix.Client // Todo abstract this in an interface
+	client      MatrixClient // Todo abstract this in an interface
 	db          types.Database
 	debug       bool
 	cryptoTools *cryptoTools

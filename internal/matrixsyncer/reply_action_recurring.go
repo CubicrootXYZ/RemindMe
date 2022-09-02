@@ -55,7 +55,7 @@ func (s *Syncer) replyActionRecurring(evt *types.MessageEvent, channel *database
 
 	lastRemind := reminder.RemindTime.Add(duration * repeatTimes)
 
-	msg := fmt.Sprintf("Updated the reminder to remind you every %s until %s", formater.ToNiceDuration(duration), formater.ToLocalTime(lastRemind, channel))
+	msg := fmt.Sprintf("Updated the reminder to remind you every %s until %s", formater.ToNiceDuration(duration), formater.ToLocalTime(lastRemind, channel.TimeZone))
 	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderRecurringSuccess)
 	if err != nil {
 		log.Error(err.Error())

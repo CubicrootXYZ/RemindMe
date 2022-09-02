@@ -42,7 +42,7 @@ func (s *Syncer) actionTimezone(evt *types.MessageEvent, channel *database.Chann
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent("Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel), evt, channel, database.MessageTypeTimezoneChangeRequestSuccess)
+	_, err = s.messenger.SendReplyToEvent("Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel.TimeZone), evt, channel, database.MessageTypeTimezoneChangeRequestSuccess)
 
 	return err
 }
