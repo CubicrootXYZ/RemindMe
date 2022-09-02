@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
@@ -41,7 +42,7 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 
 	if username == "" {
 		msg := "Sorry :(, I was not able to get a user out of your message"
-		_, err = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeDoNotSave, 0)
+		err = s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
 		return err
 	}
 
@@ -72,7 +73,7 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 		_, err = s.daemon.Database.AddChannel(username, channel.ChannelIdentifier, roles.RoleUser)
 		if err != nil {
 			msg := "Sorry, sonething went wrong here"
-			_, _ = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeDoNotSave, 0)
+			err = s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
 			return err
 		}
 
@@ -81,7 +82,7 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 		form.Username(username)
 		form.Text(" to the channel")
 		msg, msgFormatted := form.Build()
-		_, err = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeDoNotSave, 0)
+		err = s.messenger.SendMessageAsync(asyncmessenger.HTMLMessage(msg, msgFormatted, channel.ChannelIdentifier))
 		return err
 	}
 

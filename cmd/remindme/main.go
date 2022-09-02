@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
 	"maunium.net/go/mautrix"
@@ -98,7 +98,7 @@ func startup() error {
 
 	// Create messenger
 	log.Debug("Creating messenger")
-	messenger, err := matrixmessenger.Create(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
+	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
 	if err != nil {
 		return err
 	}

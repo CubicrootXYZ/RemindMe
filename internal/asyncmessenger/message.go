@@ -45,6 +45,24 @@ func (message *Message) toEvent() *messageEvent {
 	return &messageEvent
 }
 
+// PlainTextMessage constructs a simple plain text message
+func PlainTextMessage(message string, channelIdentifier string) *Message {
+	return &Message{
+		Body:                      message,
+		BodyHTML:                  message,
+		ChannelExternalIdentifier: channelIdentifier,
+	}
+}
+
+// HTMLMessage constructs a simple HTML message with a plaintext fallback
+func HTMLMessage(plaintextMessage, htmlMessage, channelIdentifier string) *Message {
+	return &Message{
+		Body:                      plaintextMessage,
+		BodyHTML:                  htmlMessage,
+		ChannelExternalIdentifier: channelIdentifier,
+	}
+}
+
 type MessageResponse struct {
 	ExternalIdentifier string
 	Timestamp          int64

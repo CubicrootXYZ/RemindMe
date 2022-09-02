@@ -10,6 +10,7 @@ import (
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
@@ -34,14 +35,14 @@ type Syncer struct {
 	daemon      *eventdaemon.Daemon
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
-	messenger   types.Messenger
+	messenger   asyncmessenger.Messenger
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
 	debug       bool
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger types.Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger asyncmessenger.Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
