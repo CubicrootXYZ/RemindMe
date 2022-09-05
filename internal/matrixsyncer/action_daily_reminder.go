@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -30,7 +31,21 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 
 	timeRemind, err := formater.ParseTime(evt.Content.Body, channel, true)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to understand the time.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
+		msg := "Sorry, I was not able to understand the time."
+		response, err := s.messenger.SendMessage(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
+		if err != nil {
+			return err
+		}
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               msg,
+				BodyHTML:           msg,
+				Type:               database.MessageTypeDailyReminderUpdateFail,
+				ChannelID:          channel.ID,
+				ExternalIdentifier: response.ExternalIdentifier,
+			},
+		)
 		return err
 	}
 
@@ -38,7 +53,21 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, &minutesSinceMidnight, channel.Role)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to save that.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
+		msg := "Sorry, I was not able to save that."
+		response, err := s.messenger.SendMessage(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
+		if err != nil {
+			return err
+		}
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               msg,
+				BodyHTML:           msg,
+				Type:               database.MessageTypeDailyReminderUpdateFail,
+				ChannelID:          channel.ID,
+				ExternalIdentifier: response.ExternalIdentifier,
+			},
+		)
 		return err
 	}
 

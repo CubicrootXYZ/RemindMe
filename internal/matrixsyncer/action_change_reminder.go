@@ -3,6 +3,7 @@ package matrixsyncer
 import (
 	"regexp"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -25,28 +26,28 @@ func (s *Syncer) actionChangeReminder(evt *types.MessageEvent, channel *database
 	match := regexChangeReminder.Find([]byte(evt.Content.Body))
 	if match == nil {
 		msg := "Ups, seems like there is a reminder ID missing in your message."
-		_, err := s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err := s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 		return err
 	}
 
 	reminderID, err := formater.GetSuffixInt(string(match))
 	if err != nil {
 		msg := "Ups, seems like there is a reminder ID missing in your message."
-		_, err := s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err := s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 		return err
 	}
 
 	newTime, err := formater.ParseTime(evt.Content.Body, channel, false)
 	if err != nil {
 		msg := "Ehm, sorry to say that, but I was not able to understand the time to schedule the reminder to."
-		_, err := s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err := s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 		return err
 	}
 
 	reminder, err := s.daemon.Database.GetReminderForChannelIDByID(channel.ChannelIdentifier, reminderID)
 	if err != nil {
 		msg := "This reminder is not in my database."
-		_, err := s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err := s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 		return err
 	}
 
@@ -55,7 +56,7 @@ func (s *Syncer) actionChangeReminder(evt *types.MessageEvent, channel *database
 	if err != nil {
 		log.Error(err.Error())
 		msg := "Whups, this did not work, sorry."
-		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err := s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 		return err
 	}
 
@@ -66,7 +67,6 @@ func (s *Syncer) actionChangeReminder(evt *types.MessageEvent, channel *database
 	msgFormater.Text(formater.ToLocalTime(newTime, channel.TimeZone))
 
 	msg, formattedMsg := msgFormater.Build()
-	_, err = s.messenger.SendFormattedMessage(msg, formattedMsg, channel, database.MessageTypeReminderUpdate, reminder.ID)
-
+	err = s.messenger.SendMessageAsync(asyncmessenger.HTMLMessage(msg, formattedMsg, channel.ChannelIdentifier))
 	return err
 }

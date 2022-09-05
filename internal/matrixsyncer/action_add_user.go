@@ -86,7 +86,7 @@ func (s *Syncer) actionAddUser(evt *types.MessageEvent, channel *database.Channe
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+	err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(msg, string(evt.Event.ID), evt.Content.Body, evt.Event.Sender.String(), evt.Event.RoomID.String()))
 
 	return err
 }

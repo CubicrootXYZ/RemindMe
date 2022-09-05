@@ -52,6 +52,18 @@ func (response *Response) toEvent() *messageEvent {
 	return matrixMessage
 }
 
+func PlainTextResponse(msg, replyToEventID, replyToMessage, replyToUser, channelIdentifier string) *Response {
+	return &Response{
+		Message:                   msg,
+		MessageFormatted:          msg,
+		RespondToMessage:          replyToMessage,
+		RespondToMessageFormatted: replyToMessage,
+		RespondToEventID:          replyToEventID,
+		RespondToUserID:           replyToUser,
+		ChannelExternalIdentifier: channelIdentifier,
+	}
+}
+
 // SendResponseAsync sends the given response via matrix without blocking the current thread.
 // If you need the MessageResponse use SendMessage.
 func (messenger *messenger) SendResponseAsync(response *Response) error {
