@@ -4,12 +4,10 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
 
@@ -33,22 +31,9 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 
 	message, messageFormatted := msg.Build()
 
-	response, err := s.messenger.SendMessage(asyncmessenger.HTMLMessage(message, messageFormatted, channel.ChannelIdentifier))
-	if err != nil {
-		log.Warn("Failed to send message with: " + err.Error())
-		return err
-	}
-	_, err = s.daemon.Database.AddMessage(
-		&database.Message{
-			Body:               message,
-			BodyHTML:           messageFormatted,
-			Type:               database.MessageTypeActions,
-			ChannelID:          channel.ID,
-			Timestamp:          time.Now().Unix(),
-			ExternalIdentifier: response.ExternalIdentifier,
-		},
-	)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(message, messageFormatted, channel.ChannelIdentifier), channel, database.MessageTypeActions)
+
+	return nil
 }
 
 func (s *Syncer) getReactionsFormatted(msg *formater.Formater) {

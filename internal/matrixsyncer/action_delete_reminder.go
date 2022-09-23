@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -27,25 +28,23 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 	if err != nil {
 		log.Error(err.Error())
 		msg := "Whupsy, I expected a number in that message but could not find it."
-		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
+		err = s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
 		return err
 	}
 
 	reminder, err := s.daemon.Database.GetReminderForChannelIDByID(channel.ChannelIdentifier, reminderID)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		msg := "Sorry, I do not know this reminder."
-		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
-		return err
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse())
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextMessage("Sorry, I do not know this reminder.", channel.ChannelIdentifier))
 	} else if err != nil {
 		log.Error(err.Error())
-		msg := "Oh no, this did not work, sorry."
-		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
-		return err
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextMessage("Oh no, this did not work, sorry.", channel.ChannelIdentifier))
 	}
 
 	_, err = s.daemon.Database.DeleteReminder(reminder.ID)
 	if err != nil {
 		log.Error(err.Error())
+		return s.messenger.SendResponseAsync()
 		msg := "Sorry, this did not work."
 		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
 		return err

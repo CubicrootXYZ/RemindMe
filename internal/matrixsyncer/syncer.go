@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
@@ -216,4 +217,32 @@ func (s *Syncer) getReactionActions() []*types.ReactionAction {
 	reactionActions = append(reactionActions, s.getReactionActionReschedule(types.ReactionActionTypeReminder))
 
 	return reactionActions
+}
+
+// sendAndStoreMessage is a helper for storing outgoing messages
+// it can be used asynchronously
+func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *database.Channel, messageType database.MessageType) {
+	response, err := s.messenger.SendMessage(message)
+	if err != nil {
+		log.Warn("failed sending message with: " + err.Error())
+		return
+	}
+
+	if messageType != database.MessageTypeDoNotSave {
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               message.Body,
+				BodyHTML:           message.BodyHTML,
+				Type:               messageType,
+				ChannelID:          channel.ID,
+				Timestamp:          time.Now().Unix(),
+				ExternalIdentifier: response.ExternalIdentifier,
+			},
+		)
+
+		if err != nil {
+			log.Warn("Failed to store message to database: " + err.Error())
+		}
+	}
+
 }
