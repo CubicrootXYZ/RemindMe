@@ -3,6 +3,7 @@ package matrixsyncer
 import (
 	"regexp"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -28,6 +29,5 @@ func (s *Syncer) actionDelete(evt *types.MessageEvent, channel *database.Channel
 		msg = "Ups, that went wrong. Please let your administrator know that I messed that up."
 	}
 
-	_, err = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeDoNotSave, 0)
-	return err
+	return s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
 }

@@ -31,7 +31,7 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 
 	message, messageFormatted := msg.Build()
 
-	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(message, messageFormatted, channel.ChannelIdentifier), channel, database.MessageTypeActions)
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(message, messageFormatted, channel.ChannelIdentifier), channel, database.MessageTypeActions, 0)
 
 	return nil
 }

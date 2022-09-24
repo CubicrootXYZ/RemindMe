@@ -34,26 +34,23 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 
 	reminder, err := s.daemon.Database.GetReminderForChannelIDByID(channel.ChannelIdentifier, reminderID)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse())
-		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextMessage("Sorry, I do not know this reminder.", channel.ChannelIdentifier))
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse("Sorry, I do not know this reminder.", evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), channel.ChannelIdentifier))
 	} else if err != nil {
 		log.Error(err.Error())
-		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextMessage("Oh no, this did not work, sorry.", channel.ChannelIdentifier))
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse("Oh no, this did not work, sorry.", evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), channel.ChannelIdentifier))
 	}
 
 	_, err = s.daemon.Database.DeleteReminder(reminder.ID)
 	if err != nil {
 		log.Error(err.Error())
-		return s.messenger.SendResponseAsync()
-		msg := "Sorry, this did not work."
-		_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeDoNotSave)
-		return err
+		return s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse("Sorry, this did not work.", evt.Event.ID.String(), evt.Content.Body, evt.Event.Sender.String(), channel.ChannelIdentifier))
 	}
 
 	// Delete all messages regarding this reminder
 	messages, err := s.daemon.Database.GetMessagesByReminderID(reminder.ID)
 	if err == nil {
 		for _, message := range messages {
+			// TODO add delete
 			err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
 			if err != nil {
 				log.Warn(fmt.Sprintf("Failed to delete message %s with: %s", message.ExternalIdentifier, err.Error()))
@@ -68,6 +65,6 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 	msgFormater.QuoteLine(reminder.Message)
 	msg, formattedMsg := msgFormater.Build()
 
-	_, err = s.messenger.SendFormattedMessage(msg, formattedMsg, channel, database.MessageTypeReminderDelete, reminder.ID)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(msg, formattedMsg, channel.ChannelIdentifier), channel, database.MessageTypeReminderDelete, reminder.ID)
+	return nil
 }

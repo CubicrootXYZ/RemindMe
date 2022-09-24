@@ -36,7 +36,7 @@ type Syncer struct {
 	daemon      *eventdaemon.Daemon
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
-	messenger   asyncmessenger.Messenger
+	messenger   asyncmessenger.Messenger // TODO make own interface
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
 	debug       bool
@@ -221,7 +221,7 @@ func (s *Syncer) getReactionActions() []*types.ReactionAction {
 
 // sendAndStoreMessage is a helper for storing outgoing messages
 // it can be used asynchronously
-func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *database.Channel, messageType database.MessageType) {
+func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *database.Channel, messageType database.MessageType, reminderID uint) {
 	response, err := s.messenger.SendMessage(message)
 	if err != nil {
 		log.Warn("failed sending message with: " + err.Error())
@@ -229,6 +229,11 @@ func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *d
 	}
 
 	if messageType != database.MessageTypeDoNotSave {
+		reminderIDReal := &reminderID
+		if reminderID <= 0 {
+			reminderIDReal = nil
+		}
+
 		_, err = s.daemon.Database.AddMessage(
 			&database.Message{
 				Body:               message.Body,
@@ -237,6 +242,7 @@ func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *d
 				ChannelID:          channel.ID,
 				Timestamp:          time.Now().Unix(),
 				ExternalIdentifier: response.ExternalIdentifier,
+				ReminderID:         reminderIDReal,
 			},
 		)
 

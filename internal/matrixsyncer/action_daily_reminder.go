@@ -53,7 +53,7 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, &minutesSinceMidnight, channel.Role)
 	if err != nil {
-		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", channel.ChannelIdentifier), c, database.MessageTypeDailyReminderUpdateFail)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", channel.ChannelIdentifier), c, database.MessageTypeDailyReminderUpdateFail, 0)
 		return err
 	}
 
@@ -62,6 +62,7 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 		c.ChannelIdentifier),
 		c,
 		database.MessageTypeDailyReminderUpdateSuccess,
+		0,
 	)
 
 	return err
@@ -86,7 +87,7 @@ func (s *Syncer) actionDeleteDailyReminder(evt *types.MessageEvent, channel *dat
 
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
-		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", c.ChannelIdentifier), channel, database.MessageTypeDailyReminderDeleteFail)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", c.ChannelIdentifier), channel, database.MessageTypeDailyReminderDeleteFail, 0)
 		return err
 	}
 
@@ -94,6 +95,7 @@ func (s *Syncer) actionDeleteDailyReminder(evt *types.MessageEvent, channel *dat
 		asyncmessenger.PlainTextMessage("I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\".", c.ChannelIdentifier),
 		c,
 		database.MessageTypeDailyReminderDeleteSuccess,
+		0,
 	)
 
 	return nil
