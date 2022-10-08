@@ -50,8 +50,10 @@ func (s *Syncer) actionDeleteReminder(evt *types.MessageEvent, channel *database
 	messages, err := s.daemon.Database.GetMessagesByReminderID(reminder.ID)
 	if err == nil {
 		for _, message := range messages {
-			// TODO add delete
-			err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
+			err = s.messenger.DeleteMessageAsync(&asyncmessenger.Delete{
+				ExternalIdentifier:        message.ExternalIdentifier,
+				ChannelExternalIdentifier: channel.ChannelIdentifier,
+			})
 			if err != nil {
 				log.Warn(fmt.Sprintf("Failed to delete message %s with: %s", message.ExternalIdentifier, err.Error()))
 			}

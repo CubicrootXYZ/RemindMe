@@ -82,8 +82,8 @@ func (m *Messenger) SendReminder(reminder *database.Reminder, respondToMessage *
 		return nil, errors.ErrEmptyChannel
 	}
 
-	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
-	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, formater.ToLocalTime(reminder.RemindTime, &reminder.Channel))
+	newMsg := fmt.Sprintf("%s a reminder for you: %s (at %s)", "USER", reminder.Message, formater.ToLocalTime(reminder.RemindTime, reminder.Channel.TimeZone))
+	newMsgFormatted := fmt.Sprintf("%s a Reminder for you: <br>%s <br><i>(at %s)</i>", makeLinkToUser(reminder.Channel.UserIdentifier), reminder.Message, formater.ToLocalTime(reminder.RemindTime, reminder.Channel.TimeZone))
 
 	body, bodyFormatted := makeResponse(newMsg, newMsgFormatted, reminder.Message, reminder.Message, reminder.Channel.UserIdentifier, reminder.Channel.ChannelIdentifier, respondToMessage.ExternalIdentifier)
 
