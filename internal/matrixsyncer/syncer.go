@@ -252,3 +252,38 @@ func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *d
 	}
 
 }
+
+// sendAndStoreReply is a helper for storing outgoing replies
+// it can be used asynchronously
+func (s *Syncer) sendAndStoreReply(message *asyncmessenger.Response, channel *database.Channel, messageType database.MessageType, reminderID uint) {
+	response, err := s.messenger.SendResponse(message)
+	if err != nil {
+		log.Warn("failed sending message with: " + err.Error())
+		return
+	}
+
+	if messageType != database.MessageTypeDoNotSave {
+		reminderIDReal := &reminderID
+		if reminderID <= 0 {
+			reminderIDReal = nil
+		}
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               message.Body,
+				BodyHTML:           message.BodyHTML,
+				Type:               messageType,
+				ChannelID:          channel.ID,
+				Timestamp:          time.Now().Unix(),
+				ExternalIdentifier: response.ExternalIdentifier,
+				ReminderID:         reminderIDReal,
+				ResponseToMessage:  message.RespondToEventID,
+			},
+		)
+
+		if err != nil {
+			log.Warn("Failed to store message to database: " + err.Error())
+		}
+	}
+
+}

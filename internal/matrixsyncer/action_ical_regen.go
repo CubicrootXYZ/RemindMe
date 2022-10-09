@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
@@ -27,17 +27,16 @@ func (s *Syncer) actionIcalRegenerate(evt *types.MessageEvent, channel *database
 		log.Warn("Can not save message to database.")
 	}
 
-	msg := formater.Formater{}
+	msg := "Updated your calendar secret. Your old secret will no longer work."
 	err = s.daemon.Database.GenerateNewCalendarSecret(channel)
 	if err != nil {
 		log.Error(err.Error())
-		msg.Text("Failed to generate a new secret.")
+		msg = "Failed to generate a new secret."
 	}
 
-	msg.Text("Updated your calendar secret. Your old secret will no longer work.")
-
-	message, messageFormatted := msg.Build()
-
-	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeIcalRenew, 0)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+		msg,
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeIcalRenew, 0)
+	return nil
 }

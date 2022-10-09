@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -39,7 +40,11 @@ func (s *Syncer) actionList(evt *types.MessageEvent, channel *database.Channel) 
 	}
 
 	message, messageFormatted := msg.Build()
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(
+		message,
+		messageFormatted,
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeReminderList, 0)
 
-	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeReminderList, 0)
-	return err
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -31,18 +32,36 @@ func (s *Syncer) actionTimezone(evt *types.MessageEvent, channel *database.Chann
 	tz := strings.ReplaceAll(evt.Content.Body, "set timezone ", "")
 	_, err = time.LoadLocation(tz)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I do not know this timezone.", evt, channel, database.MessageTypeTimezoneChangeRequestFail)
+		go s.sendAndStoreReply(asyncmessenger.PlainTextResponse(
+			"Sorry, I do not know this timezone.",
+			evt.Event.ID.String(),
+			evt.Content.Body,
+			evt.Event.Sender.String(),
+			channel.ChannelIdentifier,
+		), channel, database.MessageTypeTimezoneChangeRequestFail, 0)
 		return err
 	}
 
 	channel, err = s.daemon.Database.UpdateChannel(channel.ID, tz, channel.DailyReminder, channel.Role)
 	if err != nil {
 		log.Warn("Failed to save timezone in database: " + err.Error())
-		_, err = s.messenger.SendReplyToEvent("Sorry, that failed.", evt, channel, database.MessageTypeTimezoneChangeRequestFail)
+		go s.sendAndStoreReply(asyncmessenger.PlainTextResponse(
+			"Sorry, that failed.",
+			evt.Event.ID.String(),
+			evt.Content.Body,
+			evt.Event.Sender.String(),
+			channel.ChannelIdentifier,
+		), channel, database.MessageTypeTimezoneChangeRequestFail, 0)
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent("Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel.TimeZone), evt, channel, database.MessageTypeTimezoneChangeRequestSuccess)
+	go s.sendAndStoreReply(asyncmessenger.PlainTextResponse(
+		"Great, I updated your timezone to "+tz+". Currently it is "+formater.ToLocalTime(time.Now(), channel.TimeZone),
+		evt.Event.ID.String(),
+		evt.Content.Body,
+		evt.Event.Sender.String(),
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeTimezoneChangeRequestSuccess, 0)
 
-	return err
+	return nil
 }
