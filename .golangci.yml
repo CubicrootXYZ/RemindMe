@@ -57,4 +57,4 @@ issues:
       text: 'SA4009\(related information\): assignment to db' # Preparation for later usage
   exclude:
     - 'string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant' # Used for test validation
-    - '`(*Syncer).sendAndStoreReply` - `reminderID` always receives `0' # Param might be useful later
+    - '`\(\*Syncer\)\.sendAndStoreReply` - `reminderID` always receives `0' # Param might be useful later
