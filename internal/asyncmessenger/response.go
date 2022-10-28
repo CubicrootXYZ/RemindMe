@@ -67,7 +67,9 @@ func PlainTextResponse(msg, replyToEventID, replyToMessage, replyToUser, channel
 // SendResponseAsync sends the given response via matrix without blocking the current thread.
 // If you need the MessageResponse use SendMessage.
 func (messenger *messenger) SendResponseAsync(response *Response) error {
-	go messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 10, time.Second*10)
+	go func() {
+		_, _ = messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 10, time.Second*10)
+	}()
 
 	return nil
 }

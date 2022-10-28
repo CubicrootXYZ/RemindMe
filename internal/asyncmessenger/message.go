@@ -28,11 +28,11 @@ func (message *Message) toEvent() *messageEvent {
 		Type:          eventTypeRoomMessage,
 	}
 	messageEvent.MSC1767Message = []matrixMSC1767Event{
-		matrixMSC1767Event{
+		{
 			Body:     message.Body,
 			Mimetype: mimetypeTextPlain,
 		},
-		matrixMSC1767Event{
+		{
 			Body:     message.BodyHTML,
 			Mimetype: mimetypeTextHTML,
 		},
@@ -71,7 +71,9 @@ type MessageResponse struct {
 // SendMessageAsync sends the given message via matrix without blocking the current thread.
 // If you need the MessageResponse use SendMessage.
 func (messenger *messenger) SendMessageAsync(message *Message) error {
-	go messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 10, time.Second*10)
+	go func() {
+		_, _ = messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 10, time.Second*10)
+	}()
 
 	return nil
 }

@@ -20,7 +20,9 @@ func (reaction *Reaction) toEvent() *messageEvent {
 }
 
 func (messenger *messenger) SendReactionAsync(reaction *Reaction) error {
-	go messenger.sendMessage(reaction.toEvent(), reaction.ChannelExternalIdentifier, 10, time.Second*15)
+	go func() {
+		_, _ = messenger.sendMessage(reaction.toEvent(), reaction.ChannelExternalIdentifier, 10, time.Second*15)
+	}()
 
 	return nil
 }

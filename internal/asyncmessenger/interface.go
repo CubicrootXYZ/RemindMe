@@ -19,7 +19,7 @@ type Messenger interface {
 	SendResponse(response *Response) (*MessageResponse, error)
 	SendRedactAsync(redact *Redact) error
 	CreateChannel(userID string) (*ChannelResponse, error)
-	DeleteMessageAsync(delete *Delete) error
+	DeleteMessageAsync(deleteAction *Delete) error
 }
 
 // Errors returned by the messenger

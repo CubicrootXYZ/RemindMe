@@ -17,12 +17,14 @@ type Delete struct {
 }
 
 // DeleteMessageAsync removes a message from the channel
-func (messenger *messenger) DeleteMessageAsync(delete *Delete) error {
-	go messenger.deleteMessage(delete, 10, 15*time.Second)
+func (messenger *messenger) DeleteMessageAsync(deleteAction *Delete) error {
+	go func() {
+		_ = messenger.deleteMessage(deleteAction, 10, 15*time.Second)
+	}()
 	return nil
 }
 
-func (messenger *messenger) deleteMessage(delete *Delete, retries uint, retryTime time.Duration) error {
+func (messenger *messenger) deleteMessage(deleteAction *Delete, retries uint, retryTime time.Duration) error {
 	var err error
 	maxRetries := retries
 
@@ -33,7 +35,7 @@ func (messenger *messenger) deleteMessage(delete *Delete, retries uint, retryTim
 			continue
 		}
 
-		_, err := messenger.client.RedactEvent(id.RoomID(delete.ChannelExternalIdentifier), id.EventID(delete.ExternalIdentifier))
+		_, err := messenger.client.RedactEvent(id.RoomID(deleteAction.ChannelExternalIdentifier), id.EventID(deleteAction.ExternalIdentifier))
 		if err == nil {
 			// No error, fine return the result
 			return nil

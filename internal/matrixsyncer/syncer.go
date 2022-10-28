@@ -253,7 +253,6 @@ func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *d
 			log.Warn("Failed to store message to database: " + err.Error())
 		}
 	}
-
 }
 
 // sendAndStoreReply is a helper for storing outgoing replies
@@ -290,5 +289,4 @@ func (s *Syncer) sendAndStoreReply(message *asyncmessenger.Response, channel *da
 			log.Warn("Failed to store message to database: " + err.Error())
 		}
 	}
-
 }

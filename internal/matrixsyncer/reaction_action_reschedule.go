@@ -90,5 +90,5 @@ func (s *Syncer) reactionActionRescheduleReminder(message *database.Message, con
 		channel.ChannelIdentifier,
 	))
 
-	return nil
+	return err
 }

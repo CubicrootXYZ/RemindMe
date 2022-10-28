@@ -16,7 +16,9 @@ type Redact struct {
 }
 
 func (messenger *messenger) SendRedactAsync(redact *Redact) error {
-	go messenger.sendRedact(redact.RoomID, redact.MessageID, 10, time.Second*15)
+	go func() {
+		_ = messenger.sendRedact(redact.RoomID, redact.MessageID, 10, time.Second*15)
+	}()
 
 	return nil
 }
