@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix"
@@ -14,14 +15,14 @@ import (
 // ReactionHandler handles message events
 type ReactionHandler struct {
 	database  types.Database
-	messenger types.Messenger
+	messenger asyncmessenger.Messenger
 	botInfo   *types.BotInfo
 	actions   []*types.ReactionAction
 	started   int64
 }
 
 // NewReactionHandler returns a new ReactionHandler
-func NewReactionHandler(database types.Database, messenger types.Messenger, botInfo *types.BotInfo, actions []*types.ReactionAction) *ReactionHandler {
+func NewReactionHandler(database types.Database, messenger asyncmessenger.Messenger, botInfo *types.BotInfo, actions []*types.ReactionAction) *ReactionHandler {
 	return &ReactionHandler{
 		database:  database,
 		messenger: messenger,

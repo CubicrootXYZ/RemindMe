@@ -17,7 +17,7 @@ type Response struct {
 	ChannelExternalIdentifier string
 }
 
-func (response *Response) getResponseMessage() (message, messageFormatted string) {
+func (response *Response) GetResponseMessage() (message, messageFormatted string) {
 	message = fmt.Sprintf(
 		"> <%s>%s\n\n%s",
 		response.RespondToUserID,
@@ -40,7 +40,7 @@ func (response *Response) getResponseMessage() (message, messageFormatted string
 }
 
 func (response *Response) toEvent() *messageEvent {
-	message, messageFormatted := response.getResponseMessage()
+	message, messageFormatted := response.GetResponseMessage()
 	matrixMessage := &messageEvent{
 		Body:          message,
 		FormattedBody: messageFormatted,

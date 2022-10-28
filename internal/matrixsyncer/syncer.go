@@ -36,7 +36,7 @@ type Syncer struct {
 	daemon      *eventdaemon.Daemon
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
-	messenger   asyncmessenger.Messenger // TODO make own interface
+	messenger   asyncmessenger.Messenger
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
 	debug       bool
@@ -150,7 +150,10 @@ func (s *Syncer) syncChannels() error {
 
 		channels = append(channels, channel)
 
-		_, _ = s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
+		_ = s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(
+			"Sorry I was sleeping for a while. I am now ready for your requests!",
+			channel.ChannelIdentifier,
+		))
 	}
 
 	// Remove channels not needed anymore
@@ -268,10 +271,12 @@ func (s *Syncer) sendAndStoreReply(message *asyncmessenger.Response, channel *da
 			reminderIDReal = nil
 		}
 
+		body, bodyHTML := message.GetResponseMessage()
+
 		_, err = s.daemon.Database.AddMessage(
 			&database.Message{
-				Body:               message.Body,
-				BodyHTML:           message.BodyHTML,
+				Body:               body,
+				BodyHTML:           bodyHTML,
 				Type:               messageType,
 				ChannelID:          channel.ID,
 				Timestamp:          time.Now().Unix(),

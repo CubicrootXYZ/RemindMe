@@ -40,3 +40,23 @@ func TestGetHomeserverFromUserID_NoHomeserver(t *testing.T) {
 	result := GetHomeserverFromUserID("@user")
 	assert.Equal(t, `matrix.org`, result)
 }
+
+func TestGetUsernameFromUserIdentifier(t *testing.T) {
+	result := GetUsernameFromUserIdentifier("@testuser:example.org")
+	assert.Equal(t, "testuser", result)
+}
+
+func TestGetUsernameFromUserIdentifier_EmptyHomeserver(t *testing.T) {
+	result := GetUsernameFromUserIdentifier("@testuser:")
+	assert.Equal(t, "testuser", result)
+}
+
+func TestGetUsernameFromUserIdentifier_NoHomeserver(t *testing.T) {
+	result := GetUsernameFromUserIdentifier("@testuser")
+	assert.Equal(t, "testuser", result)
+}
+
+func TestGetUsernameFromUserIdentifier_InvalidString(t *testing.T) {
+	result := GetUsernameFromUserIdentifier("testuser")
+	assert.Equal(t, "testuser", result)
+}

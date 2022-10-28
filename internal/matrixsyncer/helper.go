@@ -12,5 +12,5 @@ func (s *Syncer) createChannel(userID string, role roles.Role) (*database.Channe
 		return nil, err
 	}
 
-	return s.daemon.Database.AddChannel(userID, roomCreated.RoomID.String(), role)
+	return s.daemon.Database.AddChannel(userID, roomCreated.ChannelExternalIdentifier, role)
 }

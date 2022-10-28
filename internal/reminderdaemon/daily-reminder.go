@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -72,11 +73,31 @@ func (d *Daemon) CheckForDailyReminder() error {
 		}
 
 		body, bodyFormatted := msg.Build()
-		_, err = d.Messenger.SendFormattedMessage(body, bodyFormatted, &channels[i], database.MessageTypeDailyReminder, 0)
-		if err != nil {
-			log.Error(err.Error())
-			continue
-		}
+
+		go func(body, bodyFormatted string, channel database.Channel) {
+			resp, err := d.Messenger.SendMessage(asyncmessenger.HTMLMessage(
+				body,
+				bodyFormatted,
+				channel.ChannelIdentifier,
+			))
+			if err != nil {
+				log.Error(err.Error())
+				return
+			}
+			_, err = d.Database.AddMessage(
+				&database.Message{
+					Body:               body,
+					BodyHTML:           bodyFormatted,
+					Type:               database.MessageTypeDailyReminder,
+					ChannelID:          channel.ID,
+					Timestamp:          resp.Timestamp,
+					ExternalIdentifier: resp.ExternalIdentifier,
+				},
+			)
+			if err != nil {
+				log.Error(err.Error())
+			}
+		}(body, bodyFormatted, channels[i])
 	}
 
 	return nil

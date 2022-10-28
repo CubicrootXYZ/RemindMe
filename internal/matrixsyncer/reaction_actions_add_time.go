@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -135,7 +136,12 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 	if message.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
 		msgFormatted := msg
-		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(
+			msg,
+			msgFormatted,
+			channel.ChannelIdentifier,
+		), channel, database.MessageTypeReminderRecurringFail, 0)
+
 		return errors.ErrIDNotSet
 	}
 
@@ -146,8 +152,12 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 
 	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
 
-	_, err = s.messenger.SendFormattedMessage(msg, msg, channel, database.MessageTypeReminderUpdateSuccess, reminder.ID)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+		msg,
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeReminderUpdateSuccess, reminder.ID)
+
+	return nil
 }
 
 // addTimeOrFromNow If baseTime is in future add the duration to the basetime otherwise add it to the current time

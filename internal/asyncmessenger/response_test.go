@@ -17,7 +17,7 @@ func TestResponse_GetResponseMessage(t *testing.T) {
 		"!12345",
 	}
 
-	msg, msgFormatted := response.getResponseMessage()
+	msg, msgFormatted := response.GetResponseMessage()
 
 	assert.Equal(t, "> <@user:example.com>The message\n\nMy Answer", msg)
 	assert.Equal(t, "<mx-reply><blockquote><a href=\"https://matrix.to/#/!12345/!abcde-1234?via=example.com\">In reply to</a> <a href=\"https://matrix.to/#/@user:example.com\">@user:example.com</a><br>The message</blockquote></mx-reply>My <b>Answer</b>", msgFormatted)
