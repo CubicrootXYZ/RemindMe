@@ -36,7 +36,7 @@ See our [contribution guidelines](https://github.com/CubicrootXYZ/RemindMe/blob/
 
 ## 🔍 How to use the bot
 
-After you have installed the bot he will invite every user in the config in a channel. Accept the invite and you are ready to interact with him.
+After you have installed the bot it will invite every user in the config in a channel. Accept the invite and you are ready to interact with it.
 
 ### New Reminder
 
