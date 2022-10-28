@@ -15,6 +15,7 @@ func (reaction *Reaction) toEvent() *messageEvent {
 	messageEvent.RelatesTo.EventID = reaction.MessageExternalIdentifier
 	messageEvent.RelatesTo.Key = reaction.Reaction
 	messageEvent.RelatesTo.RelType = relationAnnotiation
+	messageEvent.RelatesTo.InReplyTo = nil
 
 	return messageEvent
 }

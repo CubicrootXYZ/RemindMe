@@ -7,7 +7,6 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/event"
 )
 
 // Message holds information about a message
@@ -39,7 +38,9 @@ func (message *Message) toEvent() *messageEvent {
 	}
 
 	if message.ResponseToMessage != "" {
-		messageEvent.RelatesTo.InReplyTo.EventID = message.ResponseToMessage
+		messageEvent.RelatesTo.InReplyTo = &struct {
+			EventID string "json:\"event_id,omitempty\""
+		}{EventID: message.ResponseToMessage}
 	}
 
 	return &messageEvent
@@ -97,7 +98,7 @@ func (messenger *messenger) sendMessage(messageEvent *messageEvent, channel stri
 			continue
 		}
 
-		response, err := messenger.sendMessageEvent(messageEvent, channel, event.EventMessage)
+		response, err := messenger.sendMessageEvent(messageEvent, channel, messageEvent.getEventType())
 		if err == nil {
 			// No error, fine return the result
 			return messenger.mautrixRespSendEventToMessageResponse(response), nil

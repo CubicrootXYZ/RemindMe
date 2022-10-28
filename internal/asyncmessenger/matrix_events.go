@@ -1,5 +1,7 @@
 package asyncmessenger
 
+import "maunium.net/go/mautrix/event"
+
 // MessageTypes available
 var (
 	messageTypeText     = "m.text"
@@ -37,11 +39,19 @@ type messageEvent struct {
 		EventID   string `json:"event_id,omitempty"`
 		Key       string `json:"key,omitempty"`
 		RelType   string `json:"rel_type,omitempty"`
-		InReplyTo struct {
+		InReplyTo *struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
 	} `json:"m.relates_to,omitempty"`
 	MSC1767Message []matrixMSC1767Event `json:"org.matrix.msc1767.message,omitempty"`
+}
+
+func (messageEvent *messageEvent) getEventType() event.Type {
+	if messageEvent.Type == messageTypeReaction {
+		return event.EventReaction
+	}
+
+	return event.EventMessage
 }
 
 // MatrixMSC1767Message defines a MSC1767 message
