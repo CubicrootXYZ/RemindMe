@@ -20,6 +20,7 @@ type Messenger interface {
 	SendRedactAsync(redact *Redact) error
 	CreateChannel(userID string) (*ChannelResponse, error)
 	DeleteMessageAsync(deleteAction *Delete) error
+	// TODO future improvement: make room member cache flushable throug this interface and flush it on room member updates
 }
 
 // Errors returned by the messenger

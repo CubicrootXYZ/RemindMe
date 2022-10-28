@@ -16,12 +16,13 @@ import (
 )
 
 type messenger struct {
-	config      *configuration.Config
-	client      MatrixClient // Todo abstract this in an interface
-	db          types.Database
-	debug       bool
-	cryptoTools *cryptoTools
-	state       *state
+	roomUserCache roomCache
+	config        *configuration.Config
+	client        MatrixClient
+	db            types.Database
+	debug         bool
+	cryptoTools   *cryptoTools
+	state         *state
 }
 
 type cryptoTools struct {
@@ -48,10 +49,11 @@ func NewMessenger(debug bool, config *configuration.Config, db types.Database, c
 	}
 
 	return &messenger{
-		config: config,
-		client: matrixClient,
-		db:     db,
-		debug:  debug,
+		roomUserCache: make(roomCache),
+		config:        config,
+		client:        matrixClient,
+		db:            db,
+		debug:         debug,
 		state: &state{
 			rateLimitedUntilMutex: sync.Mutex{},
 		},
@@ -102,7 +104,11 @@ func (messenger *messenger) sendMessageEventEncrypted(messageEvent *messageEvent
 }
 
 func (messenger *messenger) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
-	// Todo future improvement: cache the result for a short time
+	// Check cache first
+	if users := messenger.roomUserCache.GetUsers(roomID); users != nil {
+		return users
+	}
+
 	userIDs := make([]id.UserID, 0)
 	members, err := messenger.client.JoinedMembers(roomID)
 	if err != nil {
@@ -115,6 +121,8 @@ func (messenger *messenger) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
 		userIDs = append(userIDs, userID)
 		i++
 	}
+
+	messenger.roomUserCache.AddUsers(roomID, userIDs)
 	return userIDs
 }
 
