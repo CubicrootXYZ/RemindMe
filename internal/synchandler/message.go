@@ -108,12 +108,18 @@ func (s *MessageHandler) checkReplyActions(evt *types.MessageEvent, channel *dat
 	if evt == nil || evt.Content == nil || evt.Content.RelatesTo == nil || channel == nil || evt.Event == nil {
 		return false
 	}
-	if len(evt.Content.RelatesTo.EventID) < 2 {
+
+	eventID := evt.Content.RelatesTo.EventID
+	if evt.Content.RelatesTo.InReplyTo != nil {
+		eventID = evt.Content.RelatesTo.InReplyTo.EventID
+	}
+
+	if len(eventID) < 2 {
 		return false
 	}
 
 	message := strings.ToLower(formater.StripReply(evt.Content.Body))
-	replyMessage, err := s.database.GetMessageByExternalID(evt.Content.RelatesTo.EventID.String())
+	replyMessage, err := s.database.GetMessageByExternalID(eventID.String())
 	if err != nil || replyMessage == nil {
 		log.Info("Message replies to unknown message")
 		return false

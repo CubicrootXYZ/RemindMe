@@ -1,8 +1,10 @@
 package database
 
 import (
+	"strconv"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"gorm.io/gorm"
 )
 
@@ -67,7 +69,8 @@ func (d *Database) GetDailyReminder(channel *Channel) (*[]Reminder, error) {
 func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
 	if reminder.Repeated != nil {
 		if reminder.RepeatMax > *reminder.Repeated && reminder.RepeatInterval > 0 {
-			reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
+			reminder.RemindTime = reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
+			log.Debug("New remind time for reminder " + strconv.Itoa(int(reminder.ID)) + " is " + reminder.RemindTime.String())
 		} else {
 			reminder.Active = false
 		}
