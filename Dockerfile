@@ -1,4 +1,4 @@
-FROM cubicrootxyz/matrix-go:latest
+FROM cubicrootxyz/matrix-go:1.19
 
 WORKDIR /run
 

@@ -73,8 +73,6 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 	var olm *crypto.OlmMachine
 	if s.config.E2EE {
 		olm = encryption.GetOlmMachine(s.debug, s.client, s.cryptoStore, s.daemon.Database, s.stateStore)
-		olm.AllowUnverifiedDevices = true
-		olm.ShareKeysToUnverifiedDevices = true
 		if err := olm.Load(); err != nil {
 			return err
 		}

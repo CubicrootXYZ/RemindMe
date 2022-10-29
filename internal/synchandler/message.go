@@ -291,8 +291,6 @@ func (s *MessageHandler) parseMessageEvent(evt *event.Event) (*types.MessageEven
 
 	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
 	if ok {
-		s.olm.AllowUnverifiedDevices = true
-		s.olm.ShareKeysToUnverifiedDevices = true
 		decrypted, err := s.olm.DecryptMegolmEvent(evt)
 
 		if err != nil {
