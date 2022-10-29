@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -30,8 +31,9 @@ func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Chann
 
 	message, messageFormatted := msg.Build()
 
-	_, err := s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeActions, 0)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(message, messageFormatted, channel.ChannelIdentifier), channel, database.MessageTypeActions, 0)
+
+	return nil
 }
 
 func (s *Syncer) getReactionsFormatted(msg *formater.Formater) {

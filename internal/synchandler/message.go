@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -20,7 +21,7 @@ import (
 // MessageHandler handles message events
 type MessageHandler struct {
 	database     types.Database
-	messenger    types.Messenger
+	messenger    asyncmessenger.Messenger
 	botInfo      *types.BotInfo
 	replyActions []*types.ReplyAction
 	actions      []*types.Action
@@ -29,7 +30,7 @@ type MessageHandler struct {
 }
 
 // NewMessageHandler returns a new MessageHandler
-func NewMessageHandler(database types.Database, messenger types.Messenger, botInfo *types.BotInfo, replyActions []*types.ReplyAction, messageAction []*types.Action, olm *crypto.OlmMachine) *MessageHandler {
+func NewMessageHandler(database types.Database, messenger asyncmessenger.Messenger, botInfo *types.BotInfo, replyActions []*types.ReplyAction, messageAction []*types.Action, olm *crypto.OlmMachine) *MessageHandler {
 	return &MessageHandler{
 		database:     database,
 		messenger:    messenger,
@@ -69,7 +70,13 @@ func (s *MessageHandler) NewEvent(source mautrix.EventSource, evt *event.Event) 
 		// But we know the user
 		if channel2 != nil {
 			log.Info("User messaged us in a Channel we do not know")
-			_, err := s.messenger.SendReplyToEvent("Hey, this is not our usual messaging channel ;)", msgEvt, &database.Channel{ChannelIdentifier: evt.RoomID.String()}, database.MessageTypeDoNotSave)
+			err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+				"Hey, this is not our usual messaging channel ;)",
+				msgEvt.Event.ID.String(),
+				msgEvt.Content.Body,
+				msgEvt.Event.Sender.String(),
+				channel.ChannelIdentifier,
+			))
 			if err != nil {
 				log.Warn(err.Error())
 			}
@@ -145,7 +152,14 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 	remindTime, err := formater.ParseTime(content.Body, channel, false)
 	if err != nil {
 		log.Warn(err.Error())
-		_, _ = s.messenger.SendReplyToEvent("Sorry I was not able to get a time out of that message", evt, channel, database.MessageTypeReminderUpdateFail)
+		_ = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+			"Sorry I was not able to get a time out of that message",
+			evt.Event.ID.String(),
+			evt.Content.Body,
+			evt.Event.Sender.String(),
+			channel.ChannelIdentifier,
+		))
+
 		return err
 	}
 
@@ -160,7 +174,13 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 		log.Warn(fmt.Sprintf("Could not register reply message %s in database", evt.Event.ID.String()))
 	}
 
-	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel)), evt, channel, database.MessageTypeReminderUpdateSuccess)
+	err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+		fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone)),
+		evt.Event.ID.String(),
+		evt.Content.Body,
+		evt.Event.Sender.String(),
+		channel.ChannelIdentifier,
+	))
 
 	return err
 }
@@ -185,7 +205,13 @@ func (s *MessageHandler) checkActions(evt *types.MessageEvent, channel *database
 func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.Channel) (*database.Reminder, error) {
 	remindTime, err := formater.ParseTime(evt.Content.Body, channel, false)
 	if err != nil {
-		_, _ = s.messenger.SendReplyToEvent("Sorry I was not able to understand the remind date and time from this message", evt, channel, database.MessageTypeReminderFail)
+		_ = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+			"Sorry I was not able to understand the remind date and time from this message",
+			evt.Event.ID.String(),
+			evt.Content.Body,
+			evt.Event.Sender.String(),
+			channel.ChannelIdentifier,
+		))
 		return nil, err
 	}
 
@@ -199,16 +225,45 @@ func (s *MessageHandler) newReminder(evt *types.MessageEvent, channel *database.
 		log.Warn("Was not able to save a message to the database: " + err.Error())
 	}
 
-	msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel))
+	go func(channel *database.Channel, evt *types.MessageEvent, reminder *database.Reminder) {
+		msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", reminder.ID, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
+		log.Info(msg)
 
-	log.Info(msg)
-	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderSuccess)
-	if err != nil {
-		log.Warn("Was not able to send success message to user")
-	}
+		response := asyncmessenger.PlainTextResponse(
+			msg,
+			evt.Event.ID.String(),
+			evt.Content.Body,
+			evt.Event.Sender.String(),
+			channel.ChannelIdentifier,
+		)
+
+		resp, err := s.messenger.SendResponse(response)
+		if err != nil {
+			log.Info("Failed sending out message: " + err.Error())
+			return
+		}
+
+		_, err = s.database.AddMessage(&database.Message{
+			Body:               response.Message,
+			BodyHTML:           response.MessageFormatted,
+			ReminderID:         &reminder.ID,
+			ResponseToMessage:  evt.Event.ID.String(),
+			Type:               database.MessageTypeReminderSuccess,
+			ChannelID:          channel.ID,
+			Timestamp:          resp.Timestamp,
+			ExternalIdentifier: resp.ExternalIdentifier,
+		})
+		if err != nil {
+			log.Info("Could not add message to database: " + err.Error())
+		}
+	}(channel, evt, reminder)
 
 	for _, reaction := range types.ReactionsReminderRequest {
-		_, err = s.messenger.SendReaction(reaction, string(evt.Event.ID), channel)
+		err = s.messenger.SendReactionAsync(&asyncmessenger.Reaction{
+			Reaction:                  reaction,
+			MessageExternalIdentifier: evt.Event.ID.String(),
+			ChannelExternalIdentifier: channel.ChannelIdentifier,
+		})
 		if err != nil && err != errors.ErrReactionsDisabled {
 			log.Warn(err.Error())
 		}

@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -54,12 +55,21 @@ func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *
 		}
 	}
 
-	err = s.messenger.DeleteMessage(message.ExternalIdentifier, channel.ChannelIdentifier)
+	err = s.messenger.DeleteMessageAsync(&asyncmessenger.Delete{
+		ExternalIdentifier:        message.Reminder.Message,
+		ChannelExternalIdentifier: channel.ChannelIdentifier,
+	})
 	if err != nil {
 		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
 	}
 
 	msg := "I marked that reminder as done. " + random.MotivationalSentence()
-	_, err = s.messenger.SendReplyToEvent(msg, respondToEvent, channel, database.MessageTypeReminderDeleteSuccess)
+	err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+		msg,
+		evt.ID.String(),
+		respondToEvent.Content.Body,
+		respondToEvent.Event.Sender.String(),
+		channel.ChannelIdentifier,
+	))
 	return err
 }

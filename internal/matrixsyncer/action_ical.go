@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -38,7 +39,11 @@ func (s *Syncer) actionIcal(evt *types.MessageEvent, channel *database.Channel) 
 	}
 
 	message, messageFormatted := msg.Build()
+	go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(
+		message,
+		messageFormatted,
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeIcalLink, 0)
 
-	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeIcalLink, 0)
-	return err
+	return nil
 }

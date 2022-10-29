@@ -14,7 +14,7 @@ type Message struct {
 	BodyHTML           string
 	ReminderID         *uint `gorm:"index"`
 	Reminder           Reminder
-	ResponseToMessage  string `gorm:"index"`
+	ResponseToMessage  string `gorm:"index"` // External identifier of parent message
 	Type               MessageType
 	ChannelID          uint `gorm:"index"`
 	Channel            Channel

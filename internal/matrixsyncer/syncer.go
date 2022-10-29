@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/event"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
@@ -34,14 +36,14 @@ type Syncer struct {
 	daemon      *eventdaemon.Daemon
 	botSettings *configuration.BotSettings
 	botInfo     *types.BotInfo
-	messenger   types.Messenger
+	messenger   asyncmessenger.Messenger
 	cryptoStore crypto.Store
 	stateStore  *encryption.StateStore
 	debug       bool
 }
 
 // Create creates a new syncer
-func Create(config *configuration.Config, matrixAdminUsers []string, messenger types.Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
+func Create(config *configuration.Config, matrixAdminUsers []string, messenger asyncmessenger.Messenger, cryptoStore crypto.Store, stateStore *encryption.StateStore, matrixClient *mautrix.Client) *Syncer {
 	syncer := &Syncer{
 		config:      config.MatrixBotAccount,
 		baseURL:     config.Webserver.BaseURL,
@@ -148,7 +150,10 @@ func (s *Syncer) syncChannels() error {
 
 		channels = append(channels, channel)
 
-		_, _ = s.messenger.SendNotice("Sorry I was sleeping for a while. I am now ready for your requests!", channel.ChannelIdentifier)
+		_ = s.messenger.SendMessageAsync(asyncmessenger.PlainTextMessage(
+			"Sorry I was sleeping for a while. I am now ready for your requests!",
+			channel.ChannelIdentifier,
+		))
 	}
 
 	// Remove channels not needed anymore
@@ -215,4 +220,73 @@ func (s *Syncer) getReactionActions() []*types.ReactionAction {
 	reactionActions = append(reactionActions, s.getReactionActionReschedule(types.ReactionActionTypeReminder))
 
 	return reactionActions
+}
+
+// sendAndStoreMessage is a helper for storing outgoing messages
+// it can be used asynchronously
+func (s *Syncer) sendAndStoreMessage(message *asyncmessenger.Message, channel *database.Channel, messageType database.MessageType, reminderID uint) {
+	response, err := s.messenger.SendMessage(message)
+	if err != nil {
+		log.Warn("failed sending message with: " + err.Error())
+		return
+	}
+
+	if messageType != database.MessageTypeDoNotSave {
+		reminderIDReal := &reminderID
+		if reminderID <= 0 {
+			reminderIDReal = nil
+		}
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               message.Body,
+				BodyHTML:           message.BodyHTML,
+				Type:               messageType,
+				ChannelID:          channel.ID,
+				Timestamp:          time.Now().Unix(),
+				ExternalIdentifier: response.ExternalIdentifier,
+				ReminderID:         reminderIDReal,
+			},
+		)
+
+		if err != nil {
+			log.Warn("Failed to store message to database: " + err.Error())
+		}
+	}
+}
+
+// sendAndStoreReply is a helper for storing outgoing replies
+// it can be used asynchronously
+func (s *Syncer) sendAndStoreReply(message *asyncmessenger.Response, channel *database.Channel, messageType database.MessageType, reminderID uint) {
+	response, err := s.messenger.SendResponse(message)
+	if err != nil {
+		log.Warn("failed sending message with: " + err.Error())
+		return
+	}
+
+	if messageType != database.MessageTypeDoNotSave {
+		reminderIDReal := &reminderID
+		if reminderID <= 0 {
+			reminderIDReal = nil
+		}
+
+		body, bodyHTML := message.GetResponseMessage()
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               body,
+				BodyHTML:           bodyHTML,
+				Type:               messageType,
+				ChannelID:          channel.ID,
+				Timestamp:          time.Now().Unix(),
+				ExternalIdentifier: response.ExternalIdentifier,
+				ReminderID:         reminderIDReal,
+				ResponseToMessage:  message.RespondToEventID,
+			},
+		)
+
+		if err != nil {
+			log.Warn("Failed to store message to database: " + err.Error())
+		}
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -30,7 +31,21 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 
 	timeRemind, err := formater.ParseTime(evt.Content.Body, channel, true)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to understand the time.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
+		msg := "Sorry, I was not able to understand the time."
+		response, err := s.messenger.SendMessage(asyncmessenger.PlainTextMessage(msg, channel.ChannelIdentifier))
+		if err != nil {
+			return err
+		}
+
+		_, err = s.daemon.Database.AddMessage(
+			&database.Message{
+				Body:               msg,
+				BodyHTML:           msg,
+				Type:               database.MessageTypeDailyReminderUpdateFail,
+				ChannelID:          channel.ID,
+				ExternalIdentifier: response.ExternalIdentifier,
+			},
+		)
 		return err
 	}
 
@@ -38,11 +53,18 @@ func (s *Syncer) actionSetDailyReminder(evt *types.MessageEvent, channel *databa
 
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, &minutesSinceMidnight, channel.Role)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to save that.", evt, channel, database.MessageTypeDailyReminderUpdateFail)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", channel.ChannelIdentifier), c, database.MessageTypeDailyReminderUpdateFail, 0)
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent(fmt.Sprintf("I will send you a daily overview at %s. To disable this message me with \"delete daily reminder\".", formater.TimeToHourAndMinute(timeRemind)), evt, c, database.MessageTypeDailyReminderUpdateSuccess)
+	go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+		fmt.Sprintf("I will send you a daily overview at %s. To disable this message me with \"delete daily reminder\".", formater.TimeToHourAndMinute(timeRemind)),
+		c.ChannelIdentifier),
+		c,
+		database.MessageTypeDailyReminderUpdateSuccess,
+		0,
+	)
+
 	return err
 }
 
@@ -65,10 +87,16 @@ func (s *Syncer) actionDeleteDailyReminder(evt *types.MessageEvent, channel *dat
 
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
-		_, err = s.messenger.SendReplyToEvent("Sorry, I was not able to save that.", evt, channel, database.MessageTypeDailyReminderDeleteFail)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage("Sorry, I was not able to save that.", c.ChannelIdentifier), channel, database.MessageTypeDailyReminderDeleteFail, 0)
 		return err
 	}
 
-	_, err = s.messenger.SendReplyToEvent("I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\".", evt, c, database.MessageTypeDailyReminderDeleteSuccess)
-	return err
+	go s.sendAndStoreMessage(
+		asyncmessenger.PlainTextMessage("I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\".", c.ChannelIdentifier),
+		c,
+		database.MessageTypeDailyReminderDeleteSuccess,
+		0,
+	)
+
+	return nil
 }

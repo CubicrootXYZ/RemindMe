@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -19,7 +20,7 @@ import (
 // StateMemberHandler handles state_member events
 type StateMemberHandler struct {
 	database     types.Database
-	messenger    types.Messenger
+	messenger    asyncmessenger.Messenger
 	matrixClient *mautrix.Client
 	botInfo      *types.BotInfo
 	botSettings  *configuration.BotSettings
@@ -28,7 +29,7 @@ type StateMemberHandler struct {
 }
 
 // NewStateMemberHandler returns a new StateMemberHandler
-func NewStateMemberHandler(database types.Database, messenger types.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo, botSettings *configuration.BotSettings, olm *crypto.OlmMachine) *StateMemberHandler {
+func NewStateMemberHandler(database types.Database, messenger asyncmessenger.Messenger, matrixClient *mautrix.Client, botInfo *types.BotInfo, botSettings *configuration.BotSettings, olm *crypto.OlmMachine) *StateMemberHandler {
 	return &StateMemberHandler{
 		database:     database,
 		messenger:    messenger,
@@ -130,11 +131,31 @@ func (s *StateMemberHandler) handleInvite(evt *event.Event, content *event.Membe
 		return err
 	}
 
-	message, messageFormatted := getWelcomeMessage()
-	_, err = s.messenger.SendFormattedMessage(message, messageFormatted, channel, database.MessageTypeWelcome, 0)
-	if err != nil {
-		return err
-	}
+	go func(channel *database.Channel) {
+		message, messageFormatted := getWelcomeMessage()
+
+		resp, err := s.messenger.SendMessage(asyncmessenger.HTMLMessage(
+			message,
+			messageFormatted,
+			channel.ChannelIdentifier,
+		))
+		if err != nil {
+			log.Info("Failed to send message: " + err.Error())
+			return
+		}
+
+		_, err = s.database.AddMessage(&database.Message{
+			Body:               message,
+			BodyHTML:           messageFormatted,
+			Type:               database.MessageTypeWelcome,
+			ChannelID:          channel.ID,
+			Timestamp:          resp.Timestamp,
+			ExternalIdentifier: resp.ExternalIdentifier,
+		})
+		if err != nil {
+			log.Info("Failed saving message into database: " + err.Error())
+		}
+	}(channel)
 
 	err = s.addMemberEventToDatabase(evt, content)
 

@@ -5,19 +5,21 @@ import (
 	"sync"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 )
 
 // Daemon holds all information for the reminder daemon
 type Daemon struct {
 	Database  Database
-	Messenger Messenger
+	Messenger asyncmessenger.Messenger
 }
 
 // Create creates a new reminder daemon
-func Create(db Database, messenger Messenger) *Daemon {
+func Create(db Database, messenger asyncmessenger.Messenger) *Daemon {
 	return &Daemon{
 		Database:  db,
 		Messenger: messenger,
@@ -65,27 +67,58 @@ func (d *Daemon) sendOutReminders(reminders []database.Reminder) {
 			log.Warn("Can not get original message: " + err.Error())
 			continue
 		}
-		message, err := d.Messenger.SendReminder(&reminders[i], originalMessage)
-		if err == errors.ErrEmptyChannel {
-			_, err = d.Database.SetReminderDone(&reminders[i])
-			if err != nil {
-				log.Warn("Can not set reminder done: " + err.Error())
-			}
-			continue
-		} else if err != nil {
-			log.Warn(fmt.Sprintf("Failed to send reminder %d with: %s", reminders[i].ID, err.Error()))
-			continue
-		}
 
-		_, err = d.Database.SetReminderDone(&reminders[i])
-		if err != nil {
-			log.Warn("Can not set reminder done: " + err.Error())
-		}
+		go d.sendReminder(&reminders[i], originalMessage)
+	}
+}
 
-		_, err = d.Database.AddMessage(message)
+func (d *Daemon) sendReminder(reminder *database.Reminder, originalMessage *database.Message) {
+	if reminder.Channel.ID == 0 {
+		log.Error("Can not send reminders to empty channels")
+		return
+	}
+
+	message, messageFormatted := formater.ReminderToMessage(reminder)
+
+	responseMessage := &asyncmessenger.Response{
+		Message:                   message,
+		MessageFormatted:          messageFormatted,
+		RespondToMessage:          originalMessage.Body,
+		RespondToMessageFormatted: originalMessage.BodyHTML,
+		RespondToEventID:          originalMessage.ExternalIdentifier,
+		ChannelExternalIdentifier: reminder.Channel.ChannelIdentifier,
+	}
+	resp, err := d.Messenger.SendResponse(responseMessage)
+	if err != nil {
+		log.Error("Failed to send reminder message: " + err.Error())
+		return
+	}
+
+	for _, reaction := range types.ReactionsReminder {
+		err = d.Messenger.SendReactionAsync(&asyncmessenger.Reaction{
+			Reaction:                  reaction,
+			MessageExternalIdentifier: resp.ExternalIdentifier,
+			ChannelExternalIdentifier: reminder.Channel.ChannelIdentifier,
+		})
 		if err != nil {
-			log.Warn("Can not save message: " + err.Error())
+			log.Error("Failed to send reaction " + reaction + " to reminder message: " + err.Error())
 		}
-		time.Sleep(time.Millisecond * 500) // Avoid running in rate limits
+	}
+	_, err = d.Database.AddMessage(&database.Message{
+		Body:               message,
+		BodyHTML:           messageFormatted,
+		ReminderID:         &reminder.ID,
+		ChannelID:          reminder.ChannelID,
+		Type:               database.MessageTypeReminder,
+		Timestamp:          resp.Timestamp,
+		ExternalIdentifier: resp.ExternalIdentifier,
+	})
+	if err != nil {
+		log.Error("Failed saving reminder message: " + err.Error())
+	}
+
+	_, err = d.Database.SetReminderDone(reminder)
+	if err != nil {
+		log.Error("Failed setting reminder done: " + err.Error())
 	}
 }

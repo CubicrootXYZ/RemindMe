@@ -1,6 +1,7 @@
 package matrixsyncer
 
 import (
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
@@ -21,11 +22,17 @@ func (s *Syncer) reactionActionDeleteDailyReminder(message *database.Message, co
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
 		log.Error(err.Error())
-		msg := "Sorry I was not able to delete the daily reminder."
-		_, _ = s.messenger.SendFormattedMessage(msg, msg, c, database.MessageTypeDailyReminderDeleteSuccess, 0)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+			"Sorry I was not able to delete the daily reminder.",
+			c.ChannelIdentifier,
+		), c, database.MessageTypeDailyReminderDeleteFail, 0)
+		return err
 	}
 
-	msg := "I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\"."
-	_, err = s.messenger.SendFormattedMessage(msg, msg, c, database.MessageTypeDailyReminderDeleteSuccess, 0)
-	return err
+	go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+		"I will no longer send you a daily message. To reactivate this feature message me with \"set daily reminder at 10:00\".",
+		c.ChannelIdentifier,
+	), c, database.MessageTypeDailyReminderDeleteSuccess, 0)
+
+	return nil
 }

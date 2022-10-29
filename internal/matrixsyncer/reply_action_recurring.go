@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/gonaturalduration"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -27,8 +28,11 @@ func (s *Syncer) getReplyActionRecurring(rtt []database.MessageType) *types.Repl
 func (s *Syncer) replyActionRecurring(evt *types.MessageEvent, channel *database.Channel, replyMessage *database.Message) error {
 	if replyMessage.ReminderID == nil {
 		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", replyMessage.ReminderID)
-		msgFormatted := msg
-		_, _ = s.messenger.SendFormattedMessage(msg, msgFormatted, channel, database.MessageTypeReminderRecurringFail, 0)
+		go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+			msg,
+			channel.ChannelIdentifier,
+		), channel, database.MessageTypeReminderRecurringFail, 0)
+
 		return errors.ErrIDNotSet
 	}
 
@@ -55,11 +59,14 @@ func (s *Syncer) replyActionRecurring(evt *types.MessageEvent, channel *database
 
 	lastRemind := reminder.RemindTime.Add(duration * repeatTimes)
 
-	msg := fmt.Sprintf("Updated the reminder to remind you every %s until %s", formater.ToNiceDuration(duration), formater.ToLocalTime(lastRemind, channel))
-	_, err = s.messenger.SendReplyToEvent(msg, evt, channel, database.MessageTypeReminderRecurringSuccess)
-	if err != nil {
-		log.Error(err.Error())
-		return err
-	}
-	return err
+	msg := fmt.Sprintf("Updated the reminder to remind you every %s until %s", formater.ToNiceDuration(duration), formater.ToLocalTime(lastRemind, channel.TimeZone))
+	go s.sendAndStoreReply(asyncmessenger.PlainTextResponse(
+		msg,
+		evt.Event.ID.String(),
+		evt.Content.Body,
+		evt.Event.Sender.String(),
+		channel.ChannelIdentifier,
+	), channel, database.MessageTypeReminderRecurringSuccess, 0)
+
+	return nil
 }
