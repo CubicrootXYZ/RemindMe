@@ -9,9 +9,11 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
+	"maunium.net/go/maulogger/v2"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
+	"maunium.net/go/mautrix/util/dbutil"
 
 	_ "github.com/mattn/go-sqlite3" // driver for sqlite3
 )
@@ -41,13 +43,14 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 		deviceID = id.DeviceID(config.DeviceID)
 	}
 
-	logger, err := newCryptoLogger(debug)
+	cryptoDB, err := dbutil.NewWithDB(db, "sqlite3")
 	if err != nil {
 		return nil, deviceID, err
 	}
-	cryptoStore := crypto.NewSQLCryptoStore(db, "sqlite3", username, deviceID, []byte(config.DeviceKey), logger)
 
-	err = cryptoStore.CreateTables()
+	cryptoStore := crypto.NewSQLCryptoStore(cryptoDB, dbutil.MauLogger(maulogger.Create()), username, deviceID, []byte(config.DeviceKey))
+
+	err = cryptoStore.Upgrade()
 	if err != nil {
 		return nil, deviceID, err
 	}

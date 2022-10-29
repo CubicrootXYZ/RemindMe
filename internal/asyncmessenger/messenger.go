@@ -40,8 +40,6 @@ func NewMessenger(debug bool, config *configuration.Config, db types.Database, c
 	var olm *crypto.OlmMachine
 	if config.MatrixBotAccount.E2EE {
 		olm = encryption.GetOlmMachine(debug, matrixClient, cryptoStore, db, stateStore)
-		olm.AllowUnverifiedDevices = true
-		olm.ShareKeysToUnverifiedDevices = true
 		err := olm.Load()
 		if err != nil {
 			return nil, err
