@@ -19,6 +19,7 @@ import (
 )
 
 // GetCryptoStore initializes a sql crypto store
+//
 //lint:ignore SA4009 Try to move to MySQL later
 func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypto.Store, id.DeviceID, error) {
 	var deviceID id.DeviceID

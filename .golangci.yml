@@ -27,11 +27,21 @@ linters:
     - stylecheck # Formatting
     - testpackage # Naming
     - exhaustive # To many false positives
+    - interfacebloat # Do not agree
     # deprecated
     - scopelint
     - maligned
     - interfacer
     - golint
+    - deadcode
+    - varcheck
+    - structcheck
+    - ifshort
+    - nosnakecase
+    - rowserrcheck
+    - sqlclosecheck
+    - structcheck
+    - wastedassign
 
 linters-settings:
   cyclop:
