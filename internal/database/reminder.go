@@ -11,14 +11,17 @@ import (
 // Reminder is the database object for a reminder
 type Reminder struct {
 	gorm.Model
-	RemindTime     time.Time `gorm:"index"`
-	Message        string
-	Active         bool `gorm:"index"`
-	RepeatInterval uint64
-	RepeatMax      uint64
-	Repeated       *uint64
-	ChannelID      uint `gorm:"index"`
-	Channel        Channel
+	RemindTime                   time.Time `gorm:"index"`
+	Message                      string
+	Active                       bool `gorm:"index"`
+	RepeatInterval               uint64
+	RepeatMax                    uint64
+	Repeated                     *uint64
+	ChannelID                    uint `gorm:"index"`
+	Channel                      Channel
+	ThirdPartyResourceID         *uint `gorm:"index"`
+	ThirdPartyResource           ThirdPartyResource
+	ThirdPartyResourceIdentifier string
 }
 
 // GET DATA
