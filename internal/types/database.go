@@ -16,6 +16,7 @@ type Database interface {
 	GetReminderForChannelIDByID(channelID string, reminderID int) (*database.Reminder, error)
 
 	AddReminder(remindTime time.Time, message string, active bool, repeatInterval uint64, channel *database.Channel) (*database.Reminder, error)
+	AddOrUpdateThirdPartyResourceReminder(remindTime time.Time, message string, channelID uint, thirdPartyResourceID uint, thirdPartyResourceIdentifier string) (*database.Reminder, error)
 
 	UpdateReminder(reminderID uint, remindTime time.Time, repeatInterval uint64, repeatTimes uint64) (*database.Reminder, error)
 
@@ -62,4 +63,7 @@ type Database interface {
 	RemoveUserFromBlocklist(userID string) error
 
 	SQLDB() (*sql.DB, error)
+
+	// ThirdPartyResources
+	GetThirdPartyResources(resourceType database.ThirdPartyResourceType) ([]database.ThirdPartyResource, error)
 }
