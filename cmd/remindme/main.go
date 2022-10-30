@@ -12,6 +12,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/eventdaemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/icalimporter"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
@@ -134,6 +135,17 @@ func startup() error {
 		server := api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		wg.Add(1)
 		go server.Start(config.Debug)
+	}
+
+	// Start the ical importer
+	if config.BotSettings.AllowIcalImport {
+		log.Debug("Starting up ical importer")
+		icalImporter := icalimporter.NewIcalImporter(db)
+		wg.Add(1)
+		go func() {
+			icalImporter.Run()
+			wg.Done()
+		}()
 	}
 
 	log.Info("Started successfully :)")
