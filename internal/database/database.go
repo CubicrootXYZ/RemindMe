@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/CubicrootXYZ/gormlogger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
@@ -9,6 +10,11 @@ import (
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
 	"maunium.net/go/mautrix"
+)
+
+// List of errors the package might return
+var (
+	ErrThirdPartyResourceTypeUnknown = errors.New("third party resource type is not known")
 )
 
 // Database holds all information for connecting to the database

@@ -91,6 +91,55 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// PostChannelThirdPartyResource godoc
+// @Summary Add a third party resource to a channel
+// @Description Add a third party resource to a channel.
+// @Tags Channels
+// @Security Admin-Authentication
+// @Produce json
+// @Param id path string true "Internal channel ID"
+// @Param payload body postChannelThirdPartyResourceData true "payload"
+// @Success 200 {object} types.MessageSuccessResponse
+// @Failure 401 {object} types.MessageErrorResponse
+// @Failure 404 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
+// @Router /channel/{id} [delete]
+func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.Context) {
+	channelID, err := getUintFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	channel, err := databaseHandler.database.GetChannel(channelID)
+	if err != nil {
+		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, err)
+		return
+	}
+
+	data := &postChannelThirdPartyResourceData{}
+	err = ctx.ShouldBindJSON(data)
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	resourceType, err := database.ThirdPartyResourceTypeFromString(data.Type)
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageUnknownType, err)
+		return
+	}
+	resource, err := databaseHandler.database.AddThirdPartyResource(&database.ThirdPartyResource{})
+
+	response := types.MessageSuccessResponse{
+		Status:  "success",
+		Message: "Added the resource",
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
 // PutUser godoc
 // @Summary Change a User
 // @Description Changes the settings or data for a matrix user.
