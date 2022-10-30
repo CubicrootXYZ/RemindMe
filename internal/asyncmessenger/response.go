@@ -21,7 +21,7 @@ func (response *Response) GetResponseMessage() (message, messageFormatted string
 	message = fmt.Sprintf(
 		"> <%s>%s\n\n%s",
 		response.RespondToUserID,
-		response.RespondToMessage,
+		formater.StripReply(response.RespondToMessage),
 		response.Message,
 	)
 
@@ -32,7 +32,7 @@ func (response *Response) GetResponseMessage() (message, messageFormatted string
 		formater.GetHomeserverFromUserID(response.RespondToUserID),
 		response.RespondToUserID,
 		response.RespondToUserID,
-		response.RespondToMessageFormatted,
+		formater.StripReplyFormatted(response.RespondToMessageFormatted),
 		response.MessageFormatted,
 	)
 
