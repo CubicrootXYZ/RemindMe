@@ -66,4 +66,5 @@ type Database interface {
 
 	// ThirdPartyResources
 	GetThirdPartyResources(resourceType database.ThirdPartyResourceType) ([]database.ThirdPartyResource, error)
+	AddThirdPartyResource(resource *database.ThirdPartyResource) (*database.ThirdPartyResource, error)
 }

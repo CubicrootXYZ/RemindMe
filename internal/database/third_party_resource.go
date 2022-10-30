@@ -1,11 +1,25 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"strings"
+
+	"gorm.io/gorm"
+)
 
 type ThirdPartyResourceType string
 
 func (resourceType ThirdPartyResourceType) String() string {
 	return string(resourceType)
+}
+
+// ThirdPartyResourceTypeFromString parses the resource type from a string
+func ThirdPartyResourceTypeFromString(resourceType string) (ThirdPartyResourceType, error) {
+	switch strings.ToLower(strings.TrimSpace(resourceType)) {
+	case "ical":
+		return ThirdPartyResourceTypeIcal, nil
+	}
+
+	return ThirdPartyResourceType(""), ErrThirdPartyResourceTypeUnknown
 }
 
 // List of available third party resource types
