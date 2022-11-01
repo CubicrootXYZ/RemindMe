@@ -14,6 +14,10 @@ type idInURI struct {
 	ID uint `uri:"id" binding:"required"`
 }
 
+type id2InURI struct {
+	ID2 uint `uri:"id2" binding:"required"`
+}
+
 type stringIDInURI struct {
 	ID string `uri:"id" binding:"required"`
 }
@@ -65,6 +69,19 @@ func RequireIDInURI() gin.HandlerFunc {
 		}
 
 		ctx.Set("id", requestModel.ID)
+	}
+}
+
+// RequireID2InURI returns a Gin middleware which requires an ID2 of the type uint to be supplied in the URI of the request.
+func RequireID2InURI() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var requestModel id2InURI
+
+		if err := ctx.BindUri(&requestModel); err != nil {
+			return
+		}
+
+		ctx.Set("id2", requestModel.ID2)
 	}
 }
 

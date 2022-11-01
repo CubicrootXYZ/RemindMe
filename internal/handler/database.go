@@ -166,8 +166,12 @@ func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.C
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageUnknownType, err)
 		return
-
 	}
+
+	if data.ResourceURL == "" {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageMissingURL, nil)
+	}
+
 	_, err = databaseHandler.database.AddThirdPartyResource(&database.ThirdPartyResource{
 		Type:        resourceType,
 		ChannelID:   channel.ID,
@@ -181,6 +185,73 @@ func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.C
 	response := types.MessageSuccessResponse{
 		Status:  "success",
 		Message: "Added the resource",
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+// DeleteChannelThirdPartyResource godoc
+// @Summary Delete a third party resource
+// @Description Delete a third party resource.
+// @Tags Channels
+// @Security Admin-Authentication
+// @Produce json
+// @Param id path string true "Internal channel ID"
+// @Param id2 path string true "Internal third party resource ID"
+// @Param payload body postChannelThirdPartyResourceData true "payload"
+// @Success 200 {object} types.MessageSuccessResponse
+// @Failure 401 {object} types.MessageErrorResponse
+// @Failure 404 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
+// @Router /channel/{id}/thirdpartyresources/{id2} [delete]
+func (databaseHandler *DatabaseHandler) DeleteChannelThirdPartyResource(ctx *gin.Context) {
+	channelID, err := getUintFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	channel, err := databaseHandler.database.GetChannel(channelID)
+	if err != nil {
+		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, err)
+		return
+	}
+
+	resourceID, err := getUintFromContext(ctx, "id2")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	resources, err := databaseHandler.database.GetThirdPartyResourcesByChannel(channel.ID)
+	if err != nil {
+		abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+		return
+	}
+
+	resourceIsInChannel := false
+	for _, resource := range resources {
+		if resource.ID == resourceID {
+			resourceIsInChannel = true
+			break
+		}
+	}
+
+	if !resourceIsInChannel {
+		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, nil)
+		return
+	}
+
+	err = databaseHandler.database.DeleteThirdPartyResource(resourceID)
+	if err != nil {
+		abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+		return
+	}
+
+	response := types.MessageSuccessResponse{
+		Status:  "success",
+		Message: "Deleted the resource",
 	}
 
 	ctx.JSON(http.StatusOK, response)
