@@ -38,7 +38,7 @@ type ThirdPartyResource struct {
 // GetThirdPartyResources lists all resources with the given type
 func (d *Database) GetThirdPartyResources(resourceType ThirdPartyResourceType) ([]ThirdPartyResource, error) {
 	resources := make([]ThirdPartyResource, 0)
-	err := d.db.Find(&resources, "type = ?", resourceType.String()).Error
+	err := d.db.Joins("Channel").Find(&resources, "type = ?", resourceType.String()).Error
 
 	return resources, err
 }
@@ -46,7 +46,7 @@ func (d *Database) GetThirdPartyResources(resourceType ThirdPartyResourceType) (
 // GetThirdPartyResourcesByChannel lists all resources in the given channel
 func (d *Database) GetThirdPartyResourcesByChannel(channelID uint) ([]ThirdPartyResource, error) {
 	resources := make([]ThirdPartyResource, 0)
-	err := d.db.Find(&resources, "channel_id = ?", channelID).Error
+	err := d.db.Joins("Channel").Find(&resources, "channel_id = ?", channelID).Error
 
 	return resources, err
 }
