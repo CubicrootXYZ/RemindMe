@@ -10,6 +10,6 @@ type getUsersData struct {
 }
 
 type postChannelThirdPartyResourceData struct {
-	Type        string `json:"type"`         // the type of resource to add
-	ResourceURL string `json:"resource_url"` // url to the resource
+	Type        string `json:"type" enums:"ical"` // the type of resource to add
+	ResourceURL string `json:"url"`               // url to the resource
 }
