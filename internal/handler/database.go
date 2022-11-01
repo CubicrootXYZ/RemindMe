@@ -91,6 +91,43 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
+// GetChannelThirdPartyResource godoc
+// @Summary Get third party resources
+// @Description Lists all third party resources in this channel.
+// @Tags Channels
+// @Security Admin-Authentication
+// @Produce json
+// @Param id path string true "Internal channel ID"
+// @Success 200 {object} types.DataResponse{data=[]thirdPartyResourceResponse}
+// @Failure 401 {object} types.MessageErrorResponse
+// @Failure 404 {object} types.MessageErrorResponse
+// @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
+// @Failure 500 ""
+// @Router /channel/{id}/thirdpartyresources [get]
+func (databaseHandler *DatabaseHandler) GetChannelThirdPartyResource(ctx *gin.Context) {
+	channelID, err := getUintFromContext(ctx, "id")
+	if err != nil {
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		return
+	}
+
+	channel, err := databaseHandler.database.GetChannel(channelID)
+	if err != nil {
+		abort(ctx, http.StatusNotFound, ResponseMessageNotFound, err)
+		return
+	}
+
+	resources, err := databaseHandler.database.GetThirdPartyResourcesByChannel(channel.ID)
+	if err != nil {
+		abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+		return
+	}
+
+	response := thirdPartyResourcesToResponse(resources)
+
+	ctx.JSON(http.StatusOK, response)
+}
+
 // PostChannelThirdPartyResource godoc
 // @Summary Add a third party resource to a channel
 // @Description Add a third party resource to a channel.
@@ -104,7 +141,7 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 // @Failure 404 {object} types.MessageErrorResponse
 // @Failure 422 {object} types.MessageErrorResponse "Input validation failed"
 // @Failure 500 ""
-// @Router /channel/{id} [delete]
+// @Router /channel/{id}/thirdpartyresources [post]
 func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.Context) {
 	channelID, err := getUintFromContext(ctx, "id")
 	if err != nil {
@@ -129,8 +166,17 @@ func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.C
 	if err != nil {
 		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageUnknownType, err)
 		return
+
 	}
-	resource, err := databaseHandler.database.AddThirdPartyResource(&database.ThirdPartyResource{})
+	_, err = databaseHandler.database.AddThirdPartyResource(&database.ThirdPartyResource{
+		Type:        resourceType,
+		ChannelID:   channel.ID,
+		ResourceURL: data.ResourceURL,
+	})
+	if err != nil {
+		abort(ctx, http.StatusInternalServerError, ResponseMessageInternalServerError, err)
+		return
+	}
 
 	response := types.MessageSuccessResponse{
 		Status:  "success",
@@ -324,4 +370,22 @@ func uniqueString(slice []string) []string {
 		}
 	}
 	return list
+}
+
+func thirdPartyResourceToResponse(resource *database.ThirdPartyResource) thirdPartyResourceResponse {
+	return thirdPartyResourceResponse{
+		ID:          resource.ID,
+		Type:        resource.Type.String(),
+		ResourceURL: resource.ResourceURL,
+	}
+}
+
+func thirdPartyResourcesToResponse(resources []database.ThirdPartyResource) []thirdPartyResourceResponse {
+	response := make([]thirdPartyResourceResponse, len(resources))
+
+	for i := range resources {
+		response[i] = thirdPartyResourceToResponse(&resources[i])
+	}
+
+	return response
 }
