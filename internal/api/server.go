@@ -56,7 +56,8 @@ func (server *Server) Start(debug bool) {
 	{
 		channelGroup.GET("", server.database.GetChannels)
 		channelGroup.DELETE("/:id", RequireIDInURI(), server.database.DeleteChannel)
-		channelGroup.POST("/:id/thirdparty/ical", RequireIDInURI())
+		channelGroup.POST("/:id/thirdpartyresources", RequireIDInURI(), server.database.PostChannelThirdPartyResource)
+		channelGroup.GET("/:id/thirdpartyresources", RequireIDInURI(), server.database.GetChannelThirdPartyResource)
 	}
 
 	userGroup := r.Group("/user")

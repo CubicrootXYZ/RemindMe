@@ -42,3 +42,25 @@ func (d *Database) GetThirdPartyResources(resourceType ThirdPartyResourceType) (
 
 	return resources, err
 }
+
+// GetThirdPartyResourcesByChannel lists all resources in the given channel
+func (d *Database) GetThirdPartyResourcesByChannel(channelID uint) ([]ThirdPartyResource, error) {
+	resources := make([]ThirdPartyResource, 0)
+	err := d.db.Find(&resources, "channel_id = ?", channelID).Error
+
+	return resources, err
+}
+
+// AddThirdPartyResource adds a third party resource to the database
+func (d *Database) AddThirdPartyResource(resource *ThirdPartyResource) (*ThirdPartyResource, error) {
+	err := d.db.Create(resource).Error
+
+	return resource, err
+}
+
+// DeleteThirdPartyResource deletes the third party resource with the given ID
+func (d *Database) DeleteThirdPartyResource(id uint) error {
+	err := d.db.Unscoped().Delete(&ThirdPartyResource{}, "id = ?", id).Error
+
+	return err
+}

@@ -40,3 +40,9 @@ type userResponse struct {
 	Channels       []channelResponse `json:"channels"` // All channels known with the user
 	Comment        string            `json:"comment"`
 }
+
+type thirdPartyResourceResponse struct {
+	ID          uint   `json:"id"`   // Internal id
+	Type        string `json:"type"` // The resources type
+	ResourceURL string `json:"url"`  // The resources URL
+}
