@@ -28,7 +28,7 @@ func NewIcalImporter(db types.Database) IcalImporter {
 
 // Run runs the importer, call this within a goroutine.
 func (importer *icalimporter) Run() {
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(30 * time.Minute)
 	for {
 		select {
 		case <-importer.stop:
