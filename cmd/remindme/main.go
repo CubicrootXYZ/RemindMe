@@ -16,6 +16,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
+	"go.uber.org/zap"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
@@ -54,30 +55,13 @@ func startup() error {
 	log.Info("Starting up bot")
 	wg := sync.WaitGroup{}
 
-	// Make data directory
-	err := os.MkdirAll("data", 0755)
-	if err != nil {
-		return err
-	}
-
-	// Load config
-	config, err := configuration.Load([]string{"config.yml"})
-	if err != nil {
-		return err
-	}
-
-	// Initialize logger
-	logger := log.InitLogger(config.Debug)
+	config, logger, db, err := setupBasics()
 	defer func() {
 		err = logger.Sync()
 		if err != nil {
 			log.Error("Failed to sync logger: " + err.Error())
 		}
 	}()
-
-	// Set up database
-	log.Debug("Initializing database")
-	db, err := database.Create(config.Database, config.Debug)
 	if err != nil {
 		return err
 	}
@@ -153,6 +137,32 @@ func startup() error {
 	log.Info("Stopped Bot")
 
 	return nil
+}
+
+func setupBasics() (*configuration.Config, *zap.SugaredLogger, *database.Database, error) {
+	// Make data directory
+	err := os.MkdirAll("data", 0755)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Load config
+	config, err := configuration.Load([]string{"config.yml"})
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Initialize logger
+	logger := log.InitLogger(config.Debug)
+
+	// Set up database
+	log.Debug("Initializing database")
+	db, err := database.Create(config.Database, config.Debug)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return config, logger, db, nil
 }
 
 func initializeEncryptionSetup(config *configuration.Matrix, db *database.Database, debug bool) (cryptoStore crypto.Store, stateStore *encryption.StateStore, deviceID id.DeviceID, err error) {
