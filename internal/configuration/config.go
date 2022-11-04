@@ -22,9 +22,10 @@ type Matrix struct {
 
 // BotSettings holds information about the bot itself
 type BotSettings struct {
-	AllowInvites  bool
-	MaxUser       int64 `default:"-1"`
-	SendReactions bool
+	AllowInvites    bool
+	MaxUser         int64 `default:"-1"`
+	SendReactions   bool
+	AllowIcalImport bool
 }
 
 // Database holds all data for connection to the database

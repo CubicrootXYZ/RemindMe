@@ -19,6 +19,7 @@ matrixbotaccount:
   devicekey: "dlfjgaöldf"
 
 # Matrix username to interact with
+# they will all be granted admin permissions
 matrixusers: 
   - "yourmatrixuser"
   - "anotheruser"
@@ -33,6 +34,9 @@ botsettings:
   # Set to true to let the bot send reactions
   # enabling this will drastically increase send events, for heavy use you might run into rate limits of the bots instance
   sendreactions: false
+  # Allow users (only admin users) to import reminders from an Ical link
+  # THIS IS CURRENTLY IN BETA TESTING, DO NOT ENABLE IF YOU DO NOT KNOW WHAT YOU ARE DOING
+  allowicalimport: false
 
 # Database settings
 database:

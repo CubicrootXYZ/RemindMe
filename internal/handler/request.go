@@ -8,3 +8,8 @@ type putUserData struct {
 type getUsersData struct {
 	Include []string `form:"include[]"`
 }
+
+type postChannelThirdPartyResourceData struct {
+	Type        string `json:"type" enums:"ical"` // the type of resource to add
+	ResourceURL string `json:"url"`               // url to the resource
+}

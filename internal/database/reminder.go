@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -11,14 +12,17 @@ import (
 // Reminder is the database object for a reminder
 type Reminder struct {
 	gorm.Model
-	RemindTime     time.Time `gorm:"index"`
-	Message        string
-	Active         bool `gorm:"index"`
-	RepeatInterval uint64
-	RepeatMax      uint64
-	Repeated       *uint64
-	ChannelID      uint `gorm:"index"`
-	Channel        Channel
+	RemindTime                   time.Time `gorm:"index"`
+	Message                      string
+	Active                       bool `gorm:"index"`
+	RepeatInterval               uint64
+	RepeatMax                    uint64
+	Repeated                     *uint64
+	ChannelID                    uint `gorm:"index"`
+	Channel                      Channel
+	ThirdPartyResourceID         *uint `gorm:"index"`
+	ThirdPartyResource           ThirdPartyResource
+	ThirdPartyResourceIdentifier string
 }
 
 // GET DATA
@@ -122,6 +126,25 @@ func (d *Database) AddReminder(remindTime time.Time, message string, active bool
 
 	err := d.db.Create(&reminder).Error
 
+	return &reminder, err
+}
+
+// AddOrUpdateThirdPartyResourceReminder inserts a new reminder from a third party resource or updates an existing one if already present
+func (d *Database) AddOrUpdateThirdPartyResourceReminder(remindTime time.Time, message string, channelID uint, thirdPartyResourceID uint, thirdPartyResourceIdentifier string) (*Reminder, error) {
+	reminder := Reminder{}
+	err := d.db.First(&reminder, "channel_id = ? AND third_party_resource_id = ? AND third_party_resource_identifier = ?", channelID, thirdPartyResourceID, thirdPartyResourceIdentifier).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	reminder.Message = message
+	reminder.RemindTime = remindTime
+	reminder.Active = true
+	reminder.ChannelID = channelID
+	reminder.ThirdPartyResourceID = &thirdPartyResourceID
+	reminder.ThirdPartyResourceIdentifier = thirdPartyResourceIdentifier
+
+	err = d.db.Save(&reminder).Error
 	return &reminder, err
 }
 

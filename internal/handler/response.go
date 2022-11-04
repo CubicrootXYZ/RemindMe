@@ -14,6 +14,8 @@ const (
 	ResponseMessageNotFound            = ResponseMessage("entity not found")
 	ResponseMessageNoID                = ResponseMessage("missing ID in request")
 	ResponseMessageUnauthorized        = ResponseMessage("Unauthorized")
+	ResponseMessageUnknownType         = ResponseMessage("type is not known")
+	ResponseMessageMissingURL          = ResponseMessage("url is missing")
 )
 
 type calendarResponse struct {
@@ -38,4 +40,10 @@ type userResponse struct {
 	Blocked        bool              `json:"blocked"`
 	Channels       []channelResponse `json:"channels"` // All channels known with the user
 	Comment        string            `json:"comment"`
+}
+
+type thirdPartyResourceResponse struct {
+	ID          uint   `json:"id"`   // Internal id
+	Type        string `json:"type"` // The resources type
+	ResourceURL string `json:"url"`  // The resources URL
 }
