@@ -1,10 +1,12 @@
 package icalimporter
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	ical "github.com/arran4/golang-ical"
 )
@@ -23,7 +25,17 @@ func getNameFromEvent(event *ical.VEvent) string {
 }
 
 func getFileContent(url string) (string, error) {
-	resp, err := http.Get(url)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Accept", "text/calendar")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
