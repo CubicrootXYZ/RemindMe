@@ -25,7 +25,7 @@ func NewCalendarHandler(database types.Database) *CalendarHandler {
 // @Summary List all calendars
 // @Description List all available calendars
 // @Tags Calendars
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]calendarResponse}
 // @Failure 401 {object} types.MessageErrorResponse
@@ -107,7 +107,7 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 // @Summary Renew calendar secret
 // @Description Regenerates the calendars secret
 // @Tags Calendars
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param id path int true "Calendar ID"
 // @Success 200 {object} types.MessageSuccessResponse

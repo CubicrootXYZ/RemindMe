@@ -24,7 +24,7 @@ func NewDatabaseHandler(database types.Database) *DatabaseHandler {
 // @Summary List all channels
 // @Description List all channels
 // @Tags Channels
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Success 200 {object} types.DataResponse{data=[]channelResponse}
 // @Failure 401 {object} types.MessageErrorResponse
@@ -55,7 +55,7 @@ func (databaseHandler *DatabaseHandler) GetChannels(ctx *gin.Context) {
 // @Summary Delete a channel
 // @Description Delete a channel and remove access for this user. If the bot is open for invites the user can simply start a new chat.
 // @Tags Channels
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param id path string true "Internal channel ID"
 // @Success 200 {object} types.MessageSuccessResponse
@@ -95,7 +95,7 @@ func (databaseHandler *DatabaseHandler) DeleteChannel(ctx *gin.Context) {
 // @Summary Get third party resources
 // @Description Lists all third party resources in this channel.
 // @Tags Channels
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param id path string true "Internal channel ID"
 // @Success 200 {object} types.DataResponse{data=[]thirdPartyResourceResponse}
@@ -132,7 +132,7 @@ func (databaseHandler *DatabaseHandler) GetChannelThirdPartyResource(ctx *gin.Co
 // @Summary Add a third party resource to a channel
 // @Description Add a third party resource to a channel.
 // @Tags Channels
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param id path string true "Internal channel ID"
 // @Param payload body postChannelThirdPartyResourceData true "payload"
@@ -194,7 +194,7 @@ func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.C
 // @Summary Delete a third party resource
 // @Description Delete a third party resource.
 // @Tags Channels
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param id path string true "Internal channel ID"
 // @Param id2 path string true "Internal third party resource ID"
@@ -261,7 +261,7 @@ func (databaseHandler *DatabaseHandler) DeleteChannelThirdPartyResource(ctx *gin
 // @Summary Change a User
 // @Description Changes the settings or data for a matrix user.
 // @Tags Users
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Accept json
 // @Produce json
 // @Param id path string true "Matrix account ID, user URL encoding where required"
@@ -336,7 +336,7 @@ func (databaseHandler *DatabaseHandler) unblockUserID(userID string) error {
 // @Summary Get all Users
 // @Description Lists all users and their channels
 // @Tags Users
-// @Security Admin-Authentication
+// @Security AdminAuthentication
 // @Produce json
 // @Param include[] query []string false "Comma separated list of additional users to include. One of: blocked" collectionFormat(multi)
 // @Success 200 {object} types.DataResponse{data=[]userResponse}

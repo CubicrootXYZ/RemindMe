@@ -33,7 +33,7 @@ import (
 // @BasePath /
 // @query.collection.format multi
 
-// @securityDefinitions.apikey Admin-Authentication
+// @securityDefinitions.apikey AdminAuthentication
 // @in header
 // @name Authorization
 func main() {
