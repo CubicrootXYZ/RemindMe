@@ -6,23 +6,26 @@ require (
 	github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220703090230-acc01808affe
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/arran4/golang-ical v0.0.0-20220517104411-fd89fefb0182
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.1
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/stretchr/testify v1.8.1
+	github.com/teambition/rrule-go v1.8.0
 	github.com/tj/assert v0.0.3
 	github.com/tj/go-naturaldate v1.3.0
 	go.uber.org/zap v1.23.0
 	golang.org/x/text v0.4.0
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
+	maunium.net/go/maulogger/v2 v2.3.2
 	maunium.net/go/mautrix v0.12.2
 )
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/arran4/golang-ical v0.0.0-20220517104411-fd89fefb0182 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -56,5 +59,4 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	maunium.net/go/maulogger/v2 v2.3.2 // indirect
 )

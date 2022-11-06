@@ -8,14 +8,16 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
+	"github.com/teambition/rrule-go"
 
 	ical "github.com/arran4/golang-ical"
 )
 
 type icalimporter struct {
-	stop          chan bool
-	db            types.Database
-	reminderDelay time.Duration // Time difference the reminder should have compored to the ical event
+	stop                   chan bool
+	db                     types.Database
+	reminderDelay          time.Duration // Time difference the reminder should have compored to the ical event
+	overwriteReferenceTime time.Time     // Helper for testing to get a fix reference time for rrules
 }
 
 func NewIcalImporter(db types.Database) IcalImporter {
@@ -89,7 +91,7 @@ func (importer *icalimporter) contentToReminders(content string, resource *datab
 			continue
 		}
 
-		startTime, err := event.GetStartAt()
+		startTime, err := importer.getStartTimeFromEvent(event)
 		if err != nil {
 			log.Info("Skipping event, can not read start time: " + err.Error())
 			continue
@@ -114,4 +116,36 @@ func (importer *icalimporter) contentToReminders(content string, resource *datab
 	}
 
 	return nil
+}
+
+func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
+	rruleString := event.GetProperty(ical.ComponentPropertyRrule)
+	if rruleString != nil {
+		rruleObj, err := rrule.StrToRRule(rruleString.Value)
+		if err != nil {
+			return time.Now(), err
+		}
+
+		return rruleObj.After(importer.getReferenceTime(), false), nil
+	}
+
+	startTime, err := event.GetStartAt()
+	if err != nil {
+		startTime, err = event.GetAllDayStartAt()
+		if err != nil {
+			return time.Now(), err
+		}
+
+		return startTime, nil
+	}
+
+	return startTime, nil
+}
+
+func (importer *icalimporter) getReferenceTime() time.Time {
+	if !importer.overwriteReferenceTime.IsZero() {
+		return importer.overwriteReferenceTime
+	}
+
+	return time.Now()
 }
