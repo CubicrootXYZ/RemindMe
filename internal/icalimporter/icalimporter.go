@@ -14,10 +14,9 @@ import (
 )
 
 type icalimporter struct {
-	stop                   chan bool
-	db                     types.Database
-	reminderDelay          time.Duration // Time difference the reminder should have compored to the ical event
-	overwriteReferenceTime time.Time     // Helper for testing to get a fix reference time for rrules
+	stop          chan bool
+	db            types.Database
+	reminderDelay time.Duration // Time difference the reminder should have compored to the ical event
 }
 
 func NewIcalImporter(db types.Database) IcalImporter {
@@ -119,6 +118,14 @@ func (importer *icalimporter) contentToReminders(content string, resource *datab
 }
 
 func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
+	startTime, err := event.GetStartAt()
+	if err != nil {
+		startTime, err = event.GetAllDayStartAt()
+		if err != nil {
+			return time.Now(), err
+		}
+	}
+
 	rruleString := event.GetProperty(ical.ComponentPropertyRrule)
 	if rruleString != nil {
 		rruleObj, err := rrule.StrToRRule(rruleString.Value)
@@ -126,26 +133,15 @@ func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Ti
 			return time.Now(), err
 		}
 
-		return rruleObj.After(importer.getReferenceTime(), false), nil
-	}
-
-	startTime, err := event.GetStartAt()
-	if err != nil {
-		startTime, err = event.GetAllDayStartAt()
-		if err != nil {
-			return time.Now(), err
+		refTime := time.Now()
+		if refTime.Sub(startTime) < 0 {
+			refTime = startTime
 		}
-
-		return startTime, nil
+		// TODO debug remove
+		fmt.Println(refTime)
+		fmt.Println(rruleObj.After(refTime, false))
+		return rruleObj.After(refTime, false), nil
 	}
 
 	return startTime, nil
-}
-
-func (importer *icalimporter) getReferenceTime() time.Time {
-	if !importer.overwriteReferenceTime.IsZero() {
-		return importer.overwriteReferenceTime
-	}
-
-	return time.Now()
 }

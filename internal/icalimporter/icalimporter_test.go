@@ -1,7 +1,6 @@
 package icalimporter
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -38,7 +37,7 @@ func TestContentToReminders(t *testing.T) {
 func TestContentToReminders_RecurringEvent(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mocks.NewMockDatabase(ctrl)
-	exampleTime, _ := time.Parse("2006-01-02T15:04:05", "2000-01-01T10:00:00")
+	exampleTime, _ := time.Parse("2006-01-02T15:04:05", "2150-09-21T14:30:00")
 	resource := testResource()
 
 	db.EXPECT().AddOrUpdateThirdPartyResourceReminder(
@@ -50,11 +49,8 @@ func TestContentToReminders_RecurringEvent(t *testing.T) {
 	)
 
 	icalImporter := icalimporter{
-		db:                     db,
-		overwriteReferenceTime: testReferenceTime(),
+		db: db,
 	}
-
-	fmt.Print(icalImporter.getReferenceTime().String())
 
 	err := icalImporter.contentToReminders(testEventRecurring(), resource)
 
@@ -95,19 +91,13 @@ BEGIN:VEVENT
 DTSTAMP:19960704T120000Z
 UID:uid1@example.com
 ORGANIZER:mailto:jsmith@example.com
-DTSTART:19991029T120000Z
-RRULE:FREQ=WEEKLY;BYDAY=FR
-DTEND:19991029T130000Z
+DTSTART:21500918T143000Z
+RRULE:FREQ=WEEKLY;BYDAY=MO
+DTEND:21500918T153000Z
 STATUS:CONFIRMED
 CATEGORIES:CONFERENCE
 SUMMARY:A test event summary
 DESCRIPTION:A test event description
 END:VEVENT
 END:VCALENDAR`
-}
-
-func testReferenceTime() time.Time {
-	refTime, _ := time.Parse("2006-01-02T15:04:05", "2000-01-01T14:30:00")
-
-	return refTime
 }
