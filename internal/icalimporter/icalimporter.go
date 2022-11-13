@@ -128,7 +128,13 @@ func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Ti
 
 	rruleString := event.GetProperty(ical.ComponentPropertyRrule)
 	if rruleString != nil {
-		rruleObj, err := rrule.StrToRRule(rruleString.Value)
+		// RRULE needs the DTSTART too
+		dtStart := event.GetProperty(ical.ComponentPropertyDtStart)
+		if dtStart == nil {
+			return time.Now(), ErrMissingDtStart
+		}
+
+		rruleObj, err := rrule.StrToRRule("DTSTART:" + dtStart.Value + "\n" + rruleString.Value)
 		if err != nil {
 			return time.Now(), err
 		}
@@ -137,9 +143,6 @@ func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Ti
 		if refTime.Sub(startTime) < 0 {
 			refTime = startTime
 		}
-		// TODO debug remove
-		fmt.Println(refTime)
-		fmt.Println(rruleObj.After(refTime, false))
 		return rruleObj.After(refTime, false), nil
 	}
 
