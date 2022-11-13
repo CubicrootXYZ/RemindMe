@@ -29,7 +29,7 @@ A matrix bot that handles reminders and knows your agenda.
 The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
 * Multi-User channels
-* Import reminders from an Ical link
+* Import reminders from an Ical link (see API documentation about third party resources)
 
 ## 👩‍🔧 Contribute
 

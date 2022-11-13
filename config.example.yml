@@ -35,6 +35,7 @@ botsettings:
   # enabling this will drastically increase send events, for heavy use you might run into rate limits of the bots instance
   sendreactions: false
   # Allow users (only admin users) to import reminders from an Ical link
+  # The reminder will be scheduled to 5 minutes before the event is, the resources will be pulled every 30 minutes
   # THIS IS CURRENTLY IN BETA TESTING, DO NOT ENABLE IF YOU DO NOT KNOW WHAT YOU ARE DOING
   allowicalimport: false
 
