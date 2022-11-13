@@ -8,6 +8,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
+	"github.com/teambition/rrule-go"
 
 	ical "github.com/arran4/golang-ical"
 )
@@ -89,7 +90,7 @@ func (importer *icalimporter) contentToReminders(content string, resource *datab
 			continue
 		}
 
-		startTime, err := event.GetStartAt()
+		startTime, err := importer.getStartTimeFromEvent(event)
 		if err != nil {
 			log.Info("Skipping event, can not read start time: " + err.Error())
 			continue
@@ -114,4 +115,36 @@ func (importer *icalimporter) contentToReminders(content string, resource *datab
 	}
 
 	return nil
+}
+
+func (importer *icalimporter) getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
+	startTime, err := event.GetStartAt()
+	if err != nil {
+		startTime, err = event.GetAllDayStartAt()
+		if err != nil {
+			return time.Now(), err
+		}
+	}
+
+	rruleString := event.GetProperty(ical.ComponentPropertyRrule)
+	if rruleString != nil {
+		// RRULE needs the DTSTART too
+		dtStart := event.GetProperty(ical.ComponentPropertyDtStart)
+		if dtStart == nil {
+			return time.Now(), ErrMissingDtStart
+		}
+
+		rruleObj, err := rrule.StrToRRule("DTSTART:" + dtStart.Value + "\n" + rruleString.Value)
+		if err != nil {
+			return time.Now(), err
+		}
+
+		refTime := time.Now()
+		if refTime.Sub(startTime) < 0 {
+			refTime = startTime
+		}
+		return rruleObj.After(refTime, false), nil
+	}
+
+	return startTime, nil
 }
