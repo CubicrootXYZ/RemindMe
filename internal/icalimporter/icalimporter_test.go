@@ -6,7 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	mocks "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/mocks"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/golang/mock/gomock"
 )

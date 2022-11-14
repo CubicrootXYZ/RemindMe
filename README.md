@@ -160,3 +160,7 @@ Great thanks to the libraries used in this project:
 * [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)
 * [zap](https://github.com/uber-go/zap)
 * [CubicrootXYZ/gormlogger](https://github.com/CubicrootXYZ/gormlogger)
+* [Golang ICAL](https://github.com/arran4/golang-ical)
+* [Mock](https://github.com/golang/mock)
+* [Go SQLite 3](https://github.com/mattn/go-sqlite3)
+* [RRULE Go](https://github.com/teambition/rrule-go )
