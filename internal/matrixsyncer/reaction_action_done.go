@@ -8,7 +8,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 )
 
 func (s *Syncer) getReactionActionDone(rat types.ReactionActionType) *types.ReactionAction {
@@ -30,46 +29,27 @@ func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *
 		return ErrMessageHasNoReminder
 	}
 
-	respondToEvent := &types.MessageEvent{
-		Event: &event.Event{
-			Sender: id.UserID(message.Channel.UserIdentifier),
-			ID:     id.EventID(message.ExternalIdentifier),
-		},
-		Content: &event.MessageEventContent{
-			FormattedBody: message.BodyHTML,
-			Body:          message.Body,
-		},
-	}
-
 	requestMessage, err := s.daemon.Database.GetLastMessageByTypeForReminder(database.MessageTypeReminderRequest, *message.ReminderID)
 	if err == nil {
-		respondToEvent = &types.MessageEvent{
-			Event: &event.Event{
-				Sender: id.UserID(requestMessage.Channel.UserIdentifier),
-				ID:     id.EventID(requestMessage.ExternalIdentifier),
-			},
-			Content: &event.MessageEventContent{
-				FormattedBody: requestMessage.BodyHTML,
-				Body:          requestMessage.Body,
-			},
+		err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
+			"I marked that reminder as done. "+random.MotivationalSentence(),
+			requestMessage.ExternalIdentifier,
+			requestMessage.Body,
+			requestMessage.Channel.UserIdentifier,
+			channel.ChannelIdentifier,
+		))
+		if err != nil {
+			log.Error("Failed sending response: " + err.Error())
 		}
 	}
 
 	err = s.messenger.DeleteMessageAsync(&asyncmessenger.Delete{
-		ExternalIdentifier:        message.Reminder.Message,
+		ExternalIdentifier:        message.ExternalIdentifier,
 		ChannelExternalIdentifier: channel.ChannelIdentifier,
 	})
 	if err != nil {
 		log.Info("Could not delete message, are you sure the bot has the permission to do so? " + err.Error())
 	}
 
-	msg := "I marked that reminder as done. " + random.MotivationalSentence()
-	err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
-		msg,
-		evt.ID.String(),
-		respondToEvent.Content.Body,
-		respondToEvent.Event.Sender.String(),
-		channel.ChannelIdentifier,
-	))
-	return err
+	return nil
 }
