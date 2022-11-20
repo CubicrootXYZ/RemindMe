@@ -25,6 +25,11 @@ func (response *Response) GetResponseMessage() (message, messageFormatted string
 		response.Message,
 	)
 
+	quotedMessage := formater.StripReplyFormatted(response.RespondToMessageFormatted)
+	if response.RespondToMessageFormatted == "" {
+		quotedMessage = formater.StripReply(response.RespondToMessage)
+	}
+
 	messageFormatted = fmt.Sprintf(
 		"<mx-reply><blockquote><a href=\"https://matrix.to/#/%s/%s?via=%s\">In reply to</a> <a href=\"https://matrix.to/#/%s\">%s</a><br>%s</blockquote></mx-reply>%s",
 		response.ChannelExternalIdentifier,
@@ -32,7 +37,7 @@ func (response *Response) GetResponseMessage() (message, messageFormatted string
 		formater.GetHomeserverFromUserID(response.RespondToUserID),
 		response.RespondToUserID,
 		response.RespondToUserID,
-		formater.StripReplyFormatted(response.RespondToMessageFormatted),
+		quotedMessage,
 		response.MessageFormatted,
 	)
 

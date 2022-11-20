@@ -97,8 +97,28 @@ func (messenger *messenger) sendMessageEventEncrypted(messageEvent *messageEvent
 		return nil, err
 	}
 
+	enrichCleartext(encrypted, messageEvent)
+
 	log.Info(fmt.Sprintf("Sending encrypted message to room %s", roomID))
 	return messenger.client.SendMessageEvent(id.RoomID(roomID), event.EventEncrypted, encrypted)
+}
+
+// enrichCleartext adds parts of the encrypted event back into the cleartext event as specified by the matrix spec
+func enrichCleartext(encryptedEvent *event.EncryptedEventContent, evt *messageEvent) {
+	if evt.RelatesTo.EventID == "" && evt.RelatesTo.InReplyTo == nil {
+		return
+	}
+
+	encryptedEvent.RelatesTo = &event.RelatesTo{}
+	encryptedEvent.RelatesTo.EventID = id.EventID(evt.RelatesTo.EventID)
+	encryptedEvent.RelatesTo.Key = evt.RelatesTo.Key
+	encryptedEvent.RelatesTo.Type = event.RelationType(evt.RelatesTo.RelType)
+
+	if evt.RelatesTo.InReplyTo != nil {
+		encryptedEvent.RelatesTo.InReplyTo = &event.InReplyTo{
+			EventID: id.EventID(evt.RelatesTo.InReplyTo.EventID),
+		}
+	}
 }
 
 func (messenger *messenger) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
