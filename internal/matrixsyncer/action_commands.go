@@ -15,7 +15,7 @@ func (s *Syncer) getActionCommands() *types.Action {
 	action := &types.Action{
 		Name:     "List all commands",
 		Examples: []string{"show all commands", "list the commands", "commands"},
-		Regex:    regexp.MustCompile("(?i)(^(show|list)( all| the| my)( command| commands)$|commands|help)"),
+		Regex:    regexp.MustCompile("(?i)^(((show|list)( all| the| my)( command| commands))|commands|help)[ ]*$"),
 		Action:   s.actionCommands,
 	}
 	return action
