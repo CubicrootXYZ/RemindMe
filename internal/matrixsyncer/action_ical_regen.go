@@ -14,7 +14,7 @@ func (s *Syncer) getActionIcalRegenerate() *types.Action {
 	action := &types.Action{
 		Name:     "Renew calendar secret",
 		Examples: []string{"renew the calendar secret", "generate token"},
-		Regex:    regexp.MustCompile("(?i)(make|generate|)[ ]*(renew|generate|delete|regenerate|renew|new)[ ]*(the|a|)[ ]+(ical|calendar|token|secret)"),
+		Regex:    regexp.MustCompile("(?i)^(make|generate|)[ ]*(renew|generate|delete|regenerate|renew|new)[ ]*(the|a|)[ ]+(ical|calendar|token|secret)[ ]*(token|secret|)[ ]*$"),
 		Action:   s.actionIcalRegenerate,
 	}
 	return action
