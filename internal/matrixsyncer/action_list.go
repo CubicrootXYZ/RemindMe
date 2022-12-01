@@ -14,7 +14,7 @@ func (s *Syncer) getActionList() *types.Action {
 	action := &types.Action{
 		Name:     "List all reminders",
 		Examples: []string{"list", "list reminders", "show", "show reminders", "list my reminders", "reminders"},
-		Regex:    regexp.MustCompile("(?i)((^list|^show)(| all| the)(| reminders| my reminders)(| please)$|^reminders$|^reminder$)"),
+		Regex:    regexp.MustCompile("(?i)^((list|show)(| all| the)(| reminders| my reminders)(| please)|^reminders|^reminder)[ ]*$"),
 		Action:   s.actionList,
 	}
 	return action

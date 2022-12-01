@@ -15,8 +15,8 @@ import (
 func (s *Syncer) getActionIcal() *types.Action {
 	action := &types.Action{
 		Name:     "Get iCal link",
-		Examples: []string{"ical", "calendar link", "show me the calendar link please"},
-		Regex:    regexp.MustCompile("(?i)(^ical$|(show|give|list|send|write|).*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))"),
+		Examples: []string{"ical", "calendar link", "show me the calendar link"},
+		Regex:    regexp.MustCompile("(?i)^(ical$|(show|give|list|send|write|)[ ]*(|me)[ ]*(the|)[ ]*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))[ ]*$"),
 		Action:   s.actionIcal,
 	}
 	return action

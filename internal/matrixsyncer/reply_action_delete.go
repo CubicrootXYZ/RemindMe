@@ -16,7 +16,7 @@ func (s *Syncer) getReplyActionDelete(rtt []database.MessageType) *types.ReplyAc
 	action := &types.ReplyAction{
 		Name:         "Delete a reminder",
 		Examples:     []string{"delete", "remove", "cancel"},
-		Regex:        regexp.MustCompile("(?i)^(delete|remove|cancel)$"),
+		Regex:        regexp.MustCompile("(?i)^(delete|remove|cancel)[ ]*$"),
 		ReplyToTypes: rtt,
 		Action:       s.replyActionDeleteReminder,
 	}
