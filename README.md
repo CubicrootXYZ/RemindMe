@@ -102,6 +102,7 @@ services:
     image: cubicrootxyz/remindme:latest
     volumes:
       - "./config.yml:/run/config.yml"
+      - "./data:/run/data"
       - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
     ports:
