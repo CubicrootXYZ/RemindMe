@@ -29,7 +29,9 @@ func (reminder *Reminder) GetReminderIcons() []string {
 	icons := make([]string, 0)
 
 	if reminder.RepeatInterval > 0 {
-		icons = append(icons, "🔄")
+		if (reminder.Repeated != nil && *reminder.Repeated < reminder.RepeatMax) || reminder.Repeated == nil {
+			icons = append(icons, "🔄")
+		}
 	}
 
 	if reminder.ThirdPartyResourceID != nil {
