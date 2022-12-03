@@ -3,6 +3,7 @@ package matrixsyncer
 import (
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -35,7 +36,7 @@ func (s *Syncer) actionList(evt *types.MessageEvent, channel *database.Channel) 
 
 	for _, reminder := range reminders {
 		msg.BoldLine(reminder.Message)
-		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
+		msg.ItalicLine("ID " + strconv.FormatUint(uint64(reminder.ID), 10) + " at " + formater.ToLocalTime(reminder.RemindTime, channel.TimeZone) + " " + strings.Join(reminder.GetReminderIcons(), " "))
 		msg.NewLine()
 	}
 

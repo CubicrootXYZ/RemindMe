@@ -25,6 +25,20 @@ type Reminder struct {
 	ThirdPartyResourceIdentifier string
 }
 
+func (reminder *Reminder) GetReminderIcons() []string {
+	icons := make([]string, 0)
+
+	if reminder.RepeatInterval > 0 {
+		icons = append(icons, "🔄")
+	}
+
+	if reminder.ThirdPartyResourceID != nil {
+		icons = append(icons, "📥")
+	}
+
+	return icons
+}
+
 // GET DATA
 
 // GetReminderForChannelIDByID returns the reminder with the given ID if it relates to the given channel ID
