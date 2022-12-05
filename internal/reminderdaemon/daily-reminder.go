@@ -2,6 +2,7 @@ package reminderdaemon
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
@@ -64,11 +65,10 @@ func (d *Daemon) CheckForDailyReminder() error {
 			msg.BoldLine(reminder.Message)
 			msg.Text("At ")
 			msg.Text(formater.ToLocalTime(reminder.RemindTime, channels[i].TimeZone))
-			if reminder.Repeated != nil && reminder.RepeatMax > *reminder.Repeated {
-				msg.ItalicLine(" (repeat every " + formater.ToNiceDuration(time.Minute*time.Duration(reminder.RepeatInterval)) + ")")
-			} else {
-				msg.NewLine()
+			if reminder.RepeatInterval > 0 && reminder.RepeatMax > *reminder.Repeated {
+				msg.Italic(" (repeat every " + formater.ToNiceDuration(time.Minute*time.Duration(reminder.RepeatInterval)) + ")")
 			}
+			msg.Text(" " + strings.Join(reminder.GetReminderIcons(), " "))
 			msg.NewLine()
 		}
 

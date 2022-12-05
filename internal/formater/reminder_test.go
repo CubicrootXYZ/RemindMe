@@ -19,5 +19,5 @@ func TestReminderToMessage(t *testing.T) {
 	message, messageFormatted := ReminderToMessage(reminder)
 
 	assert.Equal(t, "<a href=\"https://matrix.to/#/@testuser:example.com\">@testuser</a> a Reminder for you: <br>test reminder <br><i>(at 11:45 12.11.2014 (UTC))</i>", messageFormatted)
-	assert.Equal(t, "testuser a reminder for you: test reminder (at 11:45 12.11.2014 (UTC))", message)
+	assert.Equal(t, "testuser a reminder for you: test reminder  (at 11:45 12.11.2014 (UTC))", message)
 }

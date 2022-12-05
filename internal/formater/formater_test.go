@@ -66,3 +66,12 @@ func TestFormater_Bold(t *testing.T) {
 	assert.Equal(t, "THIS IS BOLD", msg)
 	assert.Equal(t, "<b>This is bold</b>", msgFormatted)
 }
+
+func TestFormater_Italic(t *testing.T) {
+	formater := Formater{}
+	formater.Italic("This is italic")
+	msg, msgFormatted := formater.Build()
+
+	assert.Equal(t, "This is italic", msg)
+	assert.Equal(t, "<i>This is italic</i>", msgFormatted)
+}

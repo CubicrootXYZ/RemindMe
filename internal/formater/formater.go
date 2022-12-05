@@ -62,6 +62,12 @@ func (f *Formater) ItalicLine(text string) {
 	f.msgFormatted.WriteString("<i>" + text + "</i><br>")
 }
 
+// Italic adds italic text
+func (f *Formater) Italic(text string) {
+	f.msg.WriteString(text)
+	f.msgFormatted.WriteString("<i>" + text + "</i>")
+}
+
 // TextLine adds the text
 func (f *Formater) TextLine(text string) {
 	f.msg.WriteString(text + "\n")
