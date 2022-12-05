@@ -87,19 +87,20 @@ func (d *Database) GetDailyReminder(channel *Channel) (*[]Reminder, error) {
 
 // SetReminderDone sets a reminder as inactive
 func (d *Database) SetReminderDone(reminder *Reminder) (*Reminder, error) {
-	if reminder.Repeated != nil {
-		if reminder.RepeatMax > *reminder.Repeated && reminder.RepeatInterval > 0 {
+	if reminder.Repeated == nil {
+		repeated := uint64(0)
+		reminder.Repeated = &repeated
+	}
+
+	if reminder.RepeatMax > *reminder.Repeated && reminder.RepeatInterval > 0 {
+		for time.Until(reminder.RemindTime) < 0 {
 			reminder.RemindTime = reminder.RemindTime.Add(time.Duration(reminder.RepeatInterval) * time.Minute)
-			log.Debug("New remind time for reminder " + strconv.Itoa(int(reminder.ID)) + " is " + reminder.RemindTime.String())
-		} else {
-			reminder.Active = false
 		}
-		*reminder.Repeated++
+		log.Debug("New remind time for reminder " + strconv.Itoa(int(reminder.ID)) + " is " + reminder.RemindTime.String())
 	} else {
 		reminder.Active = false
-		zero := uint64(0)
-		reminder.Repeated = &zero
 	}
+	*reminder.Repeated++
 
 	err := d.db.Save(reminder).Error
 

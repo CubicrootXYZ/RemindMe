@@ -169,7 +169,7 @@ func (s *MessageHandler) changeReminderDate(replyMessage *database.Message, chan
 		return err
 	}
 
-	reminder, err := s.database.UpdateReminder(*replyMessage.ReminderID, remindTime, 0, 0)
+	reminder, err := s.database.UpdateReminder(*replyMessage.ReminderID, remindTime, replyMessage.Reminder.RepeatInterval, replyMessage.Reminder.RepeatMax)
 	if err != nil {
 		log.Warn(err.Error())
 		return err
