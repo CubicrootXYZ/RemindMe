@@ -4,13 +4,9 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/tj/go-naturaldate"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -37,11 +33,7 @@ func ToLocalTime(datetime time.Time, timezone string) string {
 // ParseTime parses the time into the local timezone of a channel. If no timezone is given it defaults to UTC. Days without a time specified default to 9:00
 func ParseTime(msg string, channel *database.Channel, rawDate bool) (time.Time, error) {
 	// Clear body from characters the library can not handle
-	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-	strippedBody, _, err := transform.String(t, StripReply(msg))
-	if err == nil {
-		msg = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strippedBody, ".", " "), ",", " "), "#", " "), ";", " ")
-	}
+	msg = string(alphaNumericString([]byte(StripReply(msg))))
 
 	loc := time.UTC
 	if channel != nil {
@@ -70,6 +62,23 @@ func ParseTime(msg string, channel *database.Channel, rawDate bool) (time.Time, 
 	}
 
 	return parsedTime.In(loc), nil
+}
+
+func alphaNumericString(in []byte) []byte {
+	out := make([]byte, len(in))
+
+	for i := range in {
+		if (in[i] >= 'a' && in[i] <= 'z') ||
+			(in[i] >= 'A' && in[i] <= 'Z') ||
+			(in[i] >= '0' && in[i] <= '9') ||
+			(in[i] == ':') {
+			out[i] = in[i]
+		} else {
+			out[i] = ' '
+		}
+	}
+
+	return out
 }
 
 // TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format
