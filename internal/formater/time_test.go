@@ -88,3 +88,18 @@ func refTime() time.Time {
 	}
 	return refTime
 }
+
+func TestAlphaNumericString(t *testing.T) {
+	testcases := map[string]string{
+		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+		"1234567890":          "1234567890",
+		"01.02.2022":          "01 02 2022",
+		"8:45":                "8:45",
+		"Was ist das!?":       "Was ist das  ",
+		"!§$%&/(()=?*'_`?;')": "                    ",
+	}
+
+	for in, expected := range testcases {
+		assert.Equal(t, expected, string(alphaNumericString([]byte(in))))
+	}
+}
