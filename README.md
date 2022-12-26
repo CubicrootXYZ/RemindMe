@@ -58,75 +58,7 @@ To get all commands just type one of these lines:
 
 ## ⚙️ Installation
 
-In any case you need a config file with your preferences and credentials.
-
-1. Copy the `config.example.yml` from the repository
-2. Rename it to `config.yml`
-3. Fill in the settings
-    1. `debug` do not touch unless you know what you are doing
-    2. `matrixbotaccount` those are the credentials and the homeserver (url of the matrix instance) of the bots account. You need to create one yourself.
-    3. `matrixusers` those users will be able to interact with the bot. Enter a username in the format `@username:instance.tld` so for the user "test123" at the instance "matrix.org" this would be `@test123:matrix.org`
-    4. `database` enter a database connection here. You need to enter a MySQL [connection string](https://github.com/go-sql-driver/mysql#dsn-data-source-name). If your database-server is running at the domain "mydatabase.org" at port 3306 and your credentials to log in are "root" and "12345" and the database you created is named "remindme_database" then your connection string would look like this: `root:12345@tcp(mydatabase.org:3306)/remindme_database`.
-4. Now you need to copy the file to the folder where the binary is executed.
-    * Using the "plain" method: put the binary you build and the config file in the same folder. Execute them from there.
-    * Using the pre-build docker image you need to mount the file to `/run/config.yml`
-
-You should persist the data stored in `data/` (`/run/data/` in the docker image) and frequently back it up. There is crucial information for the end to end encryption stored in.
-
-### Plain
-
-Plain installation requires knowledge about building go binaries and installing arbitrary packages. We recommend using the prebuild docker containers.
-
-1. Install the dependencies
-    1. You need `libolm-dev` with at least version 3 (e.g. for debian buster run `apt install libolm-dev/buster-backports -y`)
-    2. Install `gcc` which is required by cgo (e.g. for debian buster run `apt install gcc -y`)
-2. Download the code
-3. Run `go build -o /app/bin /app/cmd/remindme/main.go` to build the binary in `/app/bin`
-4. Setup your config file
-5. Run the binary
-6. Make sure to persists the `data` folder as it contains important data for the service 
-7. The application will serve the API at port 8080
-
-### Docker
-
-Different versions are available on docker hub:
-
-[Docker Hub](https://hub.docker.com/r/cubicrootxyz/remindme)
-
-Use this example `docker-compose.yml` to configure your container:
-```
-version: '3.2'
-
-services:
-  remindme:
-    image: cubicrootxyz/remindme:latest
-    volumes:
-      - "./config.yml:/run/config.yml"
-      - "./data:/run/data"
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-    ports:
-      - 80:8080
-
-  remindme-db:
-    image: mysql:8.0
-    volumes:
-      - "./db-data:/var/lib/mysql"
-    environment:
-      - 'MYSQL_ROOT_PASSWORD=mypass'
-      - 'MYSQL_DATABASE=remindme'
-    networks:
-      - remindme
-    command:
-      - --default-authentication-plugin=mysql_native_password
-    networks:
-      - remindme
-
-networks:
-  remindme:
-```
-
-You are missing a docker container for your architecture? We'd love to see you contributing to this project by opening a pull request with the build instructions for it.
+See our [installation guides](https://github.com/CubicrootXYZ/RemindMe/wiki/Installation). We provide docker container images or you can build the binary yourself. 
 
 ## 📚 Further documentation 
 
