@@ -123,7 +123,10 @@ func (databaseHandler *DatabaseHandler) GetChannelThirdPartyResource(ctx *gin.Co
 		return
 	}
 
-	response := thirdPartyResourcesToResponse(resources)
+	response := types.DataResponse{
+		Status: "success",
+		Data:   thirdPartyResourcesToResponse(resources),
+	}
 
 	ctx.JSON(http.StatusOK, response)
 }
