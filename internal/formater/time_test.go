@@ -33,6 +33,15 @@ func TestFormater_ParseTimeOnSuccess(t *testing.T) {
 	testCases[""] = "tomorrow 11:45"
 	testCases["abcdefg"] = "tomorrow at 11:45"
 	testCases["Asia/Jakarta"] = "tomorrow 18:45"
+	testCases["Asia/Jakarta"] = "tomorrow 18:45?"
+	testCases["Asia/Jakarta"] = "tomorrow 18:45!"
+	testCases["Asia/Jakarta"] = "tomorrow 18:45="
+	testCases["Asia/Jakarta"] = "tomorrow 18:45"
+	testCases["Asia/Jakarta"] = "reminder for? tomorrow 18:45"
+	testCases["Asia/Jakarta"] = "reminder for 29? tomorrow 18:45"
+	testCases["Asia/Jakarta"] = "reminder for tomorrow 18:45"
+	testCases["Asia/Jakarta"] = "reminder for tomorrow 01.01.2022 18:45"
+	testCases["Asia/Jakarta"] = "reminder for tomorrow 01-02-2022 18:45"
 
 	for timeZone, msg := range testCases {
 		is, err := ParseTime(msg, &database.Channel{
@@ -45,8 +54,12 @@ func TestFormater_ParseTimeOnSuccess(t *testing.T) {
 }
 
 func TestFormater_ParseTimeOnFailure(t *testing.T) {
-	testCases := make([]string, 0)
-	// I don't find any
+	testCases := []string{
+		"99:00:",
+		"99:00:56678:",
+		":.",
+		"tomorrow: 19:45",
+	}
 
 	for _, msg := range testCases {
 		_, err := ParseTime(msg, &database.Channel{}, false)
@@ -74,4 +87,19 @@ func refTime() time.Time {
 		panic(err)
 	}
 	return refTime
+}
+
+func TestAlphaNumericString(t *testing.T) {
+	testcases := map[string]string{
+		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+		"1234567890":          "1234567890",
+		"01.02.2022":          "01 02 2022",
+		"8:45":                "8:45",
+		"Was ist das!?":       "Was ist das  ",
+		"!§$%&/(()=?*'_`?;')": "                    ",
+	}
+
+	for in, expected := range testcases {
+		assert.Equal(t, expected, string(alphaNumericString([]byte(in))))
+	}
 }

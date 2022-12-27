@@ -11,6 +11,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/types"
 	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/id"
 )
 
 func (s *Syncer) getReactionsAddTime(rat types.ReactionActionType) []*types.ReactionAction {
@@ -134,7 +135,7 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 	log.Debug(fmt.Sprintf("Adding %d minutes, with reaction %s (event %s)", duration/time.Minute, content.RelatesTo.Key, evt.ID))
 
 	if message.ReminderID == nil {
-		msg := fmt.Sprintf("Sorry, I could not delete the reminder %d.", message.ReminderID)
+		msg := fmt.Sprintf("Sorry, I could not find the reminder %d.", message.ReminderID)
 		msgFormatted := msg
 		go s.sendAndStoreMessage(asyncmessenger.HTMLMessage(
 			msg,
@@ -150,12 +151,50 @@ func (s *Syncer) reactionActionAddXHours(message *database.Message, content *eve
 		return err
 	}
 
-	msg := fmt.Sprintf("Reminder \"%s\" rescheduled to %s", reminder.Message, formater.ToLocalTime(reminder.RemindTime, channel.TimeZone))
+	respondToEvent := &types.MessageEvent{
+		Event: &event.Event{
+			Sender: id.UserID(message.Channel.UserIdentifier),
+			ID:     id.EventID(message.ExternalIdentifier),
+		},
+		Content: &event.MessageEventContent{
+			FormattedBody: message.BodyHTML,
+			Body:          message.Body,
+		},
+	}
 
-	go s.sendAndStoreMessage(asyncmessenger.PlainTextMessage(
+	requestMessage, err := s.daemon.Database.GetLastMessageByTypeForReminder(database.MessageTypeReminderRequest, *message.ReminderID)
+	if err == nil {
+		respondToEvent = &types.MessageEvent{
+			Event: &event.Event{
+				Sender: id.UserID(requestMessage.Channel.UserIdentifier),
+				ID:     id.EventID(requestMessage.ExternalIdentifier),
+			},
+			Content: &event.MessageEventContent{
+				FormattedBody: requestMessage.BodyHTML,
+				Body:          requestMessage.Body,
+			},
+		}
+	}
+
+	msg := "Rescheduled that reminder to " + formater.ToLocalTime(reminder.RemindTime, channel.TimeZone)
+	err = s.messenger.SendResponseAsync(asyncmessenger.PlainTextResponse(
 		msg,
+		respondToEvent.Event.ID.String(),
+		respondToEvent.Content.Body,
+		respondToEvent.Event.Sender.String(),
 		channel.ChannelIdentifier,
-	), channel, database.MessageTypeReminderUpdateSuccess, reminder.ID)
+	))
+	if err != nil {
+		return err
+	}
+
+	err = s.messenger.DeleteMessageAsync(&asyncmessenger.Delete{
+		ChannelExternalIdentifier: channel.ChannelIdentifier,
+		ExternalIdentifier:        message.ExternalIdentifier,
+	})
+	if err != nil {
+		log.Error("Failed to delete message: " + err.Error())
+	}
 
 	return nil
 }
