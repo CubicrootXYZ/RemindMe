@@ -20,8 +20,8 @@ type Reminder struct {
 	Repeated                     *uint64
 	ChannelID                    uint `gorm:"index"`
 	Channel                      Channel
-	ThirdPartyResourceID         *uint `gorm:"index"`
-	ThirdPartyResource           ThirdPartyResource
+	ThirdPartyResourceID         *uint              `gorm:"index"`
+	ThirdPartyResource           ThirdPartyResource `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	ThirdPartyResourceIdentifier string
 }
 
