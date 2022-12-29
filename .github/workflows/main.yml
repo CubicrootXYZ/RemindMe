@@ -63,7 +63,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
 
   build_and_push_image:
-    needs: test_analyze_and_build
+    needs: [tests, lint, build_documentation]
     runs-on: ubuntu-latest
     if: "${{ github.ref == 'refs/heads/main' }}"
     steps:
