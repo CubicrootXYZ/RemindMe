@@ -9,8 +9,35 @@ on:
       - 'index.html'
 
 jobs: 
-  # Checks the code
-  test_analyze_and_build:
+  tests:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    container: 
+      image: cubicrootxyz/matrix-go:1.19
+      options: --user root
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Run tests
+        run: go test ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    container: 
+      image: cubicrootxyz/matrix-go:1.19
+      options: --user root
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Run golangci
+        run: golangci-lint run
+
+  build_documentation:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container: 
@@ -24,12 +51,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-      - name: Run tests
-        run: go test ./...
-      - name: Run golangci
-        run: golangci-lint run
-      - name: Build the app
-        run: go build -o ./app ./cmd/remindme
       - name: Build the api documentation
         run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
       - name: Convert to OpenApi 3
@@ -41,8 +62,7 @@ jobs:
       - name: Commit static html back
         uses: stefanzweifel/git-auto-commit-action@v4
 
-  # Builds the image and publishes it on docker hub - only for pushes in main
-  build_and_push_docker:
+  build_and_push_image:
     needs: test_analyze_and_build
     runs-on: ubuntu-latest
     if: "${{ github.ref == 'refs/heads/main' }}"
