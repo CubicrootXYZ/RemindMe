@@ -16,6 +16,7 @@ const (
 	ResponseMessageUnauthorized        = ResponseMessage("Unauthorized")
 	ResponseMessageUnknownType         = ResponseMessage("type is not known")
 	ResponseMessageMissingURL          = ResponseMessage("url is missing")
+	ResponseMessageInvalidData         = ResponseMessage("invalid data")
 )
 
 type calendarResponse struct {

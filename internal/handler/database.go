@@ -161,7 +161,7 @@ func (databaseHandler *DatabaseHandler) PostChannelThirdPartyResource(ctx *gin.C
 	data := &postChannelThirdPartyResourceData{}
 	err = ctx.ShouldBindJSON(data)
 	if err != nil {
-		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageNoID, err)
+		abort(ctx, http.StatusUnprocessableEntity, ResponseMessageInvalidData, err)
 		return
 	}
 
