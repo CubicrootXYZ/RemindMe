@@ -17,13 +17,13 @@ func NewDatabase() *database.Database {
 	}
 
 	db, err := database.Create(configuration.Database{
-		Connection: "root:mypass@tcp(127.0.0.1:3306)/remindme",
+		Connection: "root:mypass@tcp(database:3306)/remindme",
 	}, true)
 	if err != nil {
 		panic(err)
 	}
 
-	gormDB, err := gorm.Open(mysql.Open("root:mypass@tcp(127.0.0.1:3306)/remindme?parseTime=True"), &gorm.Config{})
+	gormDB, err := gorm.Open(mysql.Open("root:mypass@tcp(database:3306)/remindme?parseTime=True"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
