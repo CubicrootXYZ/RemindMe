@@ -9,6 +9,5 @@ sonar-project.properties
 node_modules/**
 app
 package-lock.json
-docker-compose.yml
 dockerdata
 db-data
