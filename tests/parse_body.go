@@ -43,3 +43,21 @@ func ParseJSONBodyWithSlice(t *testing.T, body io.ReadCloser) ([]interface{}, st
 
 	return data, status
 }
+
+// ParseJSONBodyWithMessage parses the body of a JSON response.
+// Returns the message and the status message as string.
+func ParseJSONBodyWithMessage(t *testing.T, body io.ReadCloser) (string, string) {
+	t.Helper()
+
+	var bodyParsed map[string]interface{}
+	err := json.NewDecoder(body).Decode(&bodyParsed)
+	require.NoError(t, err)
+
+	status, ok := bodyParsed["status"].(string)
+	require.True(t, ok, "status is not a string")
+
+	message, ok := bodyParsed["message"].(string)
+	require.True(t, ok, "data field is malformed")
+
+	return message, status
+}

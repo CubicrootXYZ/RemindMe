@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -88,7 +89,7 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 	}
 
 	if channel.CalendarSecret != token || len(channel.CalendarSecret) < 20 {
-		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, err)
+		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, errors.New("calendar secret not matching"))
 		return
 	}
 

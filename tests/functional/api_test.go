@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -9,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetCalendars(t *testing.T) {
+func TestGetCalendar(t *testing.T) {
 	_, baseURL := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
@@ -45,4 +46,45 @@ func TestGetCalendars(t *testing.T) {
 			require.Failf(t, "unknown channel", "unknown channel id: %v (%T)", channel["id"], channel["id"])
 		}
 	}
+}
+
+func TestPatchCalendarID(t *testing.T) {
+	_, baseURL := tests.NewAPI() // Ensure API is running
+	ctx, cancel := tests.ContextWithTimeout()
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, baseURL+"/calendar/1", nil)
+	require.NoError(t, err)
+	req.Header.Add("Authorization", "testapikey123456789abcdefg")
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	_, status := tests.ParseJSONBodyWithMessage(t, resp.Body)
+
+	assert.Equal(t, "success", status)
+}
+
+func TestGetCalendarIDIcal(t *testing.T) {
+	_, baseURL := tests.NewAPI() // Ensure API is running
+	ctx, cancel := tests.ContextWithTimeout()
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/calendar/1/ical", nil)
+	require.NoError(t, err)
+	req.Header.Add("Authorization", "testapikey123456789abcdefg") // TODO get right key
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	assert.Equal(t, "", string(body))
 }
