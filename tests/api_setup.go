@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"time"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
@@ -30,6 +32,8 @@ func NewAPI() (*api.Server, string) {
 	)
 
 	go testServer.Start(true)
+
+	time.Sleep(time.Second) // Wait for server to start
 
 	return testServer, "http://localhost:4232"
 }

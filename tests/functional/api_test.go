@@ -24,8 +24,25 @@ func TestGetCalendars(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	_, status := tests.ParseJSONBodyWithSlice(t, resp.Body)
+	data, status := tests.ParseJSONBodyWithSlice(t, resp.Body)
 
 	assert.Equal(t, "success", status)
-	// TODO assert response
+
+	for _, channelRaw := range data {
+		channel, ok := channelRaw.(map[string]interface{})
+		require.True(t, ok, "type casting channel failed")
+
+		switch channel["id"] {
+		case float64(1):
+			assert.Equal(t, "!123456789", channel["channel_id"])
+			assert.Equal(t, "testuser@example.com", channel["user_id"])
+			assert.NotEmpty(t, channel["token"])
+		case float64(2):
+			assert.Equal(t, "!abcdefghij", channel["channel_id"])
+			assert.Equal(t, "testuser2@example.com", channel["user_id"])
+			assert.NotEmpty(t, channel["token"])
+		default:
+			require.Failf(t, "unknown channel", "unknown channel id: %v (%T)", channel["id"], channel["id"])
+		}
+	}
 }

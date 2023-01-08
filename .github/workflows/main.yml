@@ -23,6 +23,8 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: mypass
           MYSQL_DATABASE: remindme
+    env:
+      TEST_DB_HOST: database
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3

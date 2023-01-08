@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"os"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
@@ -16,14 +18,19 @@ func NewDatabase() *database.Database {
 		return testDatabase
 	}
 
+	host := os.Getenv("TEST_DB_HOST")
+	if host == "" {
+		host = "localhost"
+	}
+
 	db, err := database.Create(configuration.Database{
-		Connection: "root:mypass@tcp(database:3306)/remindme",
+		Connection: "root:mypass@tcp(" + host + ":3306)/remindme",
 	}, true)
 	if err != nil {
 		panic(err)
 	}
 
-	gormDB, err := gorm.Open(mysql.Open("root:mypass@tcp(database:3306)/remindme?parseTime=True"), &gorm.Config{})
+	gormDB, err := gorm.Open(mysql.Open("root:mypass@tcp("+host+":3306)/remindme?parseTime=True"), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
