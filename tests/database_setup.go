@@ -51,11 +51,16 @@ func populateFixtures(db *database.Database) {
 	if err != nil {
 		panic(err)
 	}
+	err = gormDatabase.Exec("TRUNCATE third_party_resources").Error
+	if err != nil {
+		panic(err)
+	}
 	err = gormDatabase.Exec("SET FOREIGN_KEY_CHECKS = 1").Error
 	if err != nil {
 		panic(err)
 	}
 
+	// Channel 1
 	_, err = db.AddChannel(
 		"testuser@example.com",
 		"!123456789",
@@ -65,10 +70,27 @@ func populateFixtures(db *database.Database) {
 		panic(err)
 	}
 
-	_, err = db.AddChannel(
+	// Channel 2
+	c, err := db.AddChannel(
 		"testuser2@example.com",
 		"!abcdefghij",
 		roles.RoleAdmin,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	r := roles.RoleAdmin
+	_, err = db.UpdateChannel(c.ID, "Berlin", nil, &r)
+	if err != nil {
+		panic(err)
+	}
+
+	// Channel 3 (to delete)
+	_, err = db.AddChannel(
+		"testuser3@example.com",
+		"!123456789abcde",
+		roles.RoleUser,
 	)
 	if err != nil {
 		panic(err)
