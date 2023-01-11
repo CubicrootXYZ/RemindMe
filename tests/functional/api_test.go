@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -43,6 +44,8 @@ func TestGetCalendar(t *testing.T) {
 			assert.Equal(t, "!abcdefghij", calendar["channel_id"])
 			assert.Equal(t, "testuser2@example.com", calendar["user_id"])
 			assert.NotEmpty(t, calendar["token"])
+		case float64(3):
+			// Channels added later but are not required for this test.
 		default:
 			require.Failf(t, "unknown calendar", "unknown clanedar with id: %v (%T)", calendar["id"], calendar["id"])
 		}
@@ -141,6 +144,8 @@ func TestGetChannel(t *testing.T) {
 			assert.Equal(t, "admin", calendar["role"])
 			assert.Equal(t, "Berlin", calendar["timezone"])
 			assert.True(t, calendar["daily_reminder"].(bool))
+		case float64(3):
+			// Channels that were added later, but are not needed for this test.
 		default:
 			require.Failf(t, "unknown channel", "unknown channel id: %v (%T)", calendar["id"], calendar["id"])
 		}
@@ -216,6 +221,80 @@ func TestChannelIDThirdPartyResources(t *testing.T) {
 
 	// Delete
 	req, err = http.NewRequestWithContext(ctx, http.MethodDelete, baseURL+"/channel/1/thirdpartyresources/1", nil)
+	require.NoError(t, err)
+	req.Header.Add("Authorization", "testapikey123456789abcdefg")
+
+	resp, err = http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	_, status = tests.ParseJSONBodyWithMessage(t, resp.Body)
+	assert.Equal(t, "success", status)
+}
+
+func TestGetUser(t *testing.T) {
+	_, baseURL := tests.NewAPI() // Ensure API is running
+	ctx, cancel := tests.ContextWithTimeout()
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/user", nil)
+	require.NoError(t, err)
+	req.Header.Add("Authorization", "testapikey123456789abcdefg")
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	data, status := tests.ParseJSONBodyWithSlice(t, resp.Body)
+	assert.Equal(t, "success", status)
+
+	for _, userRaw := range data {
+		user := userRaw.(map[string]interface{})
+
+		switch user["user_id"] {
+		case "testuser@example.com", "testuser2@example.com", "testuser3@example.com":
+			assert.Equal(t, false, user["blocked"].(bool))
+			assert.Empty(t, user["comment"])
+			assert.Equal(t, 1, len(user["channels"].([]interface{})))
+		default:
+			require.Failf(t, "unknown user", "unknown user id: %v (%T)", user["user_id"], user["user_id"])
+		}
+	}
+}
+
+func TestPutUserID(t *testing.T) {
+	_, baseURL := tests.NewAPI() // Ensure API is running
+	ctx, cancel := tests.ContextWithTimeout()
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		baseURL+"/user/"+url.PathEscape("testuser2@example.com"),
+		strings.NewReader(`{"blocked":true,"block_reason":"test block"}`),
+	)
+	require.NoError(t, err)
+	req.Header.Add("Authorization", "testapikey123456789abcdefg")
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	_, status := tests.ParseJSONBodyWithMessage(t, resp.Body)
+	assert.Equal(t, "success", status)
+
+	req, err = http.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		baseURL+"/user/"+url.PathEscape("testuser2@example.com"),
+		strings.NewReader(`{"blocked":false}`),
+	)
 	require.NoError(t, err)
 	req.Header.Add("Authorization", "testapikey123456789abcdefg")
 

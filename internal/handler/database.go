@@ -267,7 +267,7 @@ func (databaseHandler *DatabaseHandler) DeleteChannelThirdPartyResource(ctx *gin
 // @Security AdminAuthentication
 // @Accept json
 // @Produce json
-// @Param id path string true "Matrix account ID, user URL encoding where required"
+// @Param id path string true "Matrix account ID, use URL encoding"
 // @Param payload body putUserData true "payload"
 // @Success 200 {object} types.MessageSuccessResponse
 // @Failure 401 {object} types.MessageErrorResponse
