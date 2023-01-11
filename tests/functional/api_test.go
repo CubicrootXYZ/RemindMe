@@ -2,7 +2,7 @@ package integration
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -90,7 +90,6 @@ func TestGetCalendarIDIcal(t *testing.T) {
 
 	token := data[0].(map[string]interface{})["token"].(string)
 	id := data[0].(map[string]interface{})["id"].(float64)
-	fmt.Println(token)
 	require.NotEmpty(t, token)
 	require.Greater(t, id, 0.0)
 
@@ -104,7 +103,7 @@ func TestGetCalendarIDIcal(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
 	assert.Equal(t, "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:RemindMe\nMETHOD:PUBLISH\nEND:VCALENDAR\n", string(body))

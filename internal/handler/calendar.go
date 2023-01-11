@@ -88,7 +88,6 @@ func (calendarHandler *CalendarHandler) GetCalendarICal(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Cal: %s // token: %s", channel.CalendarSecret, token)
 	if channel.CalendarSecret != token || len(channel.CalendarSecret) < 20 {
 		abort(ctx, http.StatusUnauthorized, ResponseMessageUnauthorized, errors.New("calendar secret not matching"))
 		return
