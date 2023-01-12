@@ -65,7 +65,7 @@ func (calendarHandler *CalendarHandler) GetCalendars(ctx *gin.Context) {
 // @Produce plain
 // @Param id path int true "Calendar ID"
 // @Param token query string true "authentication token"
-// @Success 200 {string} string
+// @Success 200 ""
 // @Failure 401 {object} types.MessageErrorResponse
 // @Failure 500 ""
 // @Router /calendar/{id}/ical [get]

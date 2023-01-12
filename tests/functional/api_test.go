@@ -1,6 +1,8 @@
 package integration
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -9,12 +11,18 @@ import (
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/tests"
+	"github.com/getkin/kin-openapi/openapi3filter"
+	"github.com/getkin/kin-openapi/routers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
+func TestMain(m *testing.M) {
+	m.Run()
+}
+
 func TestGetCalendar(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -25,6 +33,7 @@ func TestGetCalendar(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -53,7 +62,7 @@ func TestGetCalendar(t *testing.T) {
 }
 
 func TestPatchCalendarID(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -64,6 +73,7 @@ func TestPatchCalendarID(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -72,7 +82,7 @@ func TestPatchCalendarID(t *testing.T) {
 }
 
 func TestGetCalendarIDIcal(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -84,6 +94,8 @@ func TestGetCalendarIDIcal(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
+
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	data, status := tests.ParseJSONBodyWithSlice(t, resp.Body)
 	require.Equal(t, "success", status)
@@ -100,6 +112,7 @@ func TestGetCalendarIDIcal(t *testing.T) {
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -110,7 +123,7 @@ func TestGetCalendarIDIcal(t *testing.T) {
 }
 
 func TestGetChannel(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -121,6 +134,7 @@ func TestGetChannel(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -154,7 +168,7 @@ func TestGetChannel(t *testing.T) {
 }
 
 func TestDeleteChannelID(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -165,6 +179,7 @@ func TestDeleteChannelID(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -174,7 +189,7 @@ func TestDeleteChannelID(t *testing.T) {
 
 func TestChannelIDThirdPartyResources(t *testing.T) {
 	// Test Add, List and Delete in one go
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -186,6 +201,7 @@ func TestChannelIDThirdPartyResources(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -200,6 +216,7 @@ func TestChannelIDThirdPartyResources(t *testing.T) {
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -226,6 +243,7 @@ func TestChannelIDThirdPartyResources(t *testing.T) {
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -234,7 +252,7 @@ func TestChannelIDThirdPartyResources(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -245,6 +263,7 @@ func TestGetUser(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -266,7 +285,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestPutUserID(t *testing.T) {
-	_, baseURL := tests.NewAPI() // Ensure API is running
+	_, baseURL, specRouter := tests.NewAPI() // Ensure API is running
 	ctx, cancel := tests.ContextWithTimeout()
 	defer cancel()
 
@@ -282,6 +301,7 @@ func TestPutUserID(t *testing.T) {
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
@@ -300,9 +320,38 @@ func TestPutUserID(t *testing.T) {
 	resp, err = http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	validateAgainstSpec(t, specRouter, req, resp)
 
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 
 	_, status = tests.ParseJSONBodyWithMessage(t, resp.Body)
 	assert.Equal(t, "success", status)
+}
+
+func validateAgainstSpec(t *testing.T, router routers.Router, req *http.Request, resp *http.Response) {
+	ctx := context.Background()
+
+	// Find route
+	route, pathParams, err := router.FindRoute(req)
+	require.NoError(t, err, "could not find route")
+
+	requestValidationInput := &openapi3filter.RequestValidationInput{
+		Request:    req,
+		PathParams: pathParams,
+		Route:      route,
+	}
+	responseValidationInput := &openapi3filter.ResponseValidationInput{
+		RequestValidationInput: requestValidationInput,
+		Status:                 resp.StatusCode,
+		Header:                 resp.Header,
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	// Workaround to read body twice
+	resp.Body.Close()
+	resp.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	responseValidationInput.SetBodyBytes(body)
+	err = openapi3filter.ValidateResponse(ctx, responseValidationInput)
+	require.NoError(t, err, "invalid response")
 }
