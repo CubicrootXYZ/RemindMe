@@ -38,4 +38,5 @@ type Webserver struct {
 	Enabled bool
 	APIkey  string
 	BaseURL string
+	Address string `default:":8080"`
 }

@@ -10,11 +10,22 @@ on:
 
 jobs: 
   tests:
+    needs: [build_documentation] # Validates agains OpenAPI spec
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container: 
       image: cubicrootxyz/matrix-go:1.19
       options: --user root
+    services:
+      database:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: mypass
+          MYSQL_DATABASE: remindme
+    env:
+      TEST_DB_HOST: database
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -55,9 +66,9 @@ jobs:
       - name: Convert to OpenApi 3
         run: openapi-code-sample-generator convert --file docs/swagger.yaml --output-file docs/swagger3.yaml
       - name: Add code samples to api documentation
-        run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/out.yaml
+        run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/api-spec.yaml
       - name: Build static html
-        run: npx redoc-cli bundle docs/out.yaml --output index.html
+        run: npx redoc-cli bundle docs/api-spec.yaml --output index.html
       - name: Archive rendered HTML
         uses: actions/upload-artifact@v3
         with:

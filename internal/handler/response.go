@@ -44,7 +44,7 @@ type userResponse struct {
 }
 
 type thirdPartyResourceResponse struct {
-	ID          uint   `json:"id"`   // Internal id
-	Type        string `json:"type"` // The resources type
-	ResourceURL string `json:"url"`  // The resources URL
+	ID          uint   `json:"id"`                // Internal id
+	Type        string `json:"type" enums:"ICAL"` // The resources type
+	ResourceURL string `json:"url"`               // The resources URL
 }

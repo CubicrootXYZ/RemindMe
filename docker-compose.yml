@@ -1,0 +1,14 @@
+# Do not use this file for production use! This is for testing only!
+version: '3.2'
+
+services:
+  remindme-db:
+    image: mysql:8.0
+    volumes:
+      - "./db-data:/var/lib/mysql"
+    environment:
+      - 'MYSQL_ROOT_PASSWORD=mypass'
+      - 'MYSQL_DATABASE=remindme'
+    command:
+      - "--default-authentication-plugin=mysql_native_password"
+    network_mode: "host"

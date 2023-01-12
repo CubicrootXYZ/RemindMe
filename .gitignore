@@ -5,10 +5,12 @@ config.yml
 .vscode/**
 sonar-project.properties
 /*.sh
-/docs/**
+/docs/swagger3.yaml
+/docs/swagger.yaml
+/docs/*.json
+/docs/*.go
 node_modules/**
 app
 package-lock.json
-docker-compose.yml
 dockerdata
 db-data

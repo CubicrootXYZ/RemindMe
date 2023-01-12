@@ -71,7 +71,7 @@ func (server *Server) Start(debug bool) {
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
 	// Port 8080
-	if err := r.Run(); err != nil {
+	if err := r.Run(server.config.Address); err != nil {
 		log.Error(fmt.Sprintf("Error when starting server: %s", err.Error()))
 	}
 }

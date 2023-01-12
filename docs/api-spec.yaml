@@ -1,0 +1,887 @@
+components:
+  schemas:
+    ErrorResponse:
+      properties:
+        message:
+          example: Unauthenticated
+          type: string
+        status:
+          example: error
+          type: string
+      type: object
+    SuccessResponse:
+      properties:
+        message:
+          example: Inserted new reminder
+          type: string
+        status:
+          example: success
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.calendarResponse:
+      properties:
+        channel_id:
+          description: Matrix channel identifier
+          type: string
+        id:
+          description: Internal id
+          type: integer
+        token:
+          description: Secret token to get the calendar file
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.channelResponse:
+      properties:
+        channel_id:
+          description: Matrix channel identifier
+          type: string
+        created:
+          type: string
+        daily_reminder:
+          description: Whether the daily reminder is activated or not
+          type: boolean
+        id:
+          description: Internal id
+          type: integer
+        role:
+          enum:
+          - user
+          - admin
+          type: string
+          x-nullable: true
+        timezone:
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.postChannelThirdPartyResourceData:
+      properties:
+        type:
+          description: the type of resource to add
+          enum:
+          - ical
+          type: string
+        url:
+          description: url to the resource
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.putUserData:
+      properties:
+        block_reason:
+          description: internally displayed reason for a block
+          type: string
+        blocked:
+          description: user state, if blocked no interaction with the bot is possible
+          type: boolean
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.thirdPartyResourceResponse:
+      properties:
+        id:
+          description: Internal id
+          type: integer
+        type:
+          description: The resources type
+          enum:
+          - ICAL
+          type: string
+        url:
+          description: The resources URL
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.userResponse:
+      properties:
+        blocked:
+          type: boolean
+        channels:
+          description: All channels known with the user
+          items:
+            $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.channelResponse'
+          type: array
+        comment:
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+    github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_types.DataResponse:
+      properties:
+        data: {}
+        status:
+          example: success
+          type: string
+      type: object
+    internal_handler.calendarResponse:
+      properties:
+        channel_id:
+          description: Matrix channel identifier
+          type: string
+        id:
+          description: Internal id
+          type: integer
+        token:
+          description: Secret token to get the calendar file
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+    internal_handler.channelResponse:
+      properties:
+        channel_id:
+          description: Matrix channel identifier
+          type: string
+        created:
+          type: string
+        daily_reminder:
+          description: Whether the daily reminder is activated or not
+          type: boolean
+        id:
+          description: Internal id
+          type: integer
+        role:
+          enum:
+          - user
+          - admin
+          type: string
+          x-nullable: true
+        timezone:
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+    internal_handler.postChannelThirdPartyResourceData:
+      properties:
+        type:
+          description: the type of resource to add
+          enum:
+          - ical
+          type: string
+        url:
+          description: url to the resource
+          type: string
+      type: object
+    internal_handler.putUserData:
+      properties:
+        block_reason:
+          description: internally displayed reason for a block
+          type: string
+        blocked:
+          description: user state, if blocked no interaction with the bot is possible
+          type: boolean
+      type: object
+    internal_handler.thirdPartyResourceResponse:
+      properties:
+        id:
+          description: Internal id
+          type: integer
+        type:
+          description: The resources type
+          enum:
+          - ICAL
+          type: string
+        url:
+          description: The resources URL
+          type: string
+      type: object
+    internal_handler.userResponse:
+      properties:
+        blocked:
+          type: boolean
+        channels:
+          description: All channels known with the user
+          items:
+            $ref: '#/components/schemas/internal_handler.channelResponse'
+          type: array
+        comment:
+          type: string
+        user_id:
+          description: Matrix user identifier
+          type: string
+      type: object
+  securitySchemes:
+    AdminAuthentication:
+      in: header
+      name: Authorization
+      type: apiKey
+info:
+  contact:
+    name: Support
+    url: https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
+  description: API documentation for the matrix reminder and calendar bot. [Inprint
+    & Privacy Policy](https://cubicroot.xyz/impressum)
+  title: Matrix Reminder and Calendar Bot (RemindMe)
+  version: 1.8.0
+openapi: 3.0.3
+paths:
+  /calendar:
+    get:
+      description: List all available calendars
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_types.DataResponse'
+                - properties:
+                    data:
+                      items:
+                        $ref: '#/components/schemas/internal_handler.calendarResponse'
+                      type: array
+                  type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: List all calendars
+      tags:
+      - Calendars
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/calendar -X GET -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/calendar";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/calendar";
+
+          var request = new XMLHttpRequest();
+          request.open("GET", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+  /calendar/{id}:
+    patch:
+      description: Regenerates the calendars secret
+      parameters:
+      - description: Calendar ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Renew calendar secret
+      tags:
+      - Calendars
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/calendar/1234 -X PATCH -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/calendar/1234";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PATCH");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/calendar/1234";
+
+          var request = new XMLHttpRequest();
+          request.open("PATCH", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+  /calendar/{id}/ical:
+    get:
+      description: Get calendar as iCal
+      parameters:
+      - description: Calendar ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      - description: authentication token
+        in: query
+        name: token
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: ""
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "500":
+          description: ""
+      summary: Get calendar (iCal)
+      tags:
+      - Calendars
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: curl https://your-bot-domain.tld/calendar/1234/ical?token=example-string
+          -X GET
+      - label: PHP
+        lang: php
+        source: |-
+          $url = "https://your-bot-domain.tld/calendar/1234/ical?token=example-string";
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |2-
+
+          var url = "https://your-bot-domain.tld/calendar/1234/ical?token=example-string";
+
+          var request = new XMLHttpRequest();
+          request.open("GET", url);
+
+          request.send("");
+          console.log(request.responseText);
+  /channel:
+    get:
+      description: List all channels
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_types.DataResponse'
+                - properties:
+                    data:
+                      items:
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.channelResponse'
+                      type: array
+                  type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: List all channels
+      tags:
+      - Channels
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/channel -X GET -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/channel";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/channel";
+
+          var request = new XMLHttpRequest();
+          request.open("GET", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+  /channel/{id}:
+    delete:
+      description: Delete a channel and remove access for this user. If the bot is
+        open for invites the user can simply start a new chat.
+      parameters:
+      - description: Internal channel ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Delete a channel
+      tags:
+      - Channels
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/channel/example-string -X DELETE -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/channel/example-string";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/channel/example-string";
+
+          var request = new XMLHttpRequest();
+          request.open("DELETE", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+  /channel/{id}/thirdpartyresources:
+    get:
+      description: Lists all third party resources in this channel.
+      parameters:
+      - description: Internal channel ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_types.DataResponse'
+                - properties:
+                    data:
+                      items:
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.thirdPartyResourceResponse'
+                      type: array
+                  type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Get third party resources
+      tags:
+      - Channels
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/channel/example-string/thirdpartyresources -X GET -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/channel/example-string/thirdpartyresources";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/channel/example-string/thirdpartyresources";
+
+          var request = new XMLHttpRequest();
+          request.open("GET", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+    post:
+      description: Add a third party resource to a channel.
+      parameters:
+      - description: Internal channel ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.postChannelThirdPartyResourceData'
+        description: payload
+        required: true
+        x-originalParamName: payload
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Add a third party resource to a channel
+      tags:
+      - Channels
+      x-codeSamples: []
+  /channel/{id}/thirdpartyresources/{id2}:
+    delete:
+      description: Delete a third party resource.
+      parameters:
+      - description: Internal channel ID
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: Internal third party resource ID
+        in: path
+        name: id2
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.postChannelThirdPartyResourceData'
+        description: payload
+        required: true
+        x-originalParamName: payload
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Delete a third party resource
+      tags:
+      - Channels
+      x-codeSamples: []
+  /user:
+    get:
+      description: Lists all users and their channels
+      parameters:
+      - description: 'Comma separated list of additional users to include. One of:
+          blocked'
+        in: query
+        name: include[]
+        schema:
+          items:
+            type: string
+          type: array
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_types.DataResponse'
+                - properties:
+                    data:
+                      items:
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.userResponse'
+                      type: array
+                  type: object
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Get all Users
+      tags:
+      - Users
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/user -X GET -H "Authorization: ${TOKEN}"
+      - label: PHP
+        lang: php
+        source: |-
+          $token = "my secret token";
+          $url = "https://your-bot-domain.tld/user";
+          $headers = array(
+              "Authorization: " . $token,
+          );
+
+          $curl = curl_init($url);
+          curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+          var_dump(curl_exec($curl)); // Dumps the response
+          curl_close($curl);
+      - label: JavaScript
+        lang: js
+        source: |-
+          var token = "my secret token";
+          var url = "https://your-bot-domain.tld/user";
+
+          var request = new XMLHttpRequest();
+          request.open("GET", url);
+          request.setRequestHeader("Authorization", token);
+
+          request.send("");
+          console.log(request.responseText);
+  /user/{id}:
+    put:
+      description: Changes the settings or data for a matrix user.
+      parameters:
+      - description: Matrix account ID, use URL encoding
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.putUserData'
+        description: payload
+        required: true
+        x-originalParamName: payload
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unauthorized
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Input validation failed
+        "500":
+          description: ""
+      security:
+      - AdminAuthentication: []
+      summary: Change a User
+      tags:
+      - Users
+      x-codeSamples:
+      - label: bash/curl
+        lang: curl
+        source: |-
+          TOKEN="my secure token"
+          curl https://your-bot-domain.tld/user/example-string -X PUT -H "Authorization: ${TOKEN}" -H "Content-Type: application/json " -d "{\"block_reason\":\"example-string\",\"blocked\":false}"
+      - label: PHP
+        lang: php
+        source: "$token = \"my secret token\";\n$url = \"https://your-bot-domain.tld/user/example-string\";\n$headers
+          = array(\n    \"Authorization: \" . $token,\n);\n$data = json_encode(array(\n\t\"block_reason\"
+          => \"example-string\",\n\t\"blocked\" => false,\n));\n\n\n$curl = curl_init($url);\ncurl_setopt($curl,
+          CURLOPT_CUSTOMREQUEST, \"PUT\");\ncurl_setopt($curl, CURLOPT_RETURNTRANSFER,
+          true);\ncurl_setopt($curl, CURLOPT_POSTFIELDS, $data);\ncurl_setopt($curl,
+          CURLOPT_HTTPHEADER, $headers);\nvar_dump(curl_exec($curl)); // Dumps the
+          response\ncurl_close($curl);"
+      - label: JavaScript
+        lang: js
+        source: "var token = \"my secret token\";\nvar url = \"https://your-bot-domain.tld/user/example-string\";\n\nvar
+          request = new XMLHttpRequest();\nrequest.open(\"PUT\", url);\nrequest.setRequestHeader(\"Authorization\",
+          token);\nrequest.setRequestHeader(\"Content-Type\", \"application/json\");\n\nrequest.send({\n\t\"block_reason\":
+          \"example-string\",\n\t\"blocked\": false\n});\nconsole.log(request.responseText);"
+servers:
+- url: https://your-bot-domain.tld/

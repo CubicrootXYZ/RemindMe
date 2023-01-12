@@ -57,6 +57,7 @@ issues:
     - path: '(.*)_test\.go'
       linters:
         - funlen
+        - forcetypeassert
     - path: '(.*)\/string\.go'
       text: 'G404: Use of weak random number generator' # Used as fallback
     - path: '(.*)\/motivational_sentence\.go'
