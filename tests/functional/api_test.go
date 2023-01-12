@@ -329,6 +329,8 @@ func TestPutUserID(t *testing.T) {
 }
 
 func validateAgainstSpec(t *testing.T, router routers.Router, req *http.Request, resp *http.Response) {
+	t.Helper()
+
 	ctx := context.Background()
 
 	// Find route
@@ -347,6 +349,7 @@ func validateAgainstSpec(t *testing.T, router routers.Router, req *http.Request,
 	}
 
 	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err, "could not read body")
 	// Workaround to read body twice
 	resp.Body.Close()
 	resp.Body = io.NopCloser(bytes.NewBuffer(body))
