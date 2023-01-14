@@ -21,15 +21,20 @@ type Server struct {
 	server   *http.Server
 }
 
+type Handler struct {
+	Calendar *handler.CalendarHandler
+	Database *handler.DatabaseHandler
+}
+
 // NewServer returns a new webserver
-func NewServer(config *configuration.Webserver, calendarHandler *handler.CalendarHandler, databaseHandler *handler.DatabaseHandler) *Server {
+func NewServer(config *configuration.Webserver, handler *Handler) *Server {
 	if len(config.APIkey) < 20 {
 		panic(errors.ErrAPIkeyCriteriaNotMet)
 	}
 	return &Server{
 		config:   config,
-		calendar: calendarHandler,
-		database: databaseHandler,
+		calendar: handler.Calendar,
+		database: handler.Database,
 	}
 }
 

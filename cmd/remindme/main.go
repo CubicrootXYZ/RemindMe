@@ -62,55 +62,22 @@ func startup() error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		err = logger.Sync()
-		if err != nil {
-			log.Error("Failed to sync logger: " + err.Error())
-		}
-	}()
 
-	// Create encryption handler
-	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
+	eventDaemon, reminderDaemon, handler, err := initializeDependencies(config, logger, db)
 	if err != nil {
 		return err
 	}
-
-	// Create matrix client
-	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
-	if err != nil {
-		return err
-	}
-
-	// Inject matrix client into database
-	db.SetMatrixClient(matrixClient)
-
-	// Create messenger
-	log.Debug("creating messenger")
-	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
-	if err != nil {
-		return err
-	}
-
-	// Create matrix syncer
-	log.Debug("creating syncer and handlers")
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
-
-	// Create handler
-	calendarHandler := handler.NewCalendarHandler(db)
-	databaseHandler := handler.NewDatabaseHandler(db)
 
 	eg, ctx := errgroup.WithContext(context.Background())
 
 	// Start event daemon
 	log.Debug("starting up event daemon")
-	eventDaemon := eventdaemon.Create(db, syncer)
 	eg.Go(func() error {
 		return eventDaemon.Start()
 	})
 
 	// Start the reminder daemon
 	log.Debug("starting up reminder daemon")
-	reminderDaemon := reminderdaemon.Create(db, messenger)
 	eg.Go(func() error {
 		return reminderDaemon.Start()
 	})
@@ -119,7 +86,7 @@ func startup() error {
 	var server *api.Server
 	if config.Webserver.Enabled {
 		log.Debug("starting up webserver")
-		server = api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
+		server = api.NewServer(&config.Webserver, handler)
 		eg.Go(func() error {
 			return server.Start(config.Debug)
 		})
@@ -253,4 +220,47 @@ func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix
 
 	log.Debug("... finished initializing matrix client")
 	return
+}
+
+func initializeDependencies(config *configuration.Config, logger *zap.SugaredLogger, db *database.Database) (*eventdaemon.Daemon, *reminderdaemon.Daemon, *api.Handler, error) {
+	// Create encryption handler
+	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Create matrix client
+	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Inject matrix client into database
+	db.SetMatrixClient(matrixClient)
+
+	// Create messenger
+	log.Debug("creating messenger")
+	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Create matrix syncer
+	log.Debug("creating syncer and handlers")
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
+
+	// Create handler
+	calendarHandler := handler.NewCalendarHandler(db)
+	databaseHandler := handler.NewDatabaseHandler(db)
+
+	eventDaemon := eventdaemon.Create(db, syncer)
+	reminderDaemon := reminderdaemon.Create(db, messenger)
+
+	return eventDaemon,
+		reminderDaemon,
+		&api.Handler{
+			Calendar: calendarHandler,
+			Database: databaseHandler,
+		},
+		nil
 }
