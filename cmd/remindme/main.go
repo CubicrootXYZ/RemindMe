@@ -105,8 +105,7 @@ func startup() error {
 	log.Debug("starting up event daemon")
 	eventDaemon := eventdaemon.Create(db, syncer)
 	eg.Go(func() error {
-		eventDaemon.Start()
-		return nil
+		return eventDaemon.Start()
 	})
 
 	// Start the reminder daemon
@@ -122,8 +121,7 @@ func startup() error {
 		log.Debug("starting up webserver")
 		server = api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		eg.Go(func() error {
-			server.Start(config.Debug)
-			return nil
+			return server.Start(config.Debug)
 		})
 	}
 
@@ -133,8 +131,7 @@ func startup() error {
 		log.Debug("starting up ical importer")
 		icalImporter = icalimporter.NewIcalImporter(db)
 		eg.Go(func() error {
-			icalImporter.Run()
-			return nil
+			return icalImporter.Run()
 		})
 	}
 
@@ -155,13 +152,15 @@ func startup() error {
 		case <-ctx.Done():
 			logger.Info("a process stopped, shutting down")
 		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, time.Second*30)
+		defer cancel()
 
 		// Shut down all routines
 		if icalImporter != nil {
 			icalImporter.Stop()
 		}
 		if server != nil {
-			err := server.Stop()
+			err := server.Stop(shutdownCtx)
 			if err != nil && err != http.ErrServerClosed {
 				logger.Error(err.Error())
 			}

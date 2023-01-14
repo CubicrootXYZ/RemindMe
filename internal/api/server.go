@@ -34,7 +34,7 @@ func NewServer(config *configuration.Webserver, calendarHandler *handler.Calenda
 }
 
 // Start starts the http server
-func (server *Server) Start(debug bool) {
+func (server *Server) Start(debug bool) error {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(Logger())
@@ -82,12 +82,13 @@ func (server *Server) Start(debug bool) {
 	}
 	if err := server.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Error(fmt.Sprintf("Error when starting server: %s", err.Error()))
+		return err
 	}
 	log.Info("server stopped")
+	return nil
 }
 
-func (server *Server) Stop() error {
+func (server *Server) Stop(ctx context.Context) error {
 	log.Debug("stopping server ...")
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*30)
 	return server.server.Shutdown(ctx)
 }

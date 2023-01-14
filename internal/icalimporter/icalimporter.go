@@ -28,13 +28,13 @@ func NewIcalImporter(db types.Database) IcalImporter {
 }
 
 // Run runs the importer, call this within a goroutine.
-func (importer *icalimporter) Run() {
+func (importer *icalimporter) Run() error {
 	ticker := time.NewTicker(30 * time.Minute)
 	for {
 		select {
 		case <-importer.stop:
 			log.Info("stopped ical importer")
-			return
+			return nil
 		case <-ticker.C:
 			importer.updateIcalResources()
 		}

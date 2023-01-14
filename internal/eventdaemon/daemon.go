@@ -32,7 +32,7 @@ func Create(database types.Database, syncer Syncer) *Daemon {
 }
 
 // Start starts the daemon
-func (d *Daemon) Start() {
+func (d *Daemon) Start() error {
 	for {
 		log.Info("starting matrix syncer")
 		err := d.syncer.Start(d)
@@ -43,7 +43,7 @@ func (d *Daemon) Start() {
 		select {
 		case <-d.done:
 			log.Info("event daemon stopped")
-			return
+			return nil
 		default:
 		}
 
