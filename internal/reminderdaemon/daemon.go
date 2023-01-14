@@ -2,7 +2,6 @@ package reminderdaemon
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
@@ -16,6 +15,7 @@ import (
 type Daemon struct {
 	Database  Database
 	Messenger asyncmessenger.Messenger
+	Done      chan interface{}
 }
 
 // Create creates a new reminder daemon
@@ -23,13 +23,21 @@ func Create(db Database, messenger asyncmessenger.Messenger) *Daemon {
 	return &Daemon{
 		Database:  db,
 		Messenger: messenger,
+		Done:      make(chan interface{}),
 	}
 }
 
 // Start starts the daemon
-func (d *Daemon) Start(wg *sync.WaitGroup) error {
+func (d *Daemon) Start() error {
 	i := 0
 	for {
+		select {
+		case <-d.Done:
+			log.Info("reminder daeomon stopped")
+			return nil
+		default:
+		}
+
 		i++
 		start := time.Now()
 
@@ -56,8 +64,10 @@ func (d *Daemon) Start(wg *sync.WaitGroup) error {
 			time.Sleep(sleepTime)
 		}
 	}
-	//wg.Done()
-	//return nil
+}
+
+func (d *Daemon) Stop() {
+	close(d.Done)
 }
 
 func (d *Daemon) sendOutReminders(reminders []database.Reminder) {

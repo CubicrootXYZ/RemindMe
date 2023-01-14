@@ -1,7 +1,6 @@
 package eventdaemon
 
 import (
-	"sync"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
@@ -31,7 +30,7 @@ func Create(database types.Database, syncer Syncer) *Daemon {
 }
 
 // Start starts the daemon
-func (d *Daemon) Start(wg *sync.WaitGroup) {
+func (d *Daemon) Start() {
 	for {
 		log.Info("Starting syncer")
 		err := d.syncer.Start(d)
@@ -42,7 +41,6 @@ func (d *Daemon) Start(wg *sync.WaitGroup) {
 		d.syncer.Stop()
 		time.Sleep(time.Minute * 2)
 	}
-	//wg.Done()
 }
 
 // Stop stops the daemon

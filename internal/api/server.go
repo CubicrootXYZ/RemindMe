@@ -2,12 +2,15 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/configuration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/errors"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/handler"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/net/context"
 )
 
 // Server serves a http server
@@ -15,6 +18,7 @@ type Server struct {
 	config   *configuration.Webserver
 	calendar *handler.CalendarHandler
 	database *handler.DatabaseHandler
+	server   *http.Server
 }
 
 // NewServer returns a new webserver
@@ -70,8 +74,18 @@ func (server *Server) Start(debug bool) {
 
 	r.GET("calendar/:id/ical", RequireCalendarSecret(), RequireIDInURI(), server.calendar.GetCalendarICal)
 
-	// Port 8080
-	if err := r.Run(server.config.Address); err != nil {
+	server.server = &http.Server{
+		Addr:         server.config.Address,
+		Handler:      r,
+		ReadTimeout:  time.Second * 15,
+		WriteTimeout: time.Second * 15,
+	}
+	if err := server.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Error(fmt.Sprintf("Error when starting server: %s", err.Error()))
 	}
+}
+
+func (server *Server) Stop() error {
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*30)
+	return server.server.Shutdown(ctx)
 }
