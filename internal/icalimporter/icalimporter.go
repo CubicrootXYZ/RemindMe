@@ -33,7 +33,7 @@ func (importer *icalimporter) Run() {
 	for {
 		select {
 		case <-importer.stop:
-			log.Info("Stopping importer")
+			log.Info("stopped ical importer")
 			return
 		case <-ticker.C:
 			importer.updateIcalResources()
@@ -43,6 +43,7 @@ func (importer *icalimporter) Run() {
 
 // Stop shuts the importer down nicely.
 func (importer *icalimporter) Stop() {
+	log.Debug("stopping ical importer ...")
 	importer.stop <- true
 }
 

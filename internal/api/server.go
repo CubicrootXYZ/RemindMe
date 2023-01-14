@@ -83,9 +83,11 @@ func (server *Server) Start(debug bool) {
 	if err := server.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Error(fmt.Sprintf("Error when starting server: %s", err.Error()))
 	}
+	log.Info("server stopped")
 }
 
 func (server *Server) Stop() error {
+	log.Debug("stopping server ...")
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*30)
 	return server.server.Shutdown(ctx)
 }

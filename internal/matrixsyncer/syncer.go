@@ -119,6 +119,7 @@ func (s *Syncer) Start(daemon *eventdaemon.Daemon) error {
 
 // Stop stops the syncer
 func (s *Syncer) Stop() {
+	log.Debug("stopping matrixsyncer ...")
 	s.client.StopSync()
 }
 

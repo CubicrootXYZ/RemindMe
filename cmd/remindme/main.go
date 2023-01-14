@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -86,14 +85,14 @@ func startup() error {
 	db.SetMatrixClient(matrixClient)
 
 	// Create messenger
-	log.Debug("Creating messenger")
+	log.Debug("creating messenger")
 	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
 	if err != nil {
 		return err
 	}
 
 	// Create matrix syncer
-	log.Debug("Creating syncer and handlers")
+	log.Debug("creating syncer and handlers")
 	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
 
 	// Create handler
@@ -103,7 +102,7 @@ func startup() error {
 	eg, ctx := errgroup.WithContext(context.Background())
 
 	// Start event daemon
-	log.Debug("Starting up event daemon")
+	log.Debug("starting up event daemon")
 	eventDaemon := eventdaemon.Create(db, syncer)
 	eg.Go(func() error {
 		eventDaemon.Start()
@@ -111,7 +110,7 @@ func startup() error {
 	})
 
 	// Start the reminder daemon
-	log.Debug("Starting up reminder daemon")
+	log.Debug("starting up reminder daemon")
 	reminderDaemon := reminderdaemon.Create(db, messenger)
 	eg.Go(func() error {
 		return reminderDaemon.Start()
@@ -120,7 +119,7 @@ func startup() error {
 	// Start the Webserver
 	var server *api.Server
 	if config.Webserver.Enabled {
-		log.Debug("Starting up webserver")
+		log.Debug("starting up webserver")
 		server = api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
 		eg.Go(func() error {
 			server.Start(config.Debug)
@@ -131,7 +130,7 @@ func startup() error {
 	// Start the ical importer
 	var icalImporter icalimporter.IcalImporter
 	if config.BotSettings.AllowIcalImport {
-		log.Debug("Starting up ical importer")
+		log.Debug("starting up ical importer")
 		icalImporter = icalimporter.NewIcalImporter(db)
 		eg.Go(func() error {
 			icalImporter.Run()
@@ -147,11 +146,6 @@ func startup() error {
 		syscall.SIGQUIT,
 	)
 	shutdown := make(chan interface{})
-
-	eg.Go(func() error {
-		time.Sleep(time.Second * 10)
-		return errors.New("test")
-	})
 
 	go func() {
 		logger.Info("waiting for signal")
@@ -175,16 +169,15 @@ func startup() error {
 		reminderDaemon.Stop()
 		eventDaemon.Stop()
 
-		logger.Info("shut down complete")
 		close(shutdown)
 	}()
 
-	log.Info("Started successfully :)")
+	log.Info("started successfully :)")
 	err = eg.Wait()
 	if err != nil {
 		logger.Error("process failed with: ", err.Error())
 	}
-	log.Info("Stopped Bot")
+	log.Info("stopped bot")
 
 	<-shutdown
 
