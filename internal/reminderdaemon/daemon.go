@@ -52,7 +52,6 @@ func (d *Daemon) Start() error {
 			err := d.CheckForDailyReminder()
 			if err != nil {
 				log.Error(fmt.Sprintf("error while checking daily reminders: %s", err.Error()))
-				return err
 			}
 		}
 
@@ -60,7 +59,6 @@ func (d *Daemon) Start() error {
 		reminders, err := d.Database.GetPendingReminder()
 		if err != nil {
 			log.Warn("not able to get Reminders from database: " + err.Error())
-			return err
 		}
 
 		log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(reminders)))
