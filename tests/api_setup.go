@@ -32,11 +32,13 @@ func NewAPI() (*api.Server, string, routers.Router) {
 			BaseURL: "localhost:4232",
 			Address: ":4232",
 		},
-		handler.NewCalendarHandler(db),
-		handler.NewDatabaseHandler(db),
+		&api.Handler{
+			Calendar: handler.NewCalendarHandler(db),
+			Database: handler.NewDatabaseHandler(db),
+		},
 	)
 
-	go testServer.Start(true)
+	go testServer.Start(true) //nolint:errcheck
 
 	router = loadOpenAPISpecs()
 

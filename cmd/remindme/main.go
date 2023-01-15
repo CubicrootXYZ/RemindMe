@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"net/http"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
@@ -17,6 +20,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/matrixsyncer"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/reminderdaemon"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
@@ -53,88 +57,95 @@ func main() {
 
 func startup() error {
 	log.Info("Starting up bot")
-	wg := sync.WaitGroup{}
 
 	config, logger, db, err := setupBasics()
-	defer func() {
-		err = logger.Sync()
-		if err != nil {
-			log.Error("Failed to sync logger: " + err.Error())
-		}
-	}()
 	if err != nil {
 		return err
 	}
 
-	// Create encryption handler
-	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
+	eventDaemon, reminderDaemon, handler, err := initializeDependencies(config, db)
 	if err != nil {
 		return err
 	}
 
-	// Create matrix client
-	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
-	if err != nil {
-		return err
-	}
-
-	// Inject matrix client into database
-	db.SetMatrixClient(matrixClient)
-
-	// Create messenger
-	log.Debug("Creating messenger")
-	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
-	if err != nil {
-		return err
-	}
-
-	// Create matrix syncer
-	log.Debug("Creating syncer and handlers")
-	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
-
-	// Create handler
-	calendarHandler := handler.NewCalendarHandler(db)
-	databaseHandler := handler.NewDatabaseHandler(db)
+	eg, ctx := errgroup.WithContext(context.Background())
 
 	// Start event daemon
-	log.Debug("Starting up event daemon")
-	eventDaemon := eventdaemon.Create(db, syncer)
-	wg.Add(1)
-	go eventDaemon.Start(&wg)
+	log.Debug("starting up event daemon")
+	eg.Go(func() error {
+		return eventDaemon.Start()
+	})
 
 	// Start the reminder daemon
-	log.Debug("Starting up reminder daemon")
-	reminderDaemon := reminderdaemon.Create(db, messenger)
-	wg.Add(1)
-	go func() {
-		err = reminderDaemon.Start(&wg)
-		if err != nil {
-			log.Error("Error while starting reminder daemon: " + err.Error())
-		}
-	}()
+	log.Debug("starting up reminder daemon")
+	eg.Go(func() error {
+		return reminderDaemon.Start()
+	})
 
 	// Start the Webserver
+	var server *api.Server
 	if config.Webserver.Enabled {
-		log.Debug("Starting up webserver")
-		server := api.NewServer(&config.Webserver, calendarHandler, databaseHandler)
-		wg.Add(1)
-		go server.Start(config.Debug)
+		log.Debug("starting up webserver")
+		server = api.NewServer(&config.Webserver, handler)
+		eg.Go(func() error {
+			return server.Start(config.Debug)
+		})
 	}
 
 	// Start the ical importer
+	var icalImporter icalimporter.IcalImporter
 	if config.BotSettings.AllowIcalImport {
-		log.Debug("Starting up ical importer")
-		icalImporter := icalimporter.NewIcalImporter(db)
-		wg.Add(1)
-		go func() {
-			icalImporter.Run()
-			wg.Done()
-		}()
+		log.Debug("starting up ical importer")
+		icalImporter = icalimporter.NewIcalImporter(db)
+		eg.Go(func() error {
+			return icalImporter.Run()
+		})
 	}
 
-	log.Info("Started successfully :)")
-	wg.Wait()
-	log.Info("Stopped Bot")
+	// Listen to signals and shut down if receiving signal
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT,
+	)
+	shutdown := make(chan interface{})
+
+	go func() {
+		logger.Info("waiting for signal")
+		select {
+		case s := <-sigc:
+			logger.Info("got signal, shutting down: ", s)
+		case <-ctx.Done():
+			logger.Info("a process stopped, shutting down")
+		}
+		shutdownCtx, cancel := context.WithTimeout(ctx, time.Second*30)
+		defer cancel()
+
+		// Shut down all routines
+		if icalImporter != nil {
+			icalImporter.Stop()
+		}
+		if server != nil {
+			err := server.Stop(shutdownCtx)
+			if err != nil && err != http.ErrServerClosed {
+				logger.Error(err.Error())
+			}
+		}
+		reminderDaemon.Stop()
+		eventDaemon.Stop()
+
+		close(shutdown)
+	}()
+
+	log.Info("started successfully :)")
+	err = eg.Wait()
+	if err != nil {
+		logger.Error("process failed with: ", err.Error())
+	}
+	log.Info("stopped bot")
+
+	<-shutdown
 
 	return nil
 }
@@ -209,4 +220,47 @@ func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix
 
 	log.Debug("... finished initializing matrix client")
 	return
+}
+
+func initializeDependencies(config *configuration.Config, db *database.Database) (*eventdaemon.Daemon, *reminderdaemon.Daemon, *api.Handler, error) {
+	// Create encryption handler
+	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Create matrix client
+	matrixClient, err := initializeMatrixClient(&config.MatrixBotAccount)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Inject matrix client into database
+	db.SetMatrixClient(matrixClient)
+
+	// Create messenger
+	log.Debug("creating messenger")
+	messenger, err := asyncmessenger.NewMessenger(config.Debug, config, db, cryptoStore, stateStore, matrixClient)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Create matrix syncer
+	log.Debug("creating syncer and handlers")
+	syncer := matrixsyncer.Create(config, config.MatrixUsers, messenger, cryptoStore, stateStore, matrixClient)
+
+	// Create handler
+	calendarHandler := handler.NewCalendarHandler(db)
+	databaseHandler := handler.NewDatabaseHandler(db)
+
+	eventDaemon := eventdaemon.Create(db, syncer)
+	reminderDaemon := reminderdaemon.Create(db, messenger)
+
+	return eventDaemon,
+		reminderDaemon,
+		&api.Handler{
+			Calendar: calendarHandler,
+			Database: databaseHandler,
+		},
+		nil
 }

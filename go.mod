@@ -17,6 +17,8 @@ require (
 	github.com/teambition/rrule-go v1.8.0
 	github.com/tj/go-naturaldate v1.3.0
 	go.uber.org/zap v1.23.0
+	golang.org/x/net v0.2.0
+	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
 	maunium.net/go/maulogger/v2 v2.3.2
@@ -59,7 +61,6 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
