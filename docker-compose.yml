@@ -4,8 +4,6 @@ version: '3.2'
 services:
   remindme-db:
     image: mysql:8.0
-    volumes:
-      - "./db-data:/var/lib/mysql"
     environment:
       - 'MYSQL_ROOT_PASSWORD=mypass'
       - 'MYSQL_DATABASE=remindme'

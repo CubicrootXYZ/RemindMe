@@ -63,7 +63,7 @@ func startup() error {
 		return err
 	}
 
-	eventDaemon, reminderDaemon, handler, err := initializeDependencies(config, logger, db)
+	eventDaemon, reminderDaemon, handler, err := initializeDependencies(config, db)
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func initializeMatrixClient(config *configuration.Matrix) (matrixClient *mautrix
 	return
 }
 
-func initializeDependencies(config *configuration.Config, logger *zap.SugaredLogger, db *database.Database) (*eventdaemon.Daemon, *reminderdaemon.Daemon, *api.Handler, error) {
+func initializeDependencies(config *configuration.Config, db *database.Database) (*eventdaemon.Daemon, *reminderdaemon.Daemon, *api.Handler, error) {
 	// Create encryption handler
 	cryptoStore, stateStore, _, err := initializeEncryptionSetup(&config.MatrixBotAccount, db, config.Debug)
 	if err != nil {
