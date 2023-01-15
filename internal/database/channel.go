@@ -1,239 +1,103 @@
 package database
 
 import (
-	"fmt"
-	"time"
+	"errors"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/log"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/roles"
 	"gorm.io/gorm"
-	"maunium.net/go/mautrix/id"
 )
 
-// Channel holds data about a messaging channel
-type Channel struct {
-	gorm.Model
-	Created           time.Time
-	ChannelIdentifier string `gorm:"index;size:500"`
-	UserIdentifier    string `gorm:"index;size:500"`
-	TimeZone          string
-	DailyReminder     *uint  // minutes from midnight when to send the daily reminder. Null to deactivate.
-	CalendarSecret    string `gorm:"index"`
-	Role              *roles.Role
-	LastCryptoEvent   string `gorm:"type:text"`
-}
-
-// Timezone returns the timezone of the channel
-func (c *Channel) Timezone() *time.Location {
-	if c.TimeZone == "" {
-		return time.UTC
-	}
-	loc, err := time.LoadLocation(c.TimeZone)
-	if err != nil {
-		return time.UTC
-	}
-
-	return loc
-}
-
-// GET DATA
-
-// GetChannel returns the channel
-func (d *Database) GetChannel(id uint) (*Channel, error) {
-	var channel Channel
-	err := d.db.First(&channel, "id = ?", id).Error
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
-}
-
-// GetChannelByUserIdentifier returns the latest channel with the given user
-func (d *Database) GetChannelByUserIdentifier(userID string) (*Channel, error) {
-	var channel Channel
-	err := d.db.First(&channel, "user_identifier = ?", userID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
-}
-
-// GetChannelsByUserIdentifier returns all channels with the given user
-func (d *Database) GetChannelsByUserIdentifier(userID string) ([]Channel, error) {
-	channels := make([]Channel, 0)
-	err := d.db.Find(&channels, "user_identifier = ?", userID).Error
-	if err != nil {
-		return nil, err
-	}
-	return channels, nil
-}
-
-// GetChannelsByChannelIdentifier returns all channels with the given channel identifier
-func (d *Database) GetChannelsByChannelIdentifier(channelID string) ([]Channel, error) {
-	channels := make([]Channel, 0)
-	err := d.db.Find(&channels, "channel_identifier = ?", channelID).Error
-	if err != nil {
-		return nil, err
-	}
-	return channels, nil
-}
-
-// GetChannelByUserAndChannelIdentifier returns the latest channel with the given user and channel id
-func (d *Database) GetChannelByUserAndChannelIdentifier(userID string, channelID string) (*Channel, error) {
-	var channel Channel
-	err := d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
-	if err != nil {
-		return nil, err
-	}
-	return &channel, nil
-}
-
-// GetChannelList returns all known channels
-func (d *Database) GetChannelList() ([]Channel, error) {
-	channel := make([]Channel, 0)
-
-	err := d.db.Model(&channel).Find(&channel).Error
-
+func (service *service) NewChannel(channel *Channel) (*Channel, error) {
+	err := service.db.Create(&channel).Error
 	return channel, err
 }
 
-// ChannelCount returns the amount of active channels
-func (d *Database) ChannelCount() (int64, error) {
-	var count int64
-	err := d.db.Model(&Channel{}).Count(&count).Error
-	return count, err
-}
-
-// UPDATE DATA
-
-// UpdateChannel updates the given channel with the given information
-func (d *Database) UpdateChannel(channelID uint, timeZone string, dailyReminder *uint, role *roles.Role) (*Channel, error) {
-	channel := &Channel{}
-	err := d.db.First(channel, "id = ?", channelID).Error
-	if err != nil {
-		return nil, err
-	}
-
-	channel.TimeZone = timeZone
-	channel.DailyReminder = dailyReminder
-	channel.Role = role
-
-	err = d.db.Save(channel).Error
-	return channel, err
-}
-
-// ChannelSaveChanges saves the changes in the given channel
-func (d *Database) ChannelSaveChanges(channel *Channel) error {
-	return d.db.Save(channel).Error
-}
-
-// GenerateNewCalendarSecret generates and sets a new calendar secret
-func (d *Database) GenerateNewCalendarSecret(channel *Channel) error {
-	channel.CalendarSecret = random.String(30)
-	return d.db.Save(&channel).Error
-}
-
-// INSERT DATA
-
-// AddChannel adds a channel to the database
-func (d *Database) AddChannel(userID, channelID string, role roles.Role) (*Channel, error) {
-	err := d.db.Create(&Channel{
-		Created:           time.Now(),
-		ChannelIdentifier: channelID,
-		UserIdentifier:    userID,
-		Role:              &role,
-		CalendarSecret:    random.String(30),
-	}).Error
-	if err != nil {
-		return nil, err
-	}
-
+func (service *service) GetChannelByID(channelID uint) (*Channel, error) {
 	var channel Channel
-	err = d.db.First(&channel, "user_identifier = ? AND channel_identifier = ?", userID, channelID).Error
+	err := service.db.First(&channel, "id = ?", channelID).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
 	return &channel, err
 }
 
-// DELETE DATA
+func (service *service) AddInputToChannel(channelID uint, input *Input) error {
+	input.ChannelID = channelID
+	return service.db.Save(input).Error
+}
 
-// CleanAdminChannels removes all admin channels except the ones given in keep
-func (d *Database) CleanAdminChannels(keep []*Channel) error {
-	channels, err := d.GetChannelList()
+func (service *service) AddOutputToChannel(channelID uint, output *Output) error {
+	output.ChannelID = channelID
+	return service.db.Save(output).Error
+}
+
+func (service *service) RemoveInputFromChannel(channelID, inputID uint) error {
+	tx := service.newSession()
+	input, err := tx.GetInputByID(inputID)
 	if err != nil {
-		return err
+		return service.rollbackWithError(err)
 	}
 
-	for i := range channels {
-		remove := true
-		for _, channelKeep := range keep {
-			if channels[i].ID == channelKeep.ID && channels[i].ChannelIdentifier == channelKeep.ChannelIdentifier && channels[i].UserIdentifier == channelKeep.UserIdentifier {
-				remove = false
-				break
-			}
-		}
+	// Inform the input service that we will delete the input
+	inputService, ok := service.config.InputServices[input.InputType]
+	if !ok {
+		return service.rollbackWithError(ErrUnknownInput)
+	}
 
-		if channels[i].Role != nil && *channels[i].Role != roles.RoleAdmin {
-			remove = false
-		}
+	err = inputService.InputRemoved(input.InputType, input.InputID, tx.db)
+	if err != nil {
+		return service.rollbackWithError(err)
+	}
 
-		if remove {
-			log.Info(fmt.Sprintf("Removing channel %d", channels[i].ID))
-			err = d.DeleteChannel(&channels[i])
-			if err != nil {
-				return err
-			}
-		}
+	// Delete the input permanently
+	err = tx.deleteInput(channelID, inputID)
+	if err != nil {
+		return service.rollbackWithError(err)
+	}
+
+	err = tx.commit()
+	if err != nil {
+		return service.rollbackWithError(err)
 	}
 
 	return nil
 }
 
-// DeleteChannel deletes the given channel
-func (d *Database) DeleteChannel(channel *Channel) error {
-	channels, err := d.GetChannelsByChannelIdentifier(channel.ChannelIdentifier)
-	if err != nil {
-		return err
-	}
-
-	if d.matrixClient != nil && len(channels) == 1 {
-		_, err := d.matrixClient.LeaveRoom(id.RoomID(channel.ChannelIdentifier))
-		if err != nil {
-			log.Warn("Failed to leave room with: " + err.Error())
-		}
-	}
-
-	err = d.db.Unscoped().Delete(&Message{}, "channel_id = ?", channel.ID).Error
-	if err != nil {
-		return err
-	}
-
-	err = d.db.Unscoped().Delete(&Reminder{}, "channel_id = ?", channel.ID).Error
-	if err != nil {
-		return err
-	}
-
-	err = d.db.Model(&Event{}).Where("channel_id = ?", channel.ID).Updates(map[string]interface{}{"channel_id": nil}).Error
-	if err != nil {
-		return err
-	}
-
-	return d.db.Unscoped().Delete(channel).Error
+func (service *service) deleteInput(channelID, inputID uint) error {
+	return service.db.Unscoped().Where("id = ? AND channel_id = ?", inputID, channelID).Delete(&Input{}).Error
 }
 
-// DeleteChannelsFromUser removed all channels from the given matrix user
-func (d *Database) DeleteChannelsFromUser(userID string) error {
-	channels := make([]Channel, 0)
-	err := d.db.Find(&channels, "user_identifier = ? AND role != 'admin'", userID).Error
+func (service *service) RemoveOutputFromChannel(channelID, outputID uint) error {
+	tx := service.newSession()
+	output, err := tx.GetOutputByID(outputID)
 	if err != nil {
-		return err
+		return service.rollbackWithError(err)
 	}
 
-	for i := range channels {
-		err := d.DeleteChannel(&channels[i])
-		if err != nil {
-			return err
-		}
+	// Inform the output service that we will delete the output
+	outputService, ok := service.config.OutputServices[output.OutputType]
+	if !ok {
+		return service.rollbackWithError(ErrUnknownInput)
+	}
+
+	err = outputService.OutputRemoved(output.OutputType, output.OutputID, tx.db)
+	if err != nil {
+		return service.rollbackWithError(err)
+	}
+
+	// Delete the output permanently
+	err = tx.deleteOutput(channelID, outputID)
+	if err != nil {
+		return service.rollbackWithError(err)
+	}
+
+	err = tx.commit()
+	if err != nil {
+		return service.rollbackWithError(err)
 	}
 
 	return nil
+}
+
+func (service *service) deleteOutput(channelID, outputID uint) error {
+	return service.db.Unscoped().Where("id = ? AND channel_id = ?", outputID, channelID).Delete(&Output{}).Error
 }

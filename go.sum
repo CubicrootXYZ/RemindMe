@@ -1,6 +1,8 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
+github.com/CubicrootXYZ/gologger v0.1.0 h1:1LOEsSfGyVoOKUoPD/nGoDpMQMtBxkYFvRDPz5x04UM=
+github.com/CubicrootXYZ/gologger v0.1.0/go.mod h1:jlct1KBDDIXXPSOgPS02mwAryYrtjNnTT+WWBI6eYi4=
 github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220703090230-acc01808affe h1:Koa5ZzT2oU6MiaAXJqvsZVvPkwUX3nY+m65leAopUKk=
 github.com/CubicrootXYZ/gonaturalduration v0.0.0-20220703090230-acc01808affe/go.mod h1:Zaix2ma+25e/bxQ0g3IPvqDK/9uxhJJKU7QHgyNxvuc=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89hSJJF9Ut/5FmkVwbgKW6VgnvaNseoB+uC+Ro=
@@ -149,6 +151,8 @@ go.uber.org/multierr v1.8.0/go.mod h1:7EAYxJLBy9rStEaz58O2t4Uvip6FSURkq8/ppBp95a
 go.uber.org/zap v1.19.1/go.mod h1:j3DNczoxDZroyBnOT1L/Q79cfUMGZxlv/9dzN7SM1rI=
 go.uber.org/zap v1.23.0 h1:OjGQ5KQDEUawVHxNwQgPpiypGHOxo2mNZsOqTak4fFY=
 go.uber.org/zap v1.23.0/go.mod h1:D+nX8jyLsMHMYrln8A0rJjFt/T/9/bGgIhAqxv5URuY=
+go.uber.org/zap v1.24.0 h1:FiJd5l1UOLj0wCgbSE0rwwXHzEdAZS6hiiSnxJN/D60=
+go.uber.org/zap v1.24.0/go.mod h1:2kMP+WWQ8aoFoedH3T2sq6iJ2yDWpHbP0f6MQbS9Gkg=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
