@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	_ "time/tzdata" // timezone data
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/asyncmessenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/formater"
@@ -15,7 +17,7 @@ import (
 func (s *Syncer) getActionTimezone() *types.Action {
 	action := &types.Action{
 		Name:     "Set my timezone",
-		Examples: []string{"set timezone Europe/Berlin", "set timezone America/Metropolis", "set timezone Asia/Shanghai"},
+		Examples: []string{"set timezone Europe/Berlin", "set timezone America/New_York", "set timezone Asia/Shanghai"},
 		Regex:    regexp.MustCompile("(?i)^set timezone .*$"),
 		Action:   s.actionTimezone,
 	}
@@ -33,7 +35,7 @@ func (s *Syncer) actionTimezone(evt *types.MessageEvent, channel *database.Chann
 	_, err = time.LoadLocation(tz)
 	if err != nil {
 		go s.sendAndStoreReply(asyncmessenger.PlainTextResponse(
-			"Sorry, I do not know this timezone.",
+			"Sorry, I do not know the timezone \""+tz+"\"",
 			evt.Event.ID.String(),
 			evt.Content.Body,
 			evt.Event.Sender.String(),
