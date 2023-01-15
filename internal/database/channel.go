@@ -34,29 +34,29 @@ func (service *service) RemoveInputFromChannel(channelID, inputID uint) error {
 	tx := service.newSession()
 	input, err := tx.GetInputByID(inputID)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	// Inform the input service that we will delete the input
 	inputService, ok := service.config.InputServices[input.InputType]
 	if !ok {
-		return service.rollbackWithError(ErrUnknownInput)
+		return tx.rollbackWithError(ErrUnknownInput)
 	}
 
 	err = inputService.InputRemoved(input.InputType, input.InputID, tx.db)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	// Delete the input permanently
 	err = tx.deleteInput(channelID, inputID)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	err = tx.commit()
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	return nil
@@ -70,29 +70,29 @@ func (service *service) RemoveOutputFromChannel(channelID, outputID uint) error 
 	tx := service.newSession()
 	output, err := tx.GetOutputByID(outputID)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	// Inform the output service that we will delete the output
 	outputService, ok := service.config.OutputServices[output.OutputType]
 	if !ok {
-		return service.rollbackWithError(ErrUnknownInput)
+		return tx.rollbackWithError(ErrUnknownOutput)
 	}
 
 	err = outputService.OutputRemoved(output.OutputType, output.OutputID, tx.db)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	// Delete the output permanently
 	err = tx.deleteOutput(channelID, outputID)
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	err = tx.commit()
 	if err != nil {
-		return service.rollbackWithError(err)
+		return tx.rollbackWithError(err)
 	}
 
 	return nil

@@ -24,11 +24,9 @@ func getConnection() string {
 	return "root:mypass@tcp(" + host + ":3306)/remindme"
 }
 
-func getService() database.Service {
+func getService(config *database.Config) database.Service {
 	service, err := database.NewService(
-		&database.Config{
-			Connection: getConnection(),
-		},
+		config,
 		logger,
 	)
 	if err != nil {
@@ -53,7 +51,9 @@ func getLogger() gologger.Logger {
 
 func TestMain(m *testing.M) {
 	logger = getLogger()
-	service = getService()
+	service = getService(&database.Config{
+		Connection: getConnection(),
+	})
 	gormDB = getGormDB()
 
 	m.Run()
