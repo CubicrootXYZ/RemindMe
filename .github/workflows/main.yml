@@ -78,9 +78,37 @@ jobs:
       - name: Commit static html back
         if: "${{ github.ref == 'refs/heads/main' }}"
         uses: stefanzweifel/git-auto-commit-action@v4
+  
+  tidy:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    container: 
+      image: cubicrootxyz/matrix-go:1.19
+      options: --user root
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run golangci
+        run: go mod tidy
+      - name: Diff
+        run: git diff --exit-code
+
+  generate:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    container: 
+      image: cubicrootxyz/matrix-go:1.19
+      options: --user root
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install mockgen
+        run: go install github.com/golang/mock/mockgen@v1.6.0
+      - name: Run golangci
+        run: go generate ./...
+      - name: Diff
+        run: git diff --exit-code
 
   build_and_push_image:
-    needs: [tests, lint, build_documentation]
+    needs: [tests, lint, build_documentationm, tidy, generate]
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:

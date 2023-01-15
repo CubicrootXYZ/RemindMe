@@ -45,11 +45,35 @@ func NewService(config *Config, logger gologger.Logger) (Service, error) {
 		return nil, err
 	}
 
-	return &service{
+	service := &service{
 		config: config,
 		db:     db,
 		logger: logger,
-	}, nil
+	}
+
+	err = service.migrate()
+	if err != nil {
+		return nil, err
+	}
+
+	return service, nil
+}
+
+func (service *service) migrate() error {
+	models := []interface{}{
+		Channel{},
+		Input{},
+		Output{},
+	}
+
+	for i := range models {
+		err := service.db.AutoMigrate(&models[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (service *service) newSession() *service {

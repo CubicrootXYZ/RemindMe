@@ -13,7 +13,7 @@ func (service *service) NewChannel(channel *Channel) (*Channel, error) {
 
 func (service *service) GetChannelByID(channelID uint) (*Channel, error) {
 	var channel Channel
-	err := service.db.First(&channel, "id = ?", channelID).Error
+	err := service.db.Preload("Inputs").Preload("Outputs").First(&channel, "channels.id = ?", channelID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound
 	}
