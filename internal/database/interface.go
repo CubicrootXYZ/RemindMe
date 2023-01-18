@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -33,6 +34,14 @@ type Service interface {
 
 	// Output
 	GetOutputByID(uint) (*Output, error)
+
+	// Event
+	NewEvent(*Event) (*Event, error)
+
+	GetEventsByChannel(uint) ([]Event, error)
+	GetEventsPending() ([]Event, error)
+
+	UpdateEvent(*Event) (*Event, error)
 }
 
 // Channel is the centerpiece orchestrating in- and outputs.
@@ -48,7 +57,7 @@ type Channel struct {
 type Input struct {
 	gorm.Model
 	ChannelID uint
-	Channel   *Channel
+	Channel   Channel
 	InputType string
 	InputID   uint
 	Enabled   bool
@@ -58,8 +67,23 @@ type Input struct {
 type Output struct {
 	gorm.Model
 	ChannelID  uint
-	Channel    *Channel
+	Channel    Channel
 	OutputType string
 	OutputID   uint
 	Enabled    bool
+}
+
+// Event holds information about an event
+type Event struct {
+	gorm.Model
+	Time           time.Time `gorm:"index"`
+	Duration       time.Duration
+	Message        string
+	Active         bool `gorm:"index"`
+	RepeatInterval *time.Duration
+	RepeatUntil    *time.Time
+	ChannelID      uint
+	Channel        Channel
+	InputID        *uint
+	Input          *Input
 }

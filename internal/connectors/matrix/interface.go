@@ -9,3 +9,9 @@ type InputService interface {
 	Start() error
 	Stop() error
 }
+
+// The in- and output type provided by this package
+const (
+	InputType  = "matrix"
+	OutputType = "matrix"
+)

@@ -68,6 +68,7 @@ func (service *service) migrate() error {
 		Channel{},
 		Input{},
 		Output{},
+		Event{},
 	}
 
 	for i := range models {
