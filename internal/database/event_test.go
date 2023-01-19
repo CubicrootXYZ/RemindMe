@@ -14,6 +14,11 @@ func time2123() time.Time {
 	return t
 }
 
+func time2125() time.Time {
+	t, _ := time.Parse(time.RFC3339, "2125-01-02T15:04:05-07:00")
+	return t
+}
+
 func timeP2124() *time.Time {
 	t, _ := time.Parse(time.RFC3339, "2124-01-02T15:04:05-07:00")
 	return &t
@@ -184,4 +189,45 @@ func TestService_GetEventsPending(t *testing.T) {
 	}
 
 	assert.True(t, evtFound, "missing event not in response")
+}
+
+func TestService_GetEventsPendingWithInactiveEvent(t *testing.T) {
+	eventBefore := testEvent()
+	eventBefore.Time = time.Now().Add(-200 * time.Hour)
+	eventBefore.Active = false
+
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	events, err := service.GetEventsPending()
+	require.NoError(t, err)
+
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+		}
+	}
+
+	assert.False(t, evtFound, "event in response")
+}
+
+func TestService_UpdateEvent(t *testing.T) {
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	eventBefore.Time = time2125()
+	eventBefore.Duration = time.Minute
+	eventBefore.Message = "test 2"
+	eventBefore.Active = false
+
+	eventAfter, err := service.UpdateEvent(eventBefore)
+	require.NoError(t, err)
+
+	assert.Equal(t, eventBefore.Time, eventAfter.Time)
+	assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+	assert.Equal(t, eventBefore.Message, eventAfter.Message)
+	assert.Equal(t, eventBefore.Active, eventAfter.Active)
+	assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
 }

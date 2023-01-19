@@ -7,21 +7,16 @@ import (
 // Service defines a daemon service interface.
 // The daemon is responsible for sending out reminders via the defined outputs.
 type Service interface {
-}
-
-// OutputService defines an interface for services handling outputs.
-type OutputService interface {
-	SendReminder(*Event, *Output) error
-	SendDailyReminder(*DailyReminder, *Output) error
+	Start() error
+	Stop() error
 }
 
 // Event holds information about a reminder.
 type Event struct {
 	EventTime      time.Time
 	Message        string
-	RepeatInterval time.Duration
-	RepeatCountMax uint64
-	RepeatCount    uint64
+	RepeatInterval *time.Duration
+	RepeatUntil    *time.Time
 }
 
 // DailyReminder holds information about a daily reminder.

@@ -16,6 +16,8 @@ var (
 	ErrUnknownOutput = errors.New("unknown output type")
 )
 
+//go:generate mockgen -destination=service_mock.go -package=database . Service
+
 // Service defines a database service interface.
 type Service interface {
 	// Channel
