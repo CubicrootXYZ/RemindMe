@@ -52,7 +52,8 @@ func getLogger() gologger.Logger {
 func TestMain(m *testing.M) {
 	logger = getLogger()
 	service = getService(&database.Config{
-		Connection: getConnection(),
+		Connection:    getConnection(),
+		LogStatements: true,
 	})
 	gormDB = getGormDB()
 
@@ -62,7 +63,8 @@ func TestMain(m *testing.M) {
 func TestNewService(t *testing.T) {
 	_, err := database.NewService(
 		&database.Config{
-			Connection: getConnection(),
+			Connection:    getConnection(),
+			LogStatements: true,
 		},
 		logger,
 	)

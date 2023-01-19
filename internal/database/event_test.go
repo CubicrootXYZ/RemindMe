@@ -157,20 +157,17 @@ func TestService_GetEventsByChannel(t *testing.T) {
 }
 
 func TestService_GetEventsByChannelWithEmptyResponse(t *testing.T) {
-	eventBefore, err := service.NewEvent(testEvent())
+	events, err := service.GetEventsByChannel(123456)
 	require.NoError(t, err)
 
-	events, err := service.GetEventsByChannel(eventBefore.ChannelID)
-	require.NoError(t, err)
-
-	require.Equal(t, len(events), 0)
+	require.Equal(t, 0, len(events))
 }
 
 func TestService_GetEventsPending(t *testing.T) {
 	eventBefore := testEvent()
 	eventBefore.Time = time.Now().Add(-200 * time.Hour)
 
-	eventBefore, err := service.NewEvent(testEvent())
+	eventBefore, err := service.NewEvent(eventBefore)
 	require.NoError(t, err)
 
 	events, err := service.GetEventsPending()
