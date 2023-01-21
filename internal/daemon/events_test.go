@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testDaemon(ctrl *gomock.Controller) (daemon.Service, *database.MockService, *mocks.MockOutputService) {
+func testDaemon(ctrl *gomock.Controller, events, daily bool) (daemon.Service, *database.MockService, *mocks.MockOutputService) {
 	db := database.NewMockService(ctrl)
 	outputService := mocks.NewMockOutputService(ctrl)
 
@@ -21,8 +21,17 @@ func testDaemon(ctrl *gomock.Controller) (daemon.Service, *database.MockService,
 		OutputServices: map[string]daemon.OutputService{
 			"test": outputService,
 		},
-		EventsInterval: time.Millisecond,
+		EventsInterval:        intervalFromBool(events),
+		DailyReminderInterval: intervalFromBool(daily),
 	}, db, gologger.New(gologger.LogLevelDebug, 0)), db, outputService
+}
+
+func intervalFromBool(b bool) time.Duration {
+	if b {
+		return time.Millisecond
+	}
+
+	return time.Hour
 }
 
 func TestMain(m *testing.M) {
@@ -87,7 +96,7 @@ func testOutput() *daemon.Output {
 func TestService_SendOutEvents(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	service, db, outputService := testDaemon(ctrl)
+	service, db, outputService := testDaemon(ctrl, true, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).MinTimes(1).Return(nil)
@@ -102,7 +111,7 @@ func TestService_SendOutEvents(t *testing.T) {
 func TestService_SendOutEventsWithDatabaseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	service, db, _ := testDaemon(ctrl)
+	service, db, _ := testDaemon(ctrl, true, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, errors.New("test"))
 
@@ -116,7 +125,7 @@ func TestService_SendOutEventsWithDatabaseError(t *testing.T) {
 func TestService_SendOutEventsWithOutputError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	service, db, outputService := testDaemon(ctrl)
+	service, db, outputService := testDaemon(ctrl, true, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).MinTimes(1).Return(errors.New("test"))
