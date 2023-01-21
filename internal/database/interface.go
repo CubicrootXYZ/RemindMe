@@ -23,6 +23,7 @@ type Service interface {
 	// Channel
 	NewChannel(*Channel) (*Channel, error)
 
+	GetChannels() ([]Channel, error)
 	GetChannelByID(uint) (*Channel, error)
 
 	AddInputToChannel(uint, *Input) error
@@ -39,6 +40,8 @@ type Service interface {
 	// Output
 	GetOutputByID(uint) (*Output, error)
 
+	UpdateOutput(output *Output) (*Output, error)
+
 	// Event
 	NewEvent(*Event) (*Event, error)
 
@@ -51,11 +54,11 @@ type Service interface {
 // Channel is the centerpiece orchestrating in- and outputs.
 type Channel struct {
 	gorm.Model
-	Description       string
-	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
-	Inputs            []Input
-	Outputs           []Output
-	LastDailyReminder *time.Time
+	Description   string
+	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
+	Inputs        []Input
+	Outputs       []Output
+	TimeZone      string
 }
 
 // Input takes in data.
@@ -71,11 +74,12 @@ type Input struct {
 // Output takes data and moves it elsewhere.
 type Output struct {
 	gorm.Model
-	ChannelID  uint
-	Channel    Channel
-	OutputType string
-	OutputID   uint
-	Enabled    bool
+	ChannelID         uint
+	Channel           Channel
+	OutputType        string
+	OutputID          uint
+	Enabled           bool
+	LastDailyReminder *time.Time // Daily reminder is determined by channel, but any channel will be retried until success
 }
 
 // Event holds information about an event

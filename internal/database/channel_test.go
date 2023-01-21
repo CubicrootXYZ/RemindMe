@@ -277,10 +277,8 @@ func TestUpdateChannel(t *testing.T) {
 	require.NoError(t, err)
 
 	dailyReminder := uint(120)
-	lastDailyReminder := time2123().UTC()
 	channelBefore.Description = "test 2"
 	channelBefore.DailyReminder = &dailyReminder
-	channelBefore.LastDailyReminder = &lastDailyReminder
 
 	_, err = service.UpdateChannel(channelBefore)
 	require.NoError(t, err)
@@ -290,5 +288,21 @@ func TestUpdateChannel(t *testing.T) {
 
 	assert.Equal(t, channelBefore.Description, channelAfter.Description)
 	assert.Equal(t, channelBefore.DailyReminder, channelAfter.DailyReminder)
-	assert.Equal(t, channelBefore.LastDailyReminder, channelAfter.LastDailyReminder)
+}
+
+func TestGetChannels(t *testing.T) {
+	channelBefore, err := service.NewChannel(testChannel())
+	require.NoError(t, err)
+
+	channels, err := service.GetChannels()
+	require.NoError(t, err)
+
+	channelFound := false
+	for _, channelAfter := range channels {
+		if channelAfter.ID == channelBefore.ID {
+			channelFound = true
+		}
+	}
+
+	assert.True(t, channelFound)
 }

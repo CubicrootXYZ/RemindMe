@@ -8,10 +8,10 @@ import (
 )
 
 type service struct {
-	Config   *Config
-	Database database.Service
-	Logger   gologger.Logger
-	Done     chan interface{}
+	config   *Config
+	database database.Service
+	logger   gologger.Logger
+	done     chan interface{}
 }
 
 //go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
@@ -31,25 +31,31 @@ type Config struct {
 // NewService assembles a new service.
 func NewService(config *Config, database database.Service, logger gologger.Logger) Service {
 	return &service{
-		Config:   config,
-		Database: database,
-		Logger:   logger,
-		Done:     make(chan interface{}),
+		config:   config,
+		database: database,
+		logger:   logger,
+		done:     make(chan interface{}),
 	}
 }
 
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
-	eventsTicker := time.NewTicker(service.Config.EventsInterval)
+	eventsTicker := time.NewTicker(service.config.EventsInterval)
+	dailyReminderTicker := time.NewTicker(service.config.DailyReminderInterval)
 
 	for {
 		select {
 		case <-eventsTicker.C:
 			err := service.sendOutEvents()
 			if err != nil {
-				service.Logger.Err(err)
+				service.logger.Err(err)
 			}
-		case <-service.Done:
+		case <-dailyReminderTicker.C:
+			err := service.sendOutDailyReminders()
+			if err != nil {
+				service.logger.Err(err)
+			}
+		case <-service.done:
 			return nil
 		}
 	}
@@ -58,8 +64,8 @@ func (service *service) Start() error {
 // Stops shuts down the service in an unblocking way.
 // Start() will return once the daemon is stopped.
 func (service *service) Stop() error {
-	service.Logger.Debugf("stopping daemon ...")
-	close(service.Done)
+	service.logger.Debugf("stopping daemon ...")
+	close(service.done)
 
 	return nil
 }

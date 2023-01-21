@@ -15,3 +15,9 @@ func (service *service) GetOutputByID(outputID uint) (*Output, error) {
 
 	return &output, err
 }
+
+func (service *service) UpdateOutput(output *Output) (*Output, error) {
+	err := service.db.Save(output).Error
+
+	return output, err
+}

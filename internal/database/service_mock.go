@@ -76,6 +76,21 @@ func (mr *MockServiceMockRecorder) GetChannelByID(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannelByID", reflect.TypeOf((*MockService)(nil).GetChannelByID), arg0)
 }
 
+// GetChannels mocks base method.
+func (m *MockService) GetChannels() ([]Channel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChannels")
+	ret0, _ := ret[0].([]Channel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChannels indicates an expected call of GetChannels.
+func (mr *MockServiceMockRecorder) GetChannels() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannels", reflect.TypeOf((*MockService)(nil).GetChannels))
+}
+
 // GetEventsByChannel mocks base method.
 func (m *MockService) GetEventsByChannel(arg0 uint) ([]Event, error) {
 	m.ctrl.T.Helper()
@@ -222,4 +237,19 @@ func (m *MockService) UpdateEvent(arg0 *Event) (*Event, error) {
 func (mr *MockServiceMockRecorder) UpdateEvent(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEvent", reflect.TypeOf((*MockService)(nil).UpdateEvent), arg0)
+}
+
+// UpdateOutput mocks base method.
+func (m *MockService) UpdateOutput(arg0 *Output) (*Output, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOutput", arg0)
+	ret0, _ := ret[0].(*Output)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOutput indicates an expected call of UpdateOutput.
+func (mr *MockServiceMockRecorder) UpdateOutput(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOutput", reflect.TypeOf((*MockService)(nil).UpdateOutput), arg0)
 }
