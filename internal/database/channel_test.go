@@ -269,3 +269,26 @@ func TestRemoveOutputFromChannelWithoutOutputService(t *testing.T) {
 
 	assert.Equal(t, 1, len(channelAfter.Outputs))
 }
+
+func TestUpdateChannel(t *testing.T) {
+	channelBefore := testChannel()
+
+	channelBefore, err := service.NewChannel(channelBefore)
+	require.NoError(t, err)
+
+	dailyReminder := uint(120)
+	lastDailyReminder := time2123().UTC()
+	channelBefore.Description = "test 2"
+	channelBefore.DailyReminder = &dailyReminder
+	channelBefore.LastDailyReminder = &lastDailyReminder
+
+	_, err = service.UpdateChannel(channelBefore)
+	require.NoError(t, err)
+
+	channelAfter, err := service.GetChannelByID(channelBefore.ID)
+	require.NoError(t, err)
+
+	assert.Equal(t, channelBefore.Description, channelAfter.Description)
+	assert.Equal(t, channelBefore.DailyReminder, channelAfter.DailyReminder)
+	assert.Equal(t, channelBefore.LastDailyReminder, channelAfter.LastDailyReminder)
+}

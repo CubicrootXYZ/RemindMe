@@ -31,6 +31,8 @@ type Service interface {
 	RemoveInputFromChannel(channelID, inputID uint) error
 	RemoveOutputFromChannel(channelID, outputID uint) error
 
+	UpdateChannel(channel *Channel) (*Channel, error)
+
 	// Input
 	GetInputByID(uint) (*Input, error)
 
@@ -49,10 +51,11 @@ type Service interface {
 // Channel is the centerpiece orchestrating in- and outputs.
 type Channel struct {
 	gorm.Model
-	Description   string
-	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
-	Inputs        []Input
-	Outputs       []Output
+	Description       string
+	DailyReminder     *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
+	Inputs            []Input
+	Outputs           []Output
+	LastDailyReminder *time.Time
 }
 
 // Input takes in data.

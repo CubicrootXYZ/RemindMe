@@ -101,3 +101,9 @@ func (service *service) RemoveOutputFromChannel(channelID, outputID uint) error 
 func (service *service) deleteOutput(channelID, outputID uint) error {
 	return service.db.Unscoped().Where("id = ? AND channel_id = ?", outputID, channelID).Delete(&Output{}).Error
 }
+
+func (service *service) UpdateChannel(channel *Channel) (*Channel, error) {
+	err := service.db.Save(channel).Error
+
+	return channel, err
+}
