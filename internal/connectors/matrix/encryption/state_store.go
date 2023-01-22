@@ -56,8 +56,6 @@ func (store *StateStore) GetEncryptionEvent(roomID id.RoomID) *event.EncryptionE
 		return nil
 	}
 	return &encryptionEvent
-
-	return nil
 }
 
 func (store *StateStore) FindSharedRooms(userID id.UserID) []id.RoomID {
@@ -101,7 +99,6 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 	if _, err := store.database.UpdateRoom(room); err != nil {
 		store.logger.Errorf("Failed saving encryption event: " + err.Error())
 	}
-
 }
 
 func (store *StateStore) GetUserIDs(roomID string) []id.UserID {
