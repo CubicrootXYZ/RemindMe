@@ -1,55 +1,19 @@
-# Enable debug mode for verbose logging
+# Enabel debug mode for verbose logging
 debug: false
-
-# Settings for the bots matrix account
-matrixbotaccount:
-  # Matrix user name
-  username: "iamabot"
-  # Matrix password
-  password: fsddf
-  # Matrix homeserver
-  homeserver: fsdf
-  # Device ID for the bot, used to identify the server connection
-  deviceid: "my-bot-12345"
-  
-  ## EXPERIMENTAL ##
-  # Set to true to allow end to end encryption
-  e2ee: false
-  # Device key for encryption
-  devicekey: "dlfjgaöldf"
-
-# Matrix username to interact with
-# they will all be granted admin permissions
-matrixusers: 
-  - "yourmatrixuser"
-  - "anotheruser"
-
-# Settings regarding the bot
-botsettings:
-  # Allow users to invite the bot
-  allowinvites: false
-  # Maximum parallel users that the bot will accept. -1 to have no limit.
-  # With to many users the bot might run into API rate limits of the matrix instance.
-  maxuser: 10
-  # Set to true to let the bot send reactions
-  # enabling this will drastically increase send events, for heavy use you might run into rate limits of the bots instance
-  sendreactions: false
-  # Allow users (only admin users) to import reminders from an Ical link
-  # The reminder will be scheduled to 5 minutes before the event is, the resources will be pulled every 30 minutes
-  # THIS IS CURRENTLY IN BETA TESTING, DO NOT ENABLE IF YOU DO NOT KNOW WHAT YOU ARE DOING
-  allowicalimport: false
 
 # Database settings
 database:
   # MySQL connection string
   # https://github.com/go-sql-driver/mysql#dsn-data-source-name
-  connection: "username:password@protocol(address)/dbname"
+  connection: "root:mypass@tcp(localhost:3306)/remindme"
+  # Log SQL statements, default disabled
+  logstatements: false
 
-# Webserver settings
-webserver:
-  # Set to true to enable the API. All further settings are only needed if the webserver is enabled.
-  enabled: false 
-  # Apikey to authenticate against the API. At least 20 characters.
-  apikey: "1234"
-  # The base url where the bot is reachable from outside
-  baseurl: "my-bot.tld"
+# Daemon settings
+daemon:
+  # Intervals in which to run specific operations
+  intervals:
+    # Check for events, in seconds
+    events: 30
+    # Check for daily reminders, in seconds
+    dailyreminders: 600

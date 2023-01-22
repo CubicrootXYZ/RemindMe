@@ -6,12 +6,15 @@ require (
 	github.com/CubicrootXYZ/gologger v0.1.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/golang/mock v1.6.0
+	github.com/jinzhu/configor v1.2.1
 	github.com/stretchr/testify v1.8.1
+	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
 )
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -24,5 +27,6 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

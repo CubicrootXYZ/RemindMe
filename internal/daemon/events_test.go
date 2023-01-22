@@ -17,7 +17,7 @@ func testDaemon(ctrl *gomock.Controller, events, daily bool) (daemon.Service, *d
 	db := database.NewMockService(ctrl)
 	outputService := mocks.NewMockOutputService(ctrl)
 
-	return daemon.NewService(&daemon.Config{
+	return daemon.New(&daemon.Config{
 		OutputServices: map[string]daemon.OutputService{
 			"test": outputService,
 		},

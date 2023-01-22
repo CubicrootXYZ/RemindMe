@@ -36,6 +36,8 @@ type Config struct {
 
 // NewService assembles a new database service.
 func NewService(config *Config, logger gologger.Logger) (Service, error) {
+	logger.Debugf("setting up database ...")
+
 	if config == nil {
 		return nil, ErrInvalidConfig
 	}
@@ -55,11 +57,13 @@ func NewService(config *Config, logger gologger.Logger) (Service, error) {
 		logger: logger,
 	}
 
+	logger.Debugf("migrating database ...")
 	err = service.migrate()
 	if err != nil {
 		return nil, err
 	}
 
+	logger.Debugf("database setup finished")
 	return service, nil
 }
 

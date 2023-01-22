@@ -28,8 +28,8 @@ type Config struct {
 	DailyReminderInterval time.Duration            // Interval in which to send out daily reminder
 }
 
-// NewService assembles a new service.
-func NewService(config *Config, database database.Service, logger gologger.Logger) Service {
+// New assembles a new service.
+func New(config *Config, database database.Service, logger gologger.Logger) Service {
 	return &service{
 		config:   config,
 		database: database,
@@ -56,6 +56,7 @@ func (service *service) Start() error {
 				service.logger.Err(err)
 			}
 		case <-service.done:
+			service.logger.Debugf("daemon stopped")
 			return nil
 		}
 	}
