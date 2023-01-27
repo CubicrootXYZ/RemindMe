@@ -15,7 +15,7 @@ import (
 
 // NewCryptoStore sets up a new crypto store.
 // The crypto store saves data into a SQLite file, it will be created at data/olm.db.
-func NewCryptoStore(username, deviceKey, homeserver string, logger gologger.Logger) (crypto.Store, id.DeviceID, error) {
+func NewCryptoStore(username, deviceKey, homeserver, confDeviceID string, logger gologger.Logger) (crypto.Store, id.DeviceID, error) {
 	var deviceID id.DeviceID
 	usernameFull := fmt.Sprintf("@%s:%s", username, strings.ReplaceAll(strings.ReplaceAll(homeserver, "https://", ""), "http://", ""))
 
@@ -35,7 +35,7 @@ func NewCryptoStore(username, deviceKey, homeserver string, logger gologger.Logg
 	err2 := db.QueryRow("SELECT device_id FROM crypto_account WHERE account_id=$1", usernameFull).Scan(&deviceID)
 	if err2 != nil && err2 != sql.ErrNoRows {
 		logger.Errorf("Failed to scan device ID: " + err2.Error())
-		deviceID = id.DeviceID(deviceID)
+		deviceID = id.DeviceID(confDeviceID)
 	}
 
 	cryptoDB, err := dbutil.NewWithDB(db, "sqlite3")

@@ -35,13 +35,6 @@ func (service *service) migrate() error {
 	return nil
 }
 
-func (service *service) GetRoomByID(roomID string) (*MatrixRoom, error) {
-	var room MatrixRoom
-	err := service.db.Preload("Users").First(&room, "room_id = ?", roomID).Error
-
-	return &room, err
-}
-
 func (service *service) UpdateRoom(room *MatrixRoom) (*MatrixRoom, error) {
 	err := service.db.Save(room).Error
 

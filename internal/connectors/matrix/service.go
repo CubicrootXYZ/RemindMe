@@ -86,9 +86,13 @@ func (service *service) setupMautrixClient() error {
 func (service *service) setupEncryption() error {
 	service.logger.Debugf("setting up matrix end to end encryption ...")
 
-	deviceID := id.DeviceID(service.config.DeviceID)
-
-	cryptoStore, deviceID, err := encryption.NewCryptoStore(service.config.Username, service.config.DeviceKey, service.config.Homeserver, service.logger.WithField("component", "cryptostore"))
+	cryptoStore, deviceID, err := encryption.NewCryptoStore(
+		service.config.Username,
+		service.config.DeviceKey,
+		service.config.Homeserver,
+		service.config.DeviceID,
+		service.logger.WithField("component", "cryptostore"),
+	)
 	if err != nil {
 		return err
 	}
@@ -116,7 +120,7 @@ func (service *service) Start() error {
 	return err
 }
 
-// Stop stops the connector.
+// Stop stops the services asynchronous processes.
 // This method will not block, wait for Stop() to return.
 func (service *service) Stop() error {
 	service.logger.Debugf("stopping matrix connector ...")
