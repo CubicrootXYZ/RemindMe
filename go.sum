@@ -2,6 +2,8 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/CubicrootXYZ/gologger v0.1.0 h1:1LOEsSfGyVoOKUoPD/nGoDpMQMtBxkYFvRDPz5x04UM=
 github.com/CubicrootXYZ/gologger v0.1.0/go.mod h1:jlct1KBDDIXXPSOgPS02mwAryYrtjNnTT+WWBI6eYi4=
+github.com/CubicrootXYZ/gologger v0.2.0 h1:akcsdqPw4YWnqtj6qbuKQmlaW2otC0N6lsfkG5MdN9Q=
+github.com/CubicrootXYZ/gologger v0.2.0/go.mod h1:4RwHxTgELS9TbfuMYQdVYE9FJZYj6vEoreF2/NGDfXQ=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89hSJJF9Ut/5FmkVwbgKW6VgnvaNseoB+uC+Ro=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d/go.mod h1:CN47TkXtxcVeEZ9KqqwEoRKVsfqTh2pl0XKPWIB/Z8o=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
@@ -79,6 +81,8 @@ go.uber.org/goleak v1.1.11 h1:wy28qYRKZgnJTxGxvye5/wgWr1EKjmUDGYox5mGlRlI=
 go.uber.org/multierr v1.6.0/go.mod h1:cdWPpRnG4AhwMwsgIHip0KRBQjJy5kYEpYjJxpXp9iU=
 go.uber.org/multierr v1.8.0 h1:dg6GjLku4EH+249NNmoIciG9N/jURbDG+pFlTkhzIC8=
 go.uber.org/multierr v1.8.0/go.mod h1:7EAYxJLBy9rStEaz58O2t4Uvip6FSURkq8/ppBp95ak=
+go.uber.org/multierr v1.9.0 h1:7fIwc/ZtS0q++VgcfqFDxSBZVv/Xo49/SYnDFupUwlI=
+go.uber.org/multierr v1.9.0/go.mod h1:X2jQV1h+kxSjClGpnseKVIxpmcjrj7MNnI0bnlfKTVQ=
 go.uber.org/zap v1.19.1/go.mod h1:j3DNczoxDZroyBnOT1L/Q79cfUMGZxlv/9dzN7SM1rI=
 go.uber.org/zap v1.24.0 h1:FiJd5l1UOLj0wCgbSE0rwwXHzEdAZS6hiiSnxJN/D60=
 go.uber.org/zap v1.24.0/go.mod h1:2kMP+WWQ8aoFoedH3T2sq6iJ2yDWpHbP0f6MQbS9Gkg=

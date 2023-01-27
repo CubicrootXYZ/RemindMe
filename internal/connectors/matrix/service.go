@@ -19,7 +19,7 @@ type service struct {
 	crypto struct {
 		enabled     bool
 		cryptoStore crypto.Store
-		stateStore  crypto.StateStore
+		stateStore  *encryption.StateStore
 	}
 }
 
@@ -94,7 +94,7 @@ func (service *service) setupEncryption() error {
 	}
 	service.crypto.cryptoStore = cryptoStore
 
-	stateStore := encryption.NewStateStore(nil, &encryption.StateStoreConfig{
+	stateStore := encryption.NewStateStore(nil, &encryption.StateStoreConfig{ // TODO database
 		Username:   service.config.Username,
 		Homeserver: service.config.Homeserver,
 	}, service.logger.WithField("component", "statestore"))
@@ -104,5 +104,22 @@ func (service *service) setupEncryption() error {
 	service.crypto.enabled = true
 
 	service.logger.Debugf("matrix end to end encryption setup finished")
+	return nil
+}
+
+// Start starts the services asynchronous processes.
+// This method will block until stopped.
+func (service *service) Start() error {
+	service.logger.Debugf("starting matrix connector")
+	err := service.startListener()
+	service.logger.Debugf("matrix connector stopped")
+	return err
+}
+
+// Stop stops the connector.
+// This method will not block, wait for Stop() to return.
+func (service *service) Stop() error {
+	service.logger.Debugf("stopping matrix connector ...")
+	service.client.StopSync()
 	return nil
 }
