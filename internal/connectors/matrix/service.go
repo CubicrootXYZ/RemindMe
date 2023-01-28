@@ -2,7 +2,9 @@ package matrix
 
 import (
 	"github.com/CubicrootXYZ/gologger"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
@@ -11,15 +13,18 @@ import (
 )
 
 type service struct {
-	config   *Config
-	logger   gologger.Logger
-	database database.Service
+	config         *Config
+	logger         gologger.Logger
+	database       database.Service
+	matrixDatabase matrixdb.Service
+	botname        string
 
 	client *mautrix.Client
 	crypto struct {
 		enabled     bool
 		cryptoStore crypto.Store
 		stateStore  *encryption.StateStore
+		olm         *crypto.OlmMachine
 	}
 }
 
@@ -35,15 +40,23 @@ type Config struct {
 }
 
 // New sets up a new matrix connector.
-func New(config *Config, database *database.Service, logger gologger.Logger) (Service, error) {
+func New(config *Config, database database.Service, logger gologger.Logger) (Service, error) {
 	logger.Debugf("setting up matrix connector ...")
-	service := &service{
-		config:   config,
-		logger:   logger,
-		database: *database,
+
+	matrixDB, err := matrixdb.New(config.gormDB)
+	if err != nil {
+		return nil, err
 	}
 
-	err := service.setupMautrixClient()
+	service := &service{
+		config:         config,
+		logger:         logger,
+		database:       database,
+		matrixDatabase: matrixDB,
+		botname:        format.FullUsername(config.Username, config.Homeserver),
+	}
+
+	err = service.setupMautrixClient()
 	if err != nil {
 		service.logger.Err(err)
 		return nil, err
@@ -98,11 +111,14 @@ func (service *service) setupEncryption() error {
 	}
 	service.crypto.cryptoStore = cryptoStore
 
-	stateStore := encryption.NewStateStore(nil, &encryption.StateStoreConfig{ // TODO database
+	stateStore := encryption.NewStateStore(service.matrixDatabase, &encryption.StateStoreConfig{
 		Username:   service.config.Username,
 		Homeserver: service.config.Homeserver,
 	}, service.logger.WithField("component", "statestore"))
 	service.crypto.stateStore = stateStore
+
+	olm := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
+	service.crypto.olm = olm
 
 	service.config.DeviceID = deviceID.String() // we might get a new device ID if none is set
 	service.crypto.enabled = true

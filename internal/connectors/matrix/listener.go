@@ -3,10 +3,14 @@ package matrix
 import (
 	"errors"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
+
+type messageAction interface {
+	NewMessage(message *MessageEvent, room *database.MatrixRoom)
+}
 
 func (service *service) startListener() error {
 	syncer, ok := service.client.Syncer.(*mautrix.DefaultSyncer)
@@ -15,10 +19,8 @@ func (service *service) startListener() error {
 	}
 
 	if service.crypto.enabled {
-		olm := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
-
 		syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
-			olm.ProcessSyncResponse(resp, since)
+			service.crypto.olm.ProcessSyncResponse(resp, since)
 			return true
 		})
 		// TODO syncer.OnEventType(event.EventEncrypted, messageHandler.NewEvent)
