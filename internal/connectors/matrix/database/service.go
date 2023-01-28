@@ -34,16 +34,3 @@ func (service *service) migrate() error {
 
 	return nil
 }
-
-func (service *service) UpdateRoom(room *MatrixRoom) (*MatrixRoom, error) {
-	err := service.db.Save(room).Error
-
-	return room, err
-}
-
-func (service *service) GetUserByID(userID string) (*MatrixUser, error) {
-	var user MatrixUser
-	err := service.db.Preload("Rooms").First(&user, "id = ?", userID).Error
-
-	return &user, err
-}

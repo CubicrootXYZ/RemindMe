@@ -1,15 +1,23 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
+var (
+	ErrNotFound = errors.New("not found")
+)
 
 // Service offers an interface for a matrix related database.
 type Service interface {
 	GetRoomByID(roomID string) (*MatrixRoom, error)
 	NewRoom(room *MatrixRoom) (*MatrixRoom, error)
+	UpdateRoom(room *MatrixRoom) (*MatrixRoom, error)
 
 	GetUserByID(userID string) (*MatrixUser, error)
-
-	UpdateRoom(room *MatrixRoom) (*MatrixRoom, error)
+	NewUser(user *MatrixUser) (*MatrixUser, error)
 }
 
 // MatrixRoom holds information about a room.

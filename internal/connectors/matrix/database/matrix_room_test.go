@@ -34,6 +34,24 @@ func TestGetRoomByID(t *testing.T) {
 	assertRoomsEqual(t, roomBefore, roomAfter)
 }
 
+func TestGetRoomByIDWithRoomNotFound(t *testing.T) {
+	_, err := service.GetRoomByID("abc")
+	assert.ErrorIs(t, err, database.ErrNotFound)
+}
+
+func TestUpdateRoom(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	roomBefore.LastCryptoEvent = "{\"a\": \"b\"}"
+	_, err = service.UpdateRoom(roomBefore)
+	require.NoError(t, err)
+
+	roomAfter, err := service.GetRoomByID(roomBefore.RoomID)
+	require.NoError(t, err)
+	assertRoomsEqual(t, roomBefore, roomAfter)
+}
+
 func assertRoomsEqual(t *testing.T, a *database.MatrixRoom, b *database.MatrixRoom) {
 	t.Helper()
 

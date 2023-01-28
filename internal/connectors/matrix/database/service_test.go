@@ -52,10 +52,3 @@ func TestMain(m *testing.M) {
 
 	m.Run()
 }
-
-func testUser() *database.MatrixUser {
-	return &database.MatrixUser{
-		ID:    "@remindme:example.org",
-		Rooms: []database.MatrixRoom{*testRoom()},
-	}
-}
