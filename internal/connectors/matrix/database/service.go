@@ -23,6 +23,7 @@ func (service *service) migrate() error {
 	models := []interface{}{
 		MatrixRoom{},
 		MatrixUser{},
+		MatrixMessage{},
 	}
 
 	for _, m := range models {
