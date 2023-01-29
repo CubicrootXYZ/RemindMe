@@ -1,6 +1,8 @@
 package matrix
 
 import (
+	"regexp"
+
 	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
@@ -28,15 +30,31 @@ type service struct {
 	}
 }
 
+type MessageAction interface {
+	Selector() *regexp.Regexp
+	Name() string
+	HandleEvent(event *MessageEvent)
+}
+
+type ReplyAction interface {
+	Selector() *regexp.Regexp
+	Name() string
+	HandleEvent(event *MessageEvent) // TODO add answer to message obj
+}
+
 // Config holds information for the matrix connector.
 type Config struct {
-	gormDB     *gorm.DB
-	Username   string
-	Password   string
-	Homeserver string
-	DeviceID   string
-	EnableE2EE bool
-	DeviceKey  string
+	gormDB               *gorm.DB
+	Username             string
+	Password             string
+	Homeserver           string
+	DeviceID             string
+	EnableE2EE           bool
+	DeviceKey            string
+	MessageActions       []MessageAction
+	DefaultMessageAction MessageAction
+	ReplyActions         []ReplyAction
+	DefaultReplyAction   ReplyAction
 }
 
 // New sets up a new matrix connector.

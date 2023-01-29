@@ -1,9 +1,10 @@
 package matrix
 
 import (
-	"fmt"
+	"strings"
 
-	"github.com/rs/zerolog/log"
+	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -53,22 +54,43 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		return
 	}
 
-	// Check if it is a reply to a message we know
-	if s.checkReplyActions(msgEvt, channel) {
-		return
+	if msgEvt.Content.RelatesTo != nil || msgEvt.Content.RelatesTo.InReplyTo != nil {
+		// it is a reply
+		service.findMatchingReplyAction(msgEvt, room, logger)
+	} else {
+		// it is a message
+		service.findMatchingMessageAction(msgEvt, room, logger)
+	}
+}
+
+func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
+	// TODO get the message from the db we are replying too
+
+	msg := strings.ToLower(msgEvent.Content.Body)
+	for i := range service.config.ReplyActions {
+		if service.config.ReplyActions[i].Selector().MatchString(msg) {
+			logger.Infof("moving event to reply action: %s", service.config.ReplyActions[i].Name())
+			service.config.ReplyActions[i].HandleEvent(msgEvent)
+			return
+		}
 	}
 
-	// Check if a action matches
-	if s.checkActions(msgEvt, channel) {
-		return
+	logger.Infof("moving event to default reply action")
+	service.config.DefaultReplyAction.HandleEvent(msgEvent)
+}
+
+func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
+	msg := strings.ToLower(msgEvent.Content.Body)
+	for i := range service.config.MessageActions {
+		if service.config.MessageActions[i].Selector().MatchString(msg) {
+			logger.Infof("moving event to message action: %s", service.config.MessageActions[i].Name())
+			service.config.MessageActions[i].HandleEvent(msgEvent)
+			return
+		}
 	}
 
-	// Nothing left so it must be a reminder
-	_, err = s.newReminder(msgEvt, channel)
-	if err != nil {
-		log.Warn(fmt.Sprintf("Failed parsing the Reminder with: %s", err.Error()))
-		return
-	}
+	logger.Infof("moving event to default message action")
+	service.config.DefaultMessageAction.HandleEvent(msgEvent)
 }
 
 func (service *service) parseMessageEvent(evt *event.Event) (*MessageEvent, error) {
