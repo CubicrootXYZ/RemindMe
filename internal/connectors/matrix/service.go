@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"regexp"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
@@ -28,6 +29,7 @@ type service struct {
 		stateStore  *encryption.StateStore
 		olm         *crypto.OlmMachine
 	}
+	lastMessageFrom time.Time
 }
 
 type MessageAction interface {
@@ -39,7 +41,7 @@ type MessageAction interface {
 type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
-	HandleEvent(event *MessageEvent) // TODO add answer to message obj
+	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage) // TODO add answer to message obj
 }
 
 // Config holds information for the matrix connector.

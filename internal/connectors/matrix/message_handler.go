@@ -25,7 +25,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	logger.Debugf("new message received")
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(service.config.Username) { // TODO actually read last evt time from db || evt.Timestamp/1000 <= s.started {
+	if evt.Sender == id.UserID(service.config.Username) || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return
 	}
 
@@ -48,6 +48,12 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		return
 	}
 
+	// Check if we already know the message
+	_, err = service.matrixDatabase.GetMessageByID(evt.ID.String())
+	if err == nil {
+		return
+	}
+
 	msgEvt, err := service.parseMessageEvent(evt)
 	if err != nil {
 		logger.Infof("can not handle event: " + err.Error())
@@ -65,18 +71,23 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 
 func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
 	// TODO get the message from the db we are replying too
+	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
+	if err != nil {
+		logger.Infof("discarding message, can not find the message it replies to: %s", err.Error())
+		return
+	}
 
 	msg := strings.ToLower(msgEvent.Content.Body)
 	for i := range service.config.ReplyActions {
 		if service.config.ReplyActions[i].Selector().MatchString(msg) {
 			logger.Infof("moving event to reply action: %s", service.config.ReplyActions[i].Name())
-			service.config.ReplyActions[i].HandleEvent(msgEvent)
+			service.config.ReplyActions[i].HandleEvent(msgEvent, replyToMessage)
 			return
 		}
 	}
 
 	logger.Infof("moving event to default reply action")
-	service.config.DefaultReplyAction.HandleEvent(msgEvent)
+	service.config.DefaultReplyAction.HandleEvent(msgEvent, replyToMessage)
 }
 
 func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {

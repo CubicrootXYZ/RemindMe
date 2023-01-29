@@ -30,3 +30,11 @@ func (service *service) startListener() error {
 
 	return service.client.Sync()
 }
+
+// setLastMessage so the handlers will know which messages can be ignored savely
+func (service *service) setLastMessage() {
+	message, err := service.matrixDatabase.GetLastMessage()
+	if err == nil {
+		service.lastMessageFrom = message.SendAt
+	}
+}
