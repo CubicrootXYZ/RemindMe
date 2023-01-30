@@ -24,7 +24,7 @@ func testRoom() *database.MatrixRoom {
 	}
 }
 
-func TestGetRoomByID(t *testing.T) {
+func TestService_GetRoomByID(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
 
@@ -39,7 +39,7 @@ func TestGetRoomByIDWithRoomNotFound(t *testing.T) {
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 
-func TestUpdateRoom(t *testing.T) {
+func TestService_UpdateRoom(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
 
@@ -50,6 +50,33 @@ func TestUpdateRoom(t *testing.T) {
 	roomAfter, err := service.GetRoomByID(roomBefore.RoomID)
 	require.NoError(t, err)
 	assertRoomsEqual(t, roomBefore, roomAfter)
+}
+
+func TestService_DeleteRoom(t *testing.T) {
+	user, err := service.NewUser(testUser())
+	require.NoError(t, err)
+
+	room := testRoom()
+	room.Users = append(room.Users, *user)
+
+	room, err = service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	err = service.DeleteRoom(room.ID)
+	require.NoError(t, err)
+
+	_, err = service.GetRoomByID(room.RoomID)
+	assert.ErrorIs(t, err, database.ErrNotFound)
+}
+
+func TestService_GetRoomCount(t *testing.T) {
+	_, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	cnt, err := service.GetRoomCount()
+	require.NoError(t, err)
+
+	assert.LessOrEqual(t, int64(1), cnt)
 }
 
 func assertRoomsEqual(t *testing.T, a *database.MatrixRoom, b *database.MatrixRoom) {

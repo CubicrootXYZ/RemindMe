@@ -64,7 +64,6 @@ type Config struct {
 
 	AllowInvites bool
 	RoomLimit    uint
-	UserLimit    uint
 }
 
 // New sets up a new matrix connector.

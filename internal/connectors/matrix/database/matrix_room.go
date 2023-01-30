@@ -30,3 +30,14 @@ func (service *service) UpdateRoom(room *MatrixRoom) (*MatrixRoom, error) {
 
 	return room, err
 }
+
+func (service *service) DeleteRoom(roomID uint) error {
+	return service.db.Unscoped().Delete(&MatrixRoom{}, "matrix_rooms.id = ?", roomID).Error
+}
+
+func (service *service) GetRoomCount() (int64, error) {
+	var cnt int64
+	err := service.db.Model(&MatrixRoom{}).Count(&cnt).Error
+
+	return cnt, err
+}

@@ -63,6 +63,17 @@ func TestService_GetLastMessage(t *testing.T) {
 	assertMessagesEqual(t, messageBefore, messageAfter)
 }
 
+func TestService_DeleteAllMessagesFromRoom(t *testing.T) {
+	message, err := service.NewMessage(testMessage())
+	require.NoError(t, err)
+
+	err = service.DeleteAllMessagesFromRoom(message.RoomID)
+	require.NoError(t, err)
+
+	_, err = service.GetMessageByID(message.ID)
+	assert.ErrorIs(t, err, database.ErrNotFound)
+}
+
 func assertMessagesEqual(t *testing.T, a *database.MatrixMessage, b *database.MatrixMessage) {
 	t.Helper()
 

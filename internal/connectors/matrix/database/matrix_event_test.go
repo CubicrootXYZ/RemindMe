@@ -42,6 +42,17 @@ func TestService_GetEventByID(t *testing.T) {
 	assertEventsEqual(t, eventBefore, eventAfter)
 }
 
+func TestService_DeleteAllEventsFromRoom(t *testing.T) {
+	event, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	err = service.DeleteAllEventsFromRoom(event.Room.ID)
+	require.NoError(t, err)
+
+	_, err = service.GetEventByID(event.Type)
+	assert.ErrorIs(t, err, database.ErrNotFound)
+}
+
 func assertEventsEqual(t *testing.T, a *database.MatrixEvent, b *database.MatrixEvent) {
 	t.Helper()
 

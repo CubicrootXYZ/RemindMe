@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
-	"github.com/rs/zerolog/log"
-	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
@@ -173,45 +172,33 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 		return nil
 	}
 
-	channel, err := s.database.GetChannelByUserAndChannelIdentifier(*evt.StateKey, evt.RoomID.String())
+	room, err := service.matrixDatabase.GetRoomByID(string(evt.RoomID))
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil
+		}
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteAllEventsFromRoom(room.ID)
 	if err != nil {
 		return err
 	}
 
-	err = s.database.DeleteChannel(channel)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Error("Failed to delete channel with: " + err.Error())
+	err = service.matrixDatabase.DeleteAllMessagesFromRoom(room.ID)
+	if err != nil {
+		return err
 	}
 
-	err = s.addMemberEventToDatabase(evt, content)
+	err = service.matrixDatabase.DeleteRoom(room.ID)
 
-	return err
-}
-
-func (s *StateMemberHandler) addMemberEventToDatabase(evt *event.Event, content *event.MemberEventContent) error {
-	dbEvent := database.Event{}
-	dbEvent.ExternalIdentifier = evt.ID.String()
-
-	if content.Membership == event.MembershipInvite || content.Membership == event.MembershipJoin {
-		channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
-		if err != nil {
-			return err
-		}
-
-		dbEvent.Channel = *channel
-		dbEvent.ChannelID = &channel.ID
-	}
-
-	dbEvent.Timestamp = evt.Timestamp / 1000
-	dbEvent.EventType = database.EventTypeMembership
-	dbEvent.EventSubType = string(content.Membership)
-	_, err := s.database.AddEvent(&dbEvent)
+	// TODO delete channel? At least if no other in/output is set
 
 	return err
 }
 
 func getWelcomeMessage() (string, string) {
-	msg := formater.Formater{}
+	msg := format.Formater{}
 	msg.Title("Welcome to RemindMe")
 	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
 	msg.Text("You want to now what I am capable of? Just text me ")
@@ -233,15 +220,16 @@ func (service *service) maxUserReached() (bool, error) {
 	}
 
 	if service.config.RoomLimit > 0 {
-		channelCount, err := service.matrixDatabase.RoomCount()
+		roomCount, err := service.matrixDatabase.GetRoomCount()
 		if err != nil {
 			return true, err
 		}
 
-		if channelCount >= s.botSettings.MaxUser {
-			log.Info("Reached max channels - will no longer follow new invites.")
-			return true, nil
+		if service.config.RoomLimit > uint(roomCount) {
+			return false, nil
 		}
+
+		return true, nil
 	}
 
 	return false, nil

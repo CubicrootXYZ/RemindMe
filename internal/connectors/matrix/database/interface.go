@@ -14,8 +14,10 @@ var (
 // Service offers an interface for a matrix related database.
 type Service interface {
 	GetRoomByID(roomID string) (*MatrixRoom, error)
+	GetRoomCount() (int64, error)
 	NewRoom(room *MatrixRoom) (*MatrixRoom, error)
 	UpdateRoom(room *MatrixRoom) (*MatrixRoom, error)
+	DeleteRoom(roomID uint) error
 
 	GetUserByID(userID string) (*MatrixUser, error)
 	NewUser(user *MatrixUser) (*MatrixUser, error)
@@ -23,9 +25,11 @@ type Service interface {
 	GetLastMessage() (*MatrixMessage, error)
 	GetMessageByID(messageID string) (*MatrixMessage, error)
 	NewMessage(message *MatrixMessage) (*MatrixMessage, error)
+	DeleteAllMessagesFromRoom(roomID uint) error
 
 	GetEventByID(eventID string) (*MatrixEvent, error)
 	NewEvent(event *MatrixEvent) (*MatrixEvent, error)
+	DeleteAllEventsFromRoom(roomID uint) error
 }
 
 // MatrixRoom holds information about a room.
