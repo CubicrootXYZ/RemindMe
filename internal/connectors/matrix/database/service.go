@@ -24,6 +24,7 @@ func (service *service) migrate() error {
 		MatrixRoom{},
 		MatrixUser{},
 		MatrixMessage{},
+		MatrixEvent{},
 	}
 
 	for _, m := range models {

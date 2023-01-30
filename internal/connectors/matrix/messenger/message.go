@@ -91,7 +91,7 @@ func (messenger *service) sendMessage(messageEvent *messageEvent, channel string
 
 	for retries > 0 {
 		// Wait until the rate limit is gone again
-		for time.Until(messenger.config.state.rateLimitedUntil) >= 0 {
+		for time.Until(messenger.state.rateLimitedUntil) >= 0 {
 			time.Sleep(time.Second * 5)
 			continue
 		}

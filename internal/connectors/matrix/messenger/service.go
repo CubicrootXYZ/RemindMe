@@ -19,11 +19,11 @@ type service struct {
 	client        MatrixClient
 	db            database.Service
 	logger        gologger.Logger
+	state         *state
 }
 
 type Config struct {
 	crypto *cryptoTools
-	state  *state
 }
 
 type cryptoTools struct {
@@ -44,6 +44,9 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 		client:        matrixClient,
 		db:            db,
 		logger:        logger,
+		state: &state{
+			rateLimitedUntilMutex: sync.Mutex{},
+		},
 	}, nil
 }
 
@@ -129,7 +132,7 @@ func (messenger *service) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
 }
 
 func (messenger *service) encounteredRateLimit() {
-	messenger.config.state.rateLimitedUntilMutex.Lock()
-	messenger.config.state.rateLimitedUntil = time.Now().Add(time.Minute)
-	messenger.config.state.rateLimitedUntilMutex.Unlock()
+	messenger.state.rateLimitedUntilMutex.Lock()
+	messenger.state.rateLimitedUntil = time.Now().Add(time.Minute)
+	messenger.state.rateLimitedUntilMutex.Unlock()
 }

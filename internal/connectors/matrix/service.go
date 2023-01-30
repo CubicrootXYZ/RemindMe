@@ -46,17 +46,23 @@ type ReplyAction interface {
 
 // Config holds information for the matrix connector.
 type Config struct {
-	gormDB               *gorm.DB
-	Username             string
-	Password             string
-	Homeserver           string
-	DeviceID             string
-	EnableE2EE           bool
-	DeviceKey            string
+	gormDB *gorm.DB
+
+	Username   string
+	Password   string
+	Homeserver string
+	DeviceID   string
+	EnableE2EE bool
+	DeviceKey  string
+
 	MessageActions       []MessageAction
 	DefaultMessageAction MessageAction
 	ReplyActions         []ReplyAction
 	DefaultReplyAction   ReplyAction
+
+	AllowInvites bool
+	RoomLimit    uint
+	UserLimit    uint
 }
 
 // New sets up a new matrix connector.

@@ -23,6 +23,9 @@ type Service interface {
 	GetLastMessage() (*MatrixMessage, error)
 	GetMessageByID(messageID string) (*MatrixMessage, error)
 	NewMessage(message *MatrixMessage) (*MatrixMessage, error)
+
+	GetEventByID(eventID string) (*MatrixEvent, error)
+	NewEvent(event *MatrixEvent) (*MatrixEvent, error)
 }
 
 // MatrixRoom holds information about a room.
@@ -54,4 +57,15 @@ type MatrixMessage struct {
 	SendAt        time.Time
 	Type          MatrixMessageType
 	Incoming      bool
+}
+
+// MatrixEvent holds information about a state event (e.g. leave, join).
+type MatrixEvent struct {
+	ID     string `gorm:"primary,size:255"`
+	UserID string `gorm:"size:255"`
+	User   MatrixUser
+	RoomID uint
+	Room   MatrixRoom
+	Type   string
+	SendAt time.Time
 }
