@@ -1,8 +1,11 @@
 package matrix
 
 import (
-	"fmt"
+	"errors"
+	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
@@ -60,72 +63,109 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	if err != nil {
 		return err
 	}
-	isUserBlocked, err := s.database.IsUserBlocked(evt.Sender.String())
-	if err != nil {
-		return err
-	}
 
-	channels, err := s.database.GetChannelsByChannelIdentifier(evt.RoomID.String())
-	if err != nil {
-		return err
-	}
-
-	if len(channels) > 0 {
-		// Only allow one user per channel to be auto added, others can than be added manually
-		declineInvites = true
-	}
-
-	if declineInvites || isUserBlocked {
-		log.Info(evt.Sender.String() + " is blocked or bot reached max users")
+	if declineInvites {
+		service.logger.Debugf(evt.Sender.String() + " ignored bot reached max users")
 		return nil
 	}
 
-	_, err = s.matrixClient.JoinRoom(evt.RoomID.String(), "", nil)
+	user, err := service.matrixDatabase.GetUserByID(evt.Sender.String())
 	if err != nil {
-		log.Error(fmt.Sprintf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error()))
-		return err
-	}
-
-	channel, err := s.database.GetChannelByUserAndChannelIdentifier(evt.Sender.String(), evt.RoomID.String())
-	if err == nil && channel != nil {
-		// We already know this user
-		return s.addMemberEventToDatabase(evt, content)
-	}
-
-	channel, err = s.database.AddChannel(evt.Sender.String(), evt.RoomID.String(), roles.RoleUser)
-	if err != nil {
-		return err
-	}
-
-	go func(channel *database.Channel) {
-		message, messageFormatted := getWelcomeMessage()
-
-		resp, err := s.messenger.SendMessage(asyncmessenger.HTMLMessage(
-			message,
-			messageFormatted,
-			channel.ChannelIdentifier,
-		))
-		if err != nil {
-			log.Info("Failed to send message: " + err.Error())
-			return
+		if !errors.Is(err, database.ErrNotFound) {
+			return err
 		}
+		user = nil
+	}
 
-		_, err = s.database.AddMessage(&database.Message{
-			Body:               message,
-			BodyHTML:           messageFormatted,
-			Type:               database.MessageTypeWelcome,
-			ChannelID:          channel.ID,
-			Timestamp:          resp.Timestamp,
-			ExternalIdentifier: resp.ExternalIdentifier,
+	if user.Blocked {
+		service.logger.Debugf("user '%s' is blocked - ignoring", evt.Sender.String())
+		return nil
+	}
+
+	roomCreated := false
+	room, err := service.matrixDatabase.GetRoomByID(evt.RoomID.String())
+	if err != nil {
+		if !errors.Is(err, database.ErrNotFound) {
+			return err
+		}
+		room = nil
+	}
+
+	_, err = service.client.JoinRoom(evt.RoomID.String(), "", nil)
+	if err != nil {
+		service.logger.Errorf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error())
+		return err
+	}
+
+	if user == nil {
+		user, err = service.matrixDatabase.NewUser(&database.MatrixUser{
+			ID: evt.Sender.String(),
 		})
 		if err != nil {
-			log.Info("Failed saving message into database: " + err.Error())
+			return err
 		}
-	}(channel)
+	}
 
-	err = s.addMemberEventToDatabase(evt, content)
+	if room == nil {
+		roomCreated = true
+		room, err = service.matrixDatabase.NewRoom(&database.MatrixRoom{
+			RoomID: evt.RoomID.String(),
+		})
+		if err != nil {
+			return err
+		}
+	}
 
-	return err
+	room.Users = append(room.Users, *user)
+	room, err = service.matrixDatabase.UpdateRoom(room)
+	if err != nil {
+		return err
+	}
+
+	_, err = service.matrixDatabase.NewEvent(&database.MatrixEvent{
+		ID:     evt.ID.String(),
+		UserID: user.ID,
+		RoomID: room.ID,
+		Type:   string(content.Membership),
+		SendAt: time.Unix(evt.Timestamp/1000, 0),
+	})
+	if err != nil {
+		return err
+	}
+
+	if roomCreated {
+		go service.sendWelcomeMessage(room, user)
+	}
+
+	return nil
+}
+
+func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *database.MatrixUser) {
+	message, messageFormatted := getWelcomeMessage()
+
+	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
+		message,
+		messageFormatted,
+		room.RoomID,
+	))
+	if err != nil {
+		service.logger.Infof("Failed to send message: " + err.Error())
+		return
+	}
+
+	_, err = service.matrixDatabase.NewMessage(&database.MatrixMessage{
+		ID:            resp.ExternalIdentifier,
+		UserID:        user.ID,
+		RoomID:        room.ID,
+		Body:          message,
+		BodyFormatted: messageFormatted,
+		SendAt:        resp.Timestamp,
+		Type:          database.MessageTypeWelcome,
+		Incoming:      false,
+	})
+	if err != nil {
+		service.logger.Infof("Failed saving message into database: " + err.Error())
+	}
 }
 
 func (service *service) handleLeave(evt *event.Event, content *event.MemberEventContent) error {

@@ -1,4 +1,4 @@
-package asyncmessenger
+package messenger
 
 import "maunium.net/go/mautrix/event"
 

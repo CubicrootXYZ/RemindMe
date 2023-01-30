@@ -1,4 +1,4 @@
-package asyncmessenger
+package messenger
 
 import (
 	"github.com/dchest/uniuri"

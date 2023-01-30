@@ -8,6 +8,7 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
@@ -20,6 +21,7 @@ type service struct {
 	logger         gologger.Logger
 	database       database.Service
 	matrixDatabase matrixdb.Service
+	messenger      messenger.Messenger // TODO initialize
 	botname        string
 
 	client *mautrix.Client

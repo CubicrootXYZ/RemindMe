@@ -39,11 +39,16 @@ type MatrixRoom struct {
 
 // MatrixUser holds information about an user.
 type MatrixUser struct {
-	ID    string       `gorm:"primary,size:255"`
-	Rooms []MatrixRoom `gorm:"many2many:matrix_rooms_matrix_users;"`
+	ID      string       `gorm:"primary,size:255"`
+	Rooms   []MatrixRoom `gorm:"many2many:matrix_rooms_matrix_users;"`
+	Blocked bool
 }
 
 type MatrixMessageType string
+
+var (
+	MessageTypeWelcome = MatrixMessageType("WELCOME")
+)
 
 // MatrixMessage holds information about a matrix message.
 type MatrixMessage struct {

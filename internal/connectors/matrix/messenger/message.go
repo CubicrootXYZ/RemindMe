@@ -1,4 +1,4 @@
-package asyncmessenger
+package messenger
 
 import (
 	"errors"
@@ -64,7 +64,7 @@ func HTMLMessage(plaintextMessage, htmlMessage, channelIdentifier string) *Messa
 
 type MessageResponse struct {
 	ExternalIdentifier string
-	Timestamp          int64
+	Timestamp          time.Time
 }
 
 // SendMessageAsync sends the given message via matrix without blocking the current thread.
@@ -128,6 +128,6 @@ func (messenger *service) sendMessage(messageEvent *messageEvent, channel string
 func (messenger *service) mautrixRespSendEventToMessageResponse(responseEvent *mautrix.RespSendEvent) *MessageResponse {
 	return &MessageResponse{
 		ExternalIdentifier: responseEvent.EventID.String(),
-		Timestamp:          time.Now().Unix(), // Unfortunately the response event does not contain a timestamp
+		Timestamp:          time.Now(), // Unfortunately the response event does not contain a timestamp
 	}
 }
