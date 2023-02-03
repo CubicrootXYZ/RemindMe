@@ -87,7 +87,7 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
-      - name: Run golangci
+      - name: Run tidy
         run: go mod tidy
       - name: Diff
         run: git diff --exit-code
