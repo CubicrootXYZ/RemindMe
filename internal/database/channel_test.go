@@ -2,6 +2,7 @@ package database_test
 
 import (
 	"errors"
+	"math/rand"
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -20,17 +21,31 @@ func testChannel() *database.Channel {
 }
 
 func testInput() *database.Input {
+	id := uint(1)
+	_, err := service.GetInputByID(id)
+	for err == nil {
+		id = uint(rand.Int()) //nolint:gosec
+		_, err = service.GetInputByID(id)
+	}
+
 	return &database.Input{
 		InputType: "test",
-		InputID:   1,
+		InputID:   id,
 		Enabled:   true,
 	}
 }
 
 func testOutput() *database.Output {
+	id := uint(1)
+	_, err := service.GetOutputByID(id)
+	for err == nil {
+		id = uint(rand.Int()) //nolint:gosec
+		_, err = service.GetOutputByID(id)
+	}
+
 	return &database.Output{
 		OutputType: "test",
-		OutputID:   1,
+		OutputID:   id,
 		Enabled:    true,
 	}
 }

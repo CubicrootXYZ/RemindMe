@@ -229,10 +229,13 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 	}
 
 	err = service.matrixDatabase.DeleteRoom(room.ID)
+	if err != nil {
+		return err
+	}
 
 	// TODO delete channel? At least if no other in/output is set
 
-	return err
+	return nil
 }
 
 func getWelcomeMessage() (string, string) {

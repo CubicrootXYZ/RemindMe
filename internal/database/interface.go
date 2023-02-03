@@ -36,9 +36,11 @@ type Service interface {
 
 	// Input
 	GetInputByID(uint) (*Input, error)
+	GetInputByType(inputID uint, inputType string) (*Input, error)
 
 	// Output
 	GetOutputByID(uint) (*Output, error)
+	GetOutputByType(outputID uint, outputType string) (*Output, error)
 
 	UpdateOutput(output *Output) (*Output, error)
 
@@ -66,8 +68,8 @@ type Input struct {
 	gorm.Model
 	ChannelID uint
 	Channel   Channel
-	InputType string
-	InputID   uint
+	InputType string `gorm:"index:idx_input,unique"`
+	InputID   uint   `gorm:"index:idx_input,unique"`
 	Enabled   bool
 }
 
@@ -76,8 +78,8 @@ type Output struct {
 	gorm.Model
 	ChannelID         uint
 	Channel           Channel
-	OutputType        string
-	OutputID          uint
+	OutputType        string `gorm:"index:idx_output,unique"`
+	OutputID          uint   `gorm:"index:idx_output,unique"`
 	Enabled           bool
 	LastDailyReminder *time.Time // Daily reminder is determined by channel, but any channel will be retried until success
 }

@@ -136,6 +136,21 @@ func (mr *MockServiceMockRecorder) GetInputByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInputByID", reflect.TypeOf((*MockService)(nil).GetInputByID), arg0)
 }
 
+// GetInputByType mocks base method.
+func (m *MockService) GetInputByType(arg0 uint, arg1 string) (*Input, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInputByType", arg0, arg1)
+	ret0, _ := ret[0].(*Input)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInputByType indicates an expected call of GetInputByType.
+func (mr *MockServiceMockRecorder) GetInputByType(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInputByType", reflect.TypeOf((*MockService)(nil).GetInputByType), arg0, arg1)
+}
+
 // GetOutputByID mocks base method.
 func (m *MockService) GetOutputByID(arg0 uint) (*Output, error) {
 	m.ctrl.T.Helper()
@@ -149,6 +164,21 @@ func (m *MockService) GetOutputByID(arg0 uint) (*Output, error) {
 func (mr *MockServiceMockRecorder) GetOutputByID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutputByID", reflect.TypeOf((*MockService)(nil).GetOutputByID), arg0)
+}
+
+// GetOutputByType mocks base method.
+func (m *MockService) GetOutputByType(arg0 uint, arg1 string) (*Output, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOutputByType", arg0, arg1)
+	ret0, _ := ret[0].(*Output)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOutputByType indicates an expected call of GetOutputByType.
+func (mr *MockServiceMockRecorder) GetOutputByType(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutputByType", reflect.TypeOf((*MockService)(nil).GetOutputByType), arg0, arg1)
 }
 
 // NewChannel mocks base method.
