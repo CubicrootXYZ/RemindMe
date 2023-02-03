@@ -7,6 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	db "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
@@ -81,13 +82,14 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return nil
 	}
 
-	roomCreated := false
-	room, err := service.matrixDatabase.GetRoomByID(evt.RoomID.String())
+	_, err = service.matrixDatabase.GetRoomByID(evt.RoomID.String())
 	if err != nil {
 		if !errors.Is(err, database.ErrNotFound) {
 			return err
 		}
-		room = nil
+	} else {
+		// Room already known, ignore it
+		return nil
 	}
 
 	_, err = service.client.JoinRoom(evt.RoomID.String(), "", nil)
@@ -105,14 +107,11 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		}
 	}
 
-	if room == nil {
-		roomCreated = true
-		room, err = service.matrixDatabase.NewRoom(&database.MatrixRoom{
-			RoomID: evt.RoomID.String(),
-		})
-		if err != nil {
-			return err
-		}
+	room, err := service.matrixDatabase.NewRoom(&database.MatrixRoom{
+		RoomID: evt.RoomID.String(),
+	})
+	if err != nil {
+		return err
 	}
 
 	room.Users = append(room.Users, *user)
@@ -132,9 +131,48 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return err
 	}
 
-	if roomCreated {
-		go service.sendWelcomeMessage(room, user)
+	err = service.setupNewChannel(room, user)
+	if err != nil {
+		service.logger.Errorf("failed to setup new channel: %s", err.Error())
+		return err
 	}
+
+	return nil
+}
+
+func (service *service) setupNewChannel(room *database.MatrixRoom, user *database.MatrixUser) error {
+	channel, err := service.database.NewChannel(&db.Channel{
+		Description: "auto generated channel for matrix room " + room.RoomID,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = service.database.AddInputToChannel(
+		channel.ID,
+		&db.Input{
+			InputType: InputType,
+			InputID:   room.ID,
+			Enabled:   true,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	err = service.database.AddOutputToChannel(
+		channel.ID,
+		&db.Output{
+			OutputType: OutputType,
+			OutputID:   room.ID,
+			Enabled:    true,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	go service.sendWelcomeMessage(room, user)
 
 	return nil
 }
