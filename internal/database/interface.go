@@ -34,6 +34,8 @@ type Service interface {
 
 	UpdateChannel(channel *Channel) (*Channel, error)
 
+	DeleteChannel(channelID uint) error
+
 	// Input
 	GetInputByID(uint) (*Input, error)
 	GetInputByType(inputID uint, inputType string) (*Input, error)

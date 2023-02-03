@@ -116,6 +116,19 @@ func (service *service) UpdateChannel(channel *Channel) (*Channel, error) {
 	return channel, err
 }
 
+func (service *service) DeleteChannel(channelID uint) error {
+	result := service.db.Unscoped().Delete(&Channel{}, "id = ?", channelID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected != 1 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
 // Timezone returns the timezone of the channel.
 func (c *Channel) Timezone() *time.Location {
 	if c.TimeZone == "" {

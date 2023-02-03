@@ -121,7 +121,7 @@ func TestService_AddOutputToChannel(t *testing.T) {
 	assert.Equal(t, outputBefore.Enabled, channelAfter.Outputs[0].Enabled)
 }
 
-func TestRemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
+func TestService_RemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -153,7 +153,7 @@ func TestRemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 
-func TestRemoveInputFromChannelWithInputServiceError(t *testing.T) {
+func TestService_RemoveInputFromChannelWithInputServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -184,7 +184,7 @@ func TestRemoveInputFromChannelWithInputServiceError(t *testing.T) {
 	assert.Equal(t, 1, len(channelAfter.Inputs))
 }
 
-func TestRemoveInputFromChannelWithoutInputService(t *testing.T) {
+func TestService_RemoveInputFromChannelWithoutInputService(t *testing.T) {
 	input := testInput()
 
 	channelBefore, err := service.NewChannel(testChannel())
@@ -203,7 +203,7 @@ func TestRemoveInputFromChannelWithoutInputService(t *testing.T) {
 	assert.Equal(t, 1, len(channelAfter.Inputs))
 }
 
-func TestRemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
+func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -235,7 +235,7 @@ func TestRemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 
-func TestRemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
+func TestService_RemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -266,7 +266,7 @@ func TestRemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
 	assert.Equal(t, 1, len(channelAfter.Outputs))
 }
 
-func TestRemoveOutputFromChannelWithoutOutputService(t *testing.T) {
+func TestService_RemoveOutputFromChannelWithoutOutputService(t *testing.T) {
 	output := testOutput()
 
 	channelBefore, err := service.NewChannel(testChannel())
@@ -285,7 +285,7 @@ func TestRemoveOutputFromChannelWithoutOutputService(t *testing.T) {
 	assert.Equal(t, 1, len(channelAfter.Outputs))
 }
 
-func TestUpdateChannel(t *testing.T) {
+func TestService_UpdateChannel(t *testing.T) {
 	channelBefore := testChannel()
 
 	channelBefore, err := service.NewChannel(channelBefore)
@@ -305,7 +305,7 @@ func TestUpdateChannel(t *testing.T) {
 	assert.Equal(t, channelBefore.DailyReminder, channelAfter.DailyReminder)
 }
 
-func TestGetChannels(t *testing.T) {
+func TestService_GetChannels(t *testing.T) {
 	channelBefore, err := service.NewChannel(testChannel())
 	require.NoError(t, err)
 
@@ -320,4 +320,17 @@ func TestGetChannels(t *testing.T) {
 	}
 
 	assert.True(t, channelFound)
+}
+
+func TestService_DeleteChannel(t *testing.T) {
+	channel, err := service.NewChannel(testChannel())
+	require.NoError(t, err)
+
+	err = service.DeleteChannel(channel.ID)
+	assert.NoError(t, err)
+}
+
+func TestService_DeleteChannelWithChannelNotFound(t *testing.T) {
+	err := service.DeleteChannel(999999999)
+	assert.ErrorIs(t, err, database.ErrNotFound)
 }

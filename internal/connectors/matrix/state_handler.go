@@ -186,7 +186,7 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 		room.RoomID,
 	))
 	if err != nil {
-		service.logger.Infof("Failed to send message: " + err.Error())
+		service.logger.Infof("failed to send message: " + err.Error())
 		return
 	}
 
@@ -201,41 +201,8 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 		Incoming:      false,
 	})
 	if err != nil {
-		service.logger.Infof("Failed saving message into database: " + err.Error())
+		service.logger.Errorf("failed saving message into database: " + err.Error())
 	}
-}
-
-func (service *service) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
-	if evt.StateKey == nil {
-		return nil
-	}
-
-	room, err := service.matrixDatabase.GetRoomByID(string(evt.RoomID))
-	if err != nil {
-		if errors.Is(err, database.ErrNotFound) {
-			return nil
-		}
-		return err
-	}
-
-	err = service.matrixDatabase.DeleteAllEventsFromRoom(room.ID)
-	if err != nil {
-		return err
-	}
-
-	err = service.matrixDatabase.DeleteAllMessagesFromRoom(room.ID)
-	if err != nil {
-		return err
-	}
-
-	err = service.matrixDatabase.DeleteRoom(room.ID)
-	if err != nil {
-		return err
-	}
-
-	// TODO delete channel? At least if no other in/output is set
-
-	return nil
 }
 
 func getWelcomeMessage() (string, string) {
@@ -274,4 +241,75 @@ func (service *service) maxUserReached() (bool, error) {
 	}
 
 	return false, nil
+}
+
+func (service *service) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
+	if evt.StateKey == nil {
+		return nil
+	}
+
+	room, err := service.matrixDatabase.GetRoomByID(string(evt.RoomID))
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil
+		}
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteAllEventsFromRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteAllMessagesFromRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	err = service.removeFromChannel(room)
+	if err != nil {
+		service.logger.Errorf("failed to remove room from channel: %s", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (service *service) removeFromChannel(room *database.MatrixRoom) error {
+	output, err := service.database.GetOutputByType(room.ID, OutputType)
+	if err == nil {
+		err = service.database.RemoveOutputFromChannel(output.ChannelID, output.ID)
+		if err != nil {
+			return err
+		}
+	} else if !errors.Is(err, db.ErrNotFound) {
+		return err
+	}
+
+	input, err := service.database.GetInputByType(room.ID, InputType)
+	if err == nil {
+		err = service.database.RemoveInputFromChannel(input.ChannelID, input.ID)
+		if err != nil {
+			return err
+		}
+	} else if !errors.Is(err, db.ErrNotFound) {
+		return err
+	}
+
+	channel, err := service.database.GetChannelByID(input.ChannelID)
+	if err == nil && len(channel.Inputs) == 0 && len(channel.Outputs) == 0 {
+		err = service.database.DeleteChannel(channel.ID)
+		if err != nil {
+			return err
+		}
+	} else if !errors.Is(err, db.ErrNotFound) {
+		return err
+	}
+
+	return nil
 }
