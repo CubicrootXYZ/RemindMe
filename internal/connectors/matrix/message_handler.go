@@ -60,7 +60,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		return
 	}
 
-	if msgEvt.Content.RelatesTo != nil || msgEvt.Content.RelatesTo.InReplyTo != nil {
+	if msgEvt.Content.RelatesTo != nil && msgEvt.Content.RelatesTo.InReplyTo != nil {
 		// it is a reply
 		service.findMatchingReplyAction(msgEvt, room, logger)
 	} else {
@@ -70,7 +70,6 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 }
 
 func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
-	// TODO get the message from the db we are replying too
 	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 	if err != nil {
 		logger.Infof("discarding message, can not find the message it replies to: %s", err.Error())

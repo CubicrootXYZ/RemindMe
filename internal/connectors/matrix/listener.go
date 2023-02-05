@@ -15,7 +15,7 @@ func (service *service) startListener() error {
 
 	if service.crypto.enabled {
 		syncer.OnSync(func(resp *mautrix.RespSync, since string) bool {
-			service.crypto.olm.ProcessSyncResponse(resp, since)
+			service.crypto.olm.ProcessSyncResponse(resp, since) // TODO this is panicing
 			return true
 		})
 		syncer.OnEventType(event.EventEncrypted, service.MessageEventHandler)
@@ -25,16 +25,8 @@ func (service *service) startListener() error {
 	}
 
 	syncer.OnEventType(event.EventMessage, service.MessageEventHandler)
-	/* TODO syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)
-	syncer.OnEventType(event.StateMember, stateMemberHandler.NewEvent)*/
+	/* TODO syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)*/
+	syncer.OnEventType(event.StateMember, service.EventStateHandler)
 
 	return service.client.Sync()
-}
-
-// setLastMessage so the handlers will know which messages can be ignored savely
-func (service *service) setLastMessage() { // TODO use this!
-	message, err := service.matrixDatabase.GetLastMessage()
-	if err == nil {
-		service.lastMessageFrom = message.SendAt
-	}
 }

@@ -17,3 +17,23 @@ daemon:
     events: 30
     # Check for daily reminders, in seconds
     dailyreminders: 600
+
+# Matrix connector settings
+matrix:
+  bot:
+    # Matrix user name
+    username: "iamabot"
+    # Matrix password
+    password: fsddf
+    # Matrix homeserver
+    homeserver: fsdf
+    # Device ID for the bot, used to identify the server connection
+    deviceid: "my-bot-12345"
+    # Set to true to allow end to end encryption
+    e2ee: false
+    # Device key for encryption
+    devicekey: "dlfjgaöldf"
+  # Set to true to join invited rooms and open a new channel for them
+  allowinvites: false
+  # Max amount of rooms the bot will join, 0 to disable the limit
+  roomlimit: 0

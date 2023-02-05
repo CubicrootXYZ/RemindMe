@@ -56,7 +56,7 @@ var (
 
 // MatrixMessage holds information about a matrix message.
 type MatrixMessage struct {
-	ID            string `gorm:"primary"`
+	ID            string `gorm:"primary,size:255"`
 	UserID        string `gorm:"size:255"`
 	User          MatrixUser
 	RoomID        uint
@@ -66,6 +66,7 @@ type MatrixMessage struct {
 	SendAt        time.Time
 	Type          MatrixMessageType
 	Incoming      bool
+	EventID       *uint
 }
 
 // MatrixEvent holds information about a state event (e.g. leave, join).

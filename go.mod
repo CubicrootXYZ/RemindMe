@@ -8,6 +8,8 @@ require (
 	github.com/dchest/uniuri v1.2.0
 	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.1
+	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.1
 	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3
@@ -29,7 +31,6 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect

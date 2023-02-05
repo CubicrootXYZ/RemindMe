@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/CubicrootXYZ/gologger"
+	_ "github.com/mattn/go-sqlite3" // driver
 	"maunium.net/go/maulogger/v2"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"

@@ -53,6 +53,9 @@ type Service interface {
 	GetEventsPending() ([]Event, error)
 
 	UpdateEvent(*Event) (*Event, error)
+
+	// Misc
+	GormDB() *gorm.DB
 }
 
 // Channel is the centerpiece orchestrating in- and outputs.

@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"errors"
 	"regexp"
 	"time"
 
@@ -43,13 +44,11 @@ type MessageAction interface {
 type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
-	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage) // TODO add answer to message obj
+	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
 }
 
 // Config holds information for the matrix connector.
 type Config struct {
-	gormDB *gorm.DB
-
 	Username   string
 	Password   string
 	Homeserver string
@@ -67,10 +66,10 @@ type Config struct {
 }
 
 // New sets up a new matrix connector.
-func New(config *Config, database database.Service, logger gologger.Logger) (Service, error) {
+func New(config *Config, database database.Service, gormDB *gorm.DB, logger gologger.Logger) (Service, error) {
 	logger.Debugf("setting up matrix connector ...")
 
-	matrixDB, err := matrixdb.New(config.gormDB)
+	matrixDB, err := matrixdb.New(gormDB)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +105,15 @@ func New(config *Config, database database.Service, logger gologger.Logger) (Ser
 
 	logger.Debugf("matrix connector setup finished")
 	return service, nil
+}
+
+// setLastMessage so the handlers will know which messages can be ignored savely
+func (service *service) setLastMessage() {
+	// TODO also check events
+	message, err := service.matrixDatabase.GetLastMessage()
+	if err == nil {
+		service.lastMessageFrom = message.SendAt
+	}
 }
 
 func (service *service) setupMautrixClient() error {
@@ -152,6 +160,9 @@ func (service *service) setupEncryption() error {
 	service.crypto.stateStore = stateStore
 
 	olm := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
+	if olm == nil {
+		return errors.New("olm is not set")
+	}
 	service.crypto.olm = olm
 
 	service.config.DeviceID = deviceID.String() // we might get a new device ID if none is set
@@ -165,9 +176,9 @@ func (service *service) setupMessenger() error {
 	config := &messenger.Config{}
 
 	if service.crypto.enabled {
+		config.Crypto = &messenger.CryptoTools{}
 		config.Crypto.Olm = service.crypto.olm
 		config.Crypto.StateStore = service.crypto.stateStore
-
 	}
 
 	messenger, err := messenger.NewMessenger(config, service.matrixDatabase, service.client,

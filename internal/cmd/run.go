@@ -7,8 +7,10 @@ import (
 	"syscall"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -73,7 +75,14 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
+	// TODO set message and reply actions
+	matrixConnector, err := matrix.New(config.matrixConfig(), db, db.GormDB(), logger.WithField("component", "matrix connector"))
+	if err != nil {
+		log.Err(err)
+		return nil, err
+	}
+
 	daemon := daemon.New(config.daemonConfig(), db, logger.WithField("component", "daemon"))
 
-	return []process{daemon}, nil
+	return []process{daemon, matrixConnector}, nil
 }

@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockService is a mock of Service interface.
@@ -193,6 +194,20 @@ func (m *MockService) GetOutputByType(arg0 uint, arg1 string) (*Output, error) {
 func (mr *MockServiceMockRecorder) GetOutputByType(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutputByType", reflect.TypeOf((*MockService)(nil).GetOutputByType), arg0, arg1)
+}
+
+// GormDB mocks base method.
+func (m *MockService) GormDB() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GormDB")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// GormDB indicates an expected call of GormDB.
+func (mr *MockServiceMockRecorder) GormDB() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GormDB", reflect.TypeOf((*MockService)(nil).GormDB))
 }
 
 // NewChannel mocks base method.

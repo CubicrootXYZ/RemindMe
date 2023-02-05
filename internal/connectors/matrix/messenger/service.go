@@ -23,10 +23,10 @@ type service struct {
 }
 
 type Config struct {
-	Crypto *cryptoTools
+	Crypto *CryptoTools
 }
 
-type cryptoTools struct {
+type CryptoTools struct {
 	Olm         *crypto.OlmMachine
 	StateStore  *encryption.StateStore
 	cryptoMutex sync.Mutex // Since the crypto foo relies on a single sqlite, only one process at a time is allowed to access it
@@ -38,7 +38,9 @@ type state struct {
 }
 
 func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger gologger.Logger) (Messenger, error) {
-	config.Crypto.cryptoMutex = sync.Mutex{}
+	if config.Crypto != nil {
+		config.Crypto.cryptoMutex = sync.Mutex{}
+	}
 	return &service{
 		roomUserCache: make(roomCache),
 		config:        config,
@@ -53,7 +55,7 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 
 // sendMessageEvent sends a message event to matrix, will take care of encryption if available
 func (messenger *service) sendMessageEvent(messageEvent *messageEvent, roomID string, eventType event.Type) (*mautrix.RespSendEvent, error) {
-	if messenger.config.Crypto.StateStore != nil && eventType != event.EventReaction {
+	if messenger.config.Crypto != nil && eventType != event.EventReaction {
 		if messenger.config.Crypto.StateStore.IsEncrypted(id.RoomID(roomID)) && messenger.config.Crypto.Olm != nil {
 			resp, err := messenger.sendMessageEventEncrypted(messageEvent, roomID, eventType)
 			if err == nil {

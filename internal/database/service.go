@@ -67,6 +67,10 @@ func NewService(config *Config, logger gologger.Logger) (Service, error) {
 	return service, nil
 }
 
+func (service *service) GormDB() *gorm.DB {
+	return service.db
+}
+
 func (service *service) migrate() error {
 	models := []interface{}{
 		Channel{},

@@ -65,7 +65,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	}
 
 	if declineInvites {
-		service.logger.Debugf(evt.Sender.String() + " ignored bot reached max users")
+		service.logger.Debugf(evt.Sender.String() + " ignored bot reached max users or invites are disallowed")
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		user = nil
 	}
 
-	if user.Blocked {
+	if user != nil && user.Blocked {
 		service.logger.Debugf("user '%s' is blocked - ignoring", evt.Sender.String())
 		return nil
 	}
