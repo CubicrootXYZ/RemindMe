@@ -2,6 +2,10 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/CubicrootXYZ/gologger v0.2.0 h1:akcsdqPw4YWnqtj6qbuKQmlaW2otC0N6lsfkG5MdN9Q=
 github.com/CubicrootXYZ/gologger v0.2.0/go.mod h1:4RwHxTgELS9TbfuMYQdVYE9FJZYj6vEoreF2/NGDfXQ=
+github.com/CubicrootXYZ/gologger v0.2.1 h1:Yeyp4VuGxmxQaaSYdqusnCB92me2ZPVwMKeDkCMldU0=
+github.com/CubicrootXYZ/gologger v0.2.1/go.mod h1:4RwHxTgELS9TbfuMYQdVYE9FJZYj6vEoreF2/NGDfXQ=
+github.com/CubicrootXYZ/gologger v0.2.2 h1:seq7MUU+kdENUxVLTtuSOtpuGT+FpQx4ynG4OMNpOPs=
+github.com/CubicrootXYZ/gologger v0.2.2/go.mod h1:4RwHxTgELS9TbfuMYQdVYE9FJZYj6vEoreF2/NGDfXQ=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89hSJJF9Ut/5FmkVwbgKW6VgnvaNseoB+uC+Ro=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d/go.mod h1:CN47TkXtxcVeEZ9KqqwEoRKVsfqTh2pl0XKPWIB/Z8o=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=

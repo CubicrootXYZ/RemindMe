@@ -1,7 +1,6 @@
 package matrix
 
 import (
-	"errors"
 	"regexp"
 	"time"
 
@@ -159,9 +158,10 @@ func (service *service) setupEncryption() error {
 	}, service.logger.WithField("component", "statestore"))
 	service.crypto.stateStore = stateStore
 
-	olm := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
-	if olm == nil {
-		return errors.New("olm is not set")
+	olm, err := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
+	if err != nil {
+		service.logger.Errorf("failed setting up olm machine: %s", err.Error())
+		return err
 	}
 	service.crypto.olm = olm
 

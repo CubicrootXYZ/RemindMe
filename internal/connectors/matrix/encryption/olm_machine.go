@@ -8,7 +8,11 @@ import (
 )
 
 // NewOlmMachine sets up a new olm machine.
-func NewOlmMachine(client *mautrix.Client, cryptoStore crypto.Store, stateStore crypto.StateStore, logger gologger.Logger) *crypto.OlmMachine {
+func NewOlmMachine(client *mautrix.Client, cryptoStore crypto.Store, stateStore crypto.StateStore, logger gologger.Logger) (*crypto.OlmMachine, error) {
 	olmLogger := olmlogger.New(logger)
-	return crypto.NewOlmMachine(client, olmLogger, cryptoStore, stateStore)
+
+	olm := crypto.NewOlmMachine(client, olmLogger, cryptoStore, stateStore)
+	err := olm.Load()
+
+	return olm, err
 }

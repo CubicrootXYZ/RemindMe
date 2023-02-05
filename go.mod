@@ -3,7 +3,7 @@ module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 go 1.19
 
 require (
-	github.com/CubicrootXYZ/gologger v0.2.0
+	github.com/CubicrootXYZ/gologger v0.2.2
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/dchest/uniuri v1.2.0
 	github.com/golang/mock v1.6.0

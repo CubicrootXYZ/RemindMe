@@ -32,6 +32,11 @@ func NewCryptoStore(username, deviceKey, homeserver, confDeviceID string, logger
 		return nil, deviceID, err
 	}
 
+	cryptoDB, err := dbutil.NewWithDB(db, "sqlite3")
+	if err != nil {
+		return nil, deviceID, err
+	}
+
 	// Use device ID from database if available otherwise fallback to settings
 	err2 := db.QueryRow("SELECT device_id FROM crypto_account WHERE account_id=$1", usernameFull).Scan(&deviceID)
 	if err2 != nil && err2 != sql.ErrNoRows {
@@ -39,12 +44,12 @@ func NewCryptoStore(username, deviceKey, homeserver, confDeviceID string, logger
 		deviceID = id.DeviceID(confDeviceID)
 	}
 
-	cryptoDB, err := dbutil.NewWithDB(db, "sqlite3")
+	cryptoStore := crypto.NewSQLCryptoStore(cryptoDB, dbutil.MauLogger(maulogger.Create()), usernameFull, deviceID, []byte(deviceKey))
+
+	err = cryptoStore.DB.Upgrade()
 	if err != nil {
 		return nil, deviceID, err
 	}
-
-	cryptoStore := crypto.NewSQLCryptoStore(cryptoDB, dbutil.MauLogger(maulogger.Create()), usernameFull, deviceID, []byte(deviceKey))
 
 	return cryptoStore, deviceID, err
 }
