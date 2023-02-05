@@ -23,12 +23,12 @@ type service struct {
 }
 
 type Config struct {
-	crypto *cryptoTools
+	Crypto *cryptoTools
 }
 
 type cryptoTools struct {
-	olm         *crypto.OlmMachine
-	stateStore  *encryption.StateStore
+	Olm         *crypto.OlmMachine
+	StateStore  *encryption.StateStore
 	cryptoMutex sync.Mutex // Since the crypto foo relies on a single sqlite, only one process at a time is allowed to access it
 }
 
@@ -38,6 +38,7 @@ type state struct {
 }
 
 func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger gologger.Logger) (Messenger, error) {
+	config.Crypto.cryptoMutex = sync.Mutex{}
 	return &service{
 		roomUserCache: make(roomCache),
 		config:        config,
@@ -52,8 +53,8 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 
 // sendMessageEvent sends a message event to matrix, will take care of encryption if available
 func (messenger *service) sendMessageEvent(messageEvent *messageEvent, roomID string, eventType event.Type) (*mautrix.RespSendEvent, error) {
-	if messenger.config.crypto.stateStore != nil && eventType != event.EventReaction {
-		if messenger.config.crypto.stateStore.IsEncrypted(id.RoomID(roomID)) && messenger.config.crypto.olm != nil {
+	if messenger.config.Crypto.StateStore != nil && eventType != event.EventReaction {
+		if messenger.config.Crypto.StateStore.IsEncrypted(id.RoomID(roomID)) && messenger.config.Crypto.Olm != nil {
 			resp, err := messenger.sendMessageEventEncrypted(messageEvent, roomID, eventType)
 			if err == nil {
 				return resp, nil
@@ -66,20 +67,20 @@ func (messenger *service) sendMessageEvent(messageEvent *messageEvent, roomID st
 }
 
 func (messenger *service) sendMessageEventEncrypted(messageEvent *messageEvent, roomID string, eventType event.Type) (*mautrix.RespSendEvent, error) {
-	messenger.config.crypto.cryptoMutex.Lock()
+	messenger.config.Crypto.cryptoMutex.Lock()
 
-	encrypted, err := messenger.config.crypto.olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, messageEvent)
+	encrypted, err := messenger.config.Crypto.Olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, messageEvent)
 
 	if err == crypto.SessionExpired || err == crypto.SessionNotShared || err == crypto.NoGroupSession {
-		err = messenger.config.crypto.olm.ShareGroupSession(id.RoomID(roomID), messenger.getUserIDsInRoom(id.RoomID(roomID)))
+		err = messenger.config.Crypto.Olm.ShareGroupSession(id.RoomID(roomID), messenger.getUserIDsInRoom(id.RoomID(roomID)))
 		if err != nil {
-			messenger.config.crypto.cryptoMutex.Unlock()
+			messenger.config.Crypto.cryptoMutex.Unlock()
 			return nil, err
 		}
 
-		encrypted, err = messenger.config.crypto.olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, messageEvent)
+		encrypted, err = messenger.config.Crypto.Olm.EncryptMegolmEvent(id.RoomID(roomID), eventType, messageEvent)
 	}
-	messenger.config.crypto.cryptoMutex.Unlock()
+	messenger.config.Crypto.cryptoMutex.Unlock()
 	if err != nil {
 		return nil, err
 	}

@@ -21,7 +21,7 @@ type service struct {
 	logger         gologger.Logger
 	database       database.Service
 	matrixDatabase matrixdb.Service
-	messenger      messenger.Messenger // TODO initialize
+	messenger      messenger.Messenger
 	botname        string
 
 	client *mautrix.Client
@@ -97,6 +97,13 @@ func New(config *Config, database database.Service, logger gologger.Logger) (Ser
 		}
 	}
 
+	err = service.setupMessenger() // important to call after crypto setup
+	if err != nil {
+		return nil, err
+	}
+
+	service.setLastMessage()
+
 	logger.Debugf("matrix connector setup finished")
 	return service, nil
 }
@@ -151,6 +158,26 @@ func (service *service) setupEncryption() error {
 	service.crypto.enabled = true
 
 	service.logger.Debugf("matrix end to end encryption setup finished")
+	return nil
+}
+
+func (service *service) setupMessenger() error {
+	config := &messenger.Config{}
+
+	if service.crypto.enabled {
+		config.Crypto.Olm = service.crypto.olm
+		config.Crypto.StateStore = service.crypto.stateStore
+
+	}
+
+	messenger, err := messenger.NewMessenger(config, service.matrixDatabase, service.client,
+		service.logger.WithField("component", "matrix-messenger"))
+	if err != nil {
+		return err
+	}
+
+	service.messenger = messenger
+
 	return nil
 }
 
