@@ -11,7 +11,7 @@ var (
 	ErrNotFound = errors.New("not found")
 )
 
-//go:generate mockgen -destination=mocks/service.go -package=mocks . Service
+//go:generate mockgen -destination=service_mock.go -package=database . Service
 
 // Service offers an interface for a matrix related database.
 type Service interface {

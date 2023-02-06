@@ -6,7 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database/mocks"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +15,8 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
-func stateStore(ctrl *gomock.Controller) (*encryption.StateStore, *mocks.MockService) {
-	db := mocks.NewMockService(ctrl)
+func stateStore(ctrl *gomock.Controller) (*encryption.StateStore, *matrixdb.MockService) {
+	db := matrixdb.NewMockService(ctrl)
 
 	return encryption.NewStateStore(db, &encryption.StateStoreConfig{
 		Username:   "bot",

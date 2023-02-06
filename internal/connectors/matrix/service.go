@@ -10,7 +10,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"gorm.io/gorm"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
@@ -34,12 +33,18 @@ type service struct {
 	lastMessageFrom time.Time
 }
 
+//go:generate mockgen -destination=message_action_mock.go -package=matrix . MessageAction
+
+// MessageAction defines an interface for an action on messages.
 type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
 }
 
+//go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
+
+// ReplyAction defines an interface for an action on replies.
 type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
@@ -65,13 +70,8 @@ type Config struct {
 }
 
 // New sets up a new matrix connector.
-func New(config *Config, database database.Service, gormDB *gorm.DB, logger gologger.Logger) (Service, error) {
+func New(config *Config, database database.Service, matrixDB matrixdb.Service, logger gologger.Logger) (Service, error) {
 	logger.Debugf("setting up matrix connector ...")
-
-	matrixDB, err := matrixdb.New(gormDB)
-	if err != nil {
-		return nil, err
-	}
 
 	service := &service{
 		config:         config,
@@ -81,7 +81,7 @@ func New(config *Config, database database.Service, gormDB *gorm.DB, logger golo
 		botname:        format.FullUsername(config.Username, config.Homeserver),
 	}
 
-	err = service.setupMautrixClient()
+	err := service.setupMautrixClient()
 	if err != nil {
 		service.logger.Err(err)
 		return nil, err
