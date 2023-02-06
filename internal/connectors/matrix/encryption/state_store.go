@@ -108,6 +108,7 @@ func (store *StateStore) GetUserIDs(roomID string) []id.UserID {
 	room, err := store.database.GetRoomByID(roomID)
 	if err != nil {
 		store.logger.Errorf("Failed getting rooms: " + err.Error())
+		return userIDs
 	}
 
 	for _, user := range room.Users {
