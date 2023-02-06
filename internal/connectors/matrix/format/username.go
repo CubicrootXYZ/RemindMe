@@ -13,5 +13,5 @@ func FullUsername(username string, homeserver string) string {
 		return username
 	}
 
-	return username + strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(homeserver, "http://"), "https://"), "/")
+	return username + ":" + strings.TrimSuffix(strings.TrimPrefix(strings.TrimPrefix(homeserver, "http://"), "https://"), "/")
 }
