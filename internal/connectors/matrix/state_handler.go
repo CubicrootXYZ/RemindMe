@@ -26,7 +26,7 @@ func (service *service) EventStateHandler(source mautrix.EventSource, evt *event
 	}
 
 	// Ignore old events or events from the bot itself
-	if evt.Sender.String() == service.botname || evt.Timestamp/1000 < service.lastMessageFrom.Unix() {
+	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return
 	}
 
@@ -39,6 +39,9 @@ func (service *service) EventStateHandler(source mautrix.EventSource, evt *event
 	// Check if the event is known
 	_, err := service.matrixDatabase.GetEventByID(evt.ID.String())
 	if err == nil {
+		return
+	} else if !errors.Is(err, database.ErrNotFound) {
+		logger.Err(err)
 		return
 	}
 
@@ -92,6 +95,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return nil
 	}
 
+	// TODO for further testing service.client needs to be mocked
 	_, err = service.client.JoinRoom(evt.RoomID.String(), "", nil)
 	if err != nil {
 		service.logger.Errorf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error())
@@ -275,6 +279,13 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 	if err != nil {
 		service.logger.Errorf("failed to remove room from channel: %s", err.Error())
 		return err
+	}
+
+	// TODO mock service.client to test further
+	_, err = service.client.LeaveRoom(evt.RoomID)
+	if err != nil {
+		// Fire and forget, we might already be banned
+		service.logger.Err(err)
 	}
 
 	return nil

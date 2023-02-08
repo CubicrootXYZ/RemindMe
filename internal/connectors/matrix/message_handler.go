@@ -8,7 +8,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 )
 
 type MessageEvent struct {
@@ -26,7 +25,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	logger.Debugf("new message received")
 
 	// Do not answer our own and old messages
-	if evt.Sender == id.UserID(service.config.Username) || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
+	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return
 	}
 
@@ -52,10 +51,11 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	// Check if we already know the message
 	_, err = service.matrixDatabase.GetMessageByID(evt.ID.String())
 	if err == nil {
+		return
+	} else {
 		if !errors.Is(err, database.ErrNotFound) {
 			logger.Err(err)
 		}
-		return
 	}
 
 	msgEvt, err := service.parseMessageEvent(evt)

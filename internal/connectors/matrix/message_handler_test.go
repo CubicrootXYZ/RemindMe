@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
@@ -35,14 +36,20 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 
 	s := service{
 		config: &Config{
+			Username:             "bot",
+			Homeserver:           "example.com",
 			DefaultMessageAction: fx.defaultMessageAction,
 			MessageActions:       []MessageAction{fx.messageAction},
 			DefaultReplyAction:   fx.defaultReplyAction,
 			ReplyActions:         []ReplyAction{fx.replyAction},
+
+			RoomLimit:    1,
+			AllowInvites: true,
 		},
 		database:       fx.db,
 		matrixDatabase: fx.matrixDB,
 		logger:         gologger.New(gologger.LogLevelDebug, 0),
+		botname:        "@bot:example.com",
 	}
 
 	return s, &fx
@@ -305,6 +312,47 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 		},
 		&matrixdb.MatrixMessage{},
 	)
+
+	service.MessageEventHandler(mautrix.EventSourceTimeline, &evt)
+}
+
+func TestService_MessageEventHandlerWithFromBot(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	service, _ := testService(ctrl)
+
+	evt := event.Event{
+		Sender:    "@bot:example.com",
+		RoomID:    id.RoomID("abc"),
+		Timestamp: 5000,
+		ID:        id.EventID("123"),
+		Content: event.Content{
+			Parsed: &event.MessageEventContent{
+				Body: "msg",
+			},
+		},
+	}
+
+	service.MessageEventHandler(mautrix.EventSourceTimeline, &evt)
+}
+
+func TestService_MessageEventHandlerWithToOld(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	service, _ := testService(ctrl)
+	service.lastMessageFrom = time.Now()
+
+	evt := event.Event{
+		Sender:    "@user:example.com",
+		RoomID:    id.RoomID("abc"),
+		Timestamp: 1,
+		ID:        id.EventID("123"),
+		Content: event.Content{
+			Parsed: &event.MessageEventContent{
+				Body: "msg",
+			},
+		},
+	}
 
 	service.MessageEventHandler(mautrix.EventSourceTimeline, &evt)
 }
