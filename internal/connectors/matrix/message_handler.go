@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/CubicrootXYZ/gologger"
@@ -51,6 +52,9 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	// Check if we already know the message
 	_, err = service.matrixDatabase.GetMessageByID(evt.ID.String())
 	if err == nil {
+		if !errors.Is(err, database.ErrNotFound) {
+			logger.Err(err)
+		}
 		return
 	}
 
