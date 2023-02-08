@@ -23,9 +23,9 @@ func testChannel() *database.Channel {
 func testInput() *database.Input {
 	id := uint(1)
 	_, err := service.GetInputByID(id)
-	for err == nil {
+	for !errors.Is(err, database.ErrNotFound) {
 		id = uint(rand.Int()) //nolint:gosec
-		_, err = service.GetInputByID(id)
+		_, err = service.GetInputByType(id, "test")
 	}
 
 	return &database.Input{
@@ -38,9 +38,9 @@ func testInput() *database.Input {
 func testOutput() *database.Output {
 	id := uint(1)
 	_, err := service.GetOutputByID(id)
-	for err == nil {
+	for !errors.Is(err, database.ErrNotFound) {
 		id = uint(rand.Int()) //nolint:gosec
-		_, err = service.GetOutputByID(id)
+		_, err = service.GetOutputByType(id, "test")
 	}
 
 	return &database.Output{

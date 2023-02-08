@@ -8,6 +8,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/rs/zerolog/log"
@@ -76,7 +77,13 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	}
 
 	// TODO set message and reply actions
-	matrixConnector, err := matrix.New(config.matrixConfig(), db, db.GormDB(), logger.WithField("component", "matrix connector"))
+	matrixDB, err := matrixdb.New(db.GormDB())
+	if err != nil {
+		logger.Err(err)
+		return nil, err
+	}
+
+	matrixConnector, err := matrix.New(config.matrixConfig(), db, matrixDB, logger.WithField("component", "matrix connector"))
 	if err != nil {
 		log.Err(err)
 		return nil, err

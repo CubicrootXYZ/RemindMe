@@ -51,7 +51,7 @@ func TestUpdateOutput(t *testing.T) {
 	err = service.AddOutputToChannel(channel.ID, outputBefore)
 	require.NoError(t, err)
 
-	outputBefore.OutputID = 123
+	outputBefore.OutputID = testOutput().OutputID
 	outputBefore.OutputType = "shrug"
 
 	_, err = service.UpdateOutput(outputBefore)
