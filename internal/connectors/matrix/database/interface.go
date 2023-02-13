@@ -19,6 +19,7 @@ type Service interface {
 	GetRoomByRoomID(roomID string) (*MatrixRoom, error)
 	GetRoomCount() (int64, error)
 	NewRoom(room *MatrixRoom) (*MatrixRoom, error)
+	AddUserToRoom(userID string, room *MatrixRoom) (*MatrixRoom, error)
 	UpdateRoom(room *MatrixRoom) (*MatrixRoom, error)
 	DeleteRoom(roomID uint) error
 

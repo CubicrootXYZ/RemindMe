@@ -41,6 +41,7 @@ type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
+	Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
 }
 
 //go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction

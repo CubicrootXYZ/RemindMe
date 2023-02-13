@@ -69,3 +69,36 @@ func TestFullUsername(t *testing.T) {
 		})
 	}
 }
+
+func TestGetUserFromLink(t *testing.T) {
+	testCases := []struct {
+		name           string
+		input          string
+		expectedOutput string
+	}{
+		{
+			name: "empty string",
+		},
+		{
+			name:  "alphanumeric string",
+			input: "abcde1234",
+		},
+		{
+			name:           "alphanumeric link",
+			input:          "https://matrix.to/#/username1",
+			expectedOutput: "username1",
+		},
+		{
+			name:           "full link",
+			input:          "https://matrix.to/#/@user:example.com",
+			expectedOutput: "@user:example.com",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedOutput, format.GetUsernameFromLink(tc.input))
+		})
+	}
+}

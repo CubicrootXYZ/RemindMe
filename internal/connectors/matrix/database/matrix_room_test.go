@@ -94,6 +94,57 @@ func TestService_GetRoomCount(t *testing.T) {
 	assert.LessOrEqual(t, int64(1), cnt)
 }
 
+func TestService_AddUserToRoom(t *testing.T) {
+	user := testUser()
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	roomBefore, err = service.AddUserToRoom(user.ID, roomBefore)
+	require.NoError(t, err)
+
+	roomAfter, err := service.GetRoomByID(roomBefore.ID)
+	require.NoError(t, err)
+
+	assertRoomsEqual(t, roomBefore, roomAfter)
+
+	userFound := false
+	for _, u := range roomAfter.Users {
+		if u.ID == user.ID {
+			userFound = true
+			break
+		}
+	}
+
+	assert.Truef(t, userFound, "user '%s' was not in room altough added", user.ID)
+}
+
+func TestService_AddUserToRoomWithUserAlreadyExists(t *testing.T) {
+	user, err := service.NewUser(testUser())
+	require.NoError(t, err)
+
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	roomBefore, err = service.AddUserToRoom(user.ID, roomBefore)
+	require.NoError(t, err)
+	roomBefore.Users[0].Rooms = nil // GetRoomByID does not set rooms
+
+	roomAfter, err := service.GetRoomByID(roomBefore.ID)
+	require.NoError(t, err)
+
+	assertRoomsEqual(t, roomBefore, roomAfter)
+
+	userFound := false
+	for _, u := range roomAfter.Users {
+		if u.ID == user.ID {
+			userFound = true
+			break
+		}
+	}
+
+	assert.Truef(t, userFound, "user '%s' was not in room altough added", user.ID)
+}
+
 func assertRoomsEqual(t *testing.T, a *database.MatrixRoom, b *database.MatrixRoom) {
 	t.Helper()
 

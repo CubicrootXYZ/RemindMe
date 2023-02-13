@@ -33,6 +33,21 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
+// AddUserToRoom mocks base method.
+func (m *MockService) AddUserToRoom(arg0 string, arg1 *MatrixRoom) (*MatrixRoom, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddUserToRoom", arg0, arg1)
+	ret0, _ := ret[0].(*MatrixRoom)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddUserToRoom indicates an expected call of AddUserToRoom.
+func (mr *MockServiceMockRecorder) AddUserToRoom(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToRoom", reflect.TypeOf((*MockService)(nil).AddUserToRoom), arg0, arg1)
+}
+
 // DeleteAllEventsFromRoom mocks base method.
 func (m *MockService) DeleteAllEventsFromRoom(arg0 uint) error {
 	m.ctrl.T.Helper()

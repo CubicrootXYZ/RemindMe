@@ -8,7 +8,11 @@ import (
 	reflect "reflect"
 	regexp "regexp"
 
+	gologger "github.com/CubicrootXYZ/gologger"
+	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	database0 "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	gomock "github.com/golang/mock/gomock"
+	mautrix "maunium.net/go/mautrix"
 )
 
 // MockMessageAction is a mock of MessageAction interface.
@@ -32,6 +36,18 @@ func NewMockMessageAction(ctrl *gomock.Controller) *MockMessageAction {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockMessageAction) EXPECT() *MockMessageActionMockRecorder {
 	return m.recorder
+}
+
+// Configure mocks base method.
+func (m *MockMessageAction) Configure(arg0 gologger.Logger, arg1 *mautrix.Client, arg2 database.Service, arg3 database0.Service) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3)
+}
+
+// Configure indicates an expected call of Configure.
+func (mr *MockMessageActionMockRecorder) Configure(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockMessageAction)(nil).Configure), arg0, arg1, arg2, arg3)
 }
 
 // HandleEvent mocks base method.

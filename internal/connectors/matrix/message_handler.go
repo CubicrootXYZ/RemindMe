@@ -6,6 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
@@ -14,6 +15,7 @@ type MessageEvent struct {
 	Event       *event.Event
 	Content     *event.MessageEventContent
 	IsEncrypted bool
+	Room        *matrixdb.MatrixRoom
 }
 
 func (service *service) MessageEventHandler(source mautrix.EventSource, evt *event.Event) {
@@ -63,6 +65,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		logger.Infof("can not handle event: " + err.Error())
 		return
 	}
+	msgEvt.Room = room
 
 	if msgEvt.Content.RelatesTo != nil && msgEvt.Content.RelatesTo.InReplyTo != nil {
 		// it is a reply

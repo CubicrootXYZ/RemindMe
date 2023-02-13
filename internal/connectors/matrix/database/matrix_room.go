@@ -54,3 +54,22 @@ func (service *service) GetRoomCount() (int64, error) {
 
 	return cnt, err
 }
+
+func (service *service) AddUserToRoom(userID string, room *MatrixRoom) (*MatrixRoom, error) {
+	user, err := service.GetUserByID(userID)
+	if err != nil {
+		if !errors.Is(err, ErrNotFound) {
+			return nil, err
+		}
+		user, err = service.NewUser(&MatrixUser{
+			ID: userID,
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	room.Users = append(room.Users, *user)
+	room, err = service.UpdateRoom(room)
+	return room, err
+}

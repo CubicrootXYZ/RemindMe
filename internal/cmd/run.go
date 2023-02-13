@@ -70,7 +70,8 @@ type process interface {
 }
 
 func setup(config *Config, logger gologger.Logger) ([]process, error) {
-	db, err := database.NewService(config.databaseConfig(), logger.WithField("component", "database"))
+	dbConfig := config.databaseConfig()
+	db, err := database.NewService(dbConfig, logger.WithField("component", "database"))
 	if err != nil {
 		logger.Err(err)
 		return nil, err
@@ -88,6 +89,10 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		log.Err(err)
 		return nil, err
 	}
+
+	// TODO move services to matrixDB or own interface to remove circular dependency db => matrixCon => db
+	dbConfig.InputServices[matrix.InputType] = matrixConnector
+	dbConfig.InputServices[matrix.OutputType] = matrixConnector
 
 	daemon := daemon.New(config.daemonConfig(), db, logger.WithField("component", "daemon"))
 
