@@ -24,6 +24,17 @@ type fixture struct {
 	replyAction          *MockReplyAction
 }
 
+func testRoom() *matrixdb.MatrixRoom {
+	return &matrixdb.MatrixRoom{
+		RoomID: "abc",
+		Users: []matrixdb.MatrixUser{
+			{
+				ID: "@user:example.com",
+			},
+		},
+	}
+}
+
 func testService(ctrl *gomock.Controller) (service, *fixture) {
 	fx := fixture{
 		matrixDB:             matrixdb.NewMockService(ctrl),
@@ -89,6 +100,7 @@ func TestService_MessageEventHandler(t *testing.T) {
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
+			Room:        testRoom(),
 		},
 	)
 
@@ -113,14 +125,7 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
-		&matrixdb.MatrixRoom{
-			RoomID: "abc",
-			Users: []matrixdb.MatrixUser{
-				{
-					ID: "@user:example.com",
-				},
-			},
-		}, nil,
+		testRoom(), nil,
 	)
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.messageAction.EXPECT().Selector().Return(regexp.MustCompile("^msg$"))
@@ -130,6 +135,7 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
+			Room:        testRoom(),
 		},
 	)
 
@@ -244,14 +250,7 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
-		&matrixdb.MatrixRoom{
-			RoomID: "abc",
-			Users: []matrixdb.MatrixUser{
-				{
-					ID: "@user:example.com",
-				},
-			},
-		}, nil,
+		testRoom(), nil,
 	)
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.matrixDB.EXPECT().GetMessageByID("456").Return(&matrixdb.MatrixMessage{}, nil)
@@ -261,6 +260,7 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
+			Room:        testRoom(),
 		},
 		&matrixdb.MatrixMessage{},
 	)
@@ -291,14 +291,7 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
-		&matrixdb.MatrixRoom{
-			RoomID: "abc",
-			Users: []matrixdb.MatrixUser{
-				{
-					ID: "@user:example.com",
-				},
-			},
-		}, nil,
+		testRoom(), nil,
 	)
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.matrixDB.EXPECT().GetMessageByID("456").Return(&matrixdb.MatrixMessage{}, nil)
@@ -309,6 +302,7 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
+			Room:        testRoom(),
 		},
 		&matrixdb.MatrixMessage{},
 	)

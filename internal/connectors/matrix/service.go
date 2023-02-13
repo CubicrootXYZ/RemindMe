@@ -51,6 +51,7 @@ type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
+	Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
 }
 
 // Config holds information for the matrix connector.
@@ -102,6 +103,8 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 		return nil, err
 	}
 
+	service.setupActions() // important to call after crypto, db and mautrix setup
+
 	service.setLastMessage()
 
 	logger.Debugf("matrix connector setup finished")
@@ -114,6 +117,32 @@ func (service *service) setLastMessage() {
 	message, err := service.matrixDatabase.GetLastMessage()
 	if err == nil {
 		service.lastMessageFrom = message.SendAt
+	}
+}
+
+func (service *service) setupActions() {
+	actions := []interface {
+		Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
+		Name() string
+	}{
+		service.config.DefaultMessageAction,
+		service.config.DefaultReplyAction,
+	}
+
+	for _, action := range service.config.MessageActions {
+		actions = append(actions, action)
+	}
+	for _, action := range service.config.ReplyActions {
+		actions = append(actions, action)
+	}
+
+	for _, action := range actions {
+		action.Configure(
+			service.logger.WithField("component", "action-"+action.Name()),
+			service.client,
+			service.matrixDatabase,
+			service.database,
+		)
 	}
 }
 
