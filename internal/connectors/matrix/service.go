@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"errors"
 	"regexp"
 	"time"
 
@@ -207,4 +208,36 @@ func (service *service) Stop() error {
 	service.logger.Debugf("stopping matrix connector ...")
 	service.client.StopSync()
 	return nil
+}
+
+// InputRemoved to tell the connector an input got removed.
+func (service *service) InputRemoved(inputType string, inputID uint) error {
+	if inputType != InputType {
+		// Input is not from this connector, ignore
+		return nil
+	}
+
+	room, err := service.matrixDatabase.GetRoomByID(inputID)
+	if err != nil && !errors.Is(err, matrixdb.ErrNotFound) {
+		return err
+	}
+
+	err = service.removeRoom(room)
+	return err
+}
+
+// OutputRemoved to tell the connector an output got removed.
+func (service *service) OutputRemoved(outputType string, outputID uint) error {
+	if outputType != OutputType {
+		// Input is not from this connector, ignore
+		return nil
+	}
+
+	room, err := service.matrixDatabase.GetRoomByID(outputID)
+	if err != nil && !errors.Is(err, matrixdb.ErrNotFound) {
+		return err
+	}
+
+	err = service.removeRoom(room)
+	return err
 }

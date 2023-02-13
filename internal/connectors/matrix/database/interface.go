@@ -15,7 +15,8 @@ var (
 
 // Service offers an interface for a matrix related database.
 type Service interface {
-	GetRoomByID(roomID string) (*MatrixRoom, error)
+	GetRoomByID(id uint) (*MatrixRoom, error)
+	GetRoomByRoomID(roomID string) (*MatrixRoom, error)
 	GetRoomCount() (int64, error)
 	NewRoom(room *MatrixRoom) (*MatrixRoom, error)
 	UpdateRoom(room *MatrixRoom) (*MatrixRoom, error)

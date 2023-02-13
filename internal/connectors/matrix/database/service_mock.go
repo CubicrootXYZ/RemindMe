@@ -121,7 +121,7 @@ func (mr *MockServiceMockRecorder) GetMessageByID(arg0 interface{}) *gomock.Call
 }
 
 // GetRoomByID mocks base method.
-func (m *MockService) GetRoomByID(arg0 string) (*MatrixRoom, error) {
+func (m *MockService) GetRoomByID(arg0 uint) (*MatrixRoom, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRoomByID", arg0)
 	ret0, _ := ret[0].(*MatrixRoom)
@@ -133,6 +133,21 @@ func (m *MockService) GetRoomByID(arg0 string) (*MatrixRoom, error) {
 func (mr *MockServiceMockRecorder) GetRoomByID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomByID", reflect.TypeOf((*MockService)(nil).GetRoomByID), arg0)
+}
+
+// GetRoomByRoomID mocks base method.
+func (m *MockService) GetRoomByRoomID(arg0 string) (*MatrixRoom, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRoomByRoomID", arg0)
+	ret0, _ := ret[0].(*MatrixRoom)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRoomByRoomID indicates an expected call of GetRoomByRoomID.
+func (mr *MockServiceMockRecorder) GetRoomByRoomID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomByRoomID", reflect.TypeOf((*MockService)(nil).GetRoomByRoomID), arg0)
 }
 
 // GetRoomCount mocks base method.

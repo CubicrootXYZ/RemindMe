@@ -51,7 +51,7 @@ func (service *service) RemoveInputFromChannel(channelID, inputID uint) error {
 		return tx.rollbackWithError(ErrUnknownInput)
 	}
 
-	err = inputService.InputRemoved(input.InputType, input.InputID, tx.db)
+	err = inputService.InputRemoved(input.InputType, input.InputID)
 	if err != nil {
 		return tx.rollbackWithError(err)
 	}
@@ -87,7 +87,7 @@ func (service *service) RemoveOutputFromChannel(channelID, outputID uint) error 
 		return tx.rollbackWithError(ErrUnknownOutput)
 	}
 
-	err = outputService.OutputRemoved(output.OutputType, output.OutputID, tx.db)
+	err = outputService.OutputRemoved(output.OutputType, output.OutputID)
 	if err != nil {
 		return tx.rollbackWithError(err)
 	}

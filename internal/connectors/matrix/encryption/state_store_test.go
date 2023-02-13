@@ -29,7 +29,7 @@ func TestStore_IsEncrypted(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(
+	db.EXPECT().GetRoomByRoomID("abcd").Return(
 		&database.MatrixRoom{
 			LastCryptoEvent: `{"algorithm":"my algo", "rotation_period_ms": 12}`,
 		},
@@ -44,7 +44,7 @@ func TestStore_IsEncryptedWithIsNot(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(
+	db.EXPECT().GetRoomByRoomID("abcd").Return(
 		&database.MatrixRoom{
 			LastCryptoEvent: ``,
 		},
@@ -59,7 +59,7 @@ func TestStore_GetEncryptionEvent(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(
+	db.EXPECT().GetRoomByRoomID("abcd").Return(
 		&database.MatrixRoom{
 			LastCryptoEvent: `{"algorithm":"my algo", "rotation_period_ms": 12}`,
 		},
@@ -78,7 +78,7 @@ func TestStore_GetEncryptionEventWithError(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(
+	db.EXPECT().GetRoomByRoomID("abcd").Return(
 		nil,
 		errors.New("test"),
 	)
@@ -92,7 +92,7 @@ func TestStore_GetEncryptionEventWithInvalidEvent(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(
+	db.EXPECT().GetRoomByRoomID("abcd").Return(
 		&database.MatrixRoom{
 			LastCryptoEvent: `{"}`,
 		},
@@ -146,7 +146,7 @@ func TestStore_SetEncryptionEvent(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(&database.MatrixRoom{
+	db.EXPECT().GetRoomByRoomID("abcd").Return(&database.MatrixRoom{
 		RoomID: "abcd",
 	}, nil)
 	db.EXPECT().UpdateRoom(&database.MatrixRoom{
@@ -165,7 +165,7 @@ func TestStore_SetEncryptionEventWithGetError(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(&database.MatrixRoom{
+	db.EXPECT().GetRoomByRoomID("abcd").Return(&database.MatrixRoom{
 		RoomID: "abcd",
 	}, errors.New("test"))
 
@@ -180,7 +180,7 @@ func TestStore_SetEncryptionEventWithUpdateError(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(&database.MatrixRoom{
+	db.EXPECT().GetRoomByRoomID("abcd").Return(&database.MatrixRoom{
 		RoomID: "abcd",
 	}, nil)
 	db.EXPECT().UpdateRoom(&database.MatrixRoom{
@@ -199,7 +199,7 @@ func TestStore_GetUserIDs(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(&database.MatrixRoom{
+	db.EXPECT().GetRoomByRoomID("abcd").Return(&database.MatrixRoom{
 		Users: []database.MatrixUser{
 			{
 				ID: "123",
@@ -223,7 +223,7 @@ func TestStore_GetUserIDsWithError(t *testing.T) {
 	defer ctrl.Finish()
 	store, db := stateStore(ctrl)
 
-	db.EXPECT().GetRoomByID("abcd").Return(nil, errors.New("test"))
+	db.EXPECT().GetRoomByRoomID("abcd").Return(nil, errors.New("test"))
 
 	userIDs := store.GetUserIDs("abcd")
 

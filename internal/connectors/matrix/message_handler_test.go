@@ -72,7 +72,7 @@ func TestService_MessageEventHandler(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{
@@ -112,7 +112,7 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{
@@ -153,7 +153,7 @@ func TestService_MessageEventHandlerWithAlreadyKnown(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{
@@ -185,7 +185,7 @@ func TestService_MessageEventHandlerWithUserNotInRoom(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{
@@ -216,7 +216,7 @@ func TestService_MessageEventHandlerWithGetRoomError(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(nil, errors.New("test"))
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(nil, errors.New("test"))
 
 	service.MessageEventHandler(mautrix.EventSourceTimeline, &evt)
 }
@@ -243,7 +243,7 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{
@@ -290,7 +290,7 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 		},
 	}
 
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "abc",
 			Users: []matrixdb.MatrixUser{

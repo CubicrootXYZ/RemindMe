@@ -38,7 +38,7 @@ func (store *StateStore) IsEncrypted(roomID id.RoomID) bool {
 }
 
 func (store *StateStore) GetEncryptionEvent(roomID id.RoomID) *event.EncryptionEventContent {
-	room, err := store.database.GetRoomByID(roomID.String())
+	room, err := store.database.GetRoomByRoomID(roomID.String())
 	if err != nil {
 		store.logger.Err(err)
 		return nil
@@ -84,7 +84,7 @@ func (store *StateStore) SetEncryptionEvent(event *event.Event) {
 		return
 	}
 
-	room, err := store.database.GetRoomByID(event.RoomID.String())
+	room, err := store.database.GetRoomByRoomID(event.RoomID.String())
 	if err != nil {
 		store.logger.Errorf("Failed setting encryption event: " + err.Error())
 		return
@@ -105,7 +105,7 @@ func (store *StateStore) GetUserIDs(roomID string) []id.UserID {
 	userIDs := make([]id.UserID, 0)
 	userIDs = append(userIDs, id.UserID(fmt.Sprintf("@%s:%s", store.config.Username, strings.ReplaceAll(strings.ReplaceAll(store.config.Homeserver, "https://", ""), "http://", ""))))
 
-	room, err := store.database.GetRoomByID(roomID)
+	room, err := store.database.GetRoomByRoomID(roomID)
 	if err != nil {
 		store.logger.Errorf("Failed getting rooms: " + err.Error())
 		return userIDs

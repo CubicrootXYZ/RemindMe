@@ -127,7 +127,7 @@ func TestService_RemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong h
 
 	input := testInput()
 	inputService := mocks.NewMockInputService(ctrl)
-	inputService.EXPECT().InputRemoved(input.InputType, input.InputID, gomock.Any()).Return(nil)
+	inputService.EXPECT().InputRemoved(input.InputType, input.InputID).Return(nil)
 
 	service := getService(&database.Config{
 		Connection:    getConnection(),
@@ -161,7 +161,7 @@ func TestService_RemoveInputFromChannelWithInputServiceError(t *testing.T) {
 	expectedErr := errors.New("test")
 
 	inputService := mocks.NewMockInputService(ctrl)
-	inputService.EXPECT().InputRemoved(input.InputType, input.InputID, gomock.Any()).Return(expectedErr)
+	inputService.EXPECT().InputRemoved(input.InputType, input.InputID).Return(expectedErr)
 
 	service := getService(&database.Config{
 		Connection:    getConnection(),
@@ -209,7 +209,7 @@ func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong 
 
 	output := testOutput()
 	outputService := mocks.NewMockOutputService(ctrl)
-	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID, gomock.Any()).Return(nil)
+	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID).Return(nil)
 
 	service := getService(&database.Config{
 		Connection:     getConnection(),
@@ -243,7 +243,7 @@ func TestService_RemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
 	expectedErr := errors.New("test")
 
 	outputService := mocks.NewMockOutputService(ctrl)
-	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID, gomock.Any()).Return(expectedErr)
+	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID).Return(expectedErr)
 
 	service := getService(&database.Config{
 		Connection:     getConnection(),

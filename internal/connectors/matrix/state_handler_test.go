@@ -33,7 +33,7 @@ func TestService_EventStateHandlerWithInviteAndGetRoomError(t *testing.T) {
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
 	fx.matrixDB.EXPECT().GetRoomCount().Return(int64(0), nil)
 	fx.matrixDB.EXPECT().GetUserByID("@user:example.com").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(nil, errors.New("test"))
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(nil, errors.New("test"))
 
 	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
 }
@@ -235,7 +235,7 @@ func TestService_EventStateHandlerWithLeaveAndDeleteChannelError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -269,7 +269,7 @@ func TestService_EventStateHandlerWithLeaveAndGetChannelError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -302,7 +302,7 @@ func TestService_EventStateHandlerWithRemoveInputError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -334,7 +334,7 @@ func TestService_EventStateHandlerWithGetInputError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -365,7 +365,7 @@ func TestService_EventStateHandlerWithRemoveOutputError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -395,7 +395,7 @@ func TestService_EventStateHandlerWithGetOutputError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(nil)
@@ -424,7 +424,7 @@ func TestService_EventStateHandlerWithDeleteRoomError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteRoom(uint(0)).Return(errors.New("test"))
@@ -452,7 +452,7 @@ func TestService_EventStateHandlerWithDeleteMessagesError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(nil)
 	fx.matrixDB.EXPECT().DeleteAllMessagesFromRoom(uint(0)).Return(errors.New("test"))
 
@@ -479,7 +479,7 @@ func TestService_EventStateHandlerWithDeleteEventsError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(&matrixdb.MatrixRoom{}, nil)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(&matrixdb.MatrixRoom{}, nil)
 	fx.matrixDB.EXPECT().DeleteAllEventsFromRoom(uint(0)).Return(errors.New("test"))
 
 	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
@@ -505,7 +505,7 @@ func TestService_EventStateHandlerWithGetRoomError(t *testing.T) {
 	}
 
 	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
-	fx.matrixDB.EXPECT().GetRoomByID("abc").Return(nil, errors.New("test"))
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(nil, errors.New("test"))
 
 	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
 }

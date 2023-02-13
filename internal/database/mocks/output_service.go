@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	gorm "gorm.io/gorm"
 )
 
 // MockOutputService is a mock of OutputService interface.
@@ -35,15 +34,15 @@ func (m *MockOutputService) EXPECT() *MockOutputServiceMockRecorder {
 }
 
 // OutputRemoved mocks base method.
-func (m *MockOutputService) OutputRemoved(arg0 string, arg1 uint, arg2 *gorm.DB) error {
+func (m *MockOutputService) OutputRemoved(arg0 string, arg1 uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OutputRemoved", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "OutputRemoved", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // OutputRemoved indicates an expected call of OutputRemoved.
-func (mr *MockOutputServiceMockRecorder) OutputRemoved(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockOutputServiceMockRecorder) OutputRemoved(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OutputRemoved", reflect.TypeOf((*MockOutputService)(nil).OutputRemoved), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OutputRemoved", reflect.TypeOf((*MockOutputService)(nil).OutputRemoved), arg0, arg1)
 }

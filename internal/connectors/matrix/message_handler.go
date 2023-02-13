@@ -29,7 +29,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		return
 	}
 
-	room, err := service.matrixDatabase.GetRoomByID(string(evt.RoomID))
+	room, err := service.matrixDatabase.GetRoomByRoomID(string(evt.RoomID))
 	if err != nil {
 		logger.Debugf("do not know room, ignoring message")
 		return

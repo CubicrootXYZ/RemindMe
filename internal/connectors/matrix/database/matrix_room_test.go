@@ -15,7 +15,7 @@ func testRoom() *database.MatrixRoom {
 	var err error
 	for err == nil {
 		roomID = fmt.Sprintf("!%d:example.org", rand.Int()) //nolint:gosec
-		_, err = service.GetRoomByID(roomID)
+		_, err = service.GetRoomByRoomID(roomID)
 	}
 
 	return &database.MatrixRoom{
@@ -28,14 +28,29 @@ func TestService_GetRoomByID(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
 
-	roomAfter, err := service.GetRoomByID(roomBefore.RoomID)
+	roomAfter, err := service.GetRoomByID(roomBefore.ID)
 	require.NoError(t, err)
 
 	assertRoomsEqual(t, roomBefore, roomAfter)
 }
 
 func TestGetRoomByIDWithRoomNotFound(t *testing.T) {
-	_, err := service.GetRoomByID("abc")
+	_, err := service.GetRoomByID(9999)
+	assert.ErrorIs(t, err, database.ErrNotFound)
+}
+
+func TestService_GetRoomByRoomID(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	roomAfter, err := service.GetRoomByRoomID(roomBefore.RoomID)
+	require.NoError(t, err)
+
+	assertRoomsEqual(t, roomBefore, roomAfter)
+}
+
+func TestGetRoomByRoomIDWithRoomNotFound(t *testing.T) {
+	_, err := service.GetRoomByRoomID("abc")
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 
@@ -47,7 +62,7 @@ func TestService_UpdateRoom(t *testing.T) {
 	_, err = service.UpdateRoom(roomBefore)
 	require.NoError(t, err)
 
-	roomAfter, err := service.GetRoomByID(roomBefore.RoomID)
+	roomAfter, err := service.GetRoomByRoomID(roomBefore.RoomID)
 	require.NoError(t, err)
 	assertRoomsEqual(t, roomBefore, roomAfter)
 }
@@ -65,7 +80,7 @@ func TestService_DeleteRoom(t *testing.T) {
 	err = service.DeleteRoom(room.ID)
 	require.NoError(t, err)
 
-	_, err = service.GetRoomByID(room.RoomID)
+	_, err = service.GetRoomByRoomID(room.RoomID)
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 

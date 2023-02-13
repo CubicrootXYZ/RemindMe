@@ -1,6 +1,8 @@
 package matrix
 
-import "errors"
+import (
+	"errors"
+)
 
 // The in- and output type provided by this package
 const (
@@ -18,4 +20,7 @@ var (
 type Service interface {
 	Start() error
 	Stop() error
+
+	InputRemoved(inputType string, inputID uint) error
+	OutputRemoved(outputType string, outputID uint) error
 }

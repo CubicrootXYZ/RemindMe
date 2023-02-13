@@ -6,7 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func (service *service) GetRoomByID(roomID string) (*MatrixRoom, error) {
+func (service *service) GetRoomByID(id uint) (*MatrixRoom, error) {
+	var room MatrixRoom
+	err := service.db.Preload("Users").First(&room, "id = ?", id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
+		return nil, err
+	}
+
+	return &room, err
+}
+
+func (service *service) GetRoomByRoomID(roomID string) (*MatrixRoom, error) {
 	var room MatrixRoom
 	err := service.db.Preload("Users").First(&room, "room_id = ?", roomID).Error
 	if err != nil {

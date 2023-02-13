@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	db "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -85,7 +86,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return nil
 	}
 
-	_, err = service.matrixDatabase.GetRoomByID(evt.RoomID.String())
+	_, err = service.matrixDatabase.GetRoomByRoomID(evt.RoomID.String())
 	if err != nil {
 		if !errors.Is(err, database.ErrNotFound) {
 			return err
@@ -252,7 +253,7 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 		return nil
 	}
 
-	room, err := service.matrixDatabase.GetRoomByID(string(evt.RoomID))
+	room, err := service.matrixDatabase.GetRoomByRoomID(string(evt.RoomID))
 	if err != nil {
 		if errors.Is(err, database.ErrNotFound) {
 			return nil
@@ -260,17 +261,7 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 		return err
 	}
 
-	err = service.matrixDatabase.DeleteAllEventsFromRoom(room.ID)
-	if err != nil {
-		return err
-	}
-
-	err = service.matrixDatabase.DeleteAllMessagesFromRoom(room.ID)
-	if err != nil {
-		return err
-	}
-
-	err = service.matrixDatabase.DeleteRoom(room.ID)
+	err = service.removeRoom(room)
 	if err != nil {
 		return err
 	}
@@ -287,6 +278,27 @@ func (service *service) handleLeave(evt *event.Event, content *event.MemberEvent
 		// Fire and forget, we might already be banned
 		service.logger.Err(err)
 	}
+
+	return nil
+}
+
+func (service *service) removeRoom(room *matrixdb.MatrixRoom) error {
+	err := service.matrixDatabase.DeleteAllEventsFromRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteAllMessagesFromRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	err = service.matrixDatabase.DeleteRoom(room.ID)
+	if err != nil {
+		return err
+	}
+
+	// TODO check if any user is dangling now and remove them too
 
 	return nil
 }
