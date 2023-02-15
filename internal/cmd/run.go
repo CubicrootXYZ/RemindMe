@@ -8,6 +8,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -84,7 +85,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
-	matrixConnector, err := matrix.New(config.matrixConfig(), db, matrixDB, logger.WithField("component", "matrix connector"))
+	matrixConnector, err := matrix.New(assembleMatrixConfig(config), db, matrixDB, logger.WithField("component", "matrix connector"))
 	if err != nil {
 		log.Err(err)
 		return nil, err
@@ -97,4 +98,19 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	daemon := daemon.New(config.daemonConfig(), db, logger.WithField("component", "daemon"))
 
 	return []process{daemon, matrixConnector}, nil
+}
+
+func assembleMatrixConfig(config *Config) *matrix.Config {
+	cfg := config.matrixConfig()
+
+	cfg.DefaultMessageAction = &message.NewEventAction{}
+
+	cfg.ReplyActions = make([]matrix.ReplyAction, 0)
+	cfg.MessageActions = make([]matrix.MessageAction, 0)
+
+	cfg.MessageActions = append(cfg.MessageActions,
+		&message.AddUserAction{},
+	)
+
+	return cfg
 }

@@ -23,7 +23,8 @@ type service struct {
 }
 
 type Config struct {
-	Crypto *CryptoTools
+	Crypto           *CryptoTools
+	DisableReactions bool
 }
 
 type CryptoTools struct {

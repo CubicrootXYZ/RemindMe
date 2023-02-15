@@ -132,4 +132,6 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	if err != nil {
 		action.logger.Err(err)
 	}
+
+	// TODO add message to database
 }

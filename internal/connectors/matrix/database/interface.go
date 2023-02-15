@@ -55,22 +55,26 @@ type MatrixUser struct {
 type MatrixMessageType string
 
 var (
-	MessageTypeWelcome = MatrixMessageType("WELCOME")
+	MessageTypeWelcome  = MatrixMessageType("WELCOME")
+	MessageTypeNewEvent = MatrixMessageType("EVENT_NEW")
+	MessageTypeAddUser  = MatrixMessageType("USER_ADD")
 )
 
 // MatrixMessage holds information about a matrix message.
 type MatrixMessage struct {
-	ID            string `gorm:"primary,size:255"`
-	UserID        string `gorm:"size:255"`
-	User          MatrixUser
-	RoomID        uint
-	Room          MatrixRoom
-	Body          string
-	BodyFormatted string
-	SendAt        time.Time
-	Type          MatrixMessageType
-	Incoming      bool
-	EventID       *uint
+	ID               string `gorm:"primary,size:255"`
+	UserID           string `gorm:"size:255"`
+	User             MatrixUser
+	RoomID           uint
+	Room             MatrixRoom
+	Body             string
+	BodyFormatted    string
+	SendAt           time.Time
+	Type             MatrixMessageType
+	Incoming         bool
+	EventID          *uint
+	ReplyToMessageID *string `gorm:"size:255"`
+	ReplyToMessage   *MatrixMessage
 }
 
 // MatrixEvent holds information about a state event (e.g. leave, join).

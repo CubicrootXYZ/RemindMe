@@ -21,6 +21,10 @@ func (reaction *Reaction) toEvent() *messageEvent {
 }
 
 func (messenger *service) SendReactionAsync(reaction *Reaction) error {
+	if messenger.config.DisableReactions {
+		return nil
+	}
+
 	go func() {
 		_, _ = messenger.sendMessage(reaction.toEvent(), reaction.ChannelExternalIdentifier, 10, time.Second*15)
 	}()

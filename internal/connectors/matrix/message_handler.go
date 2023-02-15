@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/CubicrootXYZ/gologger"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 )
@@ -16,6 +16,8 @@ type MessageEvent struct {
 	Content     *event.MessageEventContent
 	IsEncrypted bool
 	Room        *matrixdb.MatrixRoom
+	Input       *database.Input
+	Channel     *database.Channel
 }
 
 func (service *service) MessageEventHandler(source mautrix.EventSource, evt *event.Event) {
@@ -60,12 +62,11 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 		}
 	}
 
-	msgEvt, err := service.parseMessageEvent(evt)
+	msgEvt, err := service.parseMessageEvent(evt, room)
 	if err != nil {
 		logger.Infof("can not handle event: " + err.Error())
 		return
 	}
-	msgEvt.Room = room
 
 	if msgEvt.Content.RelatesTo != nil && msgEvt.Content.RelatesTo.InReplyTo != nil {
 		// it is a reply
@@ -76,7 +77,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	}
 }
 
-func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
+func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *matrixdb.MatrixRoom, logger gologger.Logger) {
 	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 	if err != nil {
 		logger.Infof("discarding message, can not find the message it replies to: %s", err.Error())
@@ -96,7 +97,7 @@ func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *da
 	service.config.DefaultReplyAction.HandleEvent(msgEvent, replyToMessage)
 }
 
-func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *database.MatrixRoom, logger gologger.Logger) {
+func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *matrixdb.MatrixRoom, logger gologger.Logger) {
 	msg := strings.ToLower(msgEvent.Content.Body)
 	for i := range service.config.MessageActions {
 		if service.config.MessageActions[i].Selector().MatchString(msg) {
@@ -110,10 +111,23 @@ func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *
 	service.config.DefaultMessageAction.HandleEvent(msgEvent)
 }
 
-func (service *service) parseMessageEvent(evt *event.Event) (*MessageEvent, error) {
+func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*MessageEvent, error) {
 	msgEvt := MessageEvent{
 		Event: evt,
+		Room:  room,
 	}
+
+	input, err := service.database.GetInputByType(room.ID, InputType)
+	if err != nil {
+		return nil, err
+	}
+
+	channel, err := service.database.GetChannelByID(input.ChannelID)
+	if err != nil {
+		return nil, err
+	}
+	msgEvt.Channel = channel
+	msgEvt.Input = input
 
 	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if ok {

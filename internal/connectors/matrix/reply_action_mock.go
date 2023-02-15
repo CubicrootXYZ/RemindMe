@@ -10,6 +10,7 @@ import (
 
 	gologger "github.com/CubicrootXYZ/gologger"
 	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	messenger "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	database0 "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	gomock "github.com/golang/mock/gomock"
 	mautrix "maunium.net/go/mautrix"
@@ -39,15 +40,15 @@ func (m *MockReplyAction) EXPECT() *MockReplyActionMockRecorder {
 }
 
 // Configure mocks base method.
-func (m *MockReplyAction) Configure(arg0 gologger.Logger, arg1 *mautrix.Client, arg2 database.Service, arg3 database0.Service) {
+func (m *MockReplyAction) Configure(arg0 gologger.Logger, arg1 *mautrix.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3)
+	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3, arg4)
 }
 
 // Configure indicates an expected call of Configure.
-func (mr *MockReplyActionMockRecorder) Configure(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+func (mr *MockReplyActionMockRecorder) Configure(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockReplyAction)(nil).Configure), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockReplyAction)(nil).Configure), arg0, arg1, arg2, arg3, arg4)
 }
 
 // HandleEvent mocks base method.

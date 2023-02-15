@@ -95,12 +95,16 @@ func TestService_MessageEventHandler(t *testing.T) {
 	)
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.messageAction.EXPECT().Selector().Return(regexp.MustCompile("^$"))
+	fx.db.EXPECT().GetInputByType(uint(0), "matrix").Return(&database.Input{}, nil)
+	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.defaultMessageAction.EXPECT().HandleEvent(
 		&MessageEvent{
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
 			Room:        testRoom(),
+			Channel:     &database.Channel{},
+			Input:       &database.Input{},
 		},
 	)
 
@@ -130,12 +134,16 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.messageAction.EXPECT().Selector().Return(regexp.MustCompile("^msg$"))
 	fx.messageAction.EXPECT().Name().Return("message action")
+	fx.db.EXPECT().GetInputByType(uint(0), "matrix").Return(&database.Input{}, nil)
+	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.messageAction.EXPECT().HandleEvent(
 		&MessageEvent{
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
 			Room:        testRoom(),
+			Channel:     &database.Channel{},
+			Input:       &database.Input{},
 		},
 	)
 
@@ -255,12 +263,16 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 	fx.matrixDB.EXPECT().GetMessageByID("123").Return(nil, errors.New("test"))
 	fx.matrixDB.EXPECT().GetMessageByID("456").Return(&matrixdb.MatrixMessage{}, nil)
 	fx.replyAction.EXPECT().Selector().Return(regexp.MustCompile("^$"))
+	fx.db.EXPECT().GetInputByType(uint(0), "matrix").Return(&database.Input{}, nil)
+	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.defaultReplyAction.EXPECT().HandleEvent(
 		&MessageEvent{
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
 			Room:        testRoom(),
+			Channel:     &database.Channel{},
+			Input:       &database.Input{},
 		},
 		&matrixdb.MatrixMessage{},
 	)
@@ -297,12 +309,16 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 	fx.matrixDB.EXPECT().GetMessageByID("456").Return(&matrixdb.MatrixMessage{}, nil)
 	fx.replyAction.EXPECT().Selector().Return(regexp.MustCompile("^msg$"))
 	fx.replyAction.EXPECT().Name().Return("reply action")
+	fx.db.EXPECT().GetInputByType(uint(0), "matrix").Return(&database.Input{}, nil)
+	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.replyAction.EXPECT().HandleEvent(
 		&MessageEvent{
 			Event:       &evt,
 			Content:     evt.Content.Parsed.(*event.MessageEventContent),
 			IsEncrypted: false,
 			Room:        testRoom(),
+			Channel:     &database.Channel{},
+			Input:       &database.Input{},
 		},
 		&matrixdb.MatrixMessage{},
 	)

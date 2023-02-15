@@ -41,7 +41,7 @@ type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
-	Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 }
 
 //go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
@@ -51,7 +51,7 @@ type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
-	Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 }
 
 // Config holds information for the matrix connector.
@@ -122,7 +122,7 @@ func (service *service) setLastMessage() {
 
 func (service *service) setupActions() {
 	actions := []interface {
-		Configure(logger gologger.Logger, client *mautrix.Client, matrixDB matrixdb.Service, db database.Service)
+		Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 		Name() string
 	}{
 		service.config.DefaultMessageAction,
@@ -140,6 +140,7 @@ func (service *service) setupActions() {
 		action.Configure(
 			service.logger.WithField("component", "action-"+action.Name()),
 			service.client,
+			service.messenger,
 			service.matrixDatabase,
 			service.database,
 		)
