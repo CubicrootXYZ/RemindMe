@@ -10,10 +10,10 @@ import (
 
 	gologger "github.com/CubicrootXYZ/gologger"
 	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	mautrixcl "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	messenger "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	database0 "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	gomock "github.com/golang/mock/gomock"
-	mautrix "maunium.net/go/mautrix"
 )
 
 // MockMessageAction is a mock of MessageAction interface.
@@ -40,7 +40,7 @@ func (m *MockMessageAction) EXPECT() *MockMessageActionMockRecorder {
 }
 
 // Configure mocks base method.
-func (m *MockMessageAction) Configure(arg0 gologger.Logger, arg1 *mautrix.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service) {
+func (m *MockMessageAction) Configure(arg0 gologger.Logger, arg1 mautrixcl.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3, arg4)
 }

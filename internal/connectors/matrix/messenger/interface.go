@@ -8,6 +8,8 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
+//go:generate mockgen -destination=service_mock.go -package=messenger . Messenger
+
 // Messenger provides an interface for sending and handling matrix events
 // The Queue... methods work asynchronous but do not provide any information about the sent message
 // The Send... methods work snchronous and provide more detailed feedback, they can be used asynchronous

@@ -9,6 +9,7 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
@@ -41,7 +42,7 @@ type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
-	Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 }
 
 //go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
@@ -51,7 +52,7 @@ type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
-	Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 }
 
 // Config holds information for the matrix connector.
@@ -122,7 +123,7 @@ func (service *service) setLastMessage() {
 
 func (service *service) setupActions() {
 	actions := []interface {
-		Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
 		Name() string
 	}{
 		service.config.DefaultMessageAction,

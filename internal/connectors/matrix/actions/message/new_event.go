@@ -10,9 +10,9 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"maunium.net/go/mautrix"
 )
 
 var DefaultEventTime = time.Minute
@@ -21,14 +21,14 @@ var ReminderRequestReactions = []string{"❌", "➕", "1️⃣", "4️⃣"}
 // NewEventAction for new events. Should be the default message handler.
 type NewEventAction struct {
 	logger    gologger.Logger
-	client    *mautrix.Client
+	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *NewEventAction) Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *NewEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB

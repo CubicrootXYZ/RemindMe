@@ -8,20 +8,20 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"maunium.net/go/mautrix"
 )
 
 type AddUserAction struct {
 	logger    gologger.Logger
-	client    *mautrix.Client
+	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
 }
 
-func (action *AddUserAction) Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *AddUserAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -33,8 +33,14 @@ func (action *AddUserAction) Name() string {
 	return "Add user"
 }
 
+func (action *AddUserAction) GetDocu() (title, explaination string, examples []string) {
+	return "Add user to bot",
+		"Add a user in this room to the bot, so they can interact with it too.",
+		[]string{"add user @bestbuddy"}
+}
+
 func (action *AddUserAction) Selector() *regexp.Regexp {
-	return regexp.MustCompile("(?i)(^add user).*")
+	return regexp.MustCompile("(?i)(^[ ]*add[ ]+user).*")
 }
 
 func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
@@ -48,7 +54,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	exactMatch := true
 	if username == "" {
 		// Fall back to plain text
-		username = strings.TrimPrefix(strings.TrimSpace(event.Content.Body), "add user ")
+		username = strings.TrimPrefix(strings.TrimSpace(event.Content.Body), "add user ") // TODO no longer matches the regex
 		exactMatch = false
 	}
 
@@ -75,7 +81,9 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 				break
 			}
 		} else {
-			if "@"+username == strings.Split(user.String(), ":")[0] {
+			if "@"+username == strings.Split(user.String(), ":")[0] ||
+				username == strings.Split(user.String(), ":")[0] ||
+				username == user.String() {
 				userInRoom = true
 				username = user.String()
 				break
