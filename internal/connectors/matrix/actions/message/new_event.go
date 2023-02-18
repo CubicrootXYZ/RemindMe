@@ -41,6 +41,12 @@ func (action *NewEventAction) Name() string {
 	return "New event"
 }
 
+func (action *NewEventAction) GetDocu() (title, explaination string, examples []string) {
+	return "New event",
+		"Add a new reminder.",
+		[]string{"go shopping at monday", "buy milk at 5 pm", "ask boss for pay raise in 1 year"}
+}
+
 // Selector defines a regex on what messages the action should be used.
 func (action *NewEventAction) Selector() *regexp.Regexp {
 	return regexp.MustCompile(".*")
