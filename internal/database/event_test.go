@@ -1,147 +1,230 @@
-package database
+package database_test
 
 import (
-	"errors"
 	"testing"
+	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestEvent_IsEventKnownOnSuccess(t *testing.T) {
-	assert := assert.New(t)
-	require := require.New(t)
-	db, mock := testDatabase()
-
-	for _, event := range testEvents() {
-		mock.ExpectQuery("SELECT (.*) FROM `events`").WillReturnRows(rowsForEvents([]*Event{event}))
-
-		exists, err := db.IsEventKnown(event.ExternalIdentifier)
-
-		require.NoError(err)
-		assert.Truef(exists, "Event %d does not exist", event.ID)
-	}
-
-	for _, event := range testEvents() {
-		mock.ExpectQuery("SELECT (.*) FROM `events`").WillReturnRows(rowsForEvents([]*Event{}))
-
-		exists, err := db.IsEventKnown(event.ExternalIdentifier)
-
-		require.NoError(err)
-		assert.Falsef(exists, "Event %d should not exist", event.ID)
-	}
-
-	assert.NoError(mock.ExpectationsWereMet())
+func time2123() time.Time {
+	t, _ := time.Parse(time.RFC3339, "2123-01-02T15:04:05-07:00")
+	return t
 }
 
-func TestEvent_IsEventKnownOnFailure(t *testing.T) {
-	assert := assert.New(t)
-	db, mock := testDatabase()
+func time2125() time.Time {
+	t, _ := time.Parse(time.RFC3339, "2125-01-02T15:04:05-07:00")
+	return t
+}
 
-	for _, event := range testEvents() {
-		mock.ExpectQuery("SELECT (.*) FROM `events`").WillReturnError(errors.New("test error"))
+func timeP2124() *time.Time {
+	t, _ := time.Parse(time.RFC3339, "2124-01-02T15:04:05-07:00")
+	return &t
+}
 
-		_, err := db.IsEventKnown(event.ExternalIdentifier)
+func timeP2122() *time.Time {
+	t, _ := time.Parse(time.RFC3339, "2122-01-02T15:04:05-07:00")
+	return &t
+}
 
-		assert.Error(err)
+func interval40Hours() *time.Duration {
+	d := time.Hour * 40
+
+	return &d
+}
+
+func TestEvent_NextEventTime(t *testing.T) {
+	type testCase struct {
+		Name         string
+		Event        database.Event
+		ExpectedTime time.Time
 	}
-	assert.NoError(mock.ExpectationsWereMet())
-}
 
-func TestEvent_AddEventOnSuccess(t *testing.T) {
-	assert := assert.New(t)
-	db, mock := testDatabase()
-
-	for _, event := range testEvents() {
-		mock.ExpectBegin()
-		mock.ExpectExec("INSERT INTO `events`").WithArgs(
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			event.ChannelID,
-			event.Timestamp,
-			event.ExternalIdentifier,
-			event.EventType,
-			event.EventSubType,
-			event.AdditionalInfo).
-			WillReturnResult(sqlmock.NewResult(int64(event.ID), 1))
-		mock.ExpectCommit()
-
-		newEvent, err := db.AddEvent(event)
-		require.NoError(t, err)
-
-		assert.Equal(event.ChannelID, newEvent.ChannelID)
-		assert.Equal(event.Timestamp, newEvent.Timestamp)
-		assert.Equal(event.ExternalIdentifier, newEvent.ExternalIdentifier)
-		assert.Equal(event.EventType, newEvent.EventType)
-		assert.Equal(event.EventSubType, newEvent.EventSubType)
-		assert.Equal(event.AdditionalInfo, newEvent.AdditionalInfo)
+	testCases := []testCase{
+		{
+			Name:         "Empty event",
+			Event:        database.Event{},
+			ExpectedTime: time.Time{},
+		},
+		{
+			Name: "Empty repeat until",
+			Event: database.Event{
+				Time:           time2123(),
+				RepeatInterval: interval40Hours(),
+			},
+			ExpectedTime: time.Time{},
+		},
+		{
+			Name: "Empty repeat interval",
+			Event: database.Event{
+				Time:        time2123(),
+				RepeatUntil: timeP2124(),
+			},
+			ExpectedTime: time.Time{},
+		},
+		{
+			Name: "Repeat until reached",
+			Event: database.Event{
+				Time:           time2123(),
+				RepeatUntil:    timeP2122(),
+				RepeatInterval: interval40Hours(),
+			},
+			ExpectedTime: time.Time{},
+		},
+		{
+			Name: "Success",
+			Event: database.Event{
+				Time:           time2123(),
+				RepeatUntil:    timeP2124(),
+				RepeatInterval: interval40Hours(),
+			},
+			ExpectedTime: time2123().Add(*interval40Hours()),
+		},
 	}
-	assert.NoError(mock.ExpectationsWereMet())
-}
 
-func TestEvent_AddEventOnFailure(t *testing.T) {
-	assert := assert.New(t)
-	db, mock := testDatabase()
-
-	for _, event := range testEvents() {
-		mock.ExpectBegin()
-		mock.ExpectExec("INSERT INTO `events`").WithArgs(
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			event.ChannelID,
-			event.Timestamp,
-			event.ExternalIdentifier,
-			event.EventType,
-			event.EventSubType,
-			event.AdditionalInfo).
-			WillReturnError(errors.New("test error"))
-		mock.ExpectRollback()
-
-		_, err := db.AddEvent(event)
-		assert.Error(err)
-	}
-	assert.NoError(mock.ExpectationsWereMet())
-}
-
-func testEvents() []*Event {
-	events := make([]*Event, 0)
-	events = append(events, testEvent1())
-
-	return events
-}
-
-func testEvent1() *Event {
-	id := uint(1)
-	return &Event{
-		ChannelID:          &id,
-		Timestamp:          12345,
-		ExternalIdentifier: "abcdefg",
-		EventType:          EventTypeMembership,
-		EventSubType:       "test",
-		AdditionalInfo:     "",
+	for _, testCase := range testCases {
+		t.Run(testCase.Name, func(t *testing.T) {
+			actualTime := testCase.Event.NextEventTime()
+			assert.Equal(t, testCase.ExpectedTime, actualTime)
+		})
 	}
 }
 
-func rowsForEvents(events []*Event) *sqlmock.Rows {
-	rows := sqlmock.NewRows([]string{"id", "created_at", "updated_at", "deleted_at", "channel_id", "timestamp", "external_identifier", "event_type", "event_sub_type", "additional_info"})
-
-	for _, event := range events {
-		rows.AddRow(
-			event.ID,
-			event.CreatedAt,
-			event.UpdatedAt,
-			event.DeletedAt,
-			event.ChannelID,
-			event.Timestamp,
-			event.ExternalIdentifier,
-			event.EventType,
-			event.EventSubType,
-			event.AdditionalInfo,
-		)
+func testEvent() *database.Event {
+	var channel *database.Channel
+	err := gormDB.First(&channel).Error
+	if err != nil {
+		panic(err)
 	}
 
-	return rows
+	channel = testChannel()
+	channel, err = service.NewChannel(channel)
+	if err != nil {
+		panic(err)
+	}
+
+	return &database.Event{
+		Time:           time2123(),
+		Duration:       *interval40Hours(),
+		Message:        "test",
+		Active:         true,
+		RepeatInterval: interval40Hours(),
+		RepeatUntil:    timeP2124(),
+		ChannelID:      channel.ID,
+	}
+}
+
+func TestService_NewEvent(t *testing.T) {
+	eventBefore := testEvent()
+	eventAfter, err := service.NewEvent(eventBefore)
+	require.NoError(t, err)
+
+	assert.Equal(t, eventBefore.Time, eventAfter.Time)
+	assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+	assert.Equal(t, eventBefore.Message, eventAfter.Message)
+	assert.Equal(t, eventBefore.Active, eventAfter.Active)
+	assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
+}
+
+func TestService_NewEventWithoutChannel(t *testing.T) {
+	_, err := service.NewEvent(&database.Event{})
+	require.Error(t, err)
+}
+
+func TestService_GetEventsByChannel(t *testing.T) {
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	events, err := service.GetEventsByChannel(eventBefore.ChannelID)
+	require.NoError(t, err)
+
+	require.Less(t, 0, len(events))
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+			assert.Equal(t, eventBefore.Message, eventAfter.Message)
+			assert.Equal(t, eventBefore.Active, eventAfter.Active)
+			assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+		}
+	}
+
+	assert.True(t, evtFound, "missing event not in response")
+}
+
+func TestService_GetEventsByChannelWithEmptyResponse(t *testing.T) {
+	events, err := service.GetEventsByChannel(123456)
+	require.NoError(t, err)
+
+	require.Equal(t, 0, len(events))
+}
+
+func TestService_GetEventsPending(t *testing.T) {
+	eventBefore := testEvent()
+	eventBefore.Time = time.Now().Add(-200 * time.Hour)
+
+	eventBefore, err := service.NewEvent(eventBefore)
+	require.NoError(t, err)
+
+	events, err := service.GetEventsPending()
+	require.NoError(t, err)
+
+	require.Less(t, 0, len(events))
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+			assert.Equal(t, eventBefore.Message, eventAfter.Message)
+			assert.Equal(t, eventBefore.Active, eventAfter.Active)
+			assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+		}
+	}
+
+	assert.True(t, evtFound, "missing event not in response")
+}
+
+func TestService_GetEventsPendingWithInactiveEvent(t *testing.T) {
+	eventBefore := testEvent()
+	eventBefore.Time = time.Now().Add(-200 * time.Hour)
+	eventBefore.Active = false
+
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	events, err := service.GetEventsPending()
+	require.NoError(t, err)
+
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+		}
+	}
+
+	assert.False(t, evtFound, "event in response")
+}
+
+func TestService_UpdateEvent(t *testing.T) {
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	eventBefore.Time = time2125()
+	eventBefore.Duration = time.Minute
+	eventBefore.Message = "test 2"
+	eventBefore.Active = false
+
+	eventAfter, err := service.UpdateEvent(eventBefore)
+	require.NoError(t, err)
+
+	assert.Equal(t, eventBefore.Time, eventAfter.Time)
+	assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+	assert.Equal(t, eventBefore.Message, eventAfter.Message)
+	assert.Equal(t, eventBefore.Active, eventAfter.Active)
+	assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
 }
