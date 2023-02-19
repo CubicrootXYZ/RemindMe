@@ -14,3 +14,5 @@ app
 package-lock.json
 dockerdata
 db-data
+config_dev.yml
+olm.db
