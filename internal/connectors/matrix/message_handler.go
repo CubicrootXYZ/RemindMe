@@ -56,10 +56,9 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	_, err = service.matrixDatabase.GetMessageByID(evt.ID.String())
 	if err == nil {
 		return
-	} else {
-		if !errors.Is(err, database.ErrNotFound) {
-			logger.Err(err)
-		}
+	}
+	if !errors.Is(err, database.ErrNotFound) {
+		logger.Err(err)
 	}
 
 	msgEvt, err := service.parseMessageEvent(evt, room)
@@ -70,14 +69,14 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 
 	if msgEvt.Content.RelatesTo != nil && msgEvt.Content.RelatesTo.InReplyTo != nil {
 		// it is a reply
-		service.findMatchingReplyAction(msgEvt, room, logger)
+		service.findMatchingReplyAction(msgEvt, logger)
 	} else {
 		// it is a message
-		service.findMatchingMessageAction(msgEvt, room, logger)
+		service.findMatchingMessageAction(msgEvt, logger)
 	}
 }
 
-func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *matrixdb.MatrixRoom, logger gologger.Logger) {
+func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger gologger.Logger) {
 	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 	if err != nil {
 		logger.Infof("discarding message, can not find the message it replies to: %s", err.Error())
@@ -97,7 +96,7 @@ func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, room *ma
 	service.config.DefaultReplyAction.HandleEvent(msgEvent, replyToMessage)
 }
 
-func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, room *matrixdb.MatrixRoom, logger gologger.Logger) {
+func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger gologger.Logger) {
 	msg := strings.ToLower(msgEvent.Content.Body)
 	for i := range service.config.MessageActions {
 		if service.config.MessageActions[i].Selector().MatchString(msg) {

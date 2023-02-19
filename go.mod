@@ -11,7 +11,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.1
-	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3

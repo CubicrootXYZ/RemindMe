@@ -53,7 +53,7 @@ func (service *service) EventStateHandler(source mautrix.EventSource, evt *event
 			logger.Errorf("Failed to handle membership invite with: " + err.Error())
 		}
 	case event.MembershipLeave, event.MembershipBan:
-		err := service.handleLeave(evt, content)
+		err := service.handleLeave(evt)
 		if err != nil {
 			logger.Errorf("Failed to handle membership leave with: " + err.Error())
 		}
@@ -248,7 +248,7 @@ func (service *service) maxUserReached() (bool, error) {
 	return false, nil
 }
 
-func (service *service) handleLeave(evt *event.Event, content *event.MemberEventContent) error {
+func (service *service) handleLeave(evt *event.Event) error {
 	if evt.StateKey == nil {
 		return nil
 	}
