@@ -1,6 +1,7 @@
 package message_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -101,7 +102,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 
 			msngr.EXPECT().SendResponse(gomock.Any()).Return(nil, nil)
 
-			// TODO EXPECT NewMessage
+			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 			// Execute
 			action.HandleEvent(testEvent(
@@ -112,7 +113,106 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 			))
 		})
 	}
-	time.Sleep(time.Millisecond * 50)
+	time.Sleep(time.Millisecond * 10) // wait for goroutine to finish
+}
+
+func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+
+	action := &message.NewEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+	)
+
+	// Expectations
+	db.EXPECT().NewEvent(&eventMatcher{
+		evt: &database.Event{
+			Duration:  message.DefaultEventTime,
+			Message:   "my test reminder at monday 1:11",
+			Active:    true,
+			ChannelID: testEvent().Channel.ID,
+			InputID:   &testEvent().Input.ID,
+		},
+	}).Return(&database.Event{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Duration:  message.DefaultEventTime,
+		Message:   "my test reminder at monday 1:11",
+		Active:    true,
+		ChannelID: testEvent().Channel.ID,
+		InputID:   &testEvent().Input.ID,
+	}, nil)
+
+	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+		UserID:        testEvent().Event.Sender.String(),
+		RoomID:        testEvent().Room.ID,
+		Body:          "my test reminder at monday 1:11",
+		BodyFormatted: "my test reminder at monday 1:11",
+		SendAt:        time.UnixMilli(testEvent().Event.Timestamp),
+		Incoming:      true,
+		Type:          matrixdb.MessageTypeNewEvent,
+	}).Return(nil, errors.New("test"))
+
+	// Execute
+	action.HandleEvent(testEvent(
+		withBody(
+			"my test reminder at monday 1:11",
+			"my test reminder at monday 1:11",
+		),
+	))
+
+	time.Sleep(time.Millisecond * 10) // wait for goroutine to finish
+}
+
+func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+
+	action := &message.NewEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+	)
+
+	// Expectations
+	db.EXPECT().NewEvent(&eventMatcher{
+		evt: &database.Event{
+			Duration:  message.DefaultEventTime,
+			Message:   "my test reminder at monday 1:11",
+			Active:    true,
+			ChannelID: testEvent().Channel.ID,
+			InputID:   &testEvent().Input.ID,
+		},
+	}).Return(nil, errors.New("test"))
+
+	// Execute
+	action.HandleEvent(testEvent(
+		withBody(
+			"my test reminder at monday 1:11",
+			"my test reminder at monday 1:11",
+		),
+	))
+
+	time.Sleep(time.Millisecond * 10) // wait for goroutine to finish
 }
 
 type eventMatcher struct {
