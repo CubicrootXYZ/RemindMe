@@ -48,13 +48,12 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 	if err != nil {
 		return nil, deviceID, err
 	}
-
-	cryptoStore := crypto.NewSQLCryptoStore(cryptoDB, dbutil.MauLogger(maulogger.Create()), username, deviceID, []byte(config.DeviceKey))
-
-	err = cryptoStore.Upgrade()
+	err = cryptoDB.Upgrade()
 	if err != nil {
 		return nil, deviceID, err
 	}
+
+	cryptoStore := crypto.NewSQLCryptoStore(cryptoDB, dbutil.MauLogger(maulogger.Create()), username, deviceID, []byte(config.DeviceKey))
 
 	return cryptoStore, deviceID, err
 }
