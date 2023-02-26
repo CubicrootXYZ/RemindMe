@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"gorm.io/gorm"
 )
 
@@ -55,9 +56,10 @@ type MatrixUser struct {
 type MatrixMessageType string
 
 var (
-	MessageTypeWelcome  = MatrixMessageType("WELCOME")
-	MessageTypeNewEvent = MatrixMessageType("EVENT_NEW")
-	MessageTypeAddUser  = MatrixMessageType("USER_ADD")
+	MessageTypeWelcome     = MatrixMessageType("WELCOME")
+	MessageTypeNewEvent    = MatrixMessageType("EVENT_NEW")
+	MessageTypeAddUser     = MatrixMessageType("USER_ADD")
+	MessageTypeChangeEvent = MatrixMessageType("EVENT_CHANGE")
 )
 
 // MatrixMessage holds information about a matrix message.
@@ -73,6 +75,7 @@ type MatrixMessage struct {
 	Type             MatrixMessageType
 	Incoming         bool
 	EventID          *uint
+	Event            *database.Event
 	ReplyToMessageID *string `gorm:"size:255"`
 	ReplyToMessage   *MatrixMessage
 }

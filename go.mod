@@ -10,7 +10,7 @@ require (
 	github.com/jinzhu/configor v1.2.1
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/rs/zerolog v1.28.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3
