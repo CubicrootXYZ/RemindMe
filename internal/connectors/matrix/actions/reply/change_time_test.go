@@ -1,6 +1,7 @@
 package reply_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/CubicrootXYZ/gologger"
@@ -79,4 +80,67 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 	}
 }
 
-// TODO more tests
+func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+
+	action := &reply.ChangeTimeAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+	)
+
+	event := tests.TestEvent(
+		tests.WithBody(
+			"tomorrow",
+			"tomorrow",
+		))
+
+	// Expectations
+	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent)
+
+	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
+		Return(nil, errors.New("test"))
+
+	// Execute
+	action.HandleEvent(event, tests.TestMessage())
+}
+
+func TestChangeTimeAction_HandleEventWithNewMessageError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+
+	action := &reply.ChangeTimeAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+	)
+
+	event := tests.TestEvent(
+		tests.WithBody(
+			"tomorrow",
+			"tomorrow",
+		))
+
+	// Expectations
+	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, errors.New("test"))
+
+	// Execute
+	action.HandleEvent(event, tests.TestMessage())
+}
