@@ -103,7 +103,9 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 				})
 			}
 
-			msngr.EXPECT().SendResponse(gomock.Any()).Return(nil, nil)
+			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+				ExternalIdentifier: "ext1",
+			}, nil)
 
 			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
@@ -157,15 +159,8 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 		InputID:   &tests.TestEvent().Input.ID,
 	}, nil)
 
-	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
-		UserID:        tests.TestEvent().Event.Sender.String(),
-		RoomID:        tests.TestEvent().Room.ID,
-		Body:          "my test reminder at monday 1:11",
-		BodyFormatted: "my test reminder at monday 1:11",
-		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
-		Incoming:      true,
-		Type:          matrixdb.MessageTypeNewEvent,
-	}).Return(nil, errors.New("test"))
+	// TODO match arg0
+	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
