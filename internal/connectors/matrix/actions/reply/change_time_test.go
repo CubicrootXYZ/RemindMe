@@ -2,7 +2,6 @@ package reply_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
@@ -78,5 +77,6 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 			action.HandleEvent(event, tests.TestMessage())
 		})
 	}
-	time.Sleep(time.Millisecond * 10) // wait for goroutine to finish
 }
+
+// TODO more tests

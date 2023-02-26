@@ -53,6 +53,12 @@ func WithBody(body, formattedBody string) EventOpt {
 	}
 }
 
+func WithUserInRoom(user matrixdb.MatrixUser) EventOpt {
+	return func(evt *matrix.MessageEvent) {
+		evt.Room.Users = append(evt.Room.Users, user)
+	}
+}
+
 type MessageOpt func(msg *matrixdb.MatrixMessage)
 
 func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {

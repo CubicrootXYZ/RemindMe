@@ -11,6 +11,7 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -68,8 +69,8 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 					Duration:  message.DefaultEventTime,
 					Message:   msg,
 					Active:    true,
-					ChannelID: testEvent().Channel.ID,
-					InputID:   &testEvent().Input.ID,
+					ChannelID: tests.TestEvent().Channel.ID,
+					InputID:   &tests.TestEvent().Input.ID,
 				},
 			}).Return(&database.Event{
 				Model: gorm.Model{
@@ -78,8 +79,8 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 				Duration:  message.DefaultEventTime,
 				Message:   msg,
 				Active:    true,
-				ChannelID: testEvent().Channel.ID,
-				InputID:   &testEvent().Input.ID,
+				ChannelID: tests.TestEvent().Channel.ID,
+				InputID:   &tests.TestEvent().Input.ID,
 			}, nil)
 
 			/* TODO this is making the test flaky since we have a second call with Any
@@ -97,8 +98,8 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 			for _, reaction := range message.ReminderRequestReactions {
 				msngr.EXPECT().SendReactionAsync(&messenger.Reaction{
 					Reaction:                  reaction,
-					MessageExternalIdentifier: testEvent().Event.ID.String(),
-					ChannelExternalIdentifier: testEvent().Room.RoomID,
+					MessageExternalIdentifier: tests.TestEvent().Event.ID.String(),
+					ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
 				})
 			}
 
@@ -107,8 +108,8 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 			// Execute
-			action.HandleEvent(testEvent(
-				withBody(
+			action.HandleEvent(tests.TestEvent(
+				tests.WithBody(
 					msg,
 					msg,
 				),
@@ -142,8 +143,8 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 			Duration:  message.DefaultEventTime,
 			Message:   "my test reminder at monday 1:11",
 			Active:    true,
-			ChannelID: testEvent().Channel.ID,
-			InputID:   &testEvent().Input.ID,
+			ChannelID: tests.TestEvent().Channel.ID,
+			InputID:   &tests.TestEvent().Input.ID,
 		},
 	}).Return(&database.Event{
 		Model: gorm.Model{
@@ -152,23 +153,23 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 		Duration:  message.DefaultEventTime,
 		Message:   "my test reminder at monday 1:11",
 		Active:    true,
-		ChannelID: testEvent().Channel.ID,
-		InputID:   &testEvent().Input.ID,
+		ChannelID: tests.TestEvent().Channel.ID,
+		InputID:   &tests.TestEvent().Input.ID,
 	}, nil)
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
-		UserID:        testEvent().Event.Sender.String(),
-		RoomID:        testEvent().Room.ID,
+		UserID:        tests.TestEvent().Event.Sender.String(),
+		RoomID:        tests.TestEvent().Room.ID,
 		Body:          "my test reminder at monday 1:11",
 		BodyFormatted: "my test reminder at monday 1:11",
-		SendAt:        time.UnixMilli(testEvent().Event.Timestamp),
+		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
 		Incoming:      true,
 		Type:          matrixdb.MessageTypeNewEvent,
 	}).Return(nil, errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"my test reminder at monday 1:11",
 			"my test reminder at monday 1:11",
 		),
@@ -201,14 +202,14 @@ func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
 			Duration:  message.DefaultEventTime,
 			Message:   "my test reminder at monday 1:11",
 			Active:    true,
-			ChannelID: testEvent().Channel.ID,
-			InputID:   &testEvent().Input.ID,
+			ChannelID: tests.TestEvent().Channel.ID,
+			InputID:   &tests.TestEvent().Input.ID,
 		},
 	}).Return(nil, errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"my test reminder at monday 1:11",
 			"my test reminder at monday 1:11",
 		),

@@ -10,6 +10,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -75,13 +76,13 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 			},
 			nil,
 		)
-		matrixDB.EXPECT().AddUserToRoom("@user:example.org", testEvent().Room).
+		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
 		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
 
 		// Execute
-		action.HandleEvent(testEvent(
-			withBody(
+		action.HandleEvent(tests.TestEvent(
+			tests.WithBody(
 				"add user @user:example.org",
 				`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 			),
@@ -98,13 +99,13 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 			},
 			nil,
 		)
-		matrixDB.EXPECT().AddUserToRoom("@user:example.org", testEvent().Room).
+		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
 		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
 
 		// Execute
-		action.HandleEvent(testEvent(
-			withBody(
+		action.HandleEvent(tests.TestEvent(
+			tests.WithBody(
 				"add user @user:example.org",
 				"",
 			),
@@ -139,13 +140,13 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 		},
 		nil,
 	)
-	matrixDB.EXPECT().AddUserToRoom("@user:example.org", testEvent().Room).
+	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, nil)
 	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -179,12 +180,12 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 		},
 		nil,
 	)
-	matrixDB.EXPECT().AddUserToRoom("@user:example.org", testEvent().Room).
+	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -221,12 +222,12 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
-		withUserInRoom(
+		tests.WithUserInRoom(
 			matrixdb.MatrixUser{
 				ID: "@user:example.org",
 			},
@@ -264,8 +265,8 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"",
 			"",
 		),
@@ -300,8 +301,8 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -331,8 +332,8 @@ func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 		Return(nil, errors.New("test"))
 
 	// Execute
-	action.HandleEvent(testEvent(
-		withBody(
+	action.HandleEvent(tests.TestEvent(
+		tests.WithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
