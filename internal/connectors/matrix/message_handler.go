@@ -57,7 +57,7 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 	if err == nil {
 		return
 	}
-	if !errors.Is(err, database.ErrNotFound) {
+	if !errors.Is(err, database.ErrNotFound) { // TODO this logs not found
 		logger.Err(err)
 	}
 
@@ -79,7 +79,11 @@ func (service *service) MessageEventHandler(source mautrix.EventSource, evt *eve
 func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger gologger.Logger) {
 	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 	if err != nil {
-		logger.Infof("discarding message, can not find the message it replies to: %s", err.Error())
+		logger.Infof(
+			"discarding message, can not find the message '%s' it replies to: %s",
+			msgEvent.Content.RelatesTo.InReplyTo.EventID.String(),
+			err.Error(),
+		)
 		return
 	}
 

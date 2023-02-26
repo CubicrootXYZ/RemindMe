@@ -82,6 +82,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeNewEvent
+	message.EventID = &dbEvent.ID
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Errorf("failed to save message to db: %v", err)
@@ -99,7 +100,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 			evt.Room.RoomID,
 		)
 
-		_, err := action.messenger.SendResponse(response)
+		resp, err := action.messenger.SendResponse(response)
 		if err != nil {
 			action.logger.Errorf("failed sending out message: %v", err)
 			return
@@ -108,11 +109,13 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 		replyTo := event.Event.ID.String()
 		message := mapping.MessageFromEvent(event)
 		message.Type = matrixdb.MessageTypeNewEvent
+		message.ID = resp.ExternalIdentifier
 		message.ReplyToMessageID = &replyTo
 		message.Incoming = false
 		message.SendAt = time.Now()
 		message.Body = msg
 		message.BodyFormatted = msg
+		message.EventID = &dbEvent.ID
 		_, err = action.matrixDB.NewMessage(message)
 		if err != nil {
 			action.logger.Infof("Could not add message to database: %v", err)

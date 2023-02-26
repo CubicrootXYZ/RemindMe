@@ -13,7 +13,7 @@ func (service *service) NewMessage(message *MatrixMessage) (*MatrixMessage, erro
 
 func (service *service) GetMessageByID(messageID string) (*MatrixMessage, error) {
 	var message MatrixMessage
-	err := service.db.Preload("Room").Preload("User").First(&message, "matrix_messages.id = ?", messageID).Error
+	err := service.db.Preload("Event").Preload("Room").Preload("User").First(&message, "matrix_messages.id = ?", messageID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -26,7 +26,7 @@ func (service *service) GetMessageByID(messageID string) (*MatrixMessage, error)
 
 func (service *service) GetLastMessage() (*MatrixMessage, error) {
 	var message MatrixMessage
-	err := service.db.Preload("Room").Preload("User").Order("matrix_messages.send_at DESC").First(&message).Error
+	err := service.db.Preload("Event").Preload("Room").Preload("User").Order("matrix_messages.send_at DESC").First(&message).Error
 
 	return &message, err
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -92,10 +93,14 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	}
 
 	// TODO move services to matrixDB or own interface to remove circular dependency db => matrixCon => db
+	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.InputServices[matrix.OutputType] = matrixConnector
 
-	daemon := daemon.New(config.daemonConfig(), db, logger.WithField("component", "daemon"))
+	daemonConf := config.daemonConfig()
+	daemonConf.OutputServices = make(map[string]daemon.OutputService)
+	// TODO daemonConf.OutputServices[matrix.OutputType] = matrixConnector
+	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
 
 	return []process{daemon, matrixConnector}, nil
 }
@@ -104,6 +109,7 @@ func assembleMatrixConfig(config *Config) *matrix.Config {
 	cfg := config.matrixConfig()
 
 	cfg.DefaultMessageAction = &message.NewEventAction{}
+	cfg.DefaultReplyAction = &reply.ChangeTimeAction{}
 
 	cfg.ReplyActions = make([]matrix.ReplyAction, 0)
 	cfg.MessageActions = make([]matrix.MessageAction, 0)
