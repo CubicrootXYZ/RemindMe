@@ -2,6 +2,8 @@ package matrix
 
 import (
 	"errors"
+
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 )
 
 // The in- and output type provided by this package
@@ -23,4 +25,7 @@ type Service interface {
 
 	InputRemoved(inputType string, inputID uint) error
 	OutputRemoved(outputType string, outputID uint) error
+
+	SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error
+	SendReminder(*daemon.Event, *daemon.Output) error
 }

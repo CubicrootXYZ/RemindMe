@@ -99,7 +99,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	daemonConf := config.daemonConfig()
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
-	// TODO daemonConf.OutputServices[matrix.OutputType] = matrixConnector
+	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
 
 	return []process{daemon, matrixConnector}, nil

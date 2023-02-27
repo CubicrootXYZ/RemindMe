@@ -6,12 +6,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testMessage() *database.MatrixMessage {
+func testMessage() *matrixdb.MatrixMessage {
 	user, err := service.NewUser(testUser())
 	if err != nil {
 		panic(err)
@@ -23,7 +25,7 @@ func testMessage() *database.MatrixMessage {
 		_, err = service.GetMessageByID(messageID)
 	}
 
-	return &database.MatrixMessage{
+	return &matrixdb.MatrixMessage{
 		ID:            messageID,
 		User:          *user,
 		Room:          user.Rooms[0],
@@ -74,7 +76,74 @@ func TestService_DeleteAllMessagesFromRoom(t *testing.T) {
 	assert.ErrorIs(t, err, database.ErrNotFound)
 }
 
-func assertMessagesEqual(t *testing.T, a *database.MatrixMessage, b *database.MatrixMessage) {
+func TestService_GetEventMessageByOutputAndEvent(t *testing.T) {
+	c := database.Channel{}
+	err := gormDB.Save(&c).Error
+	require.NoError(t, err)
+	evt := &database.Event{
+		Channel: c,
+		Time:    time.Now(),
+	}
+	err = gormDB.Save(evt).Error
+	require.NoError(t, err)
+
+	messageBefore := testMessage()
+	messageBefore.EventID = &evt.ID
+	messageBefore.Type = matrixdb.MessageTypeNewEvent
+	messageBefore.Incoming = true
+	messageBefore, err = service.NewMessage(messageBefore)
+	require.NoError(t, err)
+
+	messageAfter, err := service.GetEventMessageByOutputAndEvent(evt.ID, messageBefore.RoomID, matrix.OutputType)
+	require.NoError(t, err)
+	assertMessagesEqual(t, messageBefore, messageAfter)
+}
+
+func TestService_GetEventMessageByOutputAndEventWithRoomNotFound(t *testing.T) {
+	c := database.Channel{}
+	err := gormDB.Save(&c).Error
+	require.NoError(t, err)
+	evt := &database.Event{
+		Channel: c,
+		Time:    time.Now(),
+	}
+	err = gormDB.Save(evt).Error
+	require.NoError(t, err)
+
+	messageBefore := testMessage()
+	messageBefore.EventID = &evt.ID
+	messageBefore.Type = matrixdb.MessageTypeNewEvent
+	messageBefore.Incoming = true
+	messageBefore, err = service.NewMessage(messageBefore)
+	require.NoError(t, err)
+
+	_, err = service.GetEventMessageByOutputAndEvent(evt.ID, messageBefore.RoomID+59384, matrix.OutputType)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
+}
+
+func TestService_GetEventMessageByOutputAndEventWithMessageNotFound(t *testing.T) {
+	c := database.Channel{}
+	err := gormDB.Save(&c).Error
+	require.NoError(t, err)
+	evt := &database.Event{
+		Channel: c,
+		Time:    time.Now(),
+	}
+	err = gormDB.Save(evt).Error
+	require.NoError(t, err)
+
+	messageBefore := testMessage()
+	messageBefore.EventID = &evt.ID
+	messageBefore.Type = matrixdb.MessageTypeNewEvent
+	messageBefore.Incoming = false
+	messageBefore, err = service.NewMessage(messageBefore)
+	require.NoError(t, err)
+
+	_, err = service.GetEventMessageByOutputAndEvent(evt.ID, messageBefore.RoomID, matrix.OutputType)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
+}
+
+func assertMessagesEqual(t *testing.T, a *matrixdb.MatrixMessage, b *matrixdb.MatrixMessage) {
 	t.Helper()
 
 	// We do not load them, so ignore them

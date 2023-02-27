@@ -6,6 +6,7 @@ import (
 
 func eventFromDatabase(event *database.Event) *Event {
 	return &Event{
+		ID:             event.ID,
 		EventTime:      event.Time,
 		Message:        event.Message,
 		RepeatInterval: event.RepeatInterval,

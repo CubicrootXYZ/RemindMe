@@ -105,6 +105,21 @@ func (mr *MockServiceMockRecorder) GetEventByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEventByID", reflect.TypeOf((*MockService)(nil).GetEventByID), arg0)
 }
 
+// GetEventMessageByOutputAndEvent mocks base method.
+func (m *MockService) GetEventMessageByOutputAndEvent(arg0, arg1 uint, arg2 string) (*MatrixMessage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetEventMessageByOutputAndEvent", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*MatrixMessage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEventMessageByOutputAndEvent indicates an expected call of GetEventMessageByOutputAndEvent.
+func (mr *MockServiceMockRecorder) GetEventMessageByOutputAndEvent(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEventMessageByOutputAndEvent", reflect.TypeOf((*MockService)(nil).GetEventMessageByOutputAndEvent), arg0, arg1, arg2)
+}
+
 // GetLastMessage mocks base method.
 func (m *MockService) GetLastMessage() (*MatrixMessage, error) {
 	m.ctrl.T.Helper()

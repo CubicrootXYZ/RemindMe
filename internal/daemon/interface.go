@@ -13,6 +13,7 @@ type Service interface {
 
 // Event holds information about a reminder.
 type Event struct {
+	ID             uint
 	EventTime      time.Time
 	Message        string
 	RepeatInterval *time.Duration

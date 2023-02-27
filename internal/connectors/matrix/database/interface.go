@@ -29,6 +29,7 @@ type Service interface {
 
 	GetLastMessage() (*MatrixMessage, error)
 	GetMessageByID(messageID string) (*MatrixMessage, error)
+	GetEventMessageByOutputAndEvent(eventID uint, outputID uint, outputType string) (*MatrixMessage, error)
 	NewMessage(message *MatrixMessage) (*MatrixMessage, error)
 	DeleteAllMessagesFromRoom(roomID uint) error
 
@@ -58,6 +59,7 @@ type MatrixMessageType string
 var (
 	MessageTypeWelcome     = MatrixMessageType("WELCOME")
 	MessageTypeNewEvent    = MatrixMessageType("EVENT_NEW")
+	MessageTypeEvent       = MatrixMessageType("EVENT")
 	MessageTypeAddUser     = MatrixMessageType("USER_ADD")
 	MessageTypeChangeEvent = MatrixMessageType("EVENT_CHANGE")
 )
