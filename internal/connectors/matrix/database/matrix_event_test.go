@@ -42,6 +42,24 @@ func TestService_GetEventByID(t *testing.T) {
 	assertEventsEqual(t, eventBefore, eventAfter)
 }
 
+func TestService_GetLastEvent(t *testing.T) {
+	_, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+	time.Sleep(time.Millisecond * 50)
+
+	_, err = service.NewEvent(testEvent())
+	require.NoError(t, err)
+	time.Sleep(time.Second)
+
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	eventAfter, err := service.GetLastEvent()
+	require.NoError(t, err)
+
+	assertEventsEqual(t, eventBefore, eventAfter)
+}
+
 func TestService_DeleteAllEventsFromRoom(t *testing.T) {
 	event, err := service.NewEvent(testEvent())
 	require.NoError(t, err)

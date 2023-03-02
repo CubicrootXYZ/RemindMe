@@ -26,6 +26,13 @@ func (service *service) GetEventByID(eventID string) (*MatrixEvent, error) {
 	return &event, err
 }
 
+func (service *service) GetLastEvent() (*MatrixEvent, error) {
+	var event MatrixEvent
+	err := service.db.Preload("Room").Preload("User").Order("matrix_events.send_at DESC").First(&event).Error
+
+	return &event, err
+}
+
 func (service *service) DeleteAllEventsFromRoom(roomID uint) error {
 	return service.db.Unscoped().Delete(&MatrixEvent{}, "matrix_events.room_id = ?", roomID).Error
 }

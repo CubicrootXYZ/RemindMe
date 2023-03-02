@@ -119,6 +119,11 @@ func (service *service) setLastMessage() {
 	if err == nil {
 		service.lastMessageFrom = message.SendAt
 	}
+
+	event, err := service.matrixDatabase.GetLastEvent()
+	if err == nil && event.SendAt.Sub(service.lastMessageFrom) > 0 {
+		service.lastMessageFrom = event.SendAt
+	}
 }
 
 func (service *service) setupActions() {

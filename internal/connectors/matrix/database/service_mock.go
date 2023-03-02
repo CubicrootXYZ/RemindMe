@@ -120,6 +120,21 @@ func (mr *MockServiceMockRecorder) GetEventMessageByOutputAndEvent(arg0, arg1, a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEventMessageByOutputAndEvent", reflect.TypeOf((*MockService)(nil).GetEventMessageByOutputAndEvent), arg0, arg1, arg2)
 }
 
+// GetLastEvent mocks base method.
+func (m *MockService) GetLastEvent() (*MatrixEvent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLastEvent")
+	ret0, _ := ret[0].(*MatrixEvent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLastEvent indicates an expected call of GetLastEvent.
+func (mr *MockServiceMockRecorder) GetLastEvent() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastEvent", reflect.TypeOf((*MockService)(nil).GetLastEvent))
+}
+
 // GetLastMessage mocks base method.
 func (m *MockService) GetLastMessage() (*MatrixMessage, error) {
 	m.ctrl.T.Helper()

@@ -34,6 +34,7 @@ type Service interface {
 	DeleteAllMessagesFromRoom(roomID uint) error
 
 	GetEventByID(eventID string) (*MatrixEvent, error)
+	GetLastEvent() (*MatrixEvent, error)
 	NewEvent(event *MatrixEvent) (*MatrixEvent, error)
 	DeleteAllEventsFromRoom(roomID uint) error
 }

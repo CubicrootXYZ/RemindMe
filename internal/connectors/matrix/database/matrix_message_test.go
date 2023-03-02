@@ -73,7 +73,7 @@ func TestService_DeleteAllMessagesFromRoom(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = service.GetMessageByID(message.ID)
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
 func TestService_GetEventMessageByOutputAndEvent(t *testing.T) {

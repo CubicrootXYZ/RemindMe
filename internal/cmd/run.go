@@ -92,10 +92,9 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
-	// TODO move services to matrixDB or own interface to remove circular dependency db => matrixCon => db
 	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
-	dbConfig.InputServices[matrix.OutputType] = matrixConnector
+	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
 
 	daemonConf := config.daemonConfig()
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
