@@ -101,6 +101,8 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
 
+	// TODO add webserver
+
 	return []process{daemon, matrixConnector}, nil
 }
 
