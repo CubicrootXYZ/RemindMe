@@ -37,3 +37,6 @@ matrix:
   allowinvites: false
   # Max amount of rooms the bot will join, 0 to disable the limit
   roomlimit: 0
+  # Invites from the following users will always be followed
+  userwhitelist:
+    - "@me:example.com"

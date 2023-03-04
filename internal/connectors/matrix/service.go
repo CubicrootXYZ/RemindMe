@@ -69,8 +69,9 @@ type Config struct {
 	ReplyActions         []ReplyAction
 	DefaultReplyAction   ReplyAction
 
-	AllowInvites bool
-	RoomLimit    uint
+	AllowInvites  bool
+	RoomLimit     uint
+	UserWhitelist []string // Invites frim this users will allways be followed
 }
 
 // New sets up a new matrix connector.

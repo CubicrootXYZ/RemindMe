@@ -92,6 +92,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	}
 
 	dbConfig.InputServices = make(map[string]database.InputService)
+	dbConfig.OutputServices = make(map[string]database.OutputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
 

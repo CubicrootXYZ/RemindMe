@@ -68,7 +68,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return err
 	}
 
-	if declineInvites {
+	if declineInvites && !service.userInWhitelist(evt.Sender.String()) {
 		service.logger.Debugf(evt.Sender.String() + " ignored bot reached max users or invites are disallowed")
 		return nil
 	}
@@ -335,4 +335,14 @@ func (service *service) removeFromChannel(room *database.MatrixRoom) error {
 	}
 
 	return nil
+}
+
+func (service *service) userInWhitelist(user string) bool {
+	for _, u := range service.config.UserWhitelist {
+		if u == user {
+			return true
+		}
+	}
+
+	return false
 }

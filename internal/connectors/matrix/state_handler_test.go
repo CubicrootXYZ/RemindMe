@@ -38,6 +38,32 @@ func TestService_EventStateHandlerWithInviteAndGetRoomError(t *testing.T) {
 	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
 }
 
+func TestService_EventStateHandlerWithInviteWhitelistAndGetRoomError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	service, fx := testService(ctrl)
+	service.config.AllowInvites = false
+	service.config.UserWhitelist = []string{"@user:example.com"}
+
+	evt := event.Event{
+		Sender:    "@user:example.com",
+		RoomID:    id.RoomID("abc"),
+		Timestamp: 5000,
+		ID:        id.EventID("123"),
+		Content: event.Content{
+			Parsed: &event.MemberEventContent{
+				Membership: event.MembershipJoin,
+			},
+		},
+	}
+
+	fx.matrixDB.EXPECT().GetEventByID("123").Return(nil, matrixdb.ErrNotFound)
+	fx.matrixDB.EXPECT().GetUserByID("@user:example.com").Return(nil, matrixdb.ErrNotFound)
+	fx.matrixDB.EXPECT().GetRoomByRoomID("abc").Return(nil, errors.New("test"))
+
+	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
+}
+
 func TestService_EventStateHandlerWithInviteAndGetUserError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

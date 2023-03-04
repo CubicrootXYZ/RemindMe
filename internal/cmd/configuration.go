@@ -39,8 +39,9 @@ type configMatrix struct {
 		E2EE       bool
 		DeviceKey  string
 	}
-	AllowInvites bool
-	RoomLimit    uint
+	AllowInvites  bool
+	RoomLimit     uint
+	UserWhitelist []string
 }
 
 func (config *Config) databaseConfig() *database.Config {
@@ -66,14 +67,15 @@ func (config *Config) daemonConfig() *daemon.Config {
 
 func (config *Config) matrixConfig() *matrix.Config {
 	return &matrix.Config{
-		Username:     config.Matrix.Bot.Username,
-		Password:     config.Matrix.Bot.Password,
-		Homeserver:   config.Matrix.Bot.Homeserver,
-		DeviceID:     config.Matrix.Bot.DeviceID,
-		EnableE2EE:   config.Matrix.Bot.E2EE,
-		DeviceKey:    config.Matrix.Bot.DeviceKey,
-		AllowInvites: config.Matrix.AllowInvites,
-		RoomLimit:    config.Matrix.RoomLimit,
+		Username:      config.Matrix.Bot.Username,
+		Password:      config.Matrix.Bot.Password,
+		Homeserver:    config.Matrix.Bot.Homeserver,
+		DeviceID:      config.Matrix.Bot.DeviceID,
+		EnableE2EE:    config.Matrix.Bot.E2EE,
+		DeviceKey:     config.Matrix.Bot.DeviceKey,
+		AllowInvites:  config.Matrix.AllowInvites,
+		RoomLimit:     config.Matrix.RoomLimit,
+		UserWhitelist: config.Matrix.UserWhitelist,
 	}
 }
 
