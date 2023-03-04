@@ -79,7 +79,6 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
-	// TODO set message and reply actions
 	matrixDB, err := matrixdb.New(db.GormDB())
 	if err != nil {
 		logger.Err(err)

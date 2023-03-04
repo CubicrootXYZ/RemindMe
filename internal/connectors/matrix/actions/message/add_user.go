@@ -8,6 +8,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -130,8 +131,17 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 		return
 	}
 
+	// Add message to database
+	msg := mapping.MessageFromEvent(event)
+	msg.Type = matrixdb.MessageTypeAddUser
+	_, err = action.matrixDB.NewMessage(msg)
+	if err != nil {
+		action.logger.Err(err)
+	}
+
+	message := "Added that user 👏. They can now interact with me."
 	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
-		"Added that user 👏. They can now interact with me.",
+		message,
 		event.Event.ID.String(),
 		event.Content.Body,
 		event.Event.Sender.String(),
@@ -139,7 +149,16 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	))
 	if err != nil {
 		action.logger.Err(err)
+		return
 	}
 
-	// TODO add message to database
+	msg = mapping.MessageFromEvent(event)
+	msg.Incoming = false
+	msg.Type = matrixdb.MessageTypeAddUser
+	msg.Body = message
+	msg.BodyFormatted = message
+	_, err = action.matrixDB.NewMessage(msg)
+	if err != nil {
+		action.logger.Err(err)
+	}
 }

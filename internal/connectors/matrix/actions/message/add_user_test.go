@@ -79,6 +79,8 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
 		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
@@ -102,6 +104,8 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
 		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
@@ -142,6 +146,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 	)
 	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, nil)
+	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
 
 	// Execute
