@@ -24,7 +24,7 @@ func TestAPIKeyAuth(t *testing.T) {
 	defer svr.Close()
 
 	t.Run("happy case", func(t *testing.T) {
-		req, err := http.NewRequest("GET", svr.URL+"/ping", nil)
+		req, err := http.NewRequest(http.MethodGet, svr.URL+"/ping", nil)
 		require.NoError(t, err)
 
 		req.Header.Add("Authorization", "123")
@@ -41,7 +41,7 @@ func TestAPIKeyAuth(t *testing.T) {
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
-		req, err := http.NewRequest("GET", svr.URL+"/ping", nil)
+		req, err := http.NewRequest(http.MethodGet, svr.URL+"/ping", nil)
 		require.NoError(t, err)
 
 		req.Header.Add("Authorization", "1234")
@@ -58,7 +58,7 @@ func TestAPIKeyAuth(t *testing.T) {
 	})
 
 	t.Run("no key", func(t *testing.T) {
-		req, err := http.NewRequest("GET", svr.URL+"/ping", nil)
+		req, err := http.NewRequest(http.MethodGet, svr.URL+"/ping", nil)
 		require.NoError(t, err)
 
 		req.Header.Add("Authorization", "1234")
