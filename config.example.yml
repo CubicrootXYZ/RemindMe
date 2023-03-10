@@ -40,3 +40,8 @@ matrix:
   # Invites from the following users will always be followed
   userwhitelist:
     - "@me:example.com"
+
+# API settings
+api:
+  # Overwrite listen address for the webserver
+  address: "0.0.0.0:8080"

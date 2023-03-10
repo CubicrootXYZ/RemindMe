@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -16,6 +17,7 @@ type Config struct {
 	Database configDatabase
 	Daemon   configDaemon
 	Matrix   configMatrix
+	API      configAPI
 }
 
 type configDatabase struct {
@@ -42,6 +44,10 @@ type configMatrix struct {
 	AllowInvites  bool
 	RoomLimit     uint
 	UserWhitelist []string
+}
+
+type configAPI struct {
+	Address string `default:"0.0.0.0:8080"`
 }
 
 func (config *Config) databaseConfig() *database.Config {
@@ -76,6 +82,12 @@ func (config *Config) matrixConfig() *matrix.Config {
 		AllowInvites:  config.Matrix.AllowInvites,
 		RoomLimit:     config.Matrix.RoomLimit,
 		UserWhitelist: config.Matrix.UserWhitelist,
+	}
+}
+
+func (config *Config) apiConfig() *api.Config {
+	return &api.Config{
+		Address: config.API.Address,
 	}
 }
 

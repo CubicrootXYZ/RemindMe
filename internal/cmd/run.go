@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
@@ -101,9 +102,10 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
 
-	// TODO add webserver
+	apiConfig := config.apiConfig()
+	server := api.NewServer(apiConfig, logger.WithField("component", "api"))
 
-	return []process{daemon, matrixConnector}, nil
+	return []process{daemon, matrixConnector, server}, nil
 }
 
 func assembleMatrixConfig(config *Config) *matrix.Config {
