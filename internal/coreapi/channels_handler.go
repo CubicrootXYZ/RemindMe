@@ -13,8 +13,8 @@ type Channel struct {
 	ID            uint
 	CreatedAt     string // RFC 3339 formated time
 	Description   string
-	DailyReminder *string // HH:MM of daily reminder or nil if disabled
-	TimeZone      *string // nil if not set
+	DailyReminder *string // HH:MM of daily reminder or null if disabled
+	TimeZone      *string // null if not set
 }
 
 func channelToResponse(channelIn *database.Channel) Channel {
@@ -36,7 +36,7 @@ func channelToResponse(channelIn *database.Channel) Channel {
 	return channelOut
 }
 
-func channelsToReponse(channelsIn []database.Channel) []Channel {
+func channelsToResponse(channelsIn []database.Channel) []Channel {
 	channelsOut := make([]Channel, len(channelsIn))
 
 	for i := range channelsIn {
@@ -46,7 +46,16 @@ func channelsToReponse(channelsIn []database.Channel) []Channel {
 	return channelsOut
 }
 
-// TODO openapi
+// listChannelsHandler godoc
+// @Summary List all channels
+// @Description List all channels
+// @Tags Channels
+// @Security AdminAuthentication
+// @Produce json
+// @Success 200 {object} response.DataResponse{data=[]Channel}
+// @Failure 401 {object} response.MessageErrorResponse
+// @Failure 500 ""
+// @Router /core/channels [get]
 func (api *coreAPI) listChannelsHandler(ctx *gin.Context) {
 	channels, err := api.config.Database.GetChannels()
 	if err != nil {
@@ -54,5 +63,6 @@ func (api *coreAPI) listChannelsHandler(ctx *gin.Context) {
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
-	// TODO continue work
+
+	response.WithData(ctx, channelsToResponse(channels))
 }

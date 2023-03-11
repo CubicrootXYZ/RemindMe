@@ -27,8 +27,10 @@ func New(config *Config, logger gologger.Logger) CoreAPI {
 }
 
 // RegisterRoutes registers the routes for the core API.
-func (api *coreAPI) RegisterRoutes(r *gin.Engine) {
+func (api *coreAPI) RegisterRoutes(r *gin.Engine) error {
 	router := r.Group("/core")
 
 	router.GET("/channels", api.config.DefaultAuthProvider, api.listChannelsHandler)
+
+	return nil
 }

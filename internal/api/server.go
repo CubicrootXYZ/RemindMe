@@ -16,14 +16,14 @@ type server struct {
 	logger gologger.Logger
 }
 
-type EndpointProvider interface {
+type RouteProvider interface {
 	RegisterRoutes(*gin.Engine) error
 }
 
 // Config for the server.
 type Config struct {
-	EndpointProviders map[string]EndpointProvider
-	Address           string
+	RouteProviders map[string]RouteProvider
+	Address        string
 }
 
 // NewServer assembles a new API webserver.

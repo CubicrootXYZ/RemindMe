@@ -43,5 +43,8 @@ matrix:
 
 # API settings
 api:
+  enabled: false
   # Overwrite listen address for the webserver
   address: "0.0.0.0:8080"
+  # API Key used for authentication
+  apikey: xyz

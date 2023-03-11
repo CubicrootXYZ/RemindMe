@@ -8,10 +8,12 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/middleware"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/rs/zerolog/log"
@@ -73,6 +75,9 @@ type process interface {
 }
 
 func setup(config *Config, logger gologger.Logger) ([]process, error) {
+	processes := []process{}
+
+	// Database
 	dbConfig := config.databaseConfig()
 	db, err := database.NewService(dbConfig, logger.WithField("component", "database"))
 	if err != nil {
@@ -80,6 +85,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
+	// Matrix connector
 	matrixDB, err := matrixdb.New(db.GormDB())
 	if err != nil {
 		logger.Err(err)
@@ -91,21 +97,34 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		log.Err(err)
 		return nil, err
 	}
+	processes = append(processes, matrixConnector)
 
 	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.OutputServices = make(map[string]database.OutputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
 
+	// Daemon
 	daemonConf := config.daemonConfig()
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
+	processes = append(processes, daemon)
 
-	apiConfig := config.apiConfig()
-	server := api.NewServer(apiConfig, logger.WithField("component", "api"))
+	// API
+	if config.API.Enabled {
+		coreAPI := coreapi.New(&coreapi.Config{
+			Database:            db,
+			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
+		}, logger.WithField("component", "core API"))
 
-	return []process{daemon, matrixConnector, server}, nil
+		apiConfig := config.apiConfig()
+		apiConfig.RouteProviders["core"] = coreAPI
+		server := api.NewServer(apiConfig, logger.WithField("component", "api"))
+		processes = append(processes, server)
+	}
+
+	return processes, nil
 }
 
 func assembleMatrixConfig(config *Config) *matrix.Config {

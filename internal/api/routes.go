@@ -10,7 +10,7 @@ import (
 func (server *server) assembleRoutes() error {
 	router := gin.New()
 
-	for name, provider := range server.config.EndpointProviders {
+	for name, provider := range server.config.RouteProviders {
 		server.logger.Infof("registering routes from: %s", name)
 
 		err := provider.RegisterRoutes(router)

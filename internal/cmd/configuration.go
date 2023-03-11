@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"time"
 
@@ -47,7 +48,9 @@ type configMatrix struct {
 }
 
 type configAPI struct {
+	Enabled bool
 	Address string `default:"0.0.0.0:8080"`
+	APIKey  string
 }
 
 func (config *Config) databaseConfig() *database.Config {
@@ -87,7 +90,8 @@ func (config *Config) matrixConfig() *matrix.Config {
 
 func (config *Config) apiConfig() *api.Config {
 	return &api.Config{
-		Address: config.API.Address,
+		Address:        config.API.Address,
+		RouteProviders: make(map[string]api.RouteProvider),
 	}
 }
 
@@ -104,6 +108,10 @@ func LoadConfiguration() (*Config, error) {
 	}).Load(config, *fileName)
 	if err != nil {
 		return nil, err
+	}
+
+	if config.API.Enabled && len(config.API.APIKey) < 10 {
+		return nil, errors.New("API key needs to be at least 10 characters")
 	}
 
 	return config, nil
