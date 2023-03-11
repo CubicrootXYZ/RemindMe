@@ -17,7 +17,7 @@ import (
 // @BasePath /
 // @query.collection.format multi
 
-// @securityDefinitions.apikey AdminAuthentication
+// @securityDefinitions.apikey APIKeyAuthentication
 // @in header
 // @name Authorization
 func main() {

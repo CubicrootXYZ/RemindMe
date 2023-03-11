@@ -50,7 +50,7 @@ func channelsToResponse(channelsIn []database.Channel) []Channel {
 // @Summary List all channels
 // @Description List all channels
 // @Tags Channels
-// @Security AdminAuthentication
+// @Security APIKeyAuthentication
 // @Produce json
 // @Success 200 {object} response.DataResponse{data=[]Channel}
 // @Failure 401 {object} response.MessageErrorResponse
