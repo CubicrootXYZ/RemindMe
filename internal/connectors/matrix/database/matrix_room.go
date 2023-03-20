@@ -6,6 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
+func (service *service) ListRooms() ([]MatrixRoom, error) {
+	var rooms []MatrixRoom
+	err := service.db.Preload("Users").Find(&rooms).Error
+
+	return rooms, err
+}
+
 func (service *service) GetRoomByID(id uint) (*MatrixRoom, error) {
 	var room MatrixRoom
 	err := service.db.Preload("Users").First(&room, "id = ?", id).Error

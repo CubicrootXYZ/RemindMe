@@ -24,6 +24,23 @@ func testRoom() *database.MatrixRoom {
 	}
 }
 
+func TestService_ListRooms(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	rooms, err := service.ListRooms()
+	require.NoError(t, err)
+
+	foundRoom := false
+	for _, r := range rooms {
+		if r.ID == roomBefore.ID {
+			foundRoom = true
+			break
+		}
+	}
+	assert.True(t, foundRoom, "room is not in response")
+}
+
 func TestService_GetRoomByID(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
