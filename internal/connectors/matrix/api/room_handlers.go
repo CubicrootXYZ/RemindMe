@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/response"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/gin-gonic/gin"
 )
@@ -60,5 +61,15 @@ func roomsToResponse(rooms []matrixdb.MatrixRoom) []Room {
 // @Failure 500 ""
 // @Router /matrix/channels/{id}/rooms [get]
 func (api *api) listRoomsHandler(ctx *gin.Context) {
-	// TODO test
+	// TODO test & get channel ID in query (maybe join room -> input/output -> channel_id) or split in and outputs?
+	rooms, err := api.config.MatrixDB.ListRooms()
+	if err != nil {
+		if err != nil {
+			api.logger.Err(err)
+			response.AbortWithInternalServerError(ctx)
+			return
+		}
+	}
+
+	response.WithData(ctx, roomsToResponse(rooms))
 }
