@@ -6,9 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func (service *service) ListRooms() ([]MatrixRoom, error) {
+func (service *service) ListInputRoomsByChannel(channelID uint) ([]MatrixRoom, error) {
 	var rooms []MatrixRoom
-	err := service.db.Preload("Users").Find(&rooms).Error
+	err := service.db.Preload("Users").
+		Joins("INNER JOIN inputs ON inputs.input_id = matrix_rooms.id AND inputs.input_type = ?", "matrix"). // TODO input type should be constant
+		Where("inputs.channel_id = ?", channelID).
+		Find(&rooms).Error
 
 	return rooms, err
 }

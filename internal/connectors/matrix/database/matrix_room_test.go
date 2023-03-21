@@ -5,12 +5,13 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testRoom() *database.MatrixRoom {
+func testRoom() *matrixdb.MatrixRoom {
 	roomID := "!12345678:example.org"
 	var err error
 	for err == nil {
@@ -18,17 +19,26 @@ func testRoom() *database.MatrixRoom {
 		_, err = service.GetRoomByRoomID(roomID)
 	}
 
-	return &database.MatrixRoom{
+	return &matrixdb.MatrixRoom{
 		RoomID:          roomID,
 		LastCryptoEvent: "{}",
 	}
 }
 
-func TestService_ListRooms(t *testing.T) {
+func TestService_ListInputRoomsByChannel(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
 
-	rooms, err := service.ListRooms()
+	channel := &database.Channel{}
+	require.NoError(t, gormDB.Save(channel).Error)
+	input := &database.Input{
+		InputType: "matrix",
+		InputID:   roomBefore.ID,
+		ChannelID: channel.ID,
+	}
+	require.NoError(t, gormDB.Save(input).Error)
+
+	rooms, err := service.ListInputRoomsByChannel(channel.ID)
 	require.NoError(t, err)
 
 	foundRoom := false
@@ -39,6 +49,29 @@ func TestService_ListRooms(t *testing.T) {
 		}
 	}
 	assert.True(t, foundRoom, "room is not in response")
+}
+
+func TestService_ListInputRoomsByChannelWithEmpty(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	channel := &database.Channel{}
+	require.NoError(t, gormDB.Save(channel).Error)
+	output := &database.Output{
+		OutputType: "matrix",
+		OutputID:   roomBefore.ID,
+		ChannelID:  channel.ID,
+	}
+	require.NoError(t, gormDB.Save(output).Error)
+
+	rooms, err := service.ListInputRoomsByChannel(channel.ID)
+	require.NoError(t, err)
+
+	for _, r := range rooms {
+		if r.ID == roomBefore.ID {
+			assert.Fail(t, "room should not be in response")
+		}
+	}
 }
 
 func TestService_GetRoomByID(t *testing.T) {
@@ -162,7 +195,7 @@ func TestService_AddUserToRoomWithUserAlreadyExists(t *testing.T) {
 	assert.Truef(t, userFound, "user '%s' was not in room altough added", user.ID)
 }
 
-func assertRoomsEqual(t *testing.T, a *database.MatrixRoom, b *database.MatrixRoom) {
+func assertRoomsEqual(t *testing.T, a *matrixdb.MatrixRoom, b *matrixdb.MatrixRoom) {
 	t.Helper()
 
 	assert.Equal(t, a.ID, b.ID)

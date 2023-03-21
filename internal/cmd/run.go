@@ -12,6 +12,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
+	matrixapi "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/api"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
@@ -113,13 +114,22 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	// API
 	if config.API.Enabled {
+		// Core API
 		coreAPI := coreapi.New(&coreapi.Config{
 			Database:            db,
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
 		}, logger.WithField("component", "core API"))
 
+		// Matrix API
+		matrixAPI := matrixapi.New(&matrixapi.Config{
+			Database:            db,
+			MatrixDB:            matrixDB,
+			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
+		}, logger.WithField("component", "matrix API"))
+
 		apiConfig := config.apiConfig()
 		apiConfig.RouteProviders["core"] = coreAPI
+		apiConfig.RouteProviders["matrix"] = matrixAPI
 		server := api.NewServer(apiConfig, logger.WithField("component", "api"))
 		processes = append(processes, server)
 	}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/apictx"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,8 @@ type api struct {
 type Config struct {
 	Database database.Service
 	MatrixDB matrixdb.Service
+
+	DefaultAuthProvider gin.HandlerFunc
 }
 
 // New assembles a new API.
@@ -27,9 +30,11 @@ func New(config *Config, logger gologger.Logger) API {
 }
 
 func (api *api) RegisterRoutes(r *gin.Engine) error {
-	_ = r.Group("matrix")
+	router := r.Group("/matrix")
 
-	// TODO
+	channels := router.Group("/channels")
+	channels.Use(api.config.DefaultAuthProvider)
+	channels.GET("/:id/inputs/rooms", apictx.RequireIDInURI(), api.listInputRoomsHandler)
 
 	return nil
 }

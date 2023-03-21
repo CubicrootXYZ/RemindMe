@@ -16,3 +16,4 @@ dockerdata
 db-data
 config_dev.yml
 *.db
+*session.sql

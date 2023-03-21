@@ -225,19 +225,19 @@ func (mr *MockServiceMockRecorder) GetUserByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockService)(nil).GetUserByID), arg0)
 }
 
-// ListRooms mocks base method.
-func (m *MockService) ListRooms() ([]MatrixRoom, error) {
+// ListInputRoomsByChannel mocks base method.
+func (m *MockService) ListInputRoomsByChannel(arg0 uint) ([]MatrixRoom, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRooms")
+	ret := m.ctrl.Call(m, "ListInputRoomsByChannel", arg0)
 	ret0, _ := ret[0].([]MatrixRoom)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListRooms indicates an expected call of ListRooms.
-func (mr *MockServiceMockRecorder) ListRooms() *gomock.Call {
+// ListInputRoomsByChannel indicates an expected call of ListInputRoomsByChannel.
+func (mr *MockServiceMockRecorder) ListInputRoomsByChannel(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRooms", reflect.TypeOf((*MockService)(nil).ListRooms))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInputRoomsByChannel", reflect.TypeOf((*MockService)(nil).ListInputRoomsByChannel), arg0)
 }
 
 // NewEvent mocks base method.

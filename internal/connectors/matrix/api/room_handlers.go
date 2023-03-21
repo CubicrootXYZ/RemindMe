@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/apictx"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/response"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/gin-gonic/gin"
@@ -50,19 +51,26 @@ func roomsToResponse(rooms []matrixdb.MatrixRoom) []Room {
 }
 
 // listRoomsHandler godoc
-// @Summary List all Rooms
-// @Description List all matrix rooms.
+// @Summary List all Input Rooms
+// @Description List all matrix rooms acting as an input for the given channel.
 // @Tags Matrix
 // @Security APIKeyAuthentication
 // @Produce json
 // @Param id path string true "Channel ID"
 // @Success 200 {object} response.DataResponse{data=[]Room}
 // @Failure 401 {object} response.MessageErrorResponse
+// @Failure 404 {object} response.MessageErrorResponse
 // @Failure 500 ""
-// @Router /matrix/channels/{id}/rooms [get]
-func (api *api) listRoomsHandler(ctx *gin.Context) {
-	// TODO test & get channel ID in query (maybe join room -> input/output -> channel_id) or split in and outputs?
-	rooms, err := api.config.MatrixDB.ListRooms()
+// @Router /matrix/channels/{id}/inputs/rooms [get]
+func (api *api) listInputRoomsHandler(ctx *gin.Context) {
+	// TODO test
+	channelID, ok := apictx.GetUintFromContext(ctx, "id")
+	if !ok || channelID < 1 {
+		response.AbortWithNotFoundError(ctx)
+		return
+	}
+
+	rooms, err := api.config.MatrixDB.ListInputRoomsByChannel(channelID)
 	if err != nil {
 		if err != nil {
 			api.logger.Err(err)

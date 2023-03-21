@@ -8,10 +8,22 @@ import (
 
 // AbortWithInternalServerError aborts request.
 func AbortWithInternalServerError(ctx *gin.Context) {
+	// TODO test
 	response := MessageErrorResponse{
 		Status:  "error",
 		Message: "Internal Server Error",
 	}
 	ctx.JSON(http.StatusInternalServerError, response)
+	ctx.Abort()
+}
+
+// AbortWithNotFoundError aborts request.
+func AbortWithNotFoundError(ctx *gin.Context) {
+	// TODO test
+	response := MessageErrorResponse{
+		Status:  "error",
+		Message: "Not Found",
+	}
+	ctx.JSON(http.StatusNotFound, response)
 	ctx.Abort()
 }
