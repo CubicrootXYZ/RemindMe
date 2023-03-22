@@ -74,6 +74,55 @@ func TestService_ListInputRoomsByChannelWithEmpty(t *testing.T) {
 	}
 }
 
+func TestService_ListOutputRoomsByChannel(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	channel := &database.Channel{}
+	require.NoError(t, gormDB.Save(channel).Error)
+	input := &database.Output{
+		OutputType: "matrix",
+		OutputID:   roomBefore.ID,
+		ChannelID:  channel.ID,
+	}
+	require.NoError(t, gormDB.Save(input).Error)
+
+	rooms, err := service.ListOutputRoomsByChannel(channel.ID)
+	require.NoError(t, err)
+
+	foundRoom := false
+	for _, r := range rooms {
+		if r.ID == roomBefore.ID {
+			foundRoom = true
+			break
+		}
+	}
+	assert.True(t, foundRoom, "room is not in response")
+}
+
+func TestService_ListOutputRoomsByChannelWithEmpty(t *testing.T) {
+	roomBefore, err := service.NewRoom(testRoom())
+	require.NoError(t, err)
+
+	channel := &database.Channel{}
+	require.NoError(t, gormDB.Save(channel).Error)
+	output := &database.Input{
+		InputType: "matrix",
+		InputID:   roomBefore.ID,
+		ChannelID: channel.ID,
+	}
+	require.NoError(t, gormDB.Save(output).Error)
+
+	rooms, err := service.ListOutputRoomsByChannel(channel.ID)
+	require.NoError(t, err)
+
+	for _, r := range rooms {
+		if r.ID == roomBefore.ID {
+			assert.Fail(t, "room should not be in response")
+		}
+	}
+}
+
 func TestService_GetRoomByID(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)

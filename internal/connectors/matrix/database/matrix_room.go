@@ -16,6 +16,16 @@ func (service *service) ListInputRoomsByChannel(channelID uint) ([]MatrixRoom, e
 	return rooms, err
 }
 
+func (service *service) ListOutputRoomsByChannel(channelID uint) ([]MatrixRoom, error) {
+	var rooms []MatrixRoom
+	err := service.db.Preload("Users").
+		Joins("INNER JOIN outputs ON outputs.output_id = matrix_rooms.id AND outputs.output_type = ?", "matrix"). // TODO output type should be constant
+		Where("outputs.channel_id = ?", channelID).
+		Find(&rooms).Error
+
+	return rooms, err
+}
+
 func (service *service) GetRoomByID(id uint) (*MatrixRoom, error) {
 	var room MatrixRoom
 	err := service.db.Preload("Users").First(&room, "id = ?", id).Error
