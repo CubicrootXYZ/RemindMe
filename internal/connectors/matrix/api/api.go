@@ -35,6 +35,7 @@ func (api *api) RegisterRoutes(r *gin.Engine) error {
 	channels := router.Group("/channels")
 	channels.Use(api.config.DefaultAuthProvider)
 	channels.GET("/:id/inputs/rooms", apictx.RequireIDInURI(), api.listInputRoomsHandler)
+	channels.GET("/:id/outputs/rooms", apictx.RequireIDInURI(), api.listOutputRoomsHandler)
 
 	return nil
 }

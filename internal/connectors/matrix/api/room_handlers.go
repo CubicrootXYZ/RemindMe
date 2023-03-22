@@ -50,7 +50,6 @@ func roomsToResponse(rooms []matrixdb.MatrixRoom) []Room {
 	return roomsOut
 }
 
-// listRoomsHandler godoc
 // @Summary List all Input Rooms
 // @Description List all matrix rooms acting as an input for the given channel.
 // @Tags Matrix
@@ -71,6 +70,37 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 	}
 
 	rooms, err := api.config.MatrixDB.ListInputRoomsByChannel(channelID)
+	if err != nil {
+		if err != nil {
+			api.logger.Err(err)
+			response.AbortWithInternalServerError(ctx)
+			return
+		}
+	}
+
+	response.WithData(ctx, roomsToResponse(rooms))
+}
+
+// @Summary List all Output Rooms
+// @Description List all matrix rooms acting as an output for the given channel.
+// @Tags Matrix
+// @Security APIKeyAuthentication
+// @Produce json
+// @Param id path string true "Channel ID"
+// @Success 200 {object} response.DataResponse{data=[]Room}
+// @Failure 401 {object} response.MessageErrorResponse
+// @Failure 404 {object} response.MessageErrorResponse
+// @Failure 500 ""
+// @Router /matrix/channels/{id}/outputs/rooms [get]
+func (api *api) listOutputRoomsHandler(ctx *gin.Context) {
+	// TODO test
+	channelID, ok := apictx.GetUintFromContext(ctx, "id")
+	if !ok || channelID < 1 {
+		response.AbortWithNotFoundError(ctx)
+		return
+	}
+
+	rooms, err := api.config.MatrixDB.ListOutputRoomsByChannel(channelID)
 	if err != nil {
 		if err != nil {
 			api.logger.Err(err)
