@@ -10,7 +10,6 @@ type idInURI struct {
 
 // RequireIDInURI returns a Gin middleware which requires an ID of the type uint to be supplied in the URI of the request.
 func RequireIDInURI() gin.HandlerFunc {
-	// TODO test
 	return func(ctx *gin.Context) {
 		var requestModel idInURI
 
