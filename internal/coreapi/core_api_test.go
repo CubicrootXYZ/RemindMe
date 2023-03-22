@@ -45,16 +45,3 @@ func testDatabaseChannel() database.Channel {
 	c.CreatedAt = created
 	return c
 }
-
-func testChannel() coreapi.Channel {
-	dailyReminder := "02:10"
-	tz := "Europe/Berlin"
-
-	return coreapi.Channel{
-		ID:            1,
-		CreatedAt:     "2006-01-02T15:04:05+07:00",
-		Description:   "chan desc",
-		DailyReminder: &dailyReminder,
-		TimeZone:      &tz,
-	}
-}

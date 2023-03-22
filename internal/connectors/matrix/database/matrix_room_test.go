@@ -135,7 +135,7 @@ func TestService_GetRoomByID(t *testing.T) {
 
 func TestGetRoomByIDWithRoomNotFound(t *testing.T) {
 	_, err := service.GetRoomByID(9999)
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
 func TestService_GetRoomByRoomID(t *testing.T) {
@@ -150,7 +150,7 @@ func TestService_GetRoomByRoomID(t *testing.T) {
 
 func TestGetRoomByRoomIDWithRoomNotFound(t *testing.T) {
 	_, err := service.GetRoomByRoomID("abc")
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
 func TestService_UpdateRoom(t *testing.T) {
@@ -180,7 +180,7 @@ func TestService_DeleteRoom(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = service.GetRoomByRoomID(room.RoomID)
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
 func TestService_GetRoomCount(t *testing.T) {
