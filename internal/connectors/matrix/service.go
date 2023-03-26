@@ -115,7 +115,6 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 
 // setLastMessage so the handlers will know which messages can be ignored savely
 func (service *service) setLastMessage() {
-	// TODO also check events
 	message, err := service.matrixDatabase.GetLastMessage()
 	if err == nil {
 		service.lastMessageFrom = message.SendAt

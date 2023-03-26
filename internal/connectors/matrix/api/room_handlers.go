@@ -10,16 +10,16 @@ import (
 )
 
 type Room struct {
-	ID        uint
-	CreatedAt string // RFC3339 formatted timestamp
-	RoomID    string // Matrix room identifier
-	Encrypted bool   // True if an encrypted event is known
-	Users     []User // List of matrix user identifiers known in this room
+	ID        uint   `json:"id"`
+	CreatedAt string `json:"created_at"` // RFC3339 formatted timestamp
+	RoomID    string `json:"room_id"`    // Matrix room identifier
+	Encrypted bool   `json:"encrypted"`  // True if an encrypted event is known
+	Users     []User `json:"users"`      // List of matrix user identifiers known in this room
 }
 
 type User struct {
-	ID      string // Matrix user identifier
-	Blocked bool   // If true the user can not interact with the bot
+	ID      string `json:"id"`      // Matrix user identifier
+	Blocked bool   `json:"blocked"` // If true the user can not interact with the bot
 }
 
 func roomToResponse(room *matrixdb.MatrixRoom) Room {
@@ -62,7 +62,6 @@ func roomsToResponse(rooms []matrixdb.MatrixRoom) []Room {
 // @Failure 500 ""
 // @Router /matrix/channels/{id}/inputs/rooms [get]
 func (api *api) listInputRoomsHandler(ctx *gin.Context) {
-	// TODO test
 	channelID, ok := apictx.GetUintFromContext(ctx, "id")
 	if !ok || channelID < 1 {
 		response.AbortWithNotFoundError(ctx)
@@ -93,7 +92,6 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 // @Failure 500 ""
 // @Router /matrix/channels/{id}/outputs/rooms [get]
 func (api *api) listOutputRoomsHandler(ctx *gin.Context) {
-	// TODO test
 	channelID, ok := apictx.GetUintFromContext(ctx, "id")
 	if !ok || channelID < 1 {
 		response.AbortWithNotFoundError(ctx)
