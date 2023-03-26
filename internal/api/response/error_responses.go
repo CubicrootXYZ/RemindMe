@@ -8,7 +8,6 @@ import (
 
 // AbortWithInternalServerError aborts request.
 func AbortWithInternalServerError(ctx *gin.Context) {
-	// TODO test
 	response := MessageErrorResponse{
 		Status:  "error",
 		Message: "Internal Server Error",
@@ -19,7 +18,6 @@ func AbortWithInternalServerError(ctx *gin.Context) {
 
 // AbortWithNotFoundError aborts request.
 func AbortWithNotFoundError(ctx *gin.Context) {
-	// TODO test
 	response := MessageErrorResponse{
 		Status:  "error",
 		Message: "Not Found",
