@@ -28,7 +28,7 @@ func (service *service) sendOutDailyReminders() error {
 		for _, output := range channel.Outputs {
 			output := output
 
-			if isDailyReminderSentToday(&output, &channel) {
+			if isDailyReminderSentToday(&output) {
 				continue
 			}
 
@@ -61,15 +61,15 @@ func isDailyReminderTimeReached(channel *database.Channel) bool {
 		return false
 	}
 
-	now := time.Now().In(channel.Timezone())
+	now := time.Now().In(time.UTC)
 	return (now.Hour()*60 + now.Minute()) >= int(*channel.DailyReminder)
 }
 
-func isDailyReminderSentToday(output *database.Output, channel *database.Channel) bool {
+func isDailyReminderSentToday(output *database.Output) bool {
 	if output.LastDailyReminder == nil {
 		return false
 	}
 
-	now := time.Now().In(channel.Timezone())
+	now := time.Now().In(time.UTC)
 	return now.Day() == output.LastDailyReminder.Day() && now.Month() == output.LastDailyReminder.Month() && now.Year() == output.LastDailyReminder.Year()
 }

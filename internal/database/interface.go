@@ -65,7 +65,6 @@ type Channel struct {
 	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
 	Inputs        []Input
 	Outputs       []Output
-	TimeZone      string // TODO move this to the matrix room, this is output/input specific
 }
 
 // Input takes in data.

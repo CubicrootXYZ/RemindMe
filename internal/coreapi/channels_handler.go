@@ -14,7 +14,6 @@ type Channel struct {
 	CreatedAt     string // RFC 3339 formated time
 	Description   string
 	DailyReminder *string // HH:MM of daily reminder or null if disabled
-	TimeZone      *string // null if not set
 }
 
 func channelToResponse(channelIn *database.Channel) Channel {
@@ -22,10 +21,6 @@ func channelToResponse(channelIn *database.Channel) Channel {
 		ID:          channelIn.ID,
 		CreatedAt:   channelIn.CreatedAt.Format(time.RFC3339),
 		Description: channelIn.Description,
-	}
-
-	if channelIn.TimeZone != "" {
-		channelOut.TimeZone = &channelIn.TimeZone
 	}
 
 	if channelIn.DailyReminder != nil {

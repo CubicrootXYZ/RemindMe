@@ -47,6 +47,7 @@ type MatrixRoom struct {
 	RoomID          string       `gorm:"unique"`
 	Users           []MatrixUser `gorm:"many2many:matrix_rooms_matrix_users;"`
 	LastCryptoEvent string
+	TimeZone        string
 	// TODO somehow get roles back
 }
 
@@ -94,4 +95,17 @@ type MatrixEvent struct {
 	Room   MatrixRoom
 	Type   string
 	SendAt time.Time
+}
+
+// Timezone returns the timezone of the channel.
+func (room *MatrixRoom) Timezone() *time.Location {
+	if room.TimeZone == "" {
+		return time.UTC
+	}
+	loc, err := time.LoadLocation(room.TimeZone)
+	if err != nil {
+		return time.UTC
+	}
+
+	return loc
 }

@@ -143,7 +143,7 @@ func TestAPI_ListInputRoomsHandlerWithInvalidPath(t *testing.T) {
 	require.NoError(t, err)
 	defer resp.Body.Close()
 
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }
 
 func TestAPI_ListOutputRoomsHandler(t *testing.T) {
@@ -259,5 +259,5 @@ func TestAPI_ListOutputRoomsHandlerWithInvalidPath(t *testing.T) {
 	require.NoError(t, err)
 	defer resp.Body.Close()
 
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }

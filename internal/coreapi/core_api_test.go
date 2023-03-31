@@ -38,7 +38,6 @@ func testDatabaseChannel() database.Channel {
 	c := database.Channel{
 		Description:   "chan desc",
 		DailyReminder: &dailyReminder,
-		TimeZone:      "Europe/Berlin",
 	}
 
 	c.ID = 1

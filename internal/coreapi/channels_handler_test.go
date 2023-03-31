@@ -38,7 +38,7 @@ func TestCoreAPI_ListChannelsHandler(t *testing.T) {
 
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
-	assert.Equal(t, `{"status":"success","data":[{"ID":1,"CreatedAt":"2006-01-02T15:04:05+07:00","Description":"chan desc","DailyReminder":"02:10","TimeZone":"Europe/Berlin"}]}`, string(body))
+	assert.Equal(t, `{"status":"success","data":[{"ID":1,"CreatedAt":"2006-01-02T15:04:05+07:00","Description":"chan desc","DailyReminder":"02:10"}]}`, string(body))
 }
 
 func TestCoreAPI_ListChannelsHandlerWithError(t *testing.T) {

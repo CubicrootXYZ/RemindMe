@@ -57,6 +57,7 @@ func roomsToResponse(rooms []matrixdb.MatrixRoom) []Room {
 // @Produce json
 // @Param id path string true "Channel ID"
 // @Success 200 {object} response.DataResponse{data=[]Room}
+// @Failure 400 {object} response.MessageErrorResponse
 // @Failure 401 {object} response.MessageErrorResponse
 // @Failure 404 {object} response.MessageErrorResponse
 // @Failure 500 ""
@@ -87,6 +88,7 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 // @Produce json
 // @Param id path string true "Channel ID"
 // @Success 200 {object} response.DataResponse{data=[]Room}
+// @Failure 400 {object} response.MessageErrorResponse
 // @Failure 401 {object} response.MessageErrorResponse
 // @Failure 404 {object} response.MessageErrorResponse
 // @Failure 500 ""
