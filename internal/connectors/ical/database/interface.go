@@ -1,6 +1,15 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
+// List of common errors returned by the package.
+var (
+	ErrNotFound = errors.New("not found")
+)
 
 // IcalInput holds information about an iCal resource that can be fetched.
 type IcalInput struct {
@@ -14,6 +23,7 @@ type IcalOutput struct {
 	Token string
 }
 
+// Service provides a database service for the iCal connector.
 type Service interface {
 	NewIcalInput(*IcalInput) (*IcalInput, error)
 	DeleteIcalInput(id uint) error
