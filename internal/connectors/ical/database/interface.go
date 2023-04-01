@@ -30,6 +30,7 @@ type Service interface {
 	DeleteIcalInput(id uint) error
 
 	NewIcalOutput(*IcalOutput) (*IcalOutput, error)
+	GetIcalOutputByID(id uint) (*IcalOutput, error)
 	GenerateNewToken(*IcalOutput) (*IcalOutput, error)
 	DeleteIcalOutput(id uint) error
 }
