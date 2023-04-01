@@ -1,11 +1,25 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
 
 func (service *service) NewIcalInput(input *IcalInput) (*IcalInput, error) {
 	err := service.db.Save(input).Error
 
 	return input, err
+}
+
+func (service *service) GetIcalInputByID(id uint) (*IcalInput, error) {
+	var entity IcalInput
+	err := service.db.First(&entity, "id = ?", id).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrNotFound
+	}
+
+	return &entity, err
 }
 
 func (service *service) DeleteIcalInput(id uint) error {

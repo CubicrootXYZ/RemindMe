@@ -26,6 +26,7 @@ type IcalOutput struct {
 // Service provides a database service for the iCal connector.
 type Service interface {
 	NewIcalInput(*IcalInput) (*IcalInput, error)
+	GetIcalInputByID(id uint) (*IcalInput, error)
 	DeleteIcalInput(id uint) error
 
 	NewIcalOutput(*IcalOutput) (*IcalOutput, error)
