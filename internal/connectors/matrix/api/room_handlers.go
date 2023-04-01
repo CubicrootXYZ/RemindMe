@@ -71,11 +71,9 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 
 	rooms, err := api.config.MatrixDB.ListInputRoomsByChannel(channelID)
 	if err != nil {
-		if err != nil {
-			api.logger.Err(err)
-			response.AbortWithInternalServerError(ctx)
-			return
-		}
+		api.logger.Err(err)
+		response.AbortWithInternalServerError(ctx)
+		return
 	}
 
 	response.WithData(ctx, roomsToResponse(rooms))
@@ -102,11 +100,9 @@ func (api *api) listOutputRoomsHandler(ctx *gin.Context) {
 
 	rooms, err := api.config.MatrixDB.ListOutputRoomsByChannel(channelID)
 	if err != nil {
-		if err != nil {
-			api.logger.Err(err)
-			response.AbortWithInternalServerError(ctx)
-			return
-		}
+		api.logger.Err(err)
+		response.AbortWithInternalServerError(ctx)
+		return
 	}
 
 	response.WithData(ctx, roomsToResponse(rooms))

@@ -2,7 +2,6 @@ package database
 
 import "gorm.io/gorm"
 
-// TODO tests!
 type service struct {
 	db *gorm.DB
 }
