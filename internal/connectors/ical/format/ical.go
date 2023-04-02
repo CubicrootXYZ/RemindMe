@@ -12,7 +12,6 @@ var dateFormatICal = "20060102T150405Z"
 
 // NewCalendar creates an iCal formatted calendar with the given data.
 func NewCalendar(calendarID string, events []database.Event) string {
-	// TODO test
 	ical := strings.Builder{}
 	ical.WriteString("BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:")
 	ical.WriteString(calendarID)
@@ -101,9 +100,9 @@ func occurencesFromStartAndEnd(start time.Time, interval time.Duration, end *tim
 	}
 
 	occurences := uint64(0)
-	start.Add(interval)
+	start = start.Add(interval)
 	for end.Sub(start) > 0 {
-		start.Add(interval)
+		start = start.Add(interval)
 		occurences++
 	}
 
