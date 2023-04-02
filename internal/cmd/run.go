@@ -9,6 +9,8 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/middleware"
+	icalapi "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/api"
+	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
@@ -105,6 +107,13 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
 
+	// iCal connector
+	icalDB, err := icaldb.New(db.GormDB())
+	if err != nil {
+		log.Err(err)
+		return nil, err
+	}
+
 	// Daemon
 	daemonConf := config.daemonConfig()
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
@@ -127,9 +136,15 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
 		}, logger.WithField("component", "matrix API"))
 
+		// iCal API
+		icalAPI := icalapi.New(&icalapi.Config{
+			IcalDB: icalDB,
+		}, logger.WithField("component", "ical API"))
+
 		apiConfig := config.apiConfig()
 		apiConfig.RouteProviders["core"] = coreAPI
 		apiConfig.RouteProviders["matrix"] = matrixAPI
+		apiConfig.RouteProviders["ical"] = icalAPI
 		server := api.NewServer(apiConfig, logger.WithField("component", "api"))
 		processes = append(processes, server)
 	}
