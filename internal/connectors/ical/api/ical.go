@@ -4,10 +4,15 @@ import (
 	"crypto/subtle"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/apictx"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/response"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
+	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,8 +35,8 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 		response.AbortWithNotFoundError(ctx)
 		return
 	}
-	token, ok := ctx.Params.Get("token")
-	if !ok {
+	token := ctx.Query("token")
+	if token == "" {
 		// Use not found to not leak any information.
 		response.AbortWithNotFoundError(ctx)
 		return
@@ -39,10 +44,11 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 
 	output, err := api.icalDB.GetIcalOutputByID(id)
 	if err != nil {
-		if errors.Is(err, database.ErrNotFound) {
+		if errors.Is(err, icaldb.ErrNotFound) {
 			response.AbortWithNotFoundError(ctx)
 			return
 		}
+		api.logger.Err(err)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
@@ -52,6 +58,26 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 		return
 	}
 
-	// TODO get channel and events
-	ctx.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%d.ics\"", "TODO"))
+	o, err := api.database.GetOutputByType(output.ID, ical.OutputType)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			response.AbortWithNotFoundError(ctx)
+			return
+		}
+		api.logger.Err(err)
+		response.AbortWithInternalServerError(ctx)
+		return
+	}
+
+	events, err := api.database.GetEventsByChannel(o.ChannelID)
+	if err != nil {
+		api.logger.Err(err)
+		response.AbortWithInternalServerError(ctx)
+		return
+	}
+
+	calendar := format.NewCalendar(strconv.Itoa(int(o.ChannelID)), events)
+
+	ctx.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%d.ics\"", o.ChannelID))
+	ctx.String(http.StatusOK, calendar)
 }

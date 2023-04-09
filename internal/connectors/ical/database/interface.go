@@ -23,6 +23,8 @@ type IcalOutput struct {
 	Token string
 }
 
+//go:generate mockgen -destination=service_mock.go -package=database . Service
+
 // Service provides a database service for the iCal connector.
 type Service interface {
 	NewIcalInput(*IcalInput) (*IcalInput, error)
