@@ -106,6 +106,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	dbConfig.OutputServices = make(map[string]database.OutputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
+	// TODO add iCal here
 
 	// iCal connector
 	icalDB, err := icaldb.New(db.GormDB())

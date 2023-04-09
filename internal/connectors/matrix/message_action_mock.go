@@ -40,15 +40,15 @@ func (m *MockMessageAction) EXPECT() *MockMessageActionMockRecorder {
 }
 
 // Configure mocks base method.
-func (m *MockMessageAction) Configure(arg0 gologger.Logger, arg1 mautrixcl.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service) {
+func (m *MockMessageAction) Configure(arg0 gologger.Logger, arg1 mautrixcl.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service, arg5 *BridgeServices) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3, arg4)
+	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // Configure indicates an expected call of Configure.
-func (mr *MockMessageActionMockRecorder) Configure(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+func (mr *MockMessageActionMockRecorder) Configure(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockMessageAction)(nil).Configure), arg0, arg1, arg2, arg3, arg4)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Configure", reflect.TypeOf((*MockMessageAction)(nil).Configure), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // HandleEvent mocks base method.

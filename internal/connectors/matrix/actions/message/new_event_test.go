@@ -54,6 +54,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	msgs := []string{
@@ -137,6 +138,7 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -189,6 +191,7 @@ func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations

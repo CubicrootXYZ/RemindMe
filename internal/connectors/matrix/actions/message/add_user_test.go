@@ -64,6 +64,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	t.Run("formatted username", func(t *testing.T) {
@@ -133,6 +134,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -174,6 +176,7 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -213,6 +216,7 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -256,6 +260,7 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -294,6 +299,7 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -330,6 +336,7 @@ func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations

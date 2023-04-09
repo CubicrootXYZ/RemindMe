@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -42,7 +43,7 @@ type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
-	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
 //go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
@@ -52,7 +53,7 @@ type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
-	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
 // Config holds information for the matrix connector.
@@ -72,6 +73,14 @@ type Config struct {
 	AllowInvites  bool
 	RoomLimit     uint
 	UserWhitelist []string // Invites frim this users will allways be followed
+
+	BridgeServices *BridgeServices
+}
+
+// BridgeServices contains services where the matrix connector acts as a bridge, e.g.
+// because they do not have any user interface.
+type BridgeServices struct {
+	ical ical.Service
 }
 
 // New sets up a new matrix connector.
@@ -128,7 +137,7 @@ func (service *service) setLastMessage() {
 
 func (service *service) setupActions() {
 	actions := []interface {
-		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service)
+		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 		Name() string
 	}{
 		service.config.DefaultMessageAction,
@@ -149,6 +158,7 @@ func (service *service) setupActions() {
 			service.messenger,
 			service.matrixDatabase,
 			service.database,
+			service.config.BridgeServices,
 		)
 	}
 }

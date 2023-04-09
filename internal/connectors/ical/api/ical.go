@@ -29,7 +29,6 @@ import (
 // @Failure 500 ""
 // @Router /ical/{id} [get]
 func (api *api) icalExportHandler(ctx *gin.Context) {
-	// TODO test
 	id, ok := apictx.GetUintFromContext(ctx, "id")
 	if !ok {
 		response.AbortWithNotFoundError(ctx)

@@ -51,6 +51,7 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	msgs := []string{
@@ -96,6 +97,7 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	event := tests.TestEvent(
@@ -130,6 +132,7 @@ func TestChangeTimeAction_HandleEventWithNewMessageError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	event := tests.TestEvent(
