@@ -8,6 +8,8 @@ import (
 )
 
 func (service *service) NewIcalOutput(output *IcalOutput) (*IcalOutput, error) {
+	output.Token = random.URLSaveString(random.Intn(10) + 30)
+
 	err := service.db.Save(output).Error
 
 	return output, err

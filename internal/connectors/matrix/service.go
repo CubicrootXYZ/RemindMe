@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
+	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -80,7 +80,12 @@ type Config struct {
 // BridgeServices contains services where the matrix connector acts as a bridge, e.g.
 // because they do not have any user interface.
 type BridgeServices struct {
-	ical ical.Service
+	ICal BridgeServiceICal
+}
+
+// BridgeServiceICal is an interface for a bridge to the iCal connector.
+type BridgeServiceICal interface {
+	NewOutput(channelID uint) (*icaldb.IcalOutput, error)
 }
 
 // New sets up a new matrix connector.

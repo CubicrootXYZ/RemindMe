@@ -9,6 +9,7 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/middleware"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icalapi "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/api"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -88,6 +89,20 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
+	// iCal connector
+	icalDB, err := icaldb.New(db.GormDB())
+	if err != nil {
+		log.Err(err)
+		return nil, err
+	}
+	icalConnector := ical.New(&ical.Config{
+		ICalDB:   icalDB,
+		Database: db,
+	}, logger.WithField("component", "ical connector"))
+
+	dbConfig.OutputServices[ical.OutputType] = icalConnector
+	dbConfig.OutputServices[ical.InputType] = icalConnector
+
 	// Matrix connector
 	matrixDB, err := matrixdb.New(db.GormDB())
 	if err != nil {
@@ -95,7 +110,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 
-	matrixConnector, err := matrix.New(assembleMatrixConfig(config), db, matrixDB, logger.WithField("component", "matrix connector"))
+	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, logger.WithField("component", "matrix connector"))
 	if err != nil {
 		log.Err(err)
 		return nil, err
@@ -106,14 +121,6 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	dbConfig.OutputServices = make(map[string]database.OutputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
-	// TODO add iCal here
-
-	// iCal connector
-	icalDB, err := icaldb.New(db.GormDB())
-	if err != nil {
-		log.Err(err)
-		return nil, err
-	}
 
 	// Daemon
 	daemonConf := config.daemonConfig()
@@ -153,7 +160,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	return processes, nil
 }
 
-func assembleMatrixConfig(config *Config) *matrix.Config {
+func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Config {
 	cfg := config.matrixConfig()
 
 	cfg.DefaultMessageAction = &message.NewEventAction{}
@@ -165,6 +172,10 @@ func assembleMatrixConfig(config *Config) *matrix.Config {
 	cfg.MessageActions = append(cfg.MessageActions,
 		&message.AddUserAction{},
 	)
+
+	cfg.BridgeServices = &matrix.BridgeServices{
+		ICal: icalConnector,
+	}
 
 	return cfg
 }
