@@ -61,11 +61,12 @@ type MatrixUser struct {
 type MatrixMessageType string
 
 var (
-	MessageTypeWelcome     = MatrixMessageType("WELCOME")
-	MessageTypeNewEvent    = MatrixMessageType("EVENT_NEW")
-	MessageTypeEvent       = MatrixMessageType("EVENT")
-	MessageTypeAddUser     = MatrixMessageType("USER_ADD")
-	MessageTypeChangeEvent = MatrixMessageType("EVENT_CHANGE")
+	MessageTypeWelcome          = MatrixMessageType("WELCOME")
+	MessageTypeNewEvent         = MatrixMessageType("EVENT_NEW")
+	MessageTypeEvent            = MatrixMessageType("EVENT")
+	MessageTypeAddUser          = MatrixMessageType("USER_ADD")
+	MessageTypeChangeEvent      = MatrixMessageType("EVENT_CHANGE")
+	MessageTypeIcalExportEnable = MatrixMessageType("ICAL_ENABLE")
 )
 
 // MatrixMessage holds information about a matrix message.

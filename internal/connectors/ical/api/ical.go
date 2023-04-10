@@ -57,6 +57,7 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 		return
 	}
 
+	// TODO fix nilpointer error
 	o, err := api.database.GetOutputByType(output.ID, ical.OutputType)
 	if err != nil {
 		if errors.Is(err, database.ErrNotFound) {

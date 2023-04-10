@@ -6,35 +6,39 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"maunium.net/go/mautrix"
 )
 
 var enableICalExportRegex = regexp.MustCompile("(?i)^(ical$|(show|give|list|send|write|)[ ]*(|me)[ ]*(the|)[ ]*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))[ ]*$")
 
 // EnableICalExportAction enables iCal in a channel.
 type EnableICalExportAction struct {
-	logger    gologger.Logger
-	client    *mautrix.Client
-	messenger messenger.Messenger
-	matrixDB  matrixdb.Service
-	db        database.Service
+	logger     gologger.Logger
+	client     mautrixcl.Client
+	messenger  messenger.Messenger
+	matrixDB   matrixdb.Service
+	db         database.Service
+	icalBridge matrix.BridgeServiceICal
 }
 
 // Configure is called on startup and sets all dependencies.
 func (action *EnableICalExportAction) Configure(
 	logger gologger.Logger,
-	client *mautrix.Client,
+	client mautrixcl.Client,
 	messenger messenger.Messenger,
 	matrixDB matrixdb.Service,
 	db database.Service,
+	bridgeServices *matrix.BridgeServices,
 ) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
 	action.db = db
 	action.messenger = messenger
+	action.icalBridge = bridgeServices.ICal
 }
 
 // Name of the action.
@@ -56,5 +60,52 @@ func (action *EnableICalExportAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO
+	// TODO test
+	icalOutput, err := action.icalBridge.NewOutput(event.Channel.ID)
+	if err != nil {
+		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+			"Whoopsie, that failed",
+			event.Event.ID.String(),
+			event.Content.Body,
+			event.Event.Sender.String(),
+			event.Room.RoomID,
+		))
+		if err != nil {
+			action.logger.Err(err)
+		}
+		action.logger.Err(err)
+		return
+	}
+
+	// Add message to database
+	msg := mapping.MessageFromEvent(event)
+	msg.Type = matrixdb.MessageTypeIcalExportEnable
+	_, err = action.matrixDB.NewMessage(msg)
+	if err != nil {
+		action.logger.Err(err)
+	}
+
+	message := "Your calendar is ready 🥳: " + icalOutput.Token // TODO get baseurl
+	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+		message,
+		event.Event.ID.String(),
+		event.Content.Body,
+		event.Event.Sender.String(),
+		event.Room.RoomID,
+	))
+	if err != nil {
+		action.logger.Err(err)
+		return
+	}
+
+	msg = mapping.MessageFromEvent(event)
+	// TODO get message ID
+	msg.Incoming = false
+	msg.Type = matrixdb.MessageTypeIcalExportEnable
+	msg.Body = message
+	msg.BodyFormatted = message
+	_, err = action.matrixDB.NewMessage(msg)
+	if err != nil {
+		action.logger.Err(err)
+	}
 }

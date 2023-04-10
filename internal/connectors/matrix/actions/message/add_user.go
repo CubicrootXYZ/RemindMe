@@ -153,6 +153,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg = mapping.MessageFromEvent(event)
+	// TODO get message ID
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeAddUser
 	msg.Body = message

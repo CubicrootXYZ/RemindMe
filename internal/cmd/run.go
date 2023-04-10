@@ -83,6 +83,8 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	// Database
 	dbConfig := config.databaseConfig()
+	dbConfig.InputServices = make(map[string]database.InputService)
+	dbConfig.OutputServices = make(map[string]database.OutputService)
 	db, err := database.NewService(dbConfig, logger.WithField("component", "database"))
 	if err != nil {
 		logger.Err(err)
@@ -117,8 +119,6 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	}
 	processes = append(processes, matrixConnector)
 
-	dbConfig.InputServices = make(map[string]database.InputService)
-	dbConfig.OutputServices = make(map[string]database.OutputService)
 	dbConfig.InputServices[matrix.InputType] = matrixConnector
 	dbConfig.OutputServices[matrix.OutputType] = matrixConnector
 
@@ -171,6 +171,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 
 	cfg.MessageActions = append(cfg.MessageActions,
 		&message.AddUserAction{},
+		&message.EnableICalExportAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{
