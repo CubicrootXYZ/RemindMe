@@ -1,0 +1,19 @@
+on:
+  schedule:
+    - cron: "0 8 * * *"
+name: Daily Jobs
+jobs:
+  renovate:
+    name: Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Run Renovate
+        uses: docker://renovate/renovate:latest
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_AUTOMERGE: "false"
+          RENOVATE_ONBOARDING: "false"
+          RENOVATE_GIT_AUTHOR: "cubicrootxyz/renovate <cubicrootxyz-renovate@users.noreply.github.com>"
