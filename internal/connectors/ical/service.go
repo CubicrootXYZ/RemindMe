@@ -84,3 +84,12 @@ func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, error) {
 
 	return icalOutput, nil
 }
+
+func (service *service) GetOutput(outputID uint) (*icaldb.IcalOutput, error) {
+	output, err := service.config.ICalDB.GetIcalOutputByID(outputID)
+	if errors.Is(err, icaldb.ErrNotFound) {
+		return nil, ErrNotFound
+	}
+
+	return output, err
+}

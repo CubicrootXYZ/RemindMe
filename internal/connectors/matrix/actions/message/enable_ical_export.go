@@ -1,9 +1,12 @@
 package message
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
+	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
@@ -61,7 +64,7 @@ func (action *EnableICalExportAction) Selector() *regexp.Regexp {
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	// TODO test
-	icalOutput, err := action.icalBridge.NewOutput(event.Channel.ID)
+	icalOutput, err := action.getOrCreateIcalOutput(event)
 	if err != nil {
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Whoopsie, that failed",
@@ -86,7 +89,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	message := "Your calendar is ready 🥳: " + icalOutput.Token // TODO get baseurl
-	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+	resp, err := action.messenger.SendResponse(messenger.PlainTextResponse(
 		message,
 		event.Event.ID.String(),
 		event.Content.Body,
@@ -99,7 +102,8 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg = mapping.MessageFromEvent(event)
-	// TODO get message ID
+	// TODO set msg.SendAt
+	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeIcalExportEnable
 	msg.Body = message
@@ -108,4 +112,19 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	if err != nil {
 		action.logger.Err(err)
 	}
+}
+
+func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, error) {
+	for _, o := range event.Channel.Outputs {
+		if o.OutputType == ical.OutputType {
+			icalOutput, err := action.icalBridge.GetOutput(o.ID)
+			if err == nil {
+				return icalOutput, nil
+			} else if !errors.Is(err, ical.ErrNotFound) {
+				return nil, err
+			}
+		}
+	}
+
+	return action.icalBridge.NewOutput(event.Channel.ID)
 }
