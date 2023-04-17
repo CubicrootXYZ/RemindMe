@@ -1,7 +1,19 @@
 on:
   schedule:
     - cron: "0 8 * * *"
-name: Daily Jobs
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Override default log level"
+        required: false
+        default: "info"
+        type: string
+      overrideSchedule:
+        description: "Override all schedules"
+        required: false
+        default: "false"
+        type: string
+name: Renovate
 jobs:
   renovate:
     name: Renovate
