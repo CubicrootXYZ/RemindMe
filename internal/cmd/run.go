@@ -146,7 +146,8 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 		// iCal API
 		icalAPI := icalapi.New(&icalapi.Config{
-			IcalDB: icalDB,
+			IcalDB:   icalDB,
+			Database: db,
 		}, logger.WithField("component", "ical API"))
 
 		apiConfig := config.apiConfig()
