@@ -63,7 +63,6 @@ func (action *EnableICalExportAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO test
 	icalOutput, err := action.getOrCreateIcalOutput(event)
 	if err != nil {
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
@@ -102,7 +101,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg = mapping.MessageFromEvent(event)
-	// TODO set msg.SendAt
+	msg.SendAt = resp.Timestamp
 	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeIcalExportEnable

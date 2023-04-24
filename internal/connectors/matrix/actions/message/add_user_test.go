@@ -3,6 +3,7 @@ package message_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
@@ -79,7 +80,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			ExternalIdentifier: "resp1",
+			Timestamp:          time.UnixMilli(92848490),
+		}, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
@@ -104,7 +108,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			ExternalIdentifier: "resp1",
+			Timestamp:          time.UnixMilli(92848490),
+		}, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
@@ -149,7 +156,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, nil)
 	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
+	msngr.EXPECT().SendResponse(gomock.Any()).Return(nil, errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(

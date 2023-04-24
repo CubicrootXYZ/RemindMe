@@ -86,6 +86,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		"!room123",
 	)).Return(&messenger.MessageResponse{
 		ExternalIdentifier: "resp1",
+		Timestamp:          time.UnixMilli(92848490),
 	}, nil)
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
@@ -94,7 +95,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		RoomID:        0,
 		Body:          "Your calendar is ready 🥳: 12345",
 		BodyFormatted: "Your calendar is ready 🥳: 12345",
-		SendAt:        time.UnixMilli(92848488),
+		SendAt:        time.UnixMilli(92848490),
 		Type:          matrixdb.MessageTypeIcalExportEnable,
 		Incoming:      false,
 	})
@@ -160,6 +161,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 		"!room123",
 	)).Return(&messenger.MessageResponse{
 		ExternalIdentifier: "resp1",
+		Timestamp:          time.UnixMilli(92848490),
 	}, nil)
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
@@ -168,7 +170,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 		RoomID:        0,
 		Body:          "Your calendar is ready 🥳: 12345",
 		BodyFormatted: "Your calendar is ready 🥳: 12345",
-		SendAt:        time.UnixMilli(92848488),
+		SendAt:        time.UnixMilli(92848490),
 		Type:          matrixdb.MessageTypeIcalExportEnable,
 		Incoming:      false,
 	})

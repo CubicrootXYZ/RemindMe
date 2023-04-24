@@ -140,7 +140,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	message := "Added that user 👏. They can now interact with me."
-	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+	resp, err := action.messenger.SendResponse(messenger.PlainTextResponse(
 		message,
 		event.Event.ID.String(),
 		event.Content.Body,
@@ -153,7 +153,8 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg = mapping.MessageFromEvent(event)
-	// TODO get message ID
+	msg.SendAt = resp.Timestamp
+	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeAddUser
 	msg.Body = message
