@@ -38,7 +38,6 @@ func (service *service) Stop() error {
 }
 
 func (service *service) InputRemoved(inputType string, inputID uint) error {
-	// TODO test
 	if inputType != InputType {
 		return nil
 	}
@@ -52,7 +51,6 @@ func (service *service) InputRemoved(inputType string, inputID uint) error {
 }
 
 func (service *service) OutputRemoved(outputType string, outputID uint) error {
-	// TODO test
 	if outputType != OutputType {
 		return nil
 	}
@@ -66,7 +64,6 @@ func (service *service) OutputRemoved(outputType string, outputID uint) error {
 }
 
 func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, error) {
-	// TODO test
 	icalOutput, err := service.config.ICalDB.NewIcalOutput(&icaldb.IcalOutput{})
 	if err != nil {
 		return nil, err
