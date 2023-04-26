@@ -231,7 +231,7 @@ paths:
                 - properties:
                     data:
                       items:
-                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.calendarResponse'
+                        $ref: '#/components/schemas/internal_handler.calendarResponse'
                       type: array
                   type: object
           description: OK
@@ -425,7 +425,7 @@ paths:
                 - properties:
                     data:
                       items:
-                        $ref: '#/components/schemas/internal_handler.channelResponse'
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.channelResponse'
                       type: array
                   type: object
           description: OK
@@ -571,7 +571,7 @@ paths:
                 - properties:
                     data:
                       items:
-                        $ref: '#/components/schemas/internal_handler.thirdPartyResourceResponse'
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.thirdPartyResourceResponse'
                       type: array
                   type: object
           description: OK
@@ -646,7 +646,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/internal_handler.postChannelThirdPartyResourceData'
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.postChannelThirdPartyResourceData'
         description: payload
         required: true
         x-originalParamName: payload
@@ -703,7 +703,7 @@ paths:
         content:
           '*/*':
             schema:
-              $ref: '#/components/schemas/internal_handler.postChannelThirdPartyResourceData'
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.postChannelThirdPartyResourceData'
         description: payload
         required: true
         x-originalParamName: payload
@@ -762,7 +762,7 @@ paths:
                 - properties:
                     data:
                       items:
-                        $ref: '#/components/schemas/internal_handler.userResponse'
+                        $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.userResponse'
                       type: array
                   type: object
           description: OK
@@ -832,7 +832,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/internal_handler.putUserData'
+              $ref: '#/components/schemas/github_com_CubicrootXYZ_matrix-reminder-and-calendar-bot_internal_handler.putUserData'
         description: payload
         required: true
         x-originalParamName: payload
@@ -871,8 +871,8 @@ paths:
       - label: PHP
         lang: php
         source: "$token = \"my secret token\";\n$url = \"https://your-bot-domain.tld/user/example-string\";\n$headers
-          = array(\n    \"Authorization: \" . $token,\n);\n$data = json_encode(array(\n\t\"blocked\"
-          => false,\n\t\"block_reason\" => \"example-string\",\n));\n\n\n$curl = curl_init($url);\ncurl_setopt($curl,
+          = array(\n    \"Authorization: \" . $token,\n);\n$data = json_encode(array(\n\t\"block_reason\"
+          => \"example-string\",\n\t\"blocked\" => false,\n));\n\n\n$curl = curl_init($url);\ncurl_setopt($curl,
           CURLOPT_CUSTOMREQUEST, \"PUT\");\ncurl_setopt($curl, CURLOPT_RETURNTRANSFER,
           true);\ncurl_setopt($curl, CURLOPT_POSTFIELDS, $data);\ncurl_setopt($curl,
           CURLOPT_HTTPHEADER, $headers);\nvar_dump(curl_exec($curl)); // Dumps the
