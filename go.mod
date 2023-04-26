@@ -6,7 +6,7 @@ require (
 	github.com/CubicrootXYZ/gonaturalduration v0.4.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/arran4/golang-ical v0.0.0-20230318005454-19abf92700cc
+	github.com/arran4/golang-ical v0.0.0-20230425234049-f69e132f2b0c
 	github.com/dchest/uniuri v1.2.0
 	github.com/getkin/kin-openapi v0.116.0
 	github.com/gin-gonic/gin v1.9.0
@@ -20,8 +20,8 @@ require (
 	golang.org/x/net v0.9.0
 	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.5.0
-	maunium.net/go/maulogger/v2 v2.4.1
 	gorm.io/gorm v1.25.0
+	maunium.net/go/maulogger/v2 v2.4.1
 	maunium.net/go/mautrix v0.14.0
 )
 
