@@ -10,9 +10,11 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/format"
 )
 
 func (service *service) refreshIcalInputs() {
+	// TODO test
 	service.logger.Debugf("refreshing iCal inputs now ...")
 
 	f := false
@@ -41,27 +43,55 @@ func (service *service) refreshIcalInputs() {
 			input.Disabled = false
 		}
 
-		// TODO
-		//service.config.ICalDB.
+		_, err = service.config.ICalDB.UpdateIcalInput(&input)
+		if err != nil {
+			l.Infof("failed updating input in database: %v", err)
+			continue
+		}
 	}
 }
 
 func (service *service) refreshIcalInput(input *database.IcalInput) error {
+	// TODO test
 	if input.Disabled {
 		return nil
 	}
 
-	_, err := getFileContent(input.URL)
+	i, err := service.config.Database.GetInputByType(input.ID, InputType)
+	if err != nil {
+		return fmt.Errorf("can not get input for iCal input: %w", err)
+	}
+
+	content, err := getFileContent(input.URL)
 	if err != nil {
 		return fmt.Errorf("can not fetch resource: %w", err)
 	}
 
-	// TODO
+	events, err := format.EventsFromIcal(content, &format.EventOpts{
+		// TODO make configurable
+		EventDelay:      time.Duration(0),
+		DefaultDuration: time.Minute * 5,
+
+		InputID:   i.ID,
+		ChannelID: i.ChannelID,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to load events from iCal string: %w", err)
+	}
+
+	// TODO use bulk action
+	for i := range events {
+		_, err := service.config.Database.NewEvent(&events[i])
+		if err != nil {
+			return fmt.Errorf("failed to insert event to database: %w", err)
+		}
+	}
 
 	return nil
 }
 
 func getFileContent(url string) (string, error) {
+	// TODO test
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 

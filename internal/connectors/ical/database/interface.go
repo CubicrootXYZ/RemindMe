@@ -33,6 +33,7 @@ type Service interface {
 	NewIcalInput(*IcalInput) (*IcalInput, error)
 	GetIcalInputByID(id uint) (*IcalInput, error)
 	ListIcalInputs(*ListIcalInputsOpts) ([]IcalInput, error)
+	UpdateIcalInput(entity *IcalInput) (*IcalInput, error)
 	DeleteIcalInput(id uint) error
 
 	NewIcalOutput(*IcalOutput) (*IcalOutput, error)

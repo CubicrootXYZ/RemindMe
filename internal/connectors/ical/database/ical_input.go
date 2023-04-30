@@ -34,6 +34,11 @@ func (service *service) ListIcalInputs(opts *ListIcalInputsOpts) ([]IcalInput, e
 	return inputs, err
 }
 
+func (service *service) UpdateIcalInput(entity *IcalInput) (*IcalInput, error) {
+	err := service.db.Save(entity).Error
+	return entity, err
+}
+
 func (service *service) DeleteIcalInput(id uint) error {
 	result := service.db.Delete(&IcalInput{Model: gorm.Model{ID: id}})
 	if result.Error != nil {

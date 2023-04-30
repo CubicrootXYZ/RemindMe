@@ -132,6 +132,7 @@ type EventOpts struct {
 
 // EventsFromIcal extracts events from the iCal input.
 func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
+	// TODO test
 	calendar, err := ical.ParseCalendar(strings.NewReader(input))
 	if err != nil {
 		return nil, fmt.Errorf("can not parse iCal calendar: %w", err)

@@ -80,3 +80,16 @@ func TestService_ListIcalInput(t *testing.T) {
 	}
 	assert.False(t, found, "entity is in list return")
 }
+
+func TestService_UpdateIcalInput(t *testing.T) {
+	input, err := service.NewIcalInput(testInput())
+	require.NoError(t, err)
+	require.Greater(t, input.ID, uint(0))
+
+	input.URL = "abcdef"
+
+	inputAfter, err := service.UpdateIcalInput(input)
+	require.NoError(t, err)
+
+	assert.Equal(t, input, inputAfter)
+}
