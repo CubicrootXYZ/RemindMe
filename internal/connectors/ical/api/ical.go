@@ -24,8 +24,8 @@ import (
 // @Param id path int true "iCal output ID"
 // @Param token query string true "authentication token"
 // @Success 200 ""
-// @Failure 400 {object} types.MessageErrorResponse
-// @Failure 401 {object} types.MessageErrorResponse
+// @Failure 400 {object} response.MessageErrorResponse
+// @Failure 401 {object} response.MessageErrorResponse
 // @Failure 500 ""
 // @Router /ical/{id} [get]
 func (api *api) icalExportHandler(ctx *gin.Context) {
