@@ -79,12 +79,9 @@ func (service *service) refreshIcalInput(input *database.IcalInput) error {
 		return fmt.Errorf("failed to load events from iCal string: %w", err)
 	}
 
-	// TODO use bulk action
-	for i := range events {
-		_, err := service.config.Database.NewEvent(&events[i])
-		if err != nil {
-			return fmt.Errorf("failed to insert event to database: %w", err)
-		}
+	err = service.config.Database.NewEvents(events)
+	if err != nil {
+		return fmt.Errorf("failed to insert events to database: %w", err)
 	}
 
 	return nil

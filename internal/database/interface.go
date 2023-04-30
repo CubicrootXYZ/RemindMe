@@ -48,6 +48,7 @@ type Service interface {
 
 	// Event
 	NewEvent(*Event) (*Event, error)
+	NewEvents(events []Event) error
 
 	GetEventsByChannel(uint) ([]Event, error)
 	GetEventsPending() ([]Event, error)

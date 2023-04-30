@@ -240,6 +240,20 @@ func (mr *MockServiceMockRecorder) NewEvent(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewEvent", reflect.TypeOf((*MockService)(nil).NewEvent), arg0)
 }
 
+// NewEvents mocks base method.
+func (m *MockService) NewEvents(arg0 []Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewEvents", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NewEvents indicates an expected call of NewEvents.
+func (mr *MockServiceMockRecorder) NewEvents(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewEvents", reflect.TypeOf((*MockService)(nil).NewEvents), arg0)
+}
+
 // RemoveInputFromChannel mocks base method.
 func (m *MockService) RemoveInputFromChannel(arg0, arg1 uint) error {
 	m.ctrl.T.Helper()

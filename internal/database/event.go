@@ -11,7 +11,7 @@ func (event *Event) NextEventTime() time.Time {
 
 	nextTime := event.Time.Add(*event.RepeatInterval)
 	for time.Until(nextTime) < 0 {
-		nextTime.Add(*event.RepeatInterval)
+		nextTime = nextTime.Add(*event.RepeatInterval)
 	}
 
 	if nextTime.After(*event.RepeatUntil) {
@@ -25,6 +25,10 @@ func (service *service) NewEvent(event *Event) (*Event, error) {
 	err := service.db.Create(event).Error
 
 	return event, err
+}
+
+func (service *service) NewEvents(events []Event) error {
+	return service.db.Create(events).Error
 }
 
 func (service *service) GetEventsByChannel(channelID uint) ([]Event, error) {

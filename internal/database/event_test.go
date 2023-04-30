@@ -129,6 +129,18 @@ func TestService_NewEvent(t *testing.T) {
 	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
 }
 
+func TestService_NewEvents(t *testing.T) {
+	eventsBefore := []database.Event{
+		*testEvent(),
+		*testEvent(),
+	}
+	err := service.NewEvents(eventsBefore)
+	require.NoError(t, err)
+
+	require.Greater(t, eventsBefore[0].ID, uint(0))
+	require.Greater(t, eventsBefore[1].ID, uint(0))
+}
+
 func TestService_NewEventWithoutChannel(t *testing.T) {
 	_, err := service.NewEvent(&database.Event{})
 	require.Error(t, err)

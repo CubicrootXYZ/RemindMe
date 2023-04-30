@@ -150,3 +150,18 @@ func (mr *MockServiceMockRecorder) NewIcalOutput(arg0 interface{}) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewIcalOutput", reflect.TypeOf((*MockService)(nil).NewIcalOutput), arg0)
 }
+
+// UpdateIcalInput mocks base method.
+func (m *MockService) UpdateIcalInput(arg0 *IcalInput) (*IcalInput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateIcalInput", arg0)
+	ret0, _ := ret[0].(*IcalInput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateIcalInput indicates an expected call of UpdateIcalInput.
+func (mr *MockServiceMockRecorder) UpdateIcalInput(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateIcalInput", reflect.TypeOf((*MockService)(nil).UpdateIcalInput), arg0)
+}
