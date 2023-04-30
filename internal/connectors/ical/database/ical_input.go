@@ -22,6 +22,18 @@ func (service *service) GetIcalInputByID(id uint) (*IcalInput, error) {
 	return &entity, err
 }
 
+func (service *service) ListIcalInputs(opts *ListIcalInputsOpts) ([]IcalInput, error) {
+	var inputs []IcalInput
+	query := service.db
+
+	if opts.Disabled != nil {
+		query = query.Where("disabled = ?", *opts.Disabled)
+	}
+
+	err := query.Find(&inputs).Error
+	return inputs, err
+}
+
 func (service *service) DeleteIcalInput(id uint) error {
 	result := service.db.Delete(&IcalInput{Model: gorm.Model{ID: id}})
 	if result.Error != nil {

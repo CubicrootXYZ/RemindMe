@@ -47,3 +47,36 @@ func TestService_DeleteIcalInputWithNotFound(t *testing.T) {
 	err := service.DeleteIcalInput(999999)
 	require.ErrorIs(t, err, database.ErrNotFound)
 }
+
+func TestService_ListIcalInput(t *testing.T) {
+	input, err := service.NewIcalInput(testInput())
+	require.NoError(t, err)
+	require.Greater(t, input.ID, uint(0))
+
+	inputs, err := service.ListIcalInputs(&database.ListIcalInputsOpts{})
+	require.NoError(t, err)
+
+	found := false
+	for _, i := range inputs {
+		if i.ID == input.ID {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "entity is not in list return")
+
+	tr := true
+	inputs, err = service.ListIcalInputs(&database.ListIcalInputsOpts{
+		Disabled: &tr,
+	})
+	require.NoError(t, err)
+
+	found = false
+	for _, i := range inputs {
+		if i.ID == input.ID {
+			found = true
+			break
+		}
+	}
+	assert.False(t, found, "entity is in list return")
+}

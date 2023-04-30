@@ -106,6 +106,21 @@ func (mr *MockServiceMockRecorder) GetIcalOutputByID(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIcalOutputByID", reflect.TypeOf((*MockService)(nil).GetIcalOutputByID), arg0)
 }
 
+// ListIcalInputs mocks base method.
+func (m *MockService) ListIcalInputs(arg0 *ListIcalInputsOpts) ([]IcalInput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListIcalInputs", arg0)
+	ret0, _ := ret[0].([]IcalInput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListIcalInputs indicates an expected call of ListIcalInputs.
+func (mr *MockServiceMockRecorder) ListIcalInputs(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListIcalInputs", reflect.TypeOf((*MockService)(nil).ListIcalInputs), arg0)
+}
+
 // NewIcalInput mocks base method.
 func (m *MockService) NewIcalInput(arg0 *IcalInput) (*IcalInput, error) {
 	m.ctrl.T.Helper()

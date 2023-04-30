@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/CubicrootXYZ/gologger v0.2.2
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
+	github.com/arran4/golang-ical v0.0.0-20230425234049-f69e132f2b0c
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang/mock v1.6.0
@@ -12,6 +13,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.2
+	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/net v0.7.0
