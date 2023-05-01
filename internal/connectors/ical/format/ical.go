@@ -186,6 +186,7 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 
 func getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
 	startTime, err := event.GetStartAt()
+	fmt.Print(err)
 	if err != nil {
 		startTime, err = event.GetAllDayStartAt()
 		if err != nil {

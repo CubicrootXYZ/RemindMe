@@ -10,8 +10,9 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
+	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
 func (service *service) refreshIcalInputs() {
@@ -19,7 +20,7 @@ func (service *service) refreshIcalInputs() {
 	service.logger.Debugf("refreshing iCal inputs now ...")
 
 	f := false
-	inputs, err := service.config.ICalDB.ListIcalInputs(&database.ListIcalInputsOpts{
+	inputs, err := service.config.ICalDB.ListIcalInputs(&icaldb.ListIcalInputsOpts{
 		Disabled: &f,
 	})
 	if err != nil {
@@ -52,7 +53,7 @@ func (service *service) refreshIcalInputs() {
 	}
 }
 
-func (service *service) refreshIcalInput(input *database.IcalInput) error {
+func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 	// TODO test
 	if input.Disabled {
 		return nil
@@ -80,9 +81,40 @@ func (service *service) refreshIcalInput(input *database.IcalInput) error {
 		return fmt.Errorf("failed to load events from iCal string: %w", err)
 	}
 
-	// TODO check if the events already exist!
+	existingEvents, err := service.config.Database.ListEvents(&database.ListEventsOpts{
+		InputID: &i.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("can not list existing events: %w", err)
+	}
 
-	err = service.config.Database.NewEvents(events)
+	newEvents := make([]database.Event, 0)
+	for _, event := range events {
+		if event.ExternalReference == "" {
+			continue
+		}
+
+		update := false
+		for _, eevent := range existingEvents {
+			if eevent.ExternalReference == "" {
+				continue
+			}
+
+			if eevent.ExternalReference == event.ExternalReference {
+				update = true
+				break
+			}
+		}
+
+		if !update {
+			newEvents = append(newEvents, event)
+			continue
+		}
+
+		// TODO handle event updates.
+	}
+
+	err = service.config.Database.NewEvents(newEvents)
 	if err != nil {
 		return fmt.Errorf("failed to insert events to database: %w", err)
 	}

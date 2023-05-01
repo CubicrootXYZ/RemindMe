@@ -146,9 +146,8 @@ VERSION:2.0
 PRODID:cal 1
 METHOD:PUBLISH
 BEGIN:VEVENT
-DTSTART:21200102
+DTSTART:21200102Z
 DTSTAMP:00010101T000000Z
-RRULE:FREQ=DAILY
 UID:1
 SUMMARY:Event 1
 DESCRIPTION:Event 1
@@ -168,6 +167,30 @@ END:VCALENDAR
 	assert.Equal(t, time.Hour*24, events[0].Duration)
 	assert.Equal(t, "Event 1", events[0].Message)
 	assert.Equal(t, "1", events[0].ExternalReference)
+}
+
+func TestEventsFromIcalWithNoTime(t *testing.T) {
+	data := `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:cal 1
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTAMP:00010101T000000Z
+UID:1
+SUMMARY:Event 1
+DESCRIPTION:Event 1
+CLASS:PRIVATE
+END:VEVENT
+END:VCALENDAR
+`
+
+	events, err := format.EventsFromIcal(data, &format.EventOpts{
+		EventDelay: time.Duration(0),
+	})
+	require.NoError(t, err)
+
+	require.Equal(t, 0, len(events))
 }
 
 func toP[T any](elem T) *T {

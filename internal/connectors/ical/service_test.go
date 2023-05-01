@@ -228,31 +228,39 @@ func TestService_Fetcher(t *testing.T) {
 	}, nil)
 
 	inputID := uint(2)
-	// TODO ensure we get events
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		InputID: &inputID,
+	}).Return([]database.Event{
+		{
+			Time:              testTime().UTC(),
+			Message:           "Event 2",
+			Active:            true,
+			Duration:          time.Minute * 5,
+			ChannelID:         3,
+			InputID:           &inputID,
+			ExternalReference: "2",
+		},
+	}, nil)
+
 	db.EXPECT().NewEvents([]database.Event{
 		{
-			Time:      testTime().UTC(),
-			Message:   "Event 1",
-			Active:    true,
-			Duration:  time.Minute * 5,
-			ChannelID: 3,
-			InputID:   &inputID,
+			Time:              testTime().UTC(),
+			Message:           "Event 1",
+			Active:            true,
+			Duration:          time.Minute * 5,
+			ChannelID:         3,
+			InputID:           &inputID,
+			ExternalReference: "1",
 		},
 		{
-			Time:      testTime().UTC(),
-			Message:   "Event 2",
-			Active:    true,
-			Duration:  time.Minute * 5,
-			ChannelID: 3,
-			InputID:   &inputID,
-		},
-		{
-			Time:      testTime().UTC(),
-			Message:   "Event 3",
-			Active:    true,
-			Duration:  time.Minute * 5,
-			ChannelID: 3,
-			InputID:   &inputID,
+			Time:              testTime().UTC(),
+			Message:           "Event 3",
+			Active:            true,
+			Duration:          time.Minute * 5,
+			ChannelID:         3,
+			InputID:           &inputID,
+			ExternalReference: "3",
 		},
 	}).Return(nil)
 	icalDB.EXPECT().UpdateIcalInput(gomock.Any()).Return(nil, nil)

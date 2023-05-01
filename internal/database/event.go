@@ -31,6 +31,25 @@ func (service *service) NewEvents(events []Event) error {
 	return service.db.Create(events).Error
 }
 
+// ListEventsOpts holds options for listing events.
+type ListEventsOpts struct {
+	InputID *uint
+}
+
+func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
+	query := service.db
+
+	if opts.InputID != nil {
+		query.Where("events.input_id = ?", *opts.InputID)
+	}
+
+	var events []Event
+
+	err := query.Preload("Channel").Preload("Input").Find(&events).Error
+	return events, err
+}
+
+// TODO replace with ListEvents
 func (service *service) GetEventsByChannel(channelID uint) ([]Event, error) {
 	var events []Event
 
@@ -38,6 +57,7 @@ func (service *service) GetEventsByChannel(channelID uint) ([]Event, error) {
 	return events, err
 }
 
+// TODO replace with ListEvents
 func (service *service) GetEventsPending() ([]Event, error) {
 	var events []Event
 
