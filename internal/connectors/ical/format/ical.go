@@ -140,7 +140,6 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 
 	events := make([]database.Event, 0)
 	for _, event := range calendar.Events() {
-		/* TODO use for comparison?
 		idProp := event.GetProperty(ical.ComponentPropertyUniqueId)
 		if idProp == nil {
 			continue
@@ -149,7 +148,6 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 		if len(id) <= 0 {
 			continue
 		}
-		*/
 
 		startTime, err := getStartTimeFromEvent(event)
 		if err != nil {
@@ -173,12 +171,13 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 		}
 
 		events = append(events, database.Event{
-			Time:      startTime,
-			Duration:  duration,
-			Message:   getMessageFromEvent(event),
-			Active:    true,
-			ChannelID: opts.ChannelID,
-			InputID:   &opts.InputID,
+			Time:              startTime,
+			Duration:          duration,
+			Message:           getMessageFromEvent(event),
+			Active:            true,
+			ChannelID:         opts.ChannelID,
+			InputID:           &opts.InputID,
+			ExternalReference: id,
 		})
 	}
 
@@ -234,6 +233,7 @@ func getDurationFromEvent(event *ical.VEvent) (time.Duration, error) {
 		if err == nil {
 			return endTime.Sub(startTime), nil
 		}
+		return 24 * time.Hour, nil
 	}
 
 	return time.Duration(0), ErrCanNotGetEndTime

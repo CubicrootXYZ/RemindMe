@@ -92,14 +92,15 @@ type Output struct {
 // Event holds information about an event
 type Event struct {
 	gorm.Model
-	Time           time.Time `gorm:"index"`
-	Duration       time.Duration
-	Message        string
-	Active         bool `gorm:"index"`
-	RepeatInterval *time.Duration
-	RepeatUntil    *time.Time
-	ChannelID      uint
-	Channel        Channel
-	InputID        *uint
-	Input          *Input
+	Time              time.Time `gorm:"index"`
+	Duration          time.Duration
+	Message           string
+	Active            bool `gorm:"index"`
+	RepeatInterval    *time.Duration
+	RepeatUntil       *time.Time
+	ChannelID         uint
+	Channel           Channel
+	InputID           *uint
+	Input             *Input
+	ExternalReference string
 }
