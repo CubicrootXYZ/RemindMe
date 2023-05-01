@@ -2,7 +2,11 @@ package ical_test
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
@@ -189,4 +193,82 @@ func TestService_GetOutputWithError(t *testing.T) {
 
 	_, err := service.GetOutput(1)
 	require.Error(t, err)
+}
+
+func TestService_Fetcher(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	service, icalDB, db := testService(ctrl)
+
+	content, err := os.ReadFile("format/testdata/calendar1.ical")
+	require.NoError(t, err)
+
+	called := false
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write(content)
+		called = true
+	}))
+
+	f := false
+	icalDB.EXPECT().ListIcalInputs(&icaldb.ListIcalInputsOpts{
+		Disabled: &f,
+	}).Return([]icaldb.IcalInput{
+		{
+			Model: gorm.Model{
+				ID: 1,
+			},
+			URL: server.URL + "/",
+		},
+	}, nil)
+
+	db.EXPECT().GetInputByType(uint(1), "ical").Return(&database.Input{
+		Model: gorm.Model{
+			ID: 2,
+		},
+		ChannelID: 3,
+	}, nil)
+
+	inputID := uint(2)
+	// TODO ensure we get events
+	db.EXPECT().NewEvents([]database.Event{
+		{
+			Time:      testTime().UTC(),
+			Message:   "Event 1",
+			Active:    true,
+			Duration:  time.Minute * 5,
+			ChannelID: 3,
+			InputID:   &inputID,
+		},
+		{
+			Time:      testTime().UTC(),
+			Message:   "Event 2",
+			Active:    true,
+			Duration:  time.Minute * 5,
+			ChannelID: 3,
+			InputID:   &inputID,
+		},
+		{
+			Time:      testTime().UTC(),
+			Message:   "Event 3",
+			Active:    true,
+			Duration:  time.Minute * 5,
+			ChannelID: 3,
+			InputID:   &inputID,
+		},
+	}).Return(nil)
+	icalDB.EXPECT().UpdateIcalInput(gomock.Any()).Return(nil, nil)
+
+	go func() {
+		require.NoError(t, service.Start())
+	}()
+
+	time.Sleep(time.Millisecond * 50)
+	require.NoError(t, service.Stop())
+	time.Sleep(time.Millisecond * 10)
+
+	assert.True(t, called, "testserver was not called once")
+}
+
+func testTime() time.Time {
+	t, _ := time.Parse(time.RFC3339, "2120-01-02T15:04:05+00:00")
+	return t
 }

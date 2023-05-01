@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/format"
 )
@@ -62,7 +63,7 @@ func (service *service) refreshIcalInput(input *database.IcalInput) error {
 		return fmt.Errorf("can not get input for iCal input: %w", err)
 	}
 
-	content, err := getFileContent(input.URL)
+	content, err := getFileContent(input.URL, service.logger)
 	if err != nil {
 		return fmt.Errorf("can not fetch resource: %w", err)
 	}
@@ -79,6 +80,8 @@ func (service *service) refreshIcalInput(input *database.IcalInput) error {
 		return fmt.Errorf("failed to load events from iCal string: %w", err)
 	}
 
+	// TODO check if the events already exist!
+
 	err = service.config.Database.NewEvents(events)
 	if err != nil {
 		return fmt.Errorf("failed to insert events to database: %w", err)
@@ -87,9 +90,9 @@ func (service *service) refreshIcalInput(input *database.IcalInput) error {
 	return nil
 }
 
-func getFileContent(url string) (string, error) {
+func getFileContent(url string, logger gologger.Logger) (string, error) {
 	// TODO test
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -97,6 +100,7 @@ func getFileContent(url string) (string, error) {
 		return "", err
 	}
 	req.Header.Set("Accept", "text/calendar")
+	logger.Debugf("making request with GET to %s", url)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

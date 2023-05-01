@@ -27,16 +27,18 @@ func New(config *Config, logger gologger.Logger) Service {
 	return &service{
 		config: config,
 		logger: logger,
-		stop:   make(chan bool),
+		stop:   make(chan bool, 1),
 	}
 }
 
 func (service *service) Start() error {
 	ticker := time.NewTicker(time.Minute * 15)
 	for {
+		service.refreshIcalInputs()
+
 		select {
 		case <-ticker.C:
-			service.refreshIcalInputs()
+			continue
 		case <-service.stop:
 			return nil
 		}

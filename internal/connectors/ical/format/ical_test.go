@@ -13,7 +13,7 @@ import (
 )
 
 func testTime() time.Time {
-	t, _ := time.Parse(time.RFC3339, "2120-01-02T15:04:05+07:00")
+	t, _ := time.Parse(time.RFC3339, "2120-01-02T15:04:05+00:00")
 	return t
 }
 
@@ -112,6 +112,28 @@ func TestMinutesToIcalRecurrenceRule(t *testing.T) {
 			)
 		})
 	}
+}
+
+func TestEventsFromIcal(t *testing.T) {
+	data, err := os.ReadFile("testdata/calendar1.ical")
+	require.NoError(t, err)
+
+	events, err := format.EventsFromIcal(string(data), &format.EventOpts{
+		EventDelay: time.Duration(0),
+	})
+	require.NoError(t, err)
+
+	require.Equal(t, 3, len(events))
+
+	assert.Equal(t, testTime().UTC(), events[0].Time.UTC())
+	assert.Equal(t, time.Minute*5, events[0].Duration)
+	assert.Equal(t, "Event 1", events[0].Message)
+	assert.Equal(t, testTime().UTC(), events[1].Time.UTC())
+	assert.Equal(t, time.Minute*5, events[1].Duration)
+	assert.Equal(t, "Event 2", events[1].Message)
+	assert.Equal(t, testTime().UTC(), events[2].Time.UTC())
+	assert.Equal(t, time.Minute*5, events[2].Duration)
+	assert.Equal(t, "Event 3", events[2].Message)
 }
 
 func toP[T any](elem T) *T {

@@ -19,7 +19,7 @@ var (
 	ErrCanNotGetEndTime   = errors.New("can not get event end time")
 )
 
-var dateFormatICal = "20060102T150405Z"
+var dateFormatICal = "20060102T150405Z07:00"
 
 // NewCalendar creates an iCal formatted calendar with the given data.
 func NewCalendar(calendarID string, events []database.Event) string {
@@ -33,11 +33,11 @@ func NewCalendar(calendarID string, events []database.Event) string {
 		endTime := event.Time.Add(time.Minute * 5)
 
 		ical.WriteString("BEGIN:VEVENT\nDTSTART:")
-		ical.WriteString(event.Time.Format(dateFormatICal))
+		ical.WriteString(event.Time.UTC().Format(dateFormatICal))
 		ical.WriteString("\nDTEND:")
-		ical.WriteString(endTime.Format(dateFormatICal))
+		ical.WriteString(endTime.UTC().Format(dateFormatICal))
 		ical.WriteString("\nDTSTAMP:")
-		ical.WriteString(event.CreatedAt.Format(dateFormatICal))
+		ical.WriteString(event.CreatedAt.UTC().Format(dateFormatICal))
 		if event.RepeatInterval != nil {
 			if event.RepeatUntil != nil && time.Until(*event.RepeatUntil) > 0 ||
 				event.RepeatUntil == nil {
@@ -132,23 +132,24 @@ type EventOpts struct {
 
 // EventsFromIcal extracts events from the iCal input.
 func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
-	// TODO test
+	// TODO currently does not set recurring attributes.
 	calendar, err := ical.ParseCalendar(strings.NewReader(input))
 	if err != nil {
 		return nil, fmt.Errorf("can not parse iCal calendar: %w", err)
 	}
 
 	events := make([]database.Event, 0)
-
 	for _, event := range calendar.Events() {
+		/* TODO use for comparison?
 		idProp := event.GetProperty(ical.ComponentPropertyUniqueId)
 		if idProp == nil {
 			continue
 		}
 		id := idProp.Value
-		if len(id) <= 2 {
+		if len(id) <= 0 {
 			continue
 		}
+		*/
 
 		startTime, err := getStartTimeFromEvent(event)
 		if err != nil {
@@ -208,7 +209,7 @@ func getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
 
 		refTime := time.Now()
 		if refTime.Sub(startTime) < 0 {
-			refTime = startTime
+			refTime = startTime.Add(time.Second * -1)
 		}
 		return rruleObj.After(refTime, false), nil
 	}
@@ -219,7 +220,7 @@ func getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
 func getDurationFromEvent(event *ical.VEvent) (time.Duration, error) {
 	// Check if is usual event
 	startTime, err := event.GetStartAt()
-	if err != nil {
+	if err == nil {
 		endTime, err := event.GetEndAt()
 		if err == nil {
 			return endTime.Sub(startTime), nil
@@ -228,7 +229,7 @@ func getDurationFromEvent(event *ical.VEvent) (time.Duration, error) {
 
 	// Else it might be an all day event?
 	startTime, err = event.GetAllDayStartAt()
-	if err != nil {
+	if err == nil {
 		endTime, err := event.GetAllDayEndAt()
 		if err == nil {
 			return endTime.Sub(startTime), nil
