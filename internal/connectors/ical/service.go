@@ -2,6 +2,7 @@ package ical
 
 import (
 	"errors"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
@@ -17,6 +18,8 @@ type Config struct {
 type service struct {
 	config *Config
 	logger gologger.Logger
+
+	stop chan bool
 }
 
 // New assembles a new ical connector service.
@@ -24,16 +27,25 @@ func New(config *Config, logger gologger.Logger) Service {
 	return &service{
 		config: config,
 		logger: logger,
+		stop:   make(chan bool),
 	}
 }
 
 func (service *service) Start() error {
-	// TODO
-	return nil
+	ticker := time.NewTicker(time.Minute * 15)
+	for {
+		select {
+		case <-ticker.C:
+			service.refreshIcalInputs()
+		case <-service.stop:
+			return nil
+		}
+	}
 }
 
 func (service *service) Stop() error {
-	// TODO
+	service.stop <- true
+	service.logger.Infof("stopping")
 	return nil
 }
 
