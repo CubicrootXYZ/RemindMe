@@ -119,9 +119,14 @@ func (d *Database) UpdateReminder(reminderID uint, remindTime time.Time, repeatI
 		reminder.RemindTime = remindTime
 	}
 
+	if repeatInterval > 0 {
+		reminder.RepeatInterval = repeatInterval
+	}
+	if repeatTimes > 0 {
+		reminder.RepeatMax = repeatTimes
+	}
+
 	reminder.Active = true
-	reminder.RepeatInterval = repeatInterval
-	reminder.RepeatMax = repeatTimes
 	err = d.db.Save(reminder).Error
 	return reminder, err
 }
