@@ -8,9 +8,10 @@ import (
 )
 
 func ExpectNewMessageFromEvent(matrixDB *matrixdb.MockService, event *matrix.MessageEvent, t matrixdb.MatrixMessageType) {
+	sender := event.Event.Sender.String()
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            event.Event.ID.String(),
-		UserID:        event.Event.Sender.String(),
+		UserID:        &sender,
 		RoomID:        event.Room.ID,
 		Body:          event.Content.Body,
 		BodyFormatted: event.Content.FormattedBody,

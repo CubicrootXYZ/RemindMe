@@ -40,6 +40,8 @@ func TestNEnableICalExportAction_Selector(t *testing.T) {
 }
 
 func TestEnableICalExportAction_HandleEvent(t *testing.T) {
+	user := "@user:example.com"
+
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -61,7 +63,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		},
 	)
 
-	icalBridge.EXPECT().GetOutput(uint(2)).Return(
+	icalBridge.EXPECT().GetOutput(uint(3)).Return(
 		&icaldb.IcalOutput{
 			Token: "12345",
 		},
@@ -70,7 +72,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 	)
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        "@user:example.com",
+		UserID:        &user,
 		RoomID:        0,
 		Body:          "message",
 		BodyFormatted: "<b>message</b>",
@@ -92,7 +94,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "resp1",
-		UserID:        "@user:example.com",
+		UserID:        &user,
 		RoomID:        0,
 		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
@@ -107,11 +109,14 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 				ID: 2,
 			},
 			OutputType: ical.OutputType,
+			OutputID:   3,
 		}),
 	))
 }
 
 func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
+	user := "@user:example.com"
+
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -133,7 +138,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 		},
 	)
 
-	icalBridge.EXPECT().GetOutput(uint(2)).Return(
+	icalBridge.EXPECT().GetOutput(uint(3)).Return(
 		nil,
 		"",
 		ical.ErrNotFound,
@@ -147,7 +152,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        "@user:example.com",
+		UserID:        &user,
 		RoomID:        0,
 		Body:          "message",
 		BodyFormatted: "<b>message</b>",
@@ -169,7 +174,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "resp1",
-		UserID:        "@user:example.com",
+		UserID:        &user,
 		RoomID:        0,
 		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
@@ -184,6 +189,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 				ID: 2,
 			},
 			OutputType: ical.OutputType,
+			OutputID:   3,
 		}),
 	))
 }

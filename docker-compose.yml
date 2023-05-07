@@ -9,4 +9,14 @@ services:
       - 'MYSQL_DATABASE=remindme'
     command:
       - "--default-authentication-plugin=mysql_native_password"
-    network_mode: "host"
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8081:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=remindme-db

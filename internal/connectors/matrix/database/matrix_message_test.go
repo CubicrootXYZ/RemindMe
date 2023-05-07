@@ -27,7 +27,7 @@ func testMessage() *matrixdb.MatrixMessage {
 
 	return &matrixdb.MatrixMessage{
 		ID:            messageID,
-		User:          *user,
+		User:          user,
 		Room:          user.Rooms[0],
 		Body:          "TEST",
 		BodyFormatted: "<b>test</b>",
@@ -158,6 +158,6 @@ func assertMessagesEqual(t *testing.T, a *matrixdb.MatrixMessage, b *matrixdb.Ma
 	assert.Equal(t, a.SendAt.UTC().Format(time.RFC3339), b.SendAt.UTC().Format(time.RFC3339))
 	assert.Equal(t, a.Type, b.Type)
 	assert.Equal(t, a.Incoming, b.Incoming)
-	assertUsersEqual(t, &a.User, &b.User)
+	assertUsersEqual(t, a.User, b.User)
 	assertRoomsEqual(t, &a.Room, &b.Room)
 }

@@ -71,9 +71,9 @@ var (
 
 // MatrixMessage holds information about a matrix message.
 type MatrixMessage struct {
-	ID               string `gorm:"primary,size:255"`
-	UserID           string `gorm:"size:255"`
-	User             MatrixUser
+	ID               string  `gorm:"primary,size:255"`
+	UserID           *string `gorm:"size:255"`
+	User             *MatrixUser
 	RoomID           uint
 	Room             MatrixRoom
 	Body             string

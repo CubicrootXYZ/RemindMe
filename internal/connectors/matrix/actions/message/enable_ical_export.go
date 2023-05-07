@@ -122,7 +122,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, string, error) {
 	for _, o := range event.Channel.Outputs {
 		if o.OutputType == ical.OutputType {
-			icalOutput, url, err := action.icalBridge.GetOutput(o.ID)
+			icalOutput, url, err := action.icalBridge.GetOutput(o.OutputID)
 			if err == nil {
 				return icalOutput, url, nil
 			} else if !errors.Is(err, ical.ErrNotFound) {

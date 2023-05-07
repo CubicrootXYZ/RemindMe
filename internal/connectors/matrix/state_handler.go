@@ -197,7 +197,7 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 
 	_, err = service.matrixDatabase.NewMessage(&database.MatrixMessage{
 		ID:            resp.ExternalIdentifier,
-		UserID:        user.ID,
+		UserID:        &user.ID,
 		RoomID:        room.ID,
 		Body:          message,
 		BodyFormatted: messageFormatted,

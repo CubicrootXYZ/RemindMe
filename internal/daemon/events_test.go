@@ -98,8 +98,12 @@ func TestService_SendOutEvents(t *testing.T) {
 	defer ctrl.Finish()
 	service, db, outputService := testDaemon(ctrl, true, false)
 
-	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
+	event := testDatabaseEvent()
+	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*event}, nil)
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).MinTimes(1).Return(nil)
+
+	event.Active = false
+	db.EXPECT().UpdateEvent(event).MinTimes(1).Return(nil, nil)
 
 	go service.Start()               //nolint:errcheck
 	time.Sleep(time.Millisecond * 5) // give time to execute
