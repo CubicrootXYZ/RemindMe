@@ -12,7 +12,6 @@ func (service *service) sendOutEvents() error {
 			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 
 			if !ok {
-				// TODO handle iCal here somehow
 				service.logger.Errorf("missing output service for type: %s", event.Channel.Outputs[j].OutputType)
 				continue
 			}

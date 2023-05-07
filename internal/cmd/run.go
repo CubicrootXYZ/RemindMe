@@ -132,6 +132,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	daemonConf := config.daemonConfig()
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
+	daemonConf.OutputServices[ical.OutputType] = icalConnector
 	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
 	processes = append(processes, daemon)
 

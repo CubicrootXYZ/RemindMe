@@ -8,6 +8,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
@@ -116,4 +117,13 @@ func (service *service) GetOutput(outputID uint) (*icaldb.IcalOutput, string, er
 	icalURL.RawQuery = url.Values{"token": []string{output.Token}}.Encode()
 
 	return output, icalURL.String(), nil
+}
+
+func (service *service) SendReminder(*daemon.Event, *daemon.Output) error {
+	// Not supported.
+	return nil
+}
+func (service *service) SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error {
+	// Not supported.
+	return nil
 }
