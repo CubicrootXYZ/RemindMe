@@ -65,6 +65,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		&icaldb.IcalOutput{
 			Token: "12345",
 		},
+		"https://example.com/ical/1?token=abcde",
 		nil,
 	)
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
@@ -79,7 +80,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 	})
 
 	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
-		"Your calendar is ready 🥳: 12345",
+		"Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		"evt1",
 		"message",
 		"@user:example.com",
@@ -93,8 +94,8 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		ID:            "resp1",
 		UserID:        "@user:example.com",
 		RoomID:        0,
-		Body:          "Your calendar is ready 🥳: 12345",
-		BodyFormatted: "Your calendar is ready 🥳: 12345",
+		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
+		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		SendAt:        time.UnixMilli(92848490),
 		Type:          matrixdb.MessageTypeIcalExportEnable,
 		Incoming:      false,
@@ -134,11 +135,13 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 
 	icalBridge.EXPECT().GetOutput(uint(2)).Return(
 		nil,
+		"",
 		ical.ErrNotFound,
 	)
 	icalBridge.EXPECT().NewOutput(uint(68272)).Return(&icaldb.IcalOutput{
 		Token: "12345",
 	},
+		"https://example.com/ical/1?token=abcde",
 		nil,
 	)
 
@@ -154,7 +157,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 	})
 
 	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
-		"Your calendar is ready 🥳: 12345",
+		"Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		"evt1",
 		"message",
 		"@user:example.com",
@@ -168,8 +171,8 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 		ID:            "resp1",
 		UserID:        "@user:example.com",
 		RoomID:        0,
-		Body:          "Your calendar is ready 🥳: 12345",
-		BodyFormatted: "Your calendar is ready 🥳: 12345",
+		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
+		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
 		SendAt:        time.UnixMilli(92848490),
 		Type:          matrixdb.MessageTypeIcalExportEnable,
 		Incoming:      false,

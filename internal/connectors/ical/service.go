@@ -2,6 +2,8 @@ package ical
 
 import (
 	"errors"
+	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
@@ -13,6 +15,8 @@ import (
 type Config struct {
 	ICalDB   icaldb.Service
 	Database database.Service
+
+	BaseURL *url.URL // TODO set
 }
 
 type service struct {
@@ -77,10 +81,10 @@ func (service *service) OutputRemoved(outputType string, outputID uint) error {
 	return err
 }
 
-func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, error) {
+func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, string, error) {
 	icalOutput, err := service.config.ICalDB.NewIcalOutput(&icaldb.IcalOutput{})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	err = service.config.Database.AddOutputToChannel(channelID, &database.Output{
@@ -90,17 +94,26 @@ func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, error) {
 		Enabled:    true,
 	})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return icalOutput, nil
+	icalURL := service.config.BaseURL.JoinPath(fmt.Sprintf("/ical/%d", icalOutput.ID))
+	icalURL.RawQuery = url.Values{"token": []string{icalOutput.Token}}.Encode()
+
+	return icalOutput, icalURL.String(), nil
 }
 
-func (service *service) GetOutput(outputID uint) (*icaldb.IcalOutput, error) {
+func (service *service) GetOutput(outputID uint) (*icaldb.IcalOutput, string, error) {
 	output, err := service.config.ICalDB.GetIcalOutputByID(outputID)
-	if errors.Is(err, icaldb.ErrNotFound) {
-		return nil, ErrNotFound
+	if err != nil {
+		if errors.Is(err, icaldb.ErrNotFound) {
+			return nil, "", ErrNotFound
+		}
+		return nil, "", err
 	}
 
-	return output, err
+	icalURL := service.config.BaseURL.JoinPath(fmt.Sprintf("/ical/%d", output.ID))
+	icalURL.RawQuery = url.Values{"token": []string{output.Token}}.Encode()
+
+	return output, icalURL.String(), nil
 }

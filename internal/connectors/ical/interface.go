@@ -28,6 +28,6 @@ type Service interface {
 	InputRemoved(inputType string, inputID uint) error
 	OutputRemoved(outputType string, outputID uint) error
 
-	NewOutput(channelID uint) (*icaldb.IcalOutput, error)
-	GetOutput(outputID uint) (*icaldb.IcalOutput, error)
+	NewOutput(channelID uint) (*icaldb.IcalOutput, string, error) // Returns the calendar URL.
+	GetOutput(outputID uint) (*icaldb.IcalOutput, string, error)  // Returns the calendar URL.
 }

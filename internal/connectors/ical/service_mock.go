@@ -35,12 +35,13 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // GetOutput mocks base method.
-func (m *MockService) GetOutput(arg0 uint) (*database.IcalOutput, error) {
+func (m *MockService) GetOutput(arg0 uint) (*database.IcalOutput, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetOutput", arg0)
 	ret0, _ := ret[0].(*database.IcalOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetOutput indicates an expected call of GetOutput.
@@ -64,12 +65,13 @@ func (mr *MockServiceMockRecorder) InputRemoved(arg0, arg1 interface{}) *gomock.
 }
 
 // NewOutput mocks base method.
-func (m *MockService) NewOutput(arg0 uint) (*database.IcalOutput, error) {
+func (m *MockService) NewOutput(arg0 uint) (*database.IcalOutput, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewOutput", arg0)
 	ret0, _ := ret[0].(*database.IcalOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // NewOutput indicates an expected call of NewOutput.

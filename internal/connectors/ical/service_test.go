@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -19,11 +20,13 @@ import (
 )
 
 func testService(ctrl *gomock.Controller) (ical.Service, *icaldb.MockService, *database.MockService) {
+	url, _ := url.Parse("https://example.com")
 	db := database.NewMockService(ctrl)
 	icalDB := icaldb.NewMockService(ctrl)
 	return ical.New(&ical.Config{
 			Database: db,
 			ICalDB:   icalDB,
+			BaseURL:  url,
 		}, gologger.New(gologger.LogLevelDebug, 0)),
 		icalDB,
 		db
@@ -113,6 +116,7 @@ func TestService_NewOutput(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
+		Token: "abcde",
 	}, nil)
 
 	db.EXPECT().AddOutputToChannel(uint(2), &database.Output{
@@ -122,10 +126,11 @@ func TestService_NewOutput(t *testing.T) {
 		Enabled:    true,
 	}).Return(nil)
 
-	output, err := service.NewOutput(2)
+	output, url, err := service.NewOutput(2)
 	require.NoError(t, err)
 
 	assert.Equal(t, uint(1), output.ID)
+	assert.Equal(t, "https://example.com/ical/1?token=abcde", url)
 }
 
 func TestService_NewOutputWithAddError(t *testing.T) {
@@ -145,7 +150,7 @@ func TestService_NewOutputWithAddError(t *testing.T) {
 		Enabled:    true,
 	}).Return(errors.New("test"))
 
-	_, err := service.NewOutput(2)
+	_, _, err := service.NewOutput(2)
 	require.Error(t, err)
 }
 
@@ -155,7 +160,7 @@ func TestService_NewOutputWithNewIcalError(t *testing.T) {
 
 	icalDB.EXPECT().NewIcalOutput(gomock.Any()).Return(nil, errors.New("test"))
 
-	_, err := service.NewOutput(2)
+	_, _, err := service.NewOutput(2)
 	require.Error(t, err)
 }
 
@@ -167,12 +172,14 @@ func TestService_GetOutput(t *testing.T) {
 		Model: gorm.Model{
 			ID: 1,
 		},
+		Token: "abcde",
 	}, nil)
 
-	output, err := service.GetOutput(1)
+	output, url, err := service.GetOutput(1)
 	require.NoError(t, err)
 
 	assert.Equal(t, uint(1), output.ID)
+	assert.Equal(t, "https://example.com/ical/1?token=abcde", url)
 }
 
 func TestService_GetOutputWithNotFound(t *testing.T) {
@@ -181,7 +188,7 @@ func TestService_GetOutputWithNotFound(t *testing.T) {
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, icaldb.ErrNotFound)
 
-	_, err := service.GetOutput(1)
+	_, _, err := service.GetOutput(1)
 	require.ErrorIs(t, err, ical.ErrNotFound)
 }
 
@@ -191,7 +198,7 @@ func TestService_GetOutputWithError(t *testing.T) {
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, errors.New("test"))
 
-	_, err := service.GetOutput(1)
+	_, _, err := service.GetOutput(1)
 	require.Error(t, err)
 }
 

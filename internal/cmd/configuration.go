@@ -51,6 +51,7 @@ type configAPI struct {
 	Enabled bool
 	Address string `default:"0.0.0.0:8080"`
 	APIKey  string
+	BaseURL string
 }
 
 func (config *Config) databaseConfig() *database.Config {

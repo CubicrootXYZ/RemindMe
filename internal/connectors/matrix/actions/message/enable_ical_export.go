@@ -9,6 +9,7 @@ import (
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
@@ -63,7 +64,7 @@ func (action *EnableICalExportAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
-	icalOutput, err := action.getOrCreateIcalOutput(event)
+	_, url, err := action.getOrCreateIcalOutput(event)
 	if err != nil {
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Whoopsie, that failed",
@@ -87,9 +88,14 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 		action.logger.Err(err)
 	}
 
-	message := "Your calendar is ready 🥳: " + icalOutput.Token // TODO get baseurl
+	msgBuilder := format.Formater{}
+	msgBuilder.Text("Your calendar is ready 🥳: ")
+	msgBuilder.Link(url, url)
+
+	response, _ := msgBuilder.Build()
+
 	resp, err := action.messenger.SendResponse(messenger.PlainTextResponse(
-		message,
+		response,
 		event.Event.ID.String(),
 		event.Content.Body,
 		event.Event.Sender.String(),
@@ -105,22 +111,22 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeIcalExportEnable
-	msg.Body = message
-	msg.BodyFormatted = message
+	msg.Body = response
+	msg.BodyFormatted = response
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Err(err)
 	}
 }
 
-func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, error) {
+func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, string, error) {
 	for _, o := range event.Channel.Outputs {
 		if o.OutputType == ical.OutputType {
-			icalOutput, err := action.icalBridge.GetOutput(o.ID)
+			icalOutput, url, err := action.icalBridge.GetOutput(o.ID)
 			if err == nil {
-				return icalOutput, nil
+				return icalOutput, url, nil
 			} else if !errors.Is(err, ical.ErrNotFound) {
-				return nil, err
+				return nil, "", err
 			}
 		}
 	}

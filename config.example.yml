@@ -48,3 +48,5 @@ api:
   address: "0.0.0.0:8080"
   # API Key used for authentication
   apikey: xyz
+  # URL where the API can be reached (root level)
+  baseurl: https://example.com

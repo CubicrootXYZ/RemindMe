@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -79,6 +80,10 @@ type process interface {
 }
 
 func setup(config *Config, logger gologger.Logger) ([]process, error) {
+	baseURL, err := url.Parse(config.API.BaseURL)
+	if err != nil {
+		return nil, err
+	}
 	processes := []process{}
 
 	// Database
@@ -100,6 +105,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	icalConnector := ical.New(&ical.Config{
 		ICalDB:   icalDB,
 		Database: db,
+		BaseURL:  baseURL,
 	}, logger.WithField("component", "ical connector"))
 
 	dbConfig.OutputServices[ical.OutputType] = icalConnector

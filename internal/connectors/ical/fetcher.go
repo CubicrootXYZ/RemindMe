@@ -16,7 +16,6 @@ import (
 )
 
 func (service *service) refreshIcalInputs() {
-	// TODO test
 	service.logger.Debugf("refreshing iCal inputs now ...")
 
 	f := false
@@ -54,7 +53,6 @@ func (service *service) refreshIcalInputs() {
 }
 
 func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
-	// TODO test
 	if input.Disabled {
 		return nil
 	}
@@ -123,7 +121,6 @@ func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 }
 
 func getFileContent(url string, logger gologger.Logger) (string, error) {
-	// TODO test
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 

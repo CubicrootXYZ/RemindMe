@@ -85,8 +85,8 @@ type BridgeServices struct {
 
 // BridgeServiceICal is an interface for a bridge to the iCal connector.
 type BridgeServiceICal interface {
-	NewOutput(channelID uint) (*icaldb.IcalOutput, error)
-	GetOutput(outputID uint) (*icaldb.IcalOutput, error)
+	NewOutput(channelID uint) (*icaldb.IcalOutput, string, error)
+	GetOutput(outputID uint) (*icaldb.IcalOutput, string, error)
 }
 
 // New sets up a new matrix connector.
