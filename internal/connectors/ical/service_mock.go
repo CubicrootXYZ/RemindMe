@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
+	daemon "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -92,6 +93,34 @@ func (m *MockService) OutputRemoved(arg0 string, arg1 uint) error {
 func (mr *MockServiceMockRecorder) OutputRemoved(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OutputRemoved", reflect.TypeOf((*MockService)(nil).OutputRemoved), arg0, arg1)
+}
+
+// SendDailyReminder mocks base method.
+func (m *MockService) SendDailyReminder(arg0 *daemon.DailyReminder, arg1 *daemon.Output) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendDailyReminder", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendDailyReminder indicates an expected call of SendDailyReminder.
+func (mr *MockServiceMockRecorder) SendDailyReminder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendDailyReminder", reflect.TypeOf((*MockService)(nil).SendDailyReminder), arg0, arg1)
+}
+
+// SendReminder mocks base method.
+func (m *MockService) SendReminder(arg0 *daemon.Event, arg1 *daemon.Output) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendReminder", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendReminder indicates an expected call of SendReminder.
+func (mr *MockServiceMockRecorder) SendReminder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendReminder", reflect.TypeOf((*MockService)(nil).SendReminder), arg0, arg1)
 }
 
 // Start mocks base method.
