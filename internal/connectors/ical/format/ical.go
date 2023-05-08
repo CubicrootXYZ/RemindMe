@@ -189,7 +189,7 @@ func getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
 	if err != nil {
 		startTime, err = event.GetAllDayStartAt()
 		if err != nil {
-			return time.Now(), fmt.Errorf("%w: %w", ErrCanNotGetStartTime, err)
+			return time.Now(), fmt.Errorf("%w: %v", ErrCanNotGetStartTime, err)
 		}
 	}
 
