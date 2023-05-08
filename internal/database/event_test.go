@@ -175,7 +175,7 @@ func TestService_ListEvents(t *testing.T) {
 
 	input := &database.Input{
 		InputType: "test",
-		InputID:   uint(rand.Int()),
+		InputID:   uint(rand.Int()), //nolint:gosec
 	}
 	err = service.AddInputToChannel(eventBefore.ChannelID, input)
 	require.NoError(t, err)

@@ -11,7 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func testServer(ctrl *gomock.Controller) (*database.MockService, *matrixdb.MockService, *httptest.Server) {
+func testServer(ctrl *gomock.Controller) (*database.MockService, *matrixdb.MockService, *httptest.Server) { //nolint:unparam
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 

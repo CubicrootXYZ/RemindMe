@@ -211,7 +211,7 @@ func TestService_Fetcher(t *testing.T) {
 
 	called := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write(content)
+		_, _ = w.Write(content)
 		called = true
 	}))
 
