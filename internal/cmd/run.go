@@ -110,6 +110,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	dbConfig.OutputServices[ical.OutputType] = icalConnector
 	dbConfig.OutputServices[ical.InputType] = icalConnector
+	processes = append(processes, icalConnector)
 
 	// Matrix connector
 	matrixDB, err := matrixdb.New(db.GormDB())
