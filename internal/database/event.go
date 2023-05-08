@@ -33,14 +33,18 @@ func (service *service) NewEvents(events []Event) error {
 
 // ListEventsOpts holds options for listing events.
 type ListEventsOpts struct {
-	InputID *uint
+	InputID   *uint
+	ChannelID *uint
 }
 
 func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 	query := service.db
 
 	if opts.InputID != nil {
-		query.Where("events.input_id = ?", *opts.InputID)
+		query = query.Where("events.input_id = ?", *opts.InputID)
+	}
+	if opts.ChannelID != nil {
+		query = query.Where("events.channel_id = ?", *opts.ChannelID)
 	}
 
 	var events []Event
