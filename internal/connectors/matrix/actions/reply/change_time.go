@@ -24,7 +24,7 @@ type ChangeTimeAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ChangeTimeAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *ChangeTimeAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -57,7 +57,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 		return
 	}
 
-	remindTime, err := format.ParseTime(event.Content.Body, event.Channel.TimeZone, false)
+	remindTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
 		action.logger.Err(err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
@@ -86,7 +86,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 	}
 
 	_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
-		fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", replyToMessage.Event.Message, format.ToLocalTime(replyToMessage.Event.Time, event.Channel.TimeZone)),
+		fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", replyToMessage.Event.Message, format.ToLocalTime(replyToMessage.Event.Time, event.Room.TimeZone)),
 		event.Event.ID.String(),
 		event.Content.Body,
 		event.Event.Sender.String(),

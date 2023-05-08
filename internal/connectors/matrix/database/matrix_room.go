@@ -6,6 +6,26 @@ import (
 	"gorm.io/gorm"
 )
 
+func (service *service) ListInputRoomsByChannel(channelID uint) ([]MatrixRoom, error) {
+	var rooms []MatrixRoom
+	err := service.db.Preload("Users").
+		Joins("INNER JOIN inputs ON inputs.input_id = matrix_rooms.id AND inputs.input_type = ?", "matrix"). // TODO input type should be constant
+		Where("inputs.channel_id = ?", channelID).
+		Find(&rooms).Error
+
+	return rooms, err
+}
+
+func (service *service) ListOutputRoomsByChannel(channelID uint) ([]MatrixRoom, error) {
+	var rooms []MatrixRoom
+	err := service.db.Preload("Users").
+		Joins("INNER JOIN outputs ON outputs.output_id = matrix_rooms.id AND outputs.output_type = ?", "matrix"). // TODO output type should be constant
+		Where("outputs.channel_id = ?", channelID).
+		Find(&rooms).Error
+
+	return rooms, err
+}
+
 func (service *service) GetRoomByID(id uint) (*MatrixRoom, error) {
 	var room MatrixRoom
 	err := service.db.Preload("Users").First(&room, "id = ?", id).Error
@@ -45,6 +65,14 @@ func (service *service) UpdateRoom(room *MatrixRoom) (*MatrixRoom, error) {
 }
 
 func (service *service) DeleteRoom(roomID uint) error {
+	// Delete associations upfront
+	room := &MatrixRoom{}
+	room.ID = roomID
+	err := service.db.Model(room).Association("Users").Delete(room.Users)
+	if err != nil {
+		return err
+	}
+
 	return service.db.Unscoped().Delete(&MatrixRoom{}, "matrix_rooms.id = ?", roomID).Error
 }
 

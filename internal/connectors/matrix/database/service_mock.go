@@ -225,6 +225,36 @@ func (mr *MockServiceMockRecorder) GetUserByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockService)(nil).GetUserByID), arg0)
 }
 
+// ListInputRoomsByChannel mocks base method.
+func (m *MockService) ListInputRoomsByChannel(arg0 uint) ([]MatrixRoom, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListInputRoomsByChannel", arg0)
+	ret0, _ := ret[0].([]MatrixRoom)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListInputRoomsByChannel indicates an expected call of ListInputRoomsByChannel.
+func (mr *MockServiceMockRecorder) ListInputRoomsByChannel(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListInputRoomsByChannel", reflect.TypeOf((*MockService)(nil).ListInputRoomsByChannel), arg0)
+}
+
+// ListOutputRoomsByChannel mocks base method.
+func (m *MockService) ListOutputRoomsByChannel(arg0 uint) ([]MatrixRoom, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListOutputRoomsByChannel", arg0)
+	ret0, _ := ret[0].([]MatrixRoom)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListOutputRoomsByChannel indicates an expected call of ListOutputRoomsByChannel.
+func (mr *MockServiceMockRecorder) ListOutputRoomsByChannel(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOutputRoomsByChannel", reflect.TypeOf((*MockService)(nil).ListOutputRoomsByChannel), arg0)
+}
+
 // NewEvent mocks base method.
 func (m *MockService) NewEvent(arg0 *MatrixEvent) (*MatrixEvent, error) {
 	m.ctrl.T.Helper()

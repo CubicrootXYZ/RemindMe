@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -16,6 +18,7 @@ type Config struct {
 	Database configDatabase
 	Daemon   configDaemon
 	Matrix   configMatrix
+	API      configAPI
 }
 
 type configDatabase struct {
@@ -42,6 +45,13 @@ type configMatrix struct {
 	AllowInvites  bool
 	RoomLimit     uint
 	UserWhitelist []string
+}
+
+type configAPI struct {
+	Enabled bool
+	Address string `default:"0.0.0.0:8080"`
+	APIKey  string
+	BaseURL string
 }
 
 func (config *Config) databaseConfig() *database.Config {
@@ -79,6 +89,13 @@ func (config *Config) matrixConfig() *matrix.Config {
 	}
 }
 
+func (config *Config) apiConfig() *api.Config {
+	return &api.Config{
+		Address:        config.API.Address,
+		RouteProviders: make(map[string]api.RouteProvider),
+	}
+}
+
 func LoadConfiguration() (*Config, error) {
 	fileName := flag.String("config", "config.yml", "Configuration file to load")
 	flag.Parse()
@@ -92,6 +109,10 @@ func LoadConfiguration() (*Config, error) {
 	}).Load(config, *fileName)
 	if err != nil {
 		return nil, err
+	}
+
+	if config.API.Enabled && len(config.API.APIKey) < 10 {
+		return nil, errors.New("API key needs to be at least 10 characters")
 	}
 
 	return config, nil

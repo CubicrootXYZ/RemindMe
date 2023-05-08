@@ -3,6 +3,7 @@ package message_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
@@ -64,9 +65,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
-	t.Run("formatted username", func(t *testing.T) {
+	t.Run("formatted username", func(t *testing.T) { //nolint:dupl
 		// Expectations
 		client.EXPECT().JoinedMembers(id.RoomID("!room123")).Return(
 			&mautrix.RespJoinedMembers{
@@ -78,7 +80,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			ExternalIdentifier: "resp1",
+			Timestamp:          time.UnixMilli(92848490),
+		}, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
@@ -91,7 +96,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		))
 	})
 
-	t.Run("plain text username", func(t *testing.T) {
+	t.Run("plain text username", func(t *testing.T) { //nolint:dupl
 		// Expectations
 		client.EXPECT().JoinedMembers(id.RoomID("!room123")).Return(
 			&mautrix.RespJoinedMembers{
@@ -103,7 +108,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			ExternalIdentifier: "resp1",
+			Timestamp:          time.UnixMilli(92848490),
+		}, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
@@ -133,6 +141,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -147,7 +156,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, nil)
 	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
+	msngr.EXPECT().SendResponse(gomock.Any()).Return(nil, errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
@@ -174,6 +183,7 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -213,6 +223,7 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -256,6 +267,7 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -294,6 +306,7 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations
@@ -330,6 +343,7 @@ func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 		msngr,
 		matrixDB,
 		db,
+		nil,
 	)
 
 	// Expectations

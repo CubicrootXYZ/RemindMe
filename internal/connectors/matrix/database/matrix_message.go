@@ -31,7 +31,7 @@ func (service *service) GetLastMessage() (*MatrixMessage, error) {
 	return &message, err
 }
 
-func (service *service) GetEventMessageByOutputAndEvent(eventID uint, outputID uint, outputType string) (*MatrixMessage, error) {
+func (service *service) GetEventMessageByOutputAndEvent(eventID uint, outputID uint, _ string) (*MatrixMessage, error) {
 	var room MatrixRoom
 	err := service.db.First(&room, "matrix_rooms.id = ?", outputID).Error
 	if err != nil {

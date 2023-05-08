@@ -6,18 +6,32 @@ func (service *service) sendOutEvents() error {
 		return err
 	}
 
-	for i := range events {
-		for j := range events[i].Channel.Outputs {
-			outputService, ok := service.config.OutputServices[events[i].Channel.Outputs[j].OutputType]
+	for _, event := range events {
+		event := event
+		for j := range event.Channel.Outputs {
+			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 
 			if !ok {
-				service.logger.Errorf("missing output service for type: %s", events[i].Channel.Outputs[j].OutputType)
+				service.logger.Errorf("missing output service for type: %s", event.Channel.Outputs[j].OutputType)
 				continue
 			}
 
-			err = outputService.SendReminder(eventFromDatabase(&events[i]), outputFromDatabase(&events[i].Channel.Outputs[j]))
+			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j]))
 			if err != nil {
 				service.logger.Err(err)
+				continue
+			}
+
+			nextTime := event.NextEventTime()
+			if !nextTime.IsZero() {
+				event.Time = nextTime
+			} else {
+				event.Active = false
+			}
+
+			_, err = service.database.UpdateEvent(&event)
+			if err != nil {
+				service.logger.Errorf("failed updating event after sending reminder: %w", err)
 				continue
 			}
 		}

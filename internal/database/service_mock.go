@@ -210,6 +210,21 @@ func (mr *MockServiceMockRecorder) GormDB() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GormDB", reflect.TypeOf((*MockService)(nil).GormDB))
 }
 
+// ListEvents mocks base method.
+func (m *MockService) ListEvents(arg0 *ListEventsOpts) ([]Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListEvents", arg0)
+	ret0, _ := ret[0].([]Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListEvents indicates an expected call of ListEvents.
+func (mr *MockServiceMockRecorder) ListEvents(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEvents", reflect.TypeOf((*MockService)(nil).ListEvents), arg0)
+}
+
 // NewChannel mocks base method.
 func (m *MockService) NewChannel(arg0 *Channel) (*Channel, error) {
 	m.ctrl.T.Helper()
@@ -238,6 +253,20 @@ func (m *MockService) NewEvent(arg0 *Event) (*Event, error) {
 func (mr *MockServiceMockRecorder) NewEvent(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewEvent", reflect.TypeOf((*MockService)(nil).NewEvent), arg0)
+}
+
+// NewEvents mocks base method.
+func (m *MockService) NewEvents(arg0 []Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewEvents", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NewEvents indicates an expected call of NewEvents.
+func (mr *MockServiceMockRecorder) NewEvents(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewEvents", reflect.TypeOf((*MockService)(nil).NewEvents), arg0)
 }
 
 // RemoveInputFromChannel mocks base method.

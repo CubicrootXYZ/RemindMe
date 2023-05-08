@@ -9,9 +9,10 @@ import (
 
 // MessageFromEvent creates a MatrixMessage from a MessageEvent.
 func MessageFromEvent(event *matrix.MessageEvent) *database.MatrixMessage {
+	sender := event.Event.Sender.String()
 	return &database.MatrixMessage{
 		ID:            event.Event.ID.String(),
-		UserID:        event.Event.Sender.String(),
+		UserID:        &sender,
 		RoomID:        event.Room.ID,
 		Body:          event.Content.Body,
 		BodyFormatted: event.Content.FormattedBody,

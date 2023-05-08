@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -127,17 +126,4 @@ func (service *service) DeleteChannel(channelID uint) error {
 	}
 
 	return nil
-}
-
-// Timezone returns the timezone of the channel.
-func (c *Channel) Timezone() *time.Location {
-	if c.TimeZone == "" {
-		return time.UTC
-	}
-	loc, err := time.LoadLocation(c.TimeZone)
-	if err != nil {
-		return time.UTC
-	}
-
-	return loc
 }

@@ -1,6 +1,7 @@
 package database_test
 
 import (
+	"math/rand"
 	"testing"
 	"time"
 
@@ -129,6 +130,18 @@ func TestService_NewEvent(t *testing.T) {
 	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
 }
 
+func TestService_NewEvents(t *testing.T) {
+	eventsBefore := []database.Event{
+		*testEvent(),
+		*testEvent(),
+	}
+	err := service.NewEvents(eventsBefore)
+	require.NoError(t, err)
+
+	require.Greater(t, eventsBefore[0].ID, uint(0))
+	require.Greater(t, eventsBefore[1].ID, uint(0))
+}
+
 func TestService_NewEventWithoutChannel(t *testing.T) {
 	_, err := service.NewEvent(&database.Event{})
 	require.Error(t, err)
@@ -139,6 +152,37 @@ func TestService_GetEventsByChannel(t *testing.T) {
 	require.NoError(t, err)
 
 	events, err := service.GetEventsByChannel(eventBefore.ChannelID)
+	require.NoError(t, err)
+
+	require.Less(t, 0, len(events))
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+			assert.Equal(t, eventBefore.Message, eventAfter.Message)
+			assert.Equal(t, eventBefore.Active, eventAfter.Active)
+			assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+		}
+	}
+
+	assert.True(t, evtFound, "missing event not in response")
+}
+
+func TestService_ListEvents(t *testing.T) {
+	eventBefore, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	input := &database.Input{
+		InputType: "test",
+		InputID:   uint(rand.Int()), //nolint:gosec
+	}
+	err = service.AddInputToChannel(eventBefore.ChannelID, input)
+	require.NoError(t, err)
+
+	events, err := service.ListEvents(&database.ListEventsOpts{
+		InputID: &input.ID,
+	})
 	require.NoError(t, err)
 
 	require.Less(t, 0, len(events))

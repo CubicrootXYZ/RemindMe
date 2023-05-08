@@ -28,7 +28,7 @@ type NewEventAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *NewEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *NewEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -54,7 +54,7 @@ func (action *NewEventAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
-	remindTime, err := format.ParseTime(event.Content.Body, event.Channel.TimeZone, false)
+	remindTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
 		action.logger.Err(err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
@@ -90,7 +90,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	go func(evt *matrix.MessageEvent, dbEvent *database.Event) {
-		msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", dbEvent.ID, format.ToLocalTime(dbEvent.Time, event.Channel.TimeZone))
+		msg := fmt.Sprintf("Successfully added new reminder (ID: %d) for %s", dbEvent.ID, format.ToLocalTime(dbEvent.Time, event.Room.TimeZone))
 
 		response := messenger.PlainTextResponse(
 			msg,

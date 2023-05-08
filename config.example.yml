@@ -40,3 +40,13 @@ matrix:
   # Invites from the following users will always be followed
   userwhitelist:
     - "@me:example.com"
+
+# API settings
+api:
+  enabled: false
+  # Overwrite listen address for the webserver
+  address: "0.0.0.0:8080"
+  # API Key used for authentication
+  apikey: xyz
+  # URL where the API can be reached (root level)
+  baseurl: https://example.com

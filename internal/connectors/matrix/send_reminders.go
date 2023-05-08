@@ -50,7 +50,7 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 
 	dbMsg := &matrixdb.MatrixMessage{
 		ID:            resp.ExternalIdentifier,
-		UserID:        "", // There is no user, events can be from any source
+		UserID:        nil, // There is no user, events can be from any source
 		RoomID:        room.ID,
 		Body:          message,
 		BodyFormatted: messageFormatted,

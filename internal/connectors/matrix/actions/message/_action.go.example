@@ -16,14 +16,14 @@ import (
 // ExampleAction acts as a template for new actions.
 type ExampleAction struct {
 	logger    gologger.Logger
-	client    *mautrix.Client
+	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ExampleAction) Configure(logger gologger.Logger, client *mautrix.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *ExampleAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB

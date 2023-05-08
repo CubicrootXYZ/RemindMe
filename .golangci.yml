@@ -59,6 +59,7 @@ issues:
         - funlen
         - forcetypeassert
         - goconst
+        - noctx
     - path: '(.*)\/string\.go'
       text: 'G404: Use of weak random number generator' # Used as fallback
     - path: '(.*)\/motivational_sentence\.go'

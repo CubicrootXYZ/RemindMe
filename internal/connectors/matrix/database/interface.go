@@ -16,6 +16,8 @@ var (
 
 // Service offers an interface for a matrix related database.
 type Service interface {
+	ListInputRoomsByChannel(channelID uint) ([]MatrixRoom, error)
+	ListOutputRoomsByChannel(channelID uint) ([]MatrixRoom, error)
 	GetRoomByID(id uint) (*MatrixRoom, error)
 	GetRoomByRoomID(roomID string) (*MatrixRoom, error)
 	GetRoomCount() (int64, error)
@@ -45,6 +47,7 @@ type MatrixRoom struct {
 	RoomID          string       `gorm:"unique"`
 	Users           []MatrixUser `gorm:"many2many:matrix_rooms_matrix_users;"`
 	LastCryptoEvent string
+	TimeZone        string
 	// TODO somehow get roles back
 }
 
@@ -58,18 +61,19 @@ type MatrixUser struct {
 type MatrixMessageType string
 
 var (
-	MessageTypeWelcome     = MatrixMessageType("WELCOME")
-	MessageTypeNewEvent    = MatrixMessageType("EVENT_NEW")
-	MessageTypeEvent       = MatrixMessageType("EVENT")
-	MessageTypeAddUser     = MatrixMessageType("USER_ADD")
-	MessageTypeChangeEvent = MatrixMessageType("EVENT_CHANGE")
+	MessageTypeWelcome          = MatrixMessageType("WELCOME")
+	MessageTypeNewEvent         = MatrixMessageType("EVENT_NEW")
+	MessageTypeEvent            = MatrixMessageType("EVENT")
+	MessageTypeAddUser          = MatrixMessageType("USER_ADD")
+	MessageTypeChangeEvent      = MatrixMessageType("EVENT_CHANGE")
+	MessageTypeIcalExportEnable = MatrixMessageType("ICAL_ENABLE")
 )
 
 // MatrixMessage holds information about a matrix message.
 type MatrixMessage struct {
-	ID               string `gorm:"primary,size:255"`
-	UserID           string `gorm:"size:255"`
-	User             MatrixUser
+	ID               string  `gorm:"primary,size:255"`
+	UserID           *string `gorm:"size:255"`
+	User             *MatrixUser
 	RoomID           uint
 	Room             MatrixRoom
 	Body             string
@@ -92,4 +96,17 @@ type MatrixEvent struct {
 	Room   MatrixRoom
 	Type   string
 	SendAt time.Time
+}
+
+// Timezone returns the timezone of the channel.
+func (room *MatrixRoom) Timezone() *time.Location {
+	if room.TimeZone == "" {
+		return time.UTC
+	}
+	loc, err := time.LoadLocation(room.TimeZone)
+	if err != nil {
+		return time.UTC
+	}
+
+	return loc
 }

@@ -22,7 +22,7 @@ type AddUserAction struct {
 	db        database.Service
 }
 
-func (action *AddUserAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service) {
+func (action *AddUserAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -140,7 +140,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	message := "Added that user 👏. They can now interact with me."
-	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+	resp, err := action.messenger.SendResponse(messenger.PlainTextResponse(
 		message,
 		event.Event.ID.String(),
 		event.Content.Body,
@@ -153,6 +153,8 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg = mapping.MessageFromEvent(event)
+	msg.SendAt = resp.Timestamp
+	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
 	msg.Type = matrixdb.MessageTypeAddUser
 	msg.Body = message

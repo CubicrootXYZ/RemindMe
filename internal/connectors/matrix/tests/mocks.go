@@ -17,7 +17,7 @@ func TestEvent(opts ...EventOpt) *matrix.MessageEvent {
 			ID:        id.EventID("evt1"),
 			Sender:    id.UserID("@user:example.com"),
 			RoomID:    id.RoomID("!room123"),
-			Timestamp: 928484888888000000,
+			Timestamp: 92848488,
 		},
 		Content: &event.MessageEventContent{
 			Body:          "message",
@@ -56,6 +56,15 @@ func WithBody(body, formattedBody string) EventOpt {
 func WithUserInRoom(user matrixdb.MatrixUser) EventOpt {
 	return func(evt *matrix.MessageEvent) {
 		evt.Room.Users = append(evt.Room.Users, user)
+	}
+}
+
+func WithOutput(output database.Output) EventOpt {
+	return func(evt *matrix.MessageEvent) {
+		if evt.Channel.Outputs == nil {
+			evt.Channel.Outputs = make([]database.Output, 0)
+		}
+		evt.Channel.Outputs = append(evt.Channel.Outputs, output)
 	}
 }
 

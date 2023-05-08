@@ -48,7 +48,9 @@ type Service interface {
 
 	// Event
 	NewEvent(*Event) (*Event, error)
+	NewEvents(events []Event) error
 
+	ListEvents(opts *ListEventsOpts) ([]Event, error)
 	GetEventsByChannel(uint) ([]Event, error)
 	GetEventsPending() ([]Event, error)
 
@@ -65,7 +67,6 @@ type Channel struct {
 	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
 	Inputs        []Input
 	Outputs       []Output
-	TimeZone      string // TODO move this to the matrix room, this is output/input specific
 }
 
 // Input takes in data.
@@ -92,14 +93,15 @@ type Output struct {
 // Event holds information about an event
 type Event struct {
 	gorm.Model
-	Time           time.Time `gorm:"index"`
-	Duration       time.Duration
-	Message        string
-	Active         bool `gorm:"index"`
-	RepeatInterval *time.Duration
-	RepeatUntil    *time.Time
-	ChannelID      uint
-	Channel        Channel
-	InputID        *uint
-	Input          *Input
+	Time              time.Time `gorm:"index"`
+	Duration          time.Duration
+	Message           string
+	Active            bool `gorm:"index"`
+	RepeatInterval    *time.Duration
+	RepeatUntil       *time.Time
+	ChannelID         uint
+	Channel           Channel
+	InputID           *uint
+	Input             *Input
+	ExternalReference string
 }

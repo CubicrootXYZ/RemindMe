@@ -17,7 +17,7 @@ var (
 	ErrUnknowEvent = errors.New("unknown event")
 )
 
-// Service provides and interface for the matrix connectore.
+// Service provides and interface for the matrix connector.
 // The connector is suitable for in- and output.
 type Service interface {
 	Start() error
