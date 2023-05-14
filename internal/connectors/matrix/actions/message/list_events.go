@@ -6,6 +6,8 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -50,6 +52,7 @@ func (action *ListEventsAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
+	// TODO test
 	events, err := action.db.ListEvents(&database.ListEventsOpts{
 		ChannelID: &event.Channel.ID,
 	})
@@ -67,4 +70,34 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 		action.logger.Err(err)
 		return
 	}
+
+	message := mapping.MessageFromEvent(event)
+	message.Type = matrixdb.MessageTypeEventList
+	_, err = action.matrixDB.NewMessage(message)
+	if err != nil {
+		action.logger.Err(err)
+	}
+
+	msg, msgFormatted := format.InfoFromEvents(events, event.Room.TimeZone)
+	go func() {
+		// TODO make this all way simpler
+		resp, err := action.messenger.SendMessage(messenger.HTMLMessage(msg, msgFormatted, event.Room.RoomID))
+		if err != nil {
+			action.logger.Err(err)
+			return
+		}
+
+		message := mapping.MessageFromEvent(event)
+		message.Type = matrixdb.MessageTypeEventList
+		message.Incoming = false
+		message.ID = resp.ExternalIdentifier
+		message.SendAt = resp.Timestamp
+		message.Body = msg
+		message.BodyFormatted = msgFormatted
+
+		_, err = action.matrixDB.NewMessage(message)
+		if err != nil {
+			action.logger.Err(err)
+		}
+	}()
 }

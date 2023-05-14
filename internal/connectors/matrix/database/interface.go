@@ -67,6 +67,7 @@ var (
 	MessageTypeAddUser          = MatrixMessageType("USER_ADD")
 	MessageTypeChangeEvent      = MatrixMessageType("EVENT_CHANGE")
 	MessageTypeIcalExportEnable = MatrixMessageType("ICAL_ENABLE")
+	MessageTypeEventList        = MatrixMessageType("EVENT_LIST")
 )
 
 // MatrixMessage holds information about a matrix message.
