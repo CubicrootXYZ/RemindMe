@@ -10,6 +10,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
@@ -22,6 +23,7 @@ type ListEventsAction struct {
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
+	storer    *msghelper.Storer
 }
 
 // Configure is called on startup and sets all dependencies.
@@ -31,6 +33,7 @@ func (action *ListEventsAction) Configure(logger gologger.Logger, client mautrix
 	action.matrixDB = matrixDB
 	action.db = db
 	action.messenger = messenger
+	action.storer = msghelper.NewStorer(matrixDB, messenger, logger)
 }
 
 // Name of the action
@@ -79,25 +82,5 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 
 	msg, msgFormatted := format.InfoFromEvents(events, event.Room.TimeZone)
-	go func() {
-		// TODO make this all way simpler
-		resp, err := action.messenger.SendMessage(messenger.HTMLMessage(msg, msgFormatted, event.Room.RoomID))
-		if err != nil {
-			action.logger.Err(err)
-			return
-		}
-
-		message := mapping.MessageFromEvent(event)
-		message.Type = matrixdb.MessageTypeEventList
-		message.Incoming = false
-		message.ID = resp.ExternalIdentifier
-		message.SendAt = resp.Timestamp
-		message.Body = msg
-		message.BodyFormatted = msgFormatted
-
-		_, err = action.matrixDB.NewMessage(message)
-		if err != nil {
-			action.logger.Err(err)
-		}
-	}()
+	go action.storer.SendAndStoreMessage(msg, msgFormatted, matrixdb.MessageTypeEventList, *event)
 }
