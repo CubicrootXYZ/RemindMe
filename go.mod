@@ -8,7 +8,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/arran4/golang-ical v0.0.0-20230425234049-f69e132f2b0c
 	github.com/dchest/uniuri v1.2.0
-	github.com/getkin/kin-openapi v0.116.0
+	github.com/getkin/kin-openapi v0.117.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.1
