@@ -34,9 +34,12 @@ func TestEnableICalExportAction(t *testing.T) {
 
 func TestNEnableICalExportAction_Selector(t *testing.T) {
 	action := &message.EnableICalExportAction{}
-
 	r := action.Selector()
-	assert.NotNil(t, r)
+
+	_, _, examples := action.GetDocu()
+	for _, example := range examples {
+		assert.True(t, r.MatchString(example))
+	}
 }
 
 func TestEnableICalExportAction_HandleEvent(t *testing.T) {

@@ -30,9 +30,12 @@ func TestChangeTimeAction(t *testing.T) {
 
 func TestChangeTimeAction_Selector(t *testing.T) {
 	action := &reply.ChangeTimeAction{}
-
 	r := action.Selector()
-	assert.NotNil(t, r)
+
+	_, _, examples := action.GetDocu()
+	for _, example := range examples {
+		assert.True(t, r.MatchString(example))
+	}
 }
 
 func TestChangeTimeAction_HandleEvent(t *testing.T) {

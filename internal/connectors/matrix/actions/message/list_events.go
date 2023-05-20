@@ -55,7 +55,7 @@ func (action *ListEventsAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO test
+	// TODO increase test coverage
 	events, err := action.db.ListEvents(&database.ListEventsOpts{
 		ChannelID: &event.Channel.ID,
 	})
