@@ -68,6 +68,7 @@ var (
 	MessageTypeChangeEvent      = MatrixMessageType("EVENT_CHANGE")
 	MessageTypeIcalExportEnable = MatrixMessageType("ICAL_ENABLE")
 	MessageTypeEventList        = MatrixMessageType("EVENT_LIST")
+	MessageTypeTimezoneChange   = MatrixMessageType("TIMEZONE_CHANGE")
 )
 
 // MatrixMessage holds information about a matrix message.

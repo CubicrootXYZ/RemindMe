@@ -25,7 +25,6 @@ func NewStorer(db matrixdb.Service, messenger messenger.Messenger, logger gologg
 
 // SendAndStoreMessage outsources message sending and storing. Call it asynchronous with "go SendAndStoreMessage(...)"
 func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent) {
-	// TODO test
 	resp, err := storer.messenger.SendMessage(messenger.HTMLMessage(message, messageFormatted, event.Room.RoomID))
 	if err != nil {
 		storer.logger.Err(err)
@@ -40,6 +39,38 @@ func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, mess
 		SendAt:        resp.Timestamp,
 		Body:          message,
 		BodyFormatted: messageFormatted,
+		UserID:        &sender,
+		RoomID:        event.Room.ID,
+	}
+
+	_, err = storer.db.NewMessage(&dbMessage)
+	if err != nil {
+		storer.logger.Err(err)
+	}
+}
+
+// SendAndStoreResponse outsources response sending and storing. Call it asynchronous with "go SendAndStoreMessage(...)"
+func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent) {
+	resp, err := storer.messenger.SendResponse(messenger.PlainTextResponse(
+		message,
+		event.Event.ID.String(),
+		event.Content.Body,
+		event.Event.Sender.String(),
+		event.Room.RoomID,
+	))
+	if err != nil {
+		storer.logger.Err(err)
+		return
+	}
+
+	sender := event.Event.Sender.String()
+	dbMessage := matrixdb.MatrixMessage{
+		ID:            resp.ExternalIdentifier,
+		Type:          messageType,
+		Incoming:      false,
+		SendAt:        resp.Timestamp,
+		Body:          message,
+		BodyFormatted: message,
 		UserID:        &sender,
 		RoomID:        event.Room.ID,
 	}

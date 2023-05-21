@@ -16,7 +16,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-var enableICalExportRegex = regexp.MustCompile("(?i)^(ical$|(show|give|list|send|write|)[ ]*(|me)[ ]*(the|)[ ]*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))[ ]*$")
+var enableICalExportActionRegex = regexp.MustCompile("(?i)^(ical$|(show|give|list|send|write|)[ ]*(|me)[ ]*(the|)[ ]*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))[ ]*$")
 
 // EnableICalExportAction enables iCal in a channel.
 type EnableICalExportAction struct {
@@ -59,7 +59,7 @@ func (action *EnableICalExportAction) GetDocu() (title, explaination string, exa
 
 // Selector defines a regex on what messages the action should be used.
 func (action *EnableICalExportAction) Selector() *regexp.Regexp {
-	return enableICalExportRegex
+	return enableICalExportActionRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.

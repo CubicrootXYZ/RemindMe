@@ -17,7 +17,7 @@ type Config struct {
 	ICalDB   icaldb.Service
 	Database database.Service
 
-	BaseURL *url.URL // TODO set
+	BaseURL *url.URL
 }
 
 type service struct {

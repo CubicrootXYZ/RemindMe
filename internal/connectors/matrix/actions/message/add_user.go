@@ -14,6 +14,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
+var addUserActionRegex = regexp.MustCompile("(?i)(^[ ]*add[ ]+user).*")
+
 type AddUserAction struct {
 	logger    gologger.Logger
 	client    mautrixcl.Client
@@ -41,7 +43,7 @@ func (action *AddUserAction) GetDocu() (title, explaination string, examples []s
 }
 
 func (action *AddUserAction) Selector() *regexp.Regexp {
-	return regexp.MustCompile("(?i)(^[ ]*add[ ]+user).*")
+	return addUserActionRegex
 }
 
 func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {

@@ -13,6 +13,8 @@ import (
 	"maunium.net/go/mautrix"
 )
 
+var exampleActionRegex = regexp.MustCompile("(?i)example .*")
+
 // ExampleAction acts as a template for new actions.
 type ExampleAction struct {
 	logger    gologger.Logger
@@ -45,7 +47,7 @@ func (action *ExampleAction) GetDocu() (title, explaination string, examples []s
 
 // Selector defines a regex on what messages the action should be used.
 func (action *ExampleAction) Selector() *regexp.Regexp {
-	return regexp.MustCompile("(?i)example .*")
+	return exampleActionRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
