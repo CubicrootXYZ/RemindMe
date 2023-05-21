@@ -55,20 +55,19 @@ func (action *ListEventsAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO increase test coverage
 	events, err := action.db.ListEvents(&database.ListEventsOpts{
 		ChannelID: &event.Channel.ID,
 	})
 	if err != nil {
-		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+		err2 := action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"There was an issue accessing the data 🤨",
 			event.Event.ID.String(),
 			event.Content.Body,
 			event.Event.Sender.String(),
 			event.Room.RoomID,
 		))
-		if err != nil {
-			action.logger.Err(err)
+		if err2 != nil {
+			action.logger.Err(err2)
 		}
 		action.logger.Err(err)
 		return

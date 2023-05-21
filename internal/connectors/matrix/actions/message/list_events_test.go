@@ -1,6 +1,7 @@
 package message_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -97,6 +98,45 @@ at 08:04 02.01.2006 (UTC) (ID: 2824)
 
 	// Wait for async process.
 	time.Sleep(time.Millisecond * 10)
+}
+
+func TestListEventsAction_HandleEventWithError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.ListEventsAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		ChannelID: toP(uint(68272)),
+	}).Return(nil, errors.New("test"))
+
+	msngr.EXPECT().SendResponseAsync(&messenger.Response{
+		Message:                   "There was an issue accessing the data 🤨",
+		MessageFormatted:          "There was an issue accessing the data 🤨",
+		RespondToMessage:          "message",
+		RespondToMessageFormatted: "message",
+		RespondToUserID:           "@user:example.com",
+		RespondToEventID:          "evt1",
+		ChannelExternalIdentifier: "!room123",
+	}).Return(nil)
+
+	action.HandleEvent(tests.TestEvent())
 }
 
 func toP[T any](elem T) *T {
