@@ -32,7 +32,7 @@ func TestEnableICalExportAction(t *testing.T) {
 	assert.NotNil(t, action.Selector())
 }
 
-func TestNEnableICalExportAction_Selector(t *testing.T) {
+func TestEnableICalExportAction_Selector(t *testing.T) {
 	action := &message.EnableICalExportAction{}
 	r := action.Selector()
 
