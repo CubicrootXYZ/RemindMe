@@ -36,9 +36,9 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // GetOutput mocks base method.
-func (m *MockService) GetOutput(arg0 uint) (*database.IcalOutput, string, error) {
+func (m *MockService) GetOutput(arg0 uint, arg1 bool) (*database.IcalOutput, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetOutput", arg0)
+	ret := m.ctrl.Call(m, "GetOutput", arg0, arg1)
 	ret0, _ := ret[0].(*database.IcalOutput)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
@@ -46,9 +46,9 @@ func (m *MockService) GetOutput(arg0 uint) (*database.IcalOutput, string, error)
 }
 
 // GetOutput indicates an expected call of GetOutput.
-func (mr *MockServiceMockRecorder) GetOutput(arg0 interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) GetOutput(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutput", reflect.TypeOf((*MockService)(nil).GetOutput), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutput", reflect.TypeOf((*MockService)(nil).GetOutput), arg0, arg1)
 }
 
 // InputRemoved mocks base method.

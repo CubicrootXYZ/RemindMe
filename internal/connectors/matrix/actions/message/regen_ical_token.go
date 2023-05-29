@@ -16,10 +16,10 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-var enableICalExportActionRegex = regexp.MustCompile("(?i)^(ical$|(show|give|list|send|write|)[ ]*(|me)[ ]*(the|)[ ]*(calendar|ical|cal|reminder|ics)[ ]+(link|url|uri|file))[ ]*$")
+var regenIcalTokenActionRegex = regexp.MustCompile("(?i)^(make|generate|)[ ]*(renew|generate|delete|regenerate|renew|new)[ ]*(the|a|)[ ]+(ical|calendar|token|secret)[ ]*(token|secret|)[ ]*$")
 
-// EnableICalExportAction enables iCal in a channel.
-type EnableICalExportAction struct {
+// RegenICalTokenAction enables iCal in a channel.
+type RegenICalTokenAction struct {
 	logger     gologger.Logger
 	client     mautrixcl.Client
 	messenger  messenger.Messenger
@@ -29,7 +29,7 @@ type EnableICalExportAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *EnableICalExportAction) Configure(
+func (action *RegenICalTokenAction) Configure(
 	logger gologger.Logger,
 	client mautrixcl.Client,
 	messenger messenger.Messenger,
@@ -46,28 +46,34 @@ func (action *EnableICalExportAction) Configure(
 }
 
 // Name of the action.
-func (action *EnableICalExportAction) Name() string {
-	return "Enable iCal export"
+func (action *RegenICalTokenAction) Name() string {
+	return "Regenerate iCal export token"
 }
 
 // GetDocu returns the documentation for the action.
-func (action *EnableICalExportAction) GetDocu() (title, explaination string, examples []string) {
-	return "Enable iCal export",
-		"Export events via a unique iCal URL.",
-		[]string{"ical", "calendar link", "show me the calendar link"}
+func (action *RegenICalTokenAction) GetDocu() (title, explaination string, examples []string) {
+	return "Regenerate iCal export token",
+		"Generate a new token for the iCal export. Previously generated URLs won't work anymore.",
+		[]string{"renew the calendar secret", "generate token"}
 }
 
 // Selector defines a regex on what messages the action should be used.
-func (action *EnableICalExportAction) Selector() *regexp.Regexp {
-	return enableICalExportActionRegex
+func (action *RegenICalTokenAction) Selector() *regexp.Regexp {
+	return regenIcalTokenActionRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
-func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
-	_, url, err := action.getOrCreateIcalOutput(event)
+func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
+	_, url, err := action.getIcalOutput(event)
 	if err != nil {
+		msg := "Oh no, this did not work 😰"
+		if errors.Is(err, ical.ErrNotFound) {
+			msg = "It looks like iCal output is not set up for this channel. Set it up first."
+		} else {
+			action.logger.Err(err)
+		}
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
-			"Whoopsie, that failed",
+			msg,
 			event.Event.ID.String(),
 			event.Content.Body,
 			event.Event.Sender.String(),
@@ -76,20 +82,19 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Err(err)
 		}
-		action.logger.Err(err)
 		return
 	}
 
 	// Add message to database
 	msg := mapping.MessageFromEvent(event)
-	msg.Type = matrixdb.MessageTypeIcalExportEnable
+	msg.Type = matrixdb.MessageTypeIcalRegenToken
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Err(err)
 	}
 
 	msgBuilder := format.Formater{}
-	msgBuilder.Text("Your calendar is ready 🥳: ")
+	msgBuilder.Text("Your new secret calendar URL is: ")
 	msgBuilder.Link(url, url)
 
 	response, _ := msgBuilder.Build()
@@ -110,7 +115,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.SendAt = resp.Timestamp
 	msg.ID = resp.ExternalIdentifier
 	msg.Incoming = false
-	msg.Type = matrixdb.MessageTypeIcalExportEnable
+	msg.Type = matrixdb.MessageTypeIcalRegenToken
 	msg.Body = response
 	msg.BodyFormatted = response
 	_, err = action.matrixDB.NewMessage(msg)
@@ -119,10 +124,10 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 }
 
-func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, string, error) {
+func (action *RegenICalTokenAction) getIcalOutput(event *matrix.MessageEvent) (*icaldb.IcalOutput, string, error) {
 	for _, o := range event.Channel.Outputs {
 		if o.OutputType == ical.OutputType {
-			icalOutput, url, err := action.icalBridge.GetOutput(o.OutputID, false)
+			icalOutput, url, err := action.icalBridge.GetOutput(o.OutputID, true)
 			if err == nil {
 				return icalOutput, url, nil
 			} else if !errors.Is(err, ical.ErrNotFound) {
@@ -131,5 +136,5 @@ func (action *EnableICalExportAction) getOrCreateIcalOutput(event *matrix.Messag
 		}
 	}
 
-	return action.icalBridge.NewOutput(event.Channel.ID)
+	return nil, "", ical.ErrNotFound
 }

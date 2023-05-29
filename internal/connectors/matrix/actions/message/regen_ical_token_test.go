@@ -19,8 +19,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestEnableICalExportAction(t *testing.T) {
-	action := &message.EnableICalExportAction{}
+func TestRegenICalTokenAction(t *testing.T) {
+	action := &message.RegenICalTokenAction{}
 
 	assert.NotEmpty(t, action.Name())
 
@@ -32,8 +32,8 @@ func TestEnableICalExportAction(t *testing.T) {
 	assert.NotNil(t, action.Selector())
 }
 
-func TestEnableICalExportAction_Selector(t *testing.T) {
-	action := &message.EnableICalExportAction{}
+func TestRegenICalTokenAction_Selector(t *testing.T) {
+	action := &message.RegenICalTokenAction{}
 	r := action.Selector()
 
 	_, _, examples := action.GetDocu()
@@ -42,7 +42,7 @@ func TestEnableICalExportAction_Selector(t *testing.T) {
 	}
 }
 
-func TestEnableICalExportAction_HandleEvent(t *testing.T) {
+func TestRegenICalTokenAction_HandleEvent(t *testing.T) {
 	user := "@user:example.com"
 
 	// Setup
@@ -54,7 +54,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 	msngr := messenger.NewMockMessenger(ctrl)
 	icalBridge := ical.NewMockService(ctrl)
 
-	action := &message.EnableICalExportAction{}
+	action := &message.RegenICalTokenAction{}
 	action.Configure(
 		gologger.New(gologger.LogLevelDebug, 0),
 		client,
@@ -66,7 +66,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		},
 	)
 
-	icalBridge.EXPECT().GetOutput(uint(3), false).Return(
+	icalBridge.EXPECT().GetOutput(uint(3), true).Return(
 		&icaldb.IcalOutput{
 			Token: "12345",
 		},
@@ -80,12 +80,12 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		Body:          "message",
 		BodyFormatted: "<b>message</b>",
 		SendAt:        time.UnixMilli(92848488),
-		Type:          matrixdb.MessageTypeIcalExportEnable,
+		Type:          matrixdb.MessageTypeIcalRegenToken,
 		Incoming:      true,
 	})
 
 	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
-		"Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
+		"Your new secret calendar URL is: https://example.com/ical/1?token=abcde",
 		"evt1",
 		"message",
 		"@user:example.com",
@@ -99,10 +99,10 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 		ID:            "resp1",
 		UserID:        &user,
 		RoomID:        0,
-		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
-		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
+		Body:          "Your new secret calendar URL is: https://example.com/ical/1?token=abcde",
+		BodyFormatted: "Your new secret calendar URL is: https://example.com/ical/1?token=abcde",
 		SendAt:        time.UnixMilli(92848490),
-		Type:          matrixdb.MessageTypeIcalExportEnable,
+		Type:          matrixdb.MessageTypeIcalRegenToken,
 		Incoming:      false,
 	})
 
@@ -117,9 +117,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) {
 	))
 }
 
-func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
-	user := "@user:example.com"
-
+func TestRegenICalTokenAction_HandleEventWithNoOutput(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -129,7 +127,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 	msngr := messenger.NewMockMessenger(ctrl)
 	icalBridge := ical.NewMockService(ctrl)
 
-	action := &message.EnableICalExportAction{}
+	action := &message.RegenICalTokenAction{}
 	action.Configure(
 		gologger.New(gologger.LogLevelDebug, 0),
 		client,
@@ -141,50 +139,19 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 		},
 	)
 
-	icalBridge.EXPECT().GetOutput(uint(3), false).Return(
+	icalBridge.EXPECT().GetOutput(uint(3), true).Return(
 		nil,
 		"",
 		ical.ErrNotFound,
 	)
-	icalBridge.EXPECT().NewOutput(uint(68272)).Return(&icaldb.IcalOutput{
-		Token: "12345",
-	},
-		"https://example.com/ical/1?token=abcde",
-		nil,
-	)
 
-	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
-		ID:            "evt1",
-		UserID:        &user,
-		RoomID:        0,
-		Body:          "message",
-		BodyFormatted: "<b>message</b>",
-		SendAt:        time.UnixMilli(92848488),
-		Type:          matrixdb.MessageTypeIcalExportEnable,
-		Incoming:      true,
-	})
-
-	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
-		"Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
+	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
+		"It looks like iCal output is not set up for this channel. Set it up first.",
 		"evt1",
 		"message",
 		"@user:example.com",
 		"!room123",
-	)).Return(&messenger.MessageResponse{
-		ExternalIdentifier: "resp1",
-		Timestamp:          time.UnixMilli(92848490),
-	}, nil)
-
-	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
-		ID:            "resp1",
-		UserID:        &user,
-		RoomID:        0,
-		Body:          "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
-		BodyFormatted: "Your calendar is ready 🥳: https://example.com/ical/1?token=abcde",
-		SendAt:        time.UnixMilli(92848490),
-		Type:          matrixdb.MessageTypeIcalExportEnable,
-		Incoming:      false,
-	})
+	)).Return(nil)
 
 	action.HandleEvent(tests.TestEvent(
 		tests.WithOutput(database.Output{

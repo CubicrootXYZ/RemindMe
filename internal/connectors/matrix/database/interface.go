@@ -67,6 +67,7 @@ var (
 	MessageTypeAddUser          = MatrixMessageType("USER_ADD")
 	MessageTypeChangeEvent      = MatrixMessageType("EVENT_CHANGE")
 	MessageTypeIcalExportEnable = MatrixMessageType("ICAL_ENABLE")
+	MessageTypeIcalRegenToken   = MatrixMessageType("ICAL_REGEN")
 	MessageTypeEventList        = MatrixMessageType("EVENT_LIST")
 	MessageTypeTimezoneChange   = MatrixMessageType("TIMEZONE_CHANGE")
 )
