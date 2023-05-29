@@ -49,8 +49,11 @@ func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, mess
 	}
 }
 
+// ResponseOpts defines a type for response options.
+type ResponseOpts func(msg *matrixdb.MatrixMessage)
+
 // SendAndStoreResponse outsources response sending and storing. Call it asynchronous with "go SendAndStoreMessage(...)"
-func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent) {
+func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent, opts ...ResponseOpts) {
 	resp, err := storer.messenger.SendResponse(messenger.PlainTextResponse(
 		message,
 		event.Event.ID.String(),
@@ -75,8 +78,19 @@ func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.
 		RoomID:        event.Room.ID,
 	}
 
+	for _, opt := range opts {
+		opt(&dbMessage)
+	}
+
 	_, err = storer.db.NewMessage(&dbMessage)
 	if err != nil {
 		storer.logger.Err(err)
+	}
+}
+
+// WithEventID sets the event ID as related to the message.
+func WithEventID(eventID uint) ResponseOpts {
+	return func(msg *matrixdb.MatrixMessage) {
+		msg.EventID = &eventID
 	}
 }

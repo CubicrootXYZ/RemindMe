@@ -272,3 +272,17 @@ func TestService_UpdateEvent(t *testing.T) {
 	assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
 	assert.Equal(t, eventBefore.RepeatUntil, eventAfter.RepeatUntil)
 }
+
+func TestService_DeleteEvent(t *testing.T) {
+	event, err := service.NewEvent(testEvent())
+	require.NoError(t, err)
+
+	err = service.DeleteEvent(event)
+	require.NoError(t, err)
+
+	events, err := service.ListEvents(&database.ListEventsOpts{
+		IDs: []uint{event.ID},
+	})
+	require.NoError(t, err)
+	assert.Len(t, events, 0)
+}
