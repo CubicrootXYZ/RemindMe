@@ -13,7 +13,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.1
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
 	go.uber.org/zap v1.24.0
