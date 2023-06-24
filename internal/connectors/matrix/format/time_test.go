@@ -66,6 +66,20 @@ func TestToLocalTime(t *testing.T) {
 	}
 }
 
+func TestTimeToHourAndMinute(t *testing.T) {
+	time1, _ := time.Parse("2006-01-02T15:04:05.000Z", "2014-11-12T17:01:26.371Z")
+
+	testCases := map[time.Time]string{
+		refTime(): "11:45",
+		time1:     "17:01",
+	}
+
+	for in, expectedOut := range testCases {
+		out := format.TimeToHourAndMinute(in)
+		assert.Equal(t, expectedOut, out)
+	}
+}
+
 func refTime() time.Time {
 	layout := "2006-01-02T15:04:05.000Z"
 	str1 := "2014-11-12T11:45:26.371Z"

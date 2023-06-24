@@ -81,7 +81,6 @@ func ToLocalTime(datetime time.Time, timezone string) string {
 
 // TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format
 func TimeToHourAndMinute(t time.Time) string {
-	// TODO test
 	hours := t.Hour()
 	minutes := t.Minute()
 	if minutes < 10 {
