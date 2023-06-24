@@ -1,6 +1,7 @@
 package format
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -76,4 +77,16 @@ func ToLocalTime(datetime time.Time, timezone string) string {
 	}
 
 	return datetime.In(loc).Format(DateFormatDefault)
+}
+
+// TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format
+func TimeToHourAndMinute(t time.Time) string {
+	// TODO test
+	hours := t.Hour()
+	minutes := t.Minute()
+	if minutes < 10 {
+		return fmt.Sprintf("%d:0%d", hours, minutes)
+	}
+
+	return fmt.Sprintf("%d:%d", hours, minutes)
 }

@@ -183,6 +183,8 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 		&message.EnableICalExportAction{},
 		&message.ChangeTimezoneAction{},
 		&message.RegenICalTokenAction{},
+		&message.DeleteEventAction{},
+		&message.SetDailyReminderAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{
