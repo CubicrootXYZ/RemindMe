@@ -9,6 +9,7 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
@@ -105,6 +106,15 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		}
 	}
 
+	dbMessage := mapping.MessageFromEvent(event)
+	dbMessage.Type = matrixdb.MessageTypeEventDelete
+	dbMessage.EventID = &events[0].ID
+	_, err = action.matrixDB.NewMessage(dbMessage)
+	if err != nil {
+		action.logger.Err(err)
+		return
+	}
+
 	err = action.db.DeleteEvent(&events[0])
 	if err != nil {
 		action.logger.Err(err)
@@ -121,7 +131,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		return
 	}
 
-	go action.storer.SendAndStoreResponse("Deleted event \""+events[0].Message+"\"", matrixdb.MessageTypeAddUser, *event, msghelper.WithEventID(events[0].ID))
+	go action.storer.SendAndStoreResponse("Deleted event \""+events[0].Message+"\"", matrixdb.MessageTypeEventDelete, *event, msghelper.WithEventID(events[0].ID))
 }
 
 func getIDFromSentence(value string) (int, error) {
