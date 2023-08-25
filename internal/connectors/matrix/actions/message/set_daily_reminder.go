@@ -58,6 +58,7 @@ func (action *SetDailyReminderAction) Selector() *regexp.Regexp {
 func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 	// TODO test
 	dbMsg := mapping.MessageFromEvent(event)
+	dbMsg.Type = matrixdb.MessageTypeSetDailyReminder
 	_, err := action.matrixDB.NewMessage(dbMsg)
 	if err != nil {
 		action.logger.Errorf("Could not save message: %s", err.Error())
