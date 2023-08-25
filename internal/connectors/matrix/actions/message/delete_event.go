@@ -57,7 +57,6 @@ func (action *DeleteEventAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO test
 	id, err := getIDFromSentence(event.Content.Body)
 	if err != nil {
 		action.logger.Err(err)
@@ -104,6 +103,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Err(err)
 		}
+		return
 	}
 
 	dbMessage := mapping.MessageFromEvent(event)

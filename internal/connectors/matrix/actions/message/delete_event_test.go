@@ -1,6 +1,7 @@
 package message_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -107,6 +108,228 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	).Return(nil, nil)
 
 	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+		ID:            "evt1",
+		UserID:        toP("@user:example.com"),
+		Body:          `delete 123`,
+		BodyFormatted: `delete 123`,
+		Type:          matrixdb.MessageTypeEventDelete,
+		EventID:       toP(uint(123)),
+		Incoming:      true,
+		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
+	},
+	).Return(nil, nil)
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		IDs:       []uint{123},
+		ChannelID: toP(uint(68272)),
+	}).Return([]database.Event{
+		mockEvent(),
+	}, nil)
+
+	db.EXPECT().DeleteEvent(toP(mockEvent())).Return(errors.New("test"))
+
+	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
+		"Sorry, an error appeared.",
+		"evt1",
+		"delete 123",
+		"@user:example.com",
+		"!room123",
+	)).Return(nil)
+
+	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+		ID:            "evt1",
+		UserID:        toP("@user:example.com"),
+		Body:          `delete 123`,
+		BodyFormatted: `delete 123`,
+		Type:          matrixdb.MessageTypeEventDelete,
+		EventID:       toP(uint(123)),
+		Incoming:      true,
+		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
+	},
+	).Return(nil, errors.New("test"))
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		IDs:       []uint{123},
+		ChannelID: toP(uint(68272)),
+	}).Return([]database.Event{
+		mockEvent(),
+	}, nil)
+
+	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		IDs:       []uint{123},
+		ChannelID: toP(uint(68272)),
+	}).Return([]database.Event{}, nil)
+
+	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
+		"I could not find that event in my database.",
+		"evt1",
+		"delete 123",
+		"@user:example.com",
+		"!room123",
+	)).Return(errors.New("test"))
+
+	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	db.EXPECT().ListEvents(&database.ListEventsOpts{
+		IDs:       []uint{123},
+		ChannelID: toP(uint(68272)),
+	}).Return(nil, errors.New("test"))
+
+	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
+		"Sorry, an error appeared.",
+		"evt1",
+		"delete 123",
+		"@user:example.com",
+		"!room123",
+	)).Return(errors.New("test"))
+
+	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestDeleteEventAction_HandleEventWithIDNotFound(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
+		"Ups, can not find an ID in there.",
+		"evt1",
+		"delete abc",
+		"@user:example.com",
+		"!room123",
+	)).Return(errors.New("test"))
+
+	action.HandleEvent(tests.TestEvent(tests.WithBody("delete abc", "delete abc")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
