@@ -56,7 +56,6 @@ func (action *SetDailyReminderAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
-	// TODO test
 	dbMsg := mapping.MessageFromEvent(event)
 	dbMsg.Type = matrixdb.MessageTypeSetDailyReminder
 	_, err := action.matrixDB.NewMessage(dbMsg)
