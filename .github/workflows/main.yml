@@ -41,7 +41,7 @@ jobs:
       image: cubicrootxyz/matrix-go:1.21
       options: --user root
     steps:
-      name: Checkout the repository
+      - name: Checkout the repository
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
