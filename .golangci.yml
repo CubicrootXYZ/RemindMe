@@ -44,6 +44,8 @@ linters:
     - sqlclosecheck
     - structcheck
     - wastedassign
+    - depguard # Whitelist is not suitable
+    - tagalign # Visual only
 
 linters-settings:
   cyclop:

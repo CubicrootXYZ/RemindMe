@@ -22,7 +22,7 @@ func (s *Syncer) getReactionActionDelete(rat types.ReactionActionType) *types.Re
 	return action
 }
 
-func (s *Syncer) reactionActionDeleteReminder(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error {
+func (s *Syncer) reactionActionDeleteReminder(message *database.Message, _ *event.ReactionEventContent, _ *event.Event, channel *database.Channel) error {
 	if channel == nil {
 		return errors.ErrEmptyChannel
 	}

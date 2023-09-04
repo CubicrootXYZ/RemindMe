@@ -42,7 +42,7 @@ func NewStateMemberHandler(database types.Database, messenger asyncmessenger.Mes
 }
 
 // NewEvent takes a new matrix event and handles it
-func (s *StateMemberHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
+func (s *StateMemberHandler) NewEvent(_ mautrix.EventSource, evt *event.Event) {
 	if s.olm != nil {
 		s.olm.HandleMemberEvent(evt)
 	}

@@ -20,7 +20,7 @@ func (s *Syncer) getReactionActionDone(rat types.ReactionActionType) *types.Reac
 	return action
 }
 
-func (s *Syncer) reactionActionDoneReminder(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error {
+func (s *Syncer) reactionActionDoneReminder(message *database.Message, _ *event.ReactionEventContent, _ *event.Event, channel *database.Channel) error {
 	if channel == nil {
 		return errors.ErrEmptyChannel
 	}

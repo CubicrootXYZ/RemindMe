@@ -73,7 +73,7 @@ func (store *StateStore) FindSharedRooms(userID id.UserID) []id.RoomID {
 	return rooms
 }
 
-func (store *StateStore) SetMembership(event *event.Event) {
+func (store *StateStore) SetMembership(_ *event.Event) {
 	// Do not do anything, this is already handled elsewhere
 }
 

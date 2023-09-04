@@ -18,7 +18,7 @@ func (s *Syncer) getReactionActionDeleteDailyReminder(rat types.ReactionActionTy
 	return action
 }
 
-func (s *Syncer) reactionActionDeleteDailyReminder(message *database.Message, content *event.ReactionEventContent, evt *event.Event, channel *database.Channel) error {
+func (s *Syncer) reactionActionDeleteDailyReminder(_ *database.Message, _ *event.ReactionEventContent, _ *event.Event, channel *database.Channel) error {
 	c, err := s.daemon.Database.UpdateChannel(channel.ID, channel.TimeZone, nil, channel.Role)
 	if err != nil {
 		log.Error(err.Error())
