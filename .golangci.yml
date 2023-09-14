@@ -28,6 +28,7 @@ linters:
     - testpackage # Naming
     - exhaustive # To many false positives
     - interfacebloat # Do not agree
+    - tagalign # Do not agree
     - depguard # Whitelist is not very accurate
     # deprecated
     - scopelint
