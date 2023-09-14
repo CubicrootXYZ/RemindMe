@@ -28,6 +28,7 @@ linters:
     - testpackage # Naming
     - exhaustive # To many false positives
     - interfacebloat # Do not agree
+    - depguard # Whitelist is not very accurate
     # deprecated
     - scopelint
     - maligned
@@ -69,3 +70,4 @@ issues:
   exclude:
     - 'string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant' # Used for test validation
     - '`\(\*Syncer\)\.sendAndStoreReply` - `reminderID` always receives `0' # Param might be useful later
+    - 'unused-parameter:.*' # Needs to be adopted in the whole code basis first
