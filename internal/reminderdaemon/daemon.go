@@ -64,7 +64,7 @@ func (d *Daemon) Start() error {
 		log.Info(fmt.Sprintf("REMINDERDAEMON: Found %d reminder to remind", len(reminders)))
 		d.sendOutReminders(reminders)
 
-		nextRun.Add(time.Minute)
+		nextRun = nextRun.Add(time.Minute)
 	}
 }
 

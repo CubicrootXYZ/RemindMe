@@ -1,9 +1,9 @@
 module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-go 1.19
+go 1.21
 
 require (
-	github.com/CubicrootXYZ/gonaturalduration v0.4.0
+	github.com/CubicrootXYZ/gonaturalduration v0.5.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/arran4/golang-ical v0.1.0
