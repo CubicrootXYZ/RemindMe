@@ -46,7 +46,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - name: Run golangci
-        run: golangci-lint run --timeout 3m0s -buildvcs=false
+        run: golangci-lint run --timeout 3m0s
 
   build_documentation:
     runs-on: ubuntu-latest
