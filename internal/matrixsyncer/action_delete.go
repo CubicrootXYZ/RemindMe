@@ -20,7 +20,7 @@ func (s *Syncer) getActionDelete() *types.Action {
 }
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
-func (s *Syncer) actionDelete(evt *types.MessageEvent, channel *database.Channel) error {
+func (s *Syncer) actionDelete(_ *types.MessageEvent, channel *database.Channel) error {
 	msg := "Removed all your channels and data. If you have channels open I invited you into please ask the administrator to remove you from the configuration file."
 
 	err := s.daemon.Database.DeleteChannelsFromUser(channel.UserIdentifier)

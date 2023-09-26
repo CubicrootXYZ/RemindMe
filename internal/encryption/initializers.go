@@ -21,7 +21,7 @@ import (
 // GetCryptoStore initializes a sql crypto store
 //
 //lint:ignore SA4009 Try to move to MySQL later
-func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypto.Store, id.DeviceID, error) {
+func GetCryptoStore(_ bool, db *sql.DB, config *configuration.Matrix) (crypto.Store, id.DeviceID, error) {
 	var deviceID id.DeviceID
 	username := fmt.Sprintf("@%s:%s", config.Username, strings.ReplaceAll(strings.ReplaceAll(config.Homeserver, "https://", ""), "http://", ""))
 
@@ -59,7 +59,7 @@ func GetCryptoStore(debug bool, db *sql.DB, config *configuration.Matrix) (crypt
 }
 
 // GetOlmMachine initializes a new olm machine
-func GetOlmMachine(debug bool, client *mautrix.Client, store crypto.Store, database types.Database, stateStore *StateStore) *crypto.OlmMachine {
+func GetOlmMachine(debug bool, client *mautrix.Client, store crypto.Store, _ types.Database, stateStore *StateStore) *crypto.OlmMachine {
 	if client == nil {
 		log.Warn("client nil")
 		panic("client nil")

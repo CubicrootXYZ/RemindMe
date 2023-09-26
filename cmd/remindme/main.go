@@ -27,7 +27,7 @@ import (
 )
 
 // @title Matrix Reminder and Calendar Bot (RemindMe)
-// @version 1.8.0
+// @version 1.9.2
 // @description API documentation for the matrix reminder and calendar bot. [Inprint & Privacy Policy](https://cubicroot.xyz/impressum)
 
 // @contact.name Support

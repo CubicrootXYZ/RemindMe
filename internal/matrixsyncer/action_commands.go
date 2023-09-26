@@ -22,7 +22,7 @@ func (s *Syncer) getActionCommands() *types.Action {
 }
 
 // actionCommands lists all available commands
-func (s *Syncer) actionCommands(evt *types.MessageEvent, channel *database.Channel) error {
+func (s *Syncer) actionCommands(_ *types.MessageEvent, channel *database.Channel) error {
 	msg := formater.Formater{}
 
 	s.getCommandsFormatted(&msg)

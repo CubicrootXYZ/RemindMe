@@ -138,7 +138,7 @@ func (d *Database) AddReminder(remindTime time.Time, message string, active bool
 	reminder := Reminder{
 		Message:        message,
 		RemindTime:     remindTime.UTC(),
-		Active:         true,
+		Active:         active,
 		RepeatInterval: repeatInterval,
 		RepeatMax:      0,
 		Channel:        *channel,

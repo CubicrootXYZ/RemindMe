@@ -33,7 +33,7 @@ func NewReactionHandler(database types.Database, messenger asyncmessenger.Messen
 }
 
 // NewEvent takes a new matrix event and handles it
-func (s *ReactionHandler) NewEvent(source mautrix.EventSource, evt *event.Event) {
+func (s *ReactionHandler) NewEvent(_ mautrix.EventSource, evt *event.Event) {
 	log.Debug(fmt.Sprintf("New reaction: / Sender: %s / Room: / %s / Time: %d", evt.Sender, evt.RoomID, evt.Timestamp))
 
 	// Do not answer our own and old messages

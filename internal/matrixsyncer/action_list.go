@@ -22,7 +22,7 @@ func (s *Syncer) getActionList() *types.Action {
 }
 
 // actionList performs the action "list" that writes all pending reminders to the given channel
-func (s *Syncer) actionList(evt *types.MessageEvent, channel *database.Channel) error {
+func (s *Syncer) actionList(_ *types.MessageEvent, channel *database.Channel) error {
 	reminders, err := s.daemon.Database.GetPendingReminders(channel)
 	if err != nil {
 		return err
