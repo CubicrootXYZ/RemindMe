@@ -38,6 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container: 
+      # Updated 1.21 image has some trouble, therefore stick with the old one 
+      # until those are resolved.
       image: cubicrootxyz/matrix-go:1.19
       options: --user root
     steps:
