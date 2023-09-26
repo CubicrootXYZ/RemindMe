@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container: 
-      image: cubicrootxyz/matrix-go:1.21
+      image: cubicrootxyz/matrix-go:1.19
       options: --user root
     steps:
       - name: Checkout the repository
