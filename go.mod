@@ -19,7 +19,7 @@ require (
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.15.0
 	golang.org/x/sync v0.3.0
-	gorm.io/driver/mysql v1.5.1
+	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.4
 	maunium.net/go/maulogger/v2 v2.4.1
 	maunium.net/go/mautrix v0.14.0
