@@ -67,6 +67,7 @@ var (
 	MessageTypeEventDelete           = MatrixMessageType("EVENT_DELETE")
 	MessageTypeAddUser               = MatrixMessageType("USER_ADD")
 	MessageTypeChangeEvent           = MatrixMessageType("EVENT_CHANGE")
+	MessageTypeChangeEventError      = MatrixMessageType("EVENT_CHANGE_ERROR")
 	MessageTypeIcalExportEnable      = MatrixMessageType("ICAL_ENABLE")
 	MessageTypeIcalRegenToken        = MatrixMessageType("ICAL_REGEN")
 	MessageTypeEventList             = MatrixMessageType("EVENT_LIST")

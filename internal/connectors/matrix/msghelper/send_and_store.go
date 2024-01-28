@@ -52,6 +52,7 @@ func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, mess
 // ResponseOpts defines a type for response options.
 type ResponseOpts func(msg *matrixdb.MatrixMessage)
 
+// TODO sometimes is called async, needs to be taken care of in shutdown!
 // SendAndStoreResponse outsources response sending and storing. Call it asynchronous with "go SendAndStoreMessage(...)"
 func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent, opts ...ResponseOpts) {
 	resp, err := storer.messenger.SendResponse(messenger.PlainTextResponse(
