@@ -5,22 +5,22 @@ go 1.21
 require (
 	github.com/CubicrootXYZ/gonaturalduration v0.5.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
-	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/arran4/golang-ical v0.2.0
 	github.com/dchest/uniuri v1.2.0
 	github.com/getkin/kin-openapi v0.118.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang/mock v1.6.0
-	github.com/jinzhu/configor v1.2.1
+	github.com/jinzhu/configor v1.2.2
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/net v0.20.0
-	golang.org/x/sync v0.5.0
+	golang.org/x/sync v0.6.0
 	gorm.io/driver/mysql v1.5.2
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 	maunium.net/go/maulogger/v2 v2.4.1
 	maunium.net/go/mautrix v0.14.0
 )
