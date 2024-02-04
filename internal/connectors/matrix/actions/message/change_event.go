@@ -77,6 +77,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 
 	newTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
+		action.logger.Err(err)
 		go action.storer.SendAndStoreResponse(
 			"Ehm, sorry to say that, but I was not able to understand the time to schedule the reminder to.",
 			matrixdb.MessageTypeChangeEventError,
@@ -90,9 +91,12 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 		ChannelID: &event.Channel.ID,
 	})
 	if err != nil || len(events) == 0 {
+		if err != nil {
+			action.logger.Err(err)
+		}
 		go action.storer.SendAndStoreResponse(
 			"This reminder is not in my database.",
-			matrixdb.MessageTypeChangeEvent,
+			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
 		return
@@ -102,6 +106,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 	evt.Time = newTime
 	evt, err = action.db.UpdateEvent(evt)
 	if err != nil || len(events) == 0 {
+		action.logger.Err(err)
 		go action.storer.SendAndStoreResponse(
 			"Whups, this did not work, sorry.",
 			matrixdb.MessageTypeChangeEventError,
