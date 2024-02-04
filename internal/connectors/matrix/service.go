@@ -56,6 +56,13 @@ type ReplyAction interface {
 	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
+type ReactionAction interface {
+	Selector() []string
+	Name() string
+	HandleEvent(event *ReactionEvent, reactionToMessage *matrixdb.MatrixMessage)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+}
+
 // Config holds information for the matrix connector.
 type Config struct {
 	Username   string
@@ -69,6 +76,7 @@ type Config struct {
 	DefaultMessageAction MessageAction
 	ReplyActions         []ReplyAction
 	DefaultReplyAction   ReplyAction
+	ReactionActions      []ReactionAction
 
 	AllowInvites  bool
 	RoomLimit     uint

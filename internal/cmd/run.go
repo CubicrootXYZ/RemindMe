@@ -185,6 +185,9 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 		&message.RegenICalTokenAction{},
 		&message.DeleteEventAction{},
 		&message.SetDailyReminderAction{},
+		&message.ListEventsAction{},
+		&message.RegenICalTokenAction{},
+		&message.ChangeEventAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{

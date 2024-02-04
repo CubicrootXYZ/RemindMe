@@ -20,7 +20,7 @@ type MessageEvent struct {
 	Channel     *database.Channel
 }
 
-func (service *service) MessageEventHandler(source mautrix.EventSource, evt *event.Event) {
+func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Event) {
 	logger := service.logger.WithFields(map[string]any{
 		"sender":          evt.Sender,
 		"room":            evt.RoomID,

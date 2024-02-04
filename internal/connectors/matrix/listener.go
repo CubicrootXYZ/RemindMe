@@ -25,7 +25,7 @@ func (service *service) startListener() error {
 	}
 
 	syncer.OnEventType(event.EventMessage, service.MessageEventHandler)
-	/* TODO syncer.OnEventType(event.EventReaction, reactionHandler.NewEvent)*/
+	syncer.OnEventType(event.EventReaction, service.ReactionEventHandler)
 	syncer.OnEventType(event.StateMember, service.EventStateHandler)
 
 	return service.client.Sync()
