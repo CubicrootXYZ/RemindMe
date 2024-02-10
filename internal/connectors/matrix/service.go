@@ -56,6 +56,9 @@ type ReplyAction interface {
 	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
+//go:generate mockgen -destination=reaction_action_mock.go -package=matrix . ReactionAction
+
+// ReactionAction defines an Interface for an action on reactions.
 type ReactionAction interface {
 	Selector() []string
 	Name() string
@@ -150,6 +153,7 @@ func (service *service) setLastMessage() {
 }
 
 func (service *service) setupActions() {
+	// Collect all actions and inject dependencies.
 	actions := []interface {
 		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 		Name() string
@@ -162,6 +166,9 @@ func (service *service) setupActions() {
 		actions = append(actions, action)
 	}
 	for _, action := range service.config.ReplyActions {
+		actions = append(actions, action)
+	}
+	for _, action := range service.config.ReactionActions {
 		actions = append(actions, action)
 	}
 

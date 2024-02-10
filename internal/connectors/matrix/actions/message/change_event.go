@@ -1,7 +1,5 @@
 package message
 
-// TODO add tests!
-
 import (
 	"regexp"
 

@@ -36,6 +36,7 @@ type ListEventsOpts struct {
 	IDs       []uint
 	InputID   *uint
 	ChannelID *uint
+	// TODO add filter for inactive events and exclude them from default search.
 }
 
 func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {

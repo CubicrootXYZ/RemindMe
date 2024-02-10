@@ -1,0 +1,50 @@
+package reaction
+
+import (
+	"github.com/CubicrootXYZ/gologger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+)
+
+// ExampleAction acts as a template for new actions.
+type ExampleAction struct {
+	logger    gologger.Logger
+	client    mautrixcl.Client
+	messenger messenger.Messenger
+	matrixDB  matrixdb.Service
+	db        database.Service
+}
+
+// Configure is called on startup and sets all dependencies.
+func (action *ExampleAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+	action.logger = logger
+	action.client = client
+	action.matrixDB = matrixDB
+	action.db = db
+	action.messenger = messenger
+}
+
+// Name of the action.
+func (action *ExampleAction) Name() string {
+	return "Add user"
+}
+
+// GetDocu returns the documentation for the action.
+func (action *ExampleAction) GetDocu() (title, explaination string, examples []string) {
+	return "Example event",
+		"Description",
+		[]string{"example 1"}
+}
+
+// Selector defines on which reactions this action should be called.
+func (action *ExampleAction) Selector() []string {
+	return []string{"🥶"}
+}
+
+// HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
+func (action *ExampleAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
+	action.logger.Infof("Example action called")
+}
