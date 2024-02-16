@@ -14,6 +14,8 @@ github.com/arran4/golang-ical v0.2.0 h1:gHc8KOAKkFbGQaBMtfDg38U9mVgyr3tUb9K33nbq
 github.com/arran4/golang-ical v0.2.0/go.mod h1:RqMuPGmwRRwjkb07hmm+JBqcWa1vF1LvVmPtSZN2OhQ=
 github.com/arran4/golang-ical v0.2.4 h1:0/rTXn2qqEekLKec3SzRRy+z7pCLtniMb0KD/dPogUo=
 github.com/arran4/golang-ical v0.2.4/go.mod h1:RqMuPGmwRRwjkb07hmm+JBqcWa1vF1LvVmPtSZN2OhQ=
+github.com/arran4/golang-ical v0.2.6 h1:WRpbLKSIMjujycCNKGAjOALyj6evvklVpWXH+Hp72G4=
+github.com/arran4/golang-ical v0.2.6/go.mod h1:RqMuPGmwRRwjkb07hmm+JBqcWa1vF1LvVmPtSZN2OhQ=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/bytedance/sonic v1.5.0/go.mod h1:ED5hyg4y6t3/9Ku1R6dU/4KyJ48DZ4jPhfY1O2AihPM=
 github.com/bytedance/sonic v1.9.1 h1:6iJ6NqdoxCDr6mbY8h18oSO+cShGSMRGCEo7F2h0x8s=
