@@ -14,7 +14,7 @@ import (
 )
 
 // EventStateHandler handles state events from matrix.
-func (service *service) EventStateHandler(source mautrix.EventSource, evt *event.Event) {
+func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Event) {
 	logger := service.logger.WithFields(map[string]any{
 		"sender":          evt.Sender,
 		"room":            evt.RoomID,

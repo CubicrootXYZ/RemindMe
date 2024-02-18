@@ -42,7 +42,7 @@ func TestRegenICalTokenAction_Selector(t *testing.T) {
 	}
 }
 
-func TestRegenICalTokenAction_HandleEvent(t *testing.T) {
+func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 	user := "@user:example.com"
 
 	// Setup

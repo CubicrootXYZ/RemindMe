@@ -42,7 +42,7 @@ func TestEnableICalExportAction_Selector(t *testing.T) {
 	}
 }
 
-func TestEnableICalExportAction_HandleEvent(t *testing.T) {
+func TestEnableICalExportAction_HandleEvent(t *testing.T) { //nolint: dupl
 	user := "@user:example.com"
 
 	// Setup

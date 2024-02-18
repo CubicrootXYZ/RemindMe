@@ -22,7 +22,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -100,7 +99,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	// iCal connector
 	icalDB, err := icaldb.New(db.GormDB())
 	if err != nil {
-		log.Err(err)
+		logger.Err(err)
 		return nil, err
 	}
 	icalConnector := ical.New(&ical.Config{
@@ -122,7 +121,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, logger.WithField("component", "matrix connector"))
 	if err != nil {
-		log.Err(err)
+		logger.Err(err)
 		return nil, err
 	}
 	processes = append(processes, matrixConnector)

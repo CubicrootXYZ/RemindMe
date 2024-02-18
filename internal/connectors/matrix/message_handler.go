@@ -114,7 +114,7 @@ func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger
 	service.config.DefaultMessageAction.HandleEvent(msgEvent)
 }
 
-func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*MessageEvent, error) {
+func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*MessageEvent, error) { //nolint: dupl
 	msgEvt := MessageEvent{
 		Event: evt,
 		Room:  room,

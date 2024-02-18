@@ -2,18 +2,18 @@ package response
 
 // MessageErrorResponse is a default response
 type MessageErrorResponse struct {
-	Message string `json:"message" example:"Unauthenticated"`
-	Status  string `json:"status" example:"error"`
+	Message string `example:"Unauthenticated" json:"message"`
+	Status  string `example:"error"           json:"status"`
 } // @name ErrorResponse
 
 // MessageSuccessResponse is a default response
 type MessageSuccessResponse struct {
-	Message string `json:"message" example:"Inserted new reminder"`
-	Status  string `json:"status" example:"success"`
+	Message string `example:"Inserted new reminder" json:"message"`
+	Status  string `example:"success"               json:"status"`
 } // @name SuccessResponse
 
 // DataResponse is the default response for data
 type DataResponse struct {
-	Status string      `json:"status" example:"success"`
+	Status string      `example:"success" json:"status"`
 	Data   interface{} `json:"data"`
 }

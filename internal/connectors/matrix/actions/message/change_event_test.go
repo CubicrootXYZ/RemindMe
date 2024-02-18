@@ -8,6 +8,7 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
@@ -77,8 +78,8 @@ func TestChangeEventAction_HandleEvent(t *testing.T) {
 	msngr.EXPECT().SendMessage(messenger.HTMLMessage(
 		`I rescheduled your reminder
 > 
-to 21:00 04.02.2024 (UTC)`,
-		`I rescheduled your reminder<br><blockquote></blockquote><br>to 21:00 04.02.2024 (UTC)`,
+to `+today9PM(),
+		`I rescheduled your reminder<br><blockquote></blockquote><br>to `+today9PM(),
 		"!room123",
 	)).Return(&messenger.MessageResponse{
 		ExternalIdentifier: "id1",
@@ -89,8 +90,8 @@ to 21:00 04.02.2024 (UTC)`,
 		UserID: toP("@user:example.com"),
 		Body: `I rescheduled your reminder
 > 
-to 21:00 04.02.2024 (UTC)`,
-		BodyFormatted: `I rescheduled your reminder<br><blockquote></blockquote><br>to 21:00 04.02.2024 (UTC)`,
+to ` + today9PM(),
+		BodyFormatted: `I rescheduled your reminder<br><blockquote></blockquote><br>to ` + today9PM(),
 		Type:          matrixdb.MessageTypeChangeEvent,
 	},
 	).Return(nil, nil)
@@ -251,4 +252,13 @@ func TestChangeEventAction_HandleEventWithMissingID(t *testing.T) {
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
+}
+
+func today9PM() string {
+	now := time.Now().UTC()
+	if now.Hour() >= 21 {
+		now = now.Add(time.Hour * 4)
+	}
+
+	return time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC).Format(format.DateFormatDefault)
 }

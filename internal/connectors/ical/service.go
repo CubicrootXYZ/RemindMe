@@ -113,9 +113,11 @@ func (service *service) GetOutput(outputID uint, regenToken bool) (*icaldb.IcalO
 		return nil, "", err
 	}
 
-	output, err = service.config.ICalDB.GenerateNewToken(output)
-	if err != nil {
-		return nil, "", err
+	if regenToken {
+		output, err = service.config.ICalDB.GenerateNewToken(output)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 
 	icalURL := service.config.BaseURL.JoinPath(fmt.Sprintf("/ical/%d", output.ID))
