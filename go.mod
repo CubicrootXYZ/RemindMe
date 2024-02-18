@@ -11,7 +11,6 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.1
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.2
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
@@ -48,6 +47,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
