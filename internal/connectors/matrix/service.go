@@ -56,6 +56,16 @@ type ReplyAction interface {
 	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
+//go:generate mockgen -destination=reaction_action_mock.go -package=matrix . ReactionAction
+
+// ReactionAction defines an Interface for an action on reactions.
+type ReactionAction interface {
+	Selector() []string
+	Name() string
+	HandleEvent(event *ReactionEvent, reactionToMessage *matrixdb.MatrixMessage)
+	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+}
+
 // Config holds information for the matrix connector.
 type Config struct {
 	Username   string
@@ -69,6 +79,7 @@ type Config struct {
 	DefaultMessageAction MessageAction
 	ReplyActions         []ReplyAction
 	DefaultReplyAction   ReplyAction
+	ReactionActions      []ReactionAction
 
 	AllowInvites  bool
 	RoomLimit     uint
@@ -86,7 +97,7 @@ type BridgeServices struct {
 // BridgeServiceICal is an interface for a bridge to the iCal connector.
 type BridgeServiceICal interface {
 	NewOutput(channelID uint) (*icaldb.IcalOutput, string, error)
-	GetOutput(outputID uint) (*icaldb.IcalOutput, string, error)
+	GetOutput(outputID uint, regenToken bool) (*icaldb.IcalOutput, string, error)
 }
 
 // New sets up a new matrix connector.
@@ -142,6 +153,7 @@ func (service *service) setLastMessage() {
 }
 
 func (service *service) setupActions() {
+	// Collect all actions and inject dependencies.
 	actions := []interface {
 		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 		Name() string
@@ -154,6 +166,9 @@ func (service *service) setupActions() {
 		actions = append(actions, action)
 	}
 	for _, action := range service.config.ReplyActions {
+		actions = append(actions, action)
+	}
+	for _, action := range service.config.ReactionActions {
 		actions = append(actions, action)
 	}
 

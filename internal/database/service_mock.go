@@ -76,6 +76,20 @@ func (mr *MockServiceMockRecorder) DeleteChannel(arg0 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteChannel", reflect.TypeOf((*MockService)(nil).DeleteChannel), arg0)
 }
 
+// DeleteEvent mocks base method.
+func (m *MockService) DeleteEvent(arg0 *Event) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteEvent", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteEvent indicates an expected call of DeleteEvent.
+func (mr *MockServiceMockRecorder) DeleteEvent(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEvent", reflect.TypeOf((*MockService)(nil).DeleteEvent), arg0)
+}
+
 // GetChannelByID mocks base method.
 func (m *MockService) GetChannelByID(arg0 uint) (*Channel, error) {
 	m.ctrl.T.Helper()

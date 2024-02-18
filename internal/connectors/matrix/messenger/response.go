@@ -53,7 +53,7 @@ func (response *Response) toEvent() *messageEvent {
 		Format:        formatCustomHTML,
 	}
 	matrixMessage.RelatesTo.InReplyTo = &struct {
-		EventID string "json:\"event_id,omitempty\""
+		EventID string `json:"event_id,omitempty"`
 	}{EventID: response.RespondToEventID}
 
 	return matrixMessage

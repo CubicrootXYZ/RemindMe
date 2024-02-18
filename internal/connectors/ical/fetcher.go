@@ -93,12 +93,12 @@ func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 		}
 
 		update := false
-		for _, eevent := range existingEvents {
-			if eevent.ExternalReference == "" {
+		for _, eEvent := range existingEvents {
+			if eEvent.ExternalReference == "" {
 				continue
 			}
 
-			if eevent.ExternalReference == event.ExternalReference {
+			if eEvent.ExternalReference == event.ExternalReference {
 				update = true
 				break
 			}

@@ -17,7 +17,7 @@ type Config struct {
 	ICalDB   icaldb.Service
 	Database database.Service
 
-	BaseURL *url.URL // TODO set
+	BaseURL *url.URL
 }
 
 type service struct {
@@ -104,13 +104,20 @@ func (service *service) NewOutput(channelID uint) (*icaldb.IcalOutput, string, e
 	return icalOutput, icalURL.String(), nil
 }
 
-func (service *service) GetOutput(outputID uint) (*icaldb.IcalOutput, string, error) {
+func (service *service) GetOutput(outputID uint, regenToken bool) (*icaldb.IcalOutput, string, error) {
 	output, err := service.config.ICalDB.GetIcalOutputByID(outputID)
 	if err != nil {
 		if errors.Is(err, icaldb.ErrNotFound) {
 			return nil, "", ErrNotFound
 		}
 		return nil, "", err
+	}
+
+	if regenToken {
+		output, err = service.config.ICalDB.GenerateNewToken(output)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 
 	icalURL := service.config.BaseURL.JoinPath(fmt.Sprintf("/ical/%d", output.ID))

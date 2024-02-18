@@ -17,6 +17,7 @@ import (
 
 var DefaultEventTime = time.Minute
 var ReminderRequestReactions = []string{"❌", "➕", "1️⃣", "4️⃣"}
+var newEventActionRegex = regexp.MustCompile(".*")
 
 // NewEventAction for new events. Should be the default message handler.
 type NewEventAction struct {
@@ -49,7 +50,7 @@ func (action *NewEventAction) GetDocu() (title, explaination string, examples []
 
 // Selector defines a regex on what messages the action should be used.
 func (action *NewEventAction) Selector() *regexp.Regexp {
-	return regexp.MustCompile(".*")
+	return newEventActionRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.

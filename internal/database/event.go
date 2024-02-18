@@ -33,14 +33,23 @@ func (service *service) NewEvents(events []Event) error {
 
 // ListEventsOpts holds options for listing events.
 type ListEventsOpts struct {
-	InputID *uint
+	IDs       []uint
+	InputID   *uint
+	ChannelID *uint
+	// TODO add filter for inactive events and exclude them from default search.
 }
 
 func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 	query := service.db
 
 	if opts.InputID != nil {
-		query.Where("events.input_id = ?", *opts.InputID)
+		query = query.Where("events.input_id = ?", *opts.InputID)
+	}
+	if opts.ChannelID != nil {
+		query = query.Where("events.channel_id = ?", *opts.ChannelID)
+	}
+	if opts.IDs != nil {
+		query = query.Where("events.id IN ?", opts.IDs)
 	}
 
 	var events []Event
@@ -69,4 +78,8 @@ func (service *service) UpdateEvent(event *Event) (*Event, error) {
 	err := service.db.Save(event).Error
 
 	return event, err
+}
+
+func (service *service) DeleteEvent(event *Event) error {
+	return service.db.Delete(event).Error
 }

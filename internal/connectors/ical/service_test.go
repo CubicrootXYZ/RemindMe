@@ -175,7 +175,36 @@ func TestService_GetOutput(t *testing.T) {
 		Token: "abcde",
 	}, nil)
 
-	output, url, err := service.GetOutput(1)
+	output, url, err := service.GetOutput(1, false)
+	require.NoError(t, err)
+
+	assert.Equal(t, uint(1), output.ID)
+	assert.Equal(t, "https://example.com/ical/1?token=abcde", url)
+}
+
+func TestService_GetOutputWithRegenToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	service, icalDB, _ := testService(ctrl)
+
+	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(&icaldb.IcalOutput{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Token: "abcde",
+	}, nil)
+	icalDB.EXPECT().GenerateNewToken(&icaldb.IcalOutput{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Token: "abcde",
+	}).Return(&icaldb.IcalOutput{
+		Model: gorm.Model{
+			ID: 1,
+		},
+		Token: "abcde",
+	}, nil)
+
+	output, url, err := service.GetOutput(1, true)
 	require.NoError(t, err)
 
 	assert.Equal(t, uint(1), output.ID)
@@ -188,7 +217,7 @@ func TestService_GetOutputWithNotFound(t *testing.T) {
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, icaldb.ErrNotFound)
 
-	_, _, err := service.GetOutput(1)
+	_, _, err := service.GetOutput(1, false)
 	require.ErrorIs(t, err, ical.ErrNotFound)
 }
 
@@ -198,7 +227,7 @@ func TestService_GetOutputWithError(t *testing.T) {
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, errors.New("test"))
 
-	_, _, err := service.GetOutput(1)
+	_, _, err := service.GetOutput(1, false)
 	require.Error(t, err)
 }
 

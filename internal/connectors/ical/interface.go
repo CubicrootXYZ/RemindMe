@@ -29,8 +29,8 @@ type Service interface {
 	InputRemoved(inputType string, inputID uint) error
 	OutputRemoved(outputType string, outputID uint) error
 
-	NewOutput(channelID uint) (*icaldb.IcalOutput, string, error) // Returns the calendar URL.
-	GetOutput(outputID uint) (*icaldb.IcalOutput, string, error)  // Returns the calendar URL.
+	NewOutput(channelID uint) (*icaldb.IcalOutput, string, error)                 // Returns the calendar URL.
+	GetOutput(outputID uint, regenToken bool) (*icaldb.IcalOutput, string, error) // Returns the calendar URL.
 
 	SendReminder(*daemon.Event, *daemon.Output) error
 	SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error

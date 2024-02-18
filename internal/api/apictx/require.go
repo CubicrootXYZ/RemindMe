@@ -5,7 +5,7 @@ import (
 )
 
 type idInURI struct {
-	ID uint `uri:"id" binding:"required"`
+	ID uint `binding:"required" uri:"id"`
 }
 
 // RequireIDInURI returns a Gin middleware which requires an ID of the type uint to be supplied in the URI of the request.

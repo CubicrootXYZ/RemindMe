@@ -33,9 +33,12 @@ func TestNewEventAction(t *testing.T) {
 
 func TestNewEventAction_Selector(t *testing.T) {
 	action := &message.NewEventAction{}
-
 	r := action.Selector()
-	assert.NotNil(t, r)
+
+	_, _, examples := action.GetDocu()
+	for _, example := range examples {
+		assert.True(t, r.MatchString(example))
+	}
 }
 
 func TestNewEventAction_HandleEvent(t *testing.T) {

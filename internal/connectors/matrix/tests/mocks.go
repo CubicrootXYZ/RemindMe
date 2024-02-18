@@ -1,6 +1,8 @@
 package tests
 
 import (
+	"time"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -86,4 +88,23 @@ func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {
 		o(msg)
 	}
 	return msg
+}
+
+func WithFromTestEvent() MessageOpt {
+	return func(msg *matrixdb.MatrixMessage) {
+		msg.ID = "evt1"
+		msg.UserID = ToP("@user:example.com")
+		msg.Body = "message"
+		msg.BodyFormatted = "<b>message</b>"
+		msg.SendAt = time.UnixMilli(92848488)
+		msg.Incoming = true
+		msg.Event = nil
+		msg.EventID = nil
+	}
+}
+
+func WithMessageType(mt matrixdb.MatrixMessageType) MessageOpt {
+	return func(msg *matrixdb.MatrixMessage) {
+		msg.Type = mt
+	}
 }

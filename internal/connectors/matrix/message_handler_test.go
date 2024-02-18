@@ -22,6 +22,7 @@ type fixture struct {
 	messageAction        *MockMessageAction
 	defaultReplyAction   *MockReplyAction
 	replyAction          *MockReplyAction
+	reactionAction       *MockReactionAction
 }
 
 func testRoom() *matrixdb.MatrixRoom {
@@ -43,6 +44,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 		messageAction:        NewMockMessageAction(ctrl),
 		defaultReplyAction:   NewMockReplyAction(ctrl),
 		replyAction:          NewMockReplyAction(ctrl),
+		reactionAction:       NewMockReactionAction(ctrl),
 	}
 
 	s := service{
@@ -53,6 +55,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 			MessageActions:       []MessageAction{fx.messageAction},
 			DefaultReplyAction:   fx.defaultReplyAction,
 			ReplyActions:         []ReplyAction{fx.replyAction},
+			ReactionActions:      []ReactionAction{fx.reactionAction},
 
 			RoomLimit:    1,
 			AllowInvites: true,

@@ -15,13 +15,13 @@ import (
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reaction"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
 	matrixapi "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/api"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -99,7 +99,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	// iCal connector
 	icalDB, err := icaldb.New(db.GormDB())
 	if err != nil {
-		log.Err(err)
+		logger.Err(err)
 		return nil, err
 	}
 	icalConnector := ical.New(&ical.Config{
@@ -121,7 +121,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 
 	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, logger.WithField("component", "matrix connector"))
 	if err != nil {
-		log.Err(err)
+		logger.Err(err)
 		return nil, err
 	}
 	processes = append(processes, matrixConnector)
@@ -177,10 +177,22 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 
 	cfg.ReplyActions = make([]matrix.ReplyAction, 0)
 	cfg.MessageActions = make([]matrix.MessageAction, 0)
+	cfg.ReactionActions = make([]matrix.ReactionAction, 0)
 
 	cfg.MessageActions = append(cfg.MessageActions,
 		&message.AddUserAction{},
 		&message.EnableICalExportAction{},
+		&message.ChangeTimezoneAction{},
+		&message.RegenICalTokenAction{},
+		&message.DeleteEventAction{},
+		&message.SetDailyReminderAction{},
+		&message.ListEventsAction{},
+		&message.RegenICalTokenAction{},
+		&message.ChangeEventAction{},
+	)
+
+	cfg.ReactionActions = append(cfg.ReactionActions,
+		&reaction.DeleteEventAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{

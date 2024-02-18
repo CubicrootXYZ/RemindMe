@@ -37,7 +37,7 @@ func (message *Message) toEvent() *messageEvent {
 
 	if message.ResponseToMessage != "" {
 		messageEvent.RelatesTo.InReplyTo = &struct {
-			EventID string "json:\"event_id,omitempty\""
+			EventID string `json:"event_id,omitempty"`
 		}{EventID: message.ResponseToMessage}
 	}
 

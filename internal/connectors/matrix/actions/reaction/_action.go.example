@@ -1,19 +1,13 @@
-package message
+package reaction
 
 import (
-	"regexp"
-	"strings"
-
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"maunium.net/go/mautrix"
 )
-
-var exampleActionRegex = regexp.MustCompile("(?i)example .*")
 
 // ExampleAction acts as a template for new actions.
 type ExampleAction struct {
@@ -33,7 +27,7 @@ func (action *ExampleAction) Configure(logger gologger.Logger, client mautrixcl.
 	action.messenger = messenger
 }
 
-// Name of the action
+// Name of the action.
 func (action *ExampleAction) Name() string {
 	return "Add user"
 }
@@ -45,12 +39,12 @@ func (action *ExampleAction) GetDocu() (title, explaination string, examples []s
 		[]string{"example 1"}
 }
 
-// Selector defines a regex on what messages the action should be used.
-func (action *ExampleAction) Selector() *regexp.Regexp {
-	return exampleActionRegex
+// Selector defines on which reactions this action should be called.
+func (action *ExampleAction) Selector() []string {
+	return []string{"🥶"}
 }
 
-// HandleEvent is where the message event get's send to if it matches the Selector.
-func (action *ExampleAction) HandleEvent(event *matrix.MessageEvent) {
+// HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
+func (action *ExampleAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
 	action.logger.Infof("Example action called")
 }
