@@ -87,6 +87,7 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Run tidy
         run: go mod tidy
       - name: Diff
@@ -100,6 +101,7 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Install mockgen
         run: go install github.com/golang/mock/mockgen@v1.6.0
       - name: Run golangci

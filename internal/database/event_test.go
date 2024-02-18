@@ -180,6 +180,10 @@ func TestService_ListEvents(t *testing.T) {
 	err = service.AddInputToChannel(eventBefore.ChannelID, input)
 	require.NoError(t, err)
 
+	eventBefore.InputID = &input.ID
+	eventBefore, err = service.UpdateEvent(eventBefore)
+	require.NoError(t, err)
+
 	events, err := service.ListEvents(&database.ListEventsOpts{
 		InputID: &input.ID,
 	})
