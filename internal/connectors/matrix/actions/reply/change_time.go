@@ -46,6 +46,7 @@ func (action *ChangeTimeAction) GetDocu() (title, explaination string, examples 
 
 // Selector defines a regex on what messages the action should be used.
 func (action *ChangeTimeAction) Selector() *regexp.Regexp {
+	// TODO do not compile on any call.
 	return regexp.MustCompile(".*")
 }
 

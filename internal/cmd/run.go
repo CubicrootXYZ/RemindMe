@@ -179,6 +179,10 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 	cfg.MessageActions = make([]matrix.MessageAction, 0)
 	cfg.ReactionActions = make([]matrix.ReactionAction, 0)
 
+	cfg.ReplyActions = append(cfg.ReplyActions,
+		&reply.DeleteEventAction{},
+	)
+
 	cfg.MessageActions = append(cfg.MessageActions,
 		&message.AddUserAction{},
 		&message.EnableICalExportAction{},

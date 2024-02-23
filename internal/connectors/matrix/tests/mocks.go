@@ -103,6 +103,25 @@ func WithFromTestEvent() MessageOpt {
 	}
 }
 
+func WithTestEvent() MessageOpt {
+	return func(msg *matrixdb.MatrixMessage) {
+		msg.Event = &database.Event{
+			Model: gorm.Model{
+				ID: 1,
+			},
+			Time: time.UnixMilli(92848488),
+		}
+		msg.EventID = ToP(uint(1))
+	}
+}
+
+func WithoutEvent() MessageOpt {
+	return func(msg *matrixdb.MatrixMessage) {
+		msg.Event = nil
+		msg.EventID = nil
+	}
+}
+
 func WithMessageType(mt matrixdb.MatrixMessageType) MessageOpt {
 	return func(msg *matrixdb.MatrixMessage) {
 		msg.Type = mt
