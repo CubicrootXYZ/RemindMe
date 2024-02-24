@@ -2,8 +2,6 @@ module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
 go 1.21
 
-toolchain go1.21.0
-
 require (
 	github.com/CubicrootXYZ/gologger v0.2.2
 	github.com/CubicrootXYZ/gonaturalduration v0.5.0
