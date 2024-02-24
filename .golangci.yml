@@ -62,6 +62,9 @@ issues:
         - goconst
         - noctx
         - forbidigo
+    - path: internal/connectors/matrix/tests
+      linters:
+        - forbidigo   
     - path: '(.*)\/string\.go'
       text: 'G404: Use of weak random number generator' # Used as fallback
     - path: '(.*)\/motivational_sentence\.go'

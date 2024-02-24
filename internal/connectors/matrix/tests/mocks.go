@@ -28,7 +28,7 @@ func TestEvent(opts ...EventOpt) *matrix.MessageEvent {
 		Room: &matrixdb.MatrixRoom{
 			RoomID:   "!room123",
 			Users:    []matrixdb.MatrixUser{},
-			TimeZone: "Europe/Berlin",
+			TimeZone: "UTC",
 		},
 		Channel: &database.Channel{
 			Model: gorm.Model{

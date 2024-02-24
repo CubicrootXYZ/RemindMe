@@ -142,5 +142,4 @@ func TestDeleteEventAction_HandleEventWithDeleteError(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
-
 }
