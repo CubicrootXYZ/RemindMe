@@ -61,6 +61,7 @@ issues:
         - forcetypeassert
         - goconst
         - noctx
+        - forbidigo
     - path: '(.*)\/string\.go'
       text: 'G404: Use of weak random number generator' # Used as fallback
     - path: '(.*)\/motivational_sentence\.go'

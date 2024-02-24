@@ -181,6 +181,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 
 	cfg.ReplyActions = append(cfg.ReplyActions,
 		&reply.DeleteEventAction{},
+		&reply.MakeRecurringAction{},
 	)
 
 	cfg.MessageActions = append(cfg.MessageActions,

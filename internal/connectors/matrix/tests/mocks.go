@@ -26,8 +26,9 @@ func TestEvent(opts ...EventOpt) *matrix.MessageEvent {
 			FormattedBody: "<b>message</b>",
 		},
 		Room: &matrixdb.MatrixRoom{
-			RoomID: "!room123",
-			Users:  []matrixdb.MatrixUser{},
+			RoomID:   "!room123",
+			Users:    []matrixdb.MatrixUser{},
+			TimeZone: "Europe/Berlin",
 		},
 		Channel: &database.Channel{
 			Model: gorm.Model{
@@ -119,6 +120,14 @@ func WithoutEvent() MessageOpt {
 	return func(msg *matrixdb.MatrixMessage) {
 		msg.Event = nil
 		msg.EventID = nil
+	}
+}
+
+func WithRecurringEvent(duration time.Duration) MessageOpt {
+	return func(msg *matrixdb.MatrixMessage) {
+		defaultRepeatUntil := time.Now().Add((5 * 365 * 24 * time.Hour))
+		msg.Event.RepeatUntil = &defaultRepeatUntil
+		msg.Event.RepeatInterval = &duration
 	}
 }
 

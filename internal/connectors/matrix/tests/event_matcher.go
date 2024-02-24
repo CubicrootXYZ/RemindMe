@@ -52,7 +52,8 @@ func (matcher *EventMatcher) Matches(x interface{}) bool {
 		return false
 	}
 	if matcher.evt.RepeatUntil != nil {
-		if *matcher.evt.RepeatUntil != *evt.RepeatUntil {
+		if evt.RepeatUntil == nil {
+			fmt.Println("repeat until is not set in event")
 			return false
 		}
 	} else if evt.RepeatUntil != nil {
