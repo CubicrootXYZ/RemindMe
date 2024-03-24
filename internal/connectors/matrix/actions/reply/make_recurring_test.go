@@ -60,7 +60,7 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 
 	msg := "every 2 hours"
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			msg,
 			msg,
 		))
@@ -106,7 +106,7 @@ func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 
 	msg := "every 2 hours"
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			msg,
 			msg,
 		))
@@ -149,7 +149,7 @@ func TestMakeRecurringAction_HandleEventWithDurationError(t *testing.T) {
 
 	msg := "every 1 second"
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			msg,
 			msg,
 		))

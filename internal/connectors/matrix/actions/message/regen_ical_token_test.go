@@ -107,7 +107,7 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 	})
 
 	action.HandleEvent(tests.TestEvent(
-		tests.WithOutput(database.Output{
+		tests.MessageWithOutput(database.Output{
 			Model: gorm.Model{
 				ID: 2,
 			},
@@ -154,7 +154,7 @@ func TestRegenICalTokenAction_HandleEventWithNoOutput(t *testing.T) {
 	)).Return(nil)
 
 	action.HandleEvent(tests.TestEvent(
-		tests.WithOutput(database.Output{
+		tests.MessageWithOutput(database.Output{
 			Model: gorm.Model{
 				ID: 2,
 			},

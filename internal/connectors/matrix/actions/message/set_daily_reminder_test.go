@@ -99,7 +99,7 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("daily reminder at 10am", "daily reminder at 10am")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("daily reminder at 10am", "daily reminder at 10am")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -159,7 +159,7 @@ func TestSetDailyReminderAction_HandleEventWithUpdateChannelError(t *testing.T) 
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("daily reminder at 10am", "daily reminder at 10am")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("daily reminder at 10am", "daily reminder at 10am")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -223,7 +223,7 @@ func TestSetDailyReminderAction_HandleEventWithNewMessageError(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("daily reminder at 10am", "daily reminder at 10am")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("daily reminder at 10am", "daily reminder at 10am")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)

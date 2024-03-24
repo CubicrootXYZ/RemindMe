@@ -107,7 +107,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) { //nolint: dupl
 	})
 
 	action.HandleEvent(tests.TestEvent(
-		tests.WithOutput(database.Output{
+		tests.MessageWithOutput(database.Output{
 			Model: gorm.Model{
 				ID: 2,
 			},
@@ -187,7 +187,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 	})
 
 	action.HandleEvent(tests.TestEvent(
-		tests.WithOutput(database.Output{
+		tests.MessageWithOutput(database.Output{
 			Model: gorm.Model{
 				ID: 2,
 			},

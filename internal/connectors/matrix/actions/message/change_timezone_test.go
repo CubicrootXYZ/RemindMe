@@ -88,7 +88,7 @@ func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("set timezone Europe/Berlin", "set timezone Europe/Berlin")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("set timezone Europe/Berlin", "set timezone Europe/Berlin")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -135,7 +135,7 @@ func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("set timezone abc", "set timezone abc")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("set timezone abc", "set timezone abc")))
 }
 
 func TestChangeTimezoneAction_HandleEventWithUpdateError(t *testing.T) {
@@ -174,5 +174,5 @@ func TestChangeTimezoneAction_HandleEventWithUpdateError(t *testing.T) {
 		"!room123",
 	)).Return(nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("set timezone Europe/Berlin", "set timezone Europe/Berlin")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("set timezone Europe/Berlin", "set timezone Europe/Berlin")))
 }

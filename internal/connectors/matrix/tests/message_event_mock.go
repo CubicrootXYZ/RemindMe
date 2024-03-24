@@ -11,9 +11,9 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
-type EventOpt func(evt *matrix.MessageEvent)
+type MessageEventOpt func(evt *matrix.MessageEvent)
 
-func TestEvent(opts ...EventOpt) *matrix.MessageEvent {
+func TestEvent(opts ...MessageEventOpt) *matrix.MessageEvent {
 	evt := &matrix.MessageEvent{
 		Event: &event.Event{
 			ID:        id.EventID("evt1"),
@@ -49,20 +49,20 @@ func TestEvent(opts ...EventOpt) *matrix.MessageEvent {
 	return evt
 }
 
-func WithBody(body, formattedBody string) EventOpt {
+func MessageWithBody(body, formattedBody string) MessageEventOpt {
 	return func(evt *matrix.MessageEvent) {
 		evt.Content.Body = body
 		evt.Content.FormattedBody = formattedBody
 	}
 }
 
-func WithUserInRoom(user matrixdb.MatrixUser) EventOpt {
+func MessageWithUserInRoom(user matrixdb.MatrixUser) MessageEventOpt {
 	return func(evt *matrix.MessageEvent) {
 		evt.Room.Users = append(evt.Room.Users, user)
 	}
 }
 
-func WithOutput(output database.Output) EventOpt {
+func MessageWithOutput(output database.Output) MessageEventOpt {
 	return func(evt *matrix.MessageEvent) {
 		if evt.Channel.Outputs == nil {
 			evt.Channel.Outputs = make([]database.Output, 0)

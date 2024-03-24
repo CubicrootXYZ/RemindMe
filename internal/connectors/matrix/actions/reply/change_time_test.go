@@ -65,7 +65,7 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 	for _, msg := range msgs {
 		t.Run(msg, func(t *testing.T) {
 			event := tests.TestEvent(
-				tests.WithBody(
+				tests.MessageWithBody(
 					msg,
 					msg,
 				))
@@ -104,7 +104,7 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 	)
 
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"tomorrow",
 			"tomorrow",
 		))
@@ -139,7 +139,7 @@ func TestChangeTimeAction_HandleEventWithNewMessageError(t *testing.T) {
 	)
 
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"tomorrow",
 			"tomorrow",
 		))

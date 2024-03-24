@@ -115,7 +115,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 
 			// Execute
 			action.HandleEvent(tests.TestEvent(
-				tests.WithBody(
+				tests.MessageWithBody(
 					msg,
 					msg,
 				),
@@ -169,7 +169,7 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"my test reminder at monday 1:11",
 			"my test reminder at monday 1:11",
 		),
@@ -210,7 +210,7 @@ func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"my test reminder at monday 1:11",
 			"my test reminder at monday 1:11",
 		),

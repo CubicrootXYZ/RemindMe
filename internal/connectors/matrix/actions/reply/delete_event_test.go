@@ -65,7 +65,7 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	for _, msg := range msgs {
 		t.Run(msg, func(t *testing.T) {
 			event := tests.TestEvent(
-				tests.WithBody(
+				tests.MessageWithBody(
 					msg,
 					msg,
 				))
@@ -102,7 +102,7 @@ func TestDeleteEventAction_HandleEventWithMissingEventID(t *testing.T) {
 	)
 
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"delete",
 			"delete",
 		))
@@ -131,7 +131,7 @@ func TestDeleteEventAction_HandleEventWithDeleteError(t *testing.T) {
 	)
 
 	event := tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"delete",
 			"delete",
 		))

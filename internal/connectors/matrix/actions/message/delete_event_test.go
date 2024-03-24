@@ -107,7 +107,7 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete 123", "delete 123")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -164,7 +164,7 @@ func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 		"!room123",
 	)).Return(nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete 123", "delete 123")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -211,7 +211,7 @@ func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 		mockEvent(),
 	}, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete 123", "delete 123")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -252,7 +252,7 @@ func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
 		"!room123",
 	)).Return(errors.New("test"))
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete 123", "delete 123")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -293,7 +293,7 @@ func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
 		"!room123",
 	)).Return(errors.New("test"))
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete 123", "delete 123")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete 123", "delete 123")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -329,7 +329,7 @@ func TestDeleteEventAction_HandleEventWithIDNotFound(t *testing.T) {
 		"!room123",
 	)).Return(errors.New("test"))
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("delete abc", "delete abc")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("delete abc", "delete abc")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)

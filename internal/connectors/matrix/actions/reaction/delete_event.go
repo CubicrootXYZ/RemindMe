@@ -56,6 +56,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 	)
 	if reactionToMessage.EventID == nil || reactionToMessage.Event == nil {
 		l.Infof("skipping because message does not relate to any event")
+		return
 	}
 
 	evt := reactionToMessage.Event

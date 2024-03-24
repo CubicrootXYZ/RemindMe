@@ -96,7 +96,7 @@ to ` + today9PM(),
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -155,7 +155,7 @@ func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -204,7 +204,7 @@ func TestChangeEventAction_HandleEventWithNotFound(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("change reminder 1 to 9 pm", "change reminder 1 to  9 pm")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)
@@ -248,7 +248,7 @@ func TestChangeEventAction_HandleEventWithMissingID(t *testing.T) {
 	},
 	).Return(nil, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.WithBody("change reminder  to abcde", "change reminder  to abcde")))
+	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("change reminder  to abcde", "change reminder  to abcde")))
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)

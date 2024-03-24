@@ -89,7 +89,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
-			tests.WithBody(
+			tests.MessageWithBody(
 				"add user @user:example.org",
 				`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 			),
@@ -117,7 +117,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
-			tests.WithBody(
+			tests.MessageWithBody(
 				"add user @user:example.org",
 				"",
 			),
@@ -160,7 +160,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -200,7 +200,7 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -239,11 +239,11 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
-		tests.WithUserInRoom(
+		tests.MessageWithUserInRoom(
 			matrixdb.MatrixUser{
 				ID: "@user:example.org",
 			},
@@ -283,7 +283,7 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"",
 			"",
 		),
@@ -320,7 +320,7 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
@@ -352,7 +352,7 @@ func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
-		tests.WithBody(
+		tests.MessageWithBody(
 			"add user @user:example.org",
 			`add user <a href="https://matrix.to/#/@user:example.org" class="linkified" rel="noreferrer noopener">@user:example.org</a>`,
 		),
