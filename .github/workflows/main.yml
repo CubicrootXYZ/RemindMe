@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run golangci
-        run: golangci-lint run --timeout 3m0s
+        run: GOFLAGS=-buildvcs=false && golangci-lint run --timeout 3m0s
 
   build_documentation:
     runs-on: ubuntu-latest
