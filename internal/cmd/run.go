@@ -198,6 +198,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 
 	cfg.ReactionActions = append(cfg.ReactionActions,
 		&reaction.DeleteEventAction{},
+		&reaction.AddTimeAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{

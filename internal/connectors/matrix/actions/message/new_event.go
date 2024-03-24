@@ -16,7 +16,7 @@ import (
 )
 
 var DefaultEventTime = time.Minute
-var ReminderRequestReactions = []string{"❌", "➕", "1️⃣", "4️⃣"}
+var ReminderRequestReactions = []string{"❌", "▶️", "⏩", "1️⃣", "4️⃣"}
 var newEventActionRegex = regexp.MustCompile(".*")
 
 // NewEventAction for new events. Should be the default message handler.
