@@ -1,4 +1,4 @@
-FROM cubicrootxyz/matrix-go:1.19 as builder
+FROM cubicrootxyz/matrix-go:1.22 as builder
 
 WORKDIR /run
 
