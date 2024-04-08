@@ -25,7 +25,7 @@ func TestFormater_Formater(t *testing.T) {
 	msg, msgHTML := formater.Build()
 
 	shouldMsg := "== TITLE ==\n==== SUBTITLE ====\ndomain.tld\nBOLD LINE OF TEXT\n> quoted text\n\n\nitalic line of text\nUsual line of text\nJust my text\n- item1\n- item2\nsecret :D"
-	shouldMsgHTML := "<h3>Title</h3><h4>Subtitle</h4><a href='domain.tld'>Link text</a><br><b>bold line of text</b><br><blockquote>quoted text</blockquote><br><br><br><i>italic line of text</i><br>Usual line of text<br>Just my text<br><ul><li>item1</li><li>item2</li></ul><span data-mx-spoiler>secret :D</span>"
+	shouldMsgHTML := "<h3>Title</h3><br><h4>Subtitle</h4><br><a href='domain.tld'>Link text</a><br><b>bold line of text</b><br><blockquote>quoted text</blockquote><br><br><br><i>italic line of text</i><br>Usual line of text<br>Just my text<br><ul><li>item1</li><li>item2</li></ul><span data-mx-spoiler>secret :D</span>"
 
 	assert.Equal(t, shouldMsg, msg)
 	assert.Equal(t, shouldMsgHTML, msgHTML)

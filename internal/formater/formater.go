@@ -11,13 +11,13 @@ type Formater struct {
 // Title adds a title to the formater
 func (f *Formater) Title(title string) {
 	f.msg.WriteString("== " + strings.ToUpper(title) + " ==\n")
-	f.msgFormatted.WriteString("<h3>" + title + "</h3>")
+	f.msgFormatted.WriteString("<h3>" + title + "</h3><br>")
 }
 
 // SubTitle adds a subtitle to the formater
 func (f *Formater) SubTitle(title string) {
 	f.msg.WriteString("==== " + strings.ToUpper(title) + " ====\n")
-	f.msgFormatted.WriteString("<h4>" + title + "</h4>")
+	f.msgFormatted.WriteString("<h4>" + title + "</h4><br>")
 }
 
 // Link adds a link to the formater
