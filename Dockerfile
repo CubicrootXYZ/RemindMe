@@ -6,7 +6,7 @@ COPY ./ ./
 RUN go mod download
 RUN go build -ldflags="-w -s" -o /run ./cmd/remindme
 
-FROM ubuntu:22.04 
+FROM ubuntu:24.04 
 RUN apt update && apt upgrade -y && \
     apt install -y gcc && \
     apt install libolm-dev npm -y
