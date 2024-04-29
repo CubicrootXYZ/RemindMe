@@ -194,6 +194,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 		&message.ListEventsAction{},
 		&message.RegenICalTokenAction{},
 		&message.ChangeEventAction{},
+		&message.ListCommandsAction{},
 	)
 
 	cfg.ReactionActions = append(cfg.ReactionActions,

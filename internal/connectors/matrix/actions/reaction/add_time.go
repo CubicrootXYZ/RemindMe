@@ -46,7 +46,7 @@ Or use ▶️/⏩ to move the event to tomorrow/next week.`,
 
 // Selector defines on which reactions this action should be called.
 func (action *AddTimeAction) Selector() []string {
-	return []string{"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "➕"}
+	return []string{"1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟", "➕", "⏩", "▶️"}
 }
 
 // HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.

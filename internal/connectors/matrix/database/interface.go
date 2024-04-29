@@ -62,6 +62,7 @@ type MatrixMessageType string
 
 var (
 	MessageTypeWelcome               = MatrixMessageType("WELCOME")
+	MessageTypeListCommands          = MatrixMessageType("LIST_COMMANDS")
 	MessageTypeNewEvent              = MatrixMessageType("EVENT_NEW")
 	MessageTypeEvent                 = MatrixMessageType("EVENT")
 	MessageTypeEventDelete           = MatrixMessageType("EVENT_DELETE")
