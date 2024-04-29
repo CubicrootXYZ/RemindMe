@@ -89,7 +89,7 @@ func (action *ListCommandsAction) listMessageCommands(event *matrix.MessageEvent
 	}
 
 	message, messageFormatted := msg.Build()
-	action.storer.SendAndStoreMessage(
+	go action.storer.SendAndStoreMessage(
 		message,
 		messageFormatted,
 		matrixdb.MessageTypeListCommands,
@@ -117,7 +117,7 @@ func (action *ListCommandsAction) listReplyCommands(event *matrix.MessageEvent) 
 	}
 
 	message, messageFormatted := msg.Build()
-	action.storer.SendAndStoreMessage(
+	go action.storer.SendAndStoreMessage(
 		message,
 		messageFormatted,
 		matrixdb.MessageTypeListCommands,
@@ -143,7 +143,7 @@ func (action *ListCommandsAction) listReactions(event *matrix.MessageEvent) {
 	}
 
 	message, messageFormatted := msg.Build()
-	action.storer.SendAndStoreMessage(
+	go action.storer.SendAndStoreMessage(
 		message,
 		messageFormatted,
 		matrixdb.MessageTypeListCommands,
