@@ -7,7 +7,7 @@ import (
 	"maunium.net/go/mautrix/event"
 )
 
-// TODO tests
+// TODO increase test coverage.
 
 type ReactionEvent struct {
 	Event       *event.Event

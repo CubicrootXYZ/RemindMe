@@ -57,7 +57,8 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	exactMatch := true
 	if username == "" {
 		// Fall back to plain text
-		username = strings.TrimPrefix(strings.TrimSpace(event.Content.Body), "add user ") // TODO no longer matches the regex
+		// TODO remove all regex-matching strings here!
+		username = strings.TrimPrefix(strings.TrimSpace(event.Content.Body), "add user ")
 		exactMatch = false
 	}
 

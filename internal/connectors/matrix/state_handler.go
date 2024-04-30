@@ -96,7 +96,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return nil
 	}
 
-	// TODO for further testing service.client needs to be mocked
+	// TODO for further testing service.client needs to be mocked.
 	_, err = service.client.JoinRoom(evt.RoomID.String(), "", nil)
 	if err != nil {
 		service.logger.Errorf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error())
@@ -272,7 +272,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 		return err
 	}
 
-	// TODO mock service.client to test further
+	// TODO mock service.client to test further.
 	_, err = service.client.LeaveRoom(evt.RoomID)
 	if err != nil {
 		// Fire and forget, we might already be banned
@@ -298,7 +298,7 @@ func (service *service) removeRoom(room *matrixdb.MatrixRoom) error {
 		return err
 	}
 
-	// TODO check if any user is dangling now and remove them too
+	// TODO check if any user is dangling now and remove them too.
 
 	return nil
 }

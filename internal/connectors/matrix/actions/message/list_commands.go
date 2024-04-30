@@ -15,7 +15,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-// TODO add tests!
 var listCommandsRegex = regexp.MustCompile("(?i)^(((show|list)( all| the| my)( command| commands))|commands|help)[ ]*$")
 
 // ListCommandsAction sets the time for the daily reminder.

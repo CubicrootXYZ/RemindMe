@@ -14,6 +14,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
+var changeTimeRegex = regexp.MustCompile(".*")
+
 // ChangeTimeAction acts as a template for new actions.
 type ChangeTimeAction struct {
 	logger    gologger.Logger
@@ -46,8 +48,7 @@ func (action *ChangeTimeAction) GetDocu() (title, explaination string, examples 
 
 // Selector defines a regex on what messages the action should be used.
 func (action *ChangeTimeAction) Selector() *regexp.Regexp {
-	// TODO do not compile on any call.
-	return regexp.MustCompile(".*")
+	return changeTimeRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
