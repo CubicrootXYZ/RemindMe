@@ -19,7 +19,7 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 		originalMessage = nil
 	}
 
-	message, messageFormatted, err := format.MessageFromEvent(event, "") // TODO get timezone
+	message, messageFormatted, err := format.MessageFromEvent(event, room.TimeZone)
 	if err != nil {
 		return err
 	}
