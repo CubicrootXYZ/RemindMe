@@ -40,6 +40,8 @@ jobs:
     container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
+    env:
+      GOFLAGS: “-buildvcs=false”
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
