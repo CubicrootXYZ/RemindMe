@@ -1,6 +1,7 @@
 
 *.code-workspace
 config.yml
+config.yaml
 .scannerwork/**
 .vscode/**
 sonar-project.properties

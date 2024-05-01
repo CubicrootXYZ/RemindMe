@@ -30,7 +30,7 @@ func Run(config *Config) error {
 	logger := gologger.New(config.loggerConfig(), 0).WithField("component", "cmd")
 	defer logger.Flush()
 
-	logger.Infof("starting up RemindMe ...")
+	logger.Infof("starting up RemindMe with version '%s' ...", config.BuildVersion)
 	processes, err := setup(config, logger)
 	if err != nil {
 		logger.Err(err)

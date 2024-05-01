@@ -19,6 +19,8 @@ type Config struct {
 	Daemon   configDaemon
 	Matrix   configMatrix
 	API      configAPI
+
+	BuildVersion string
 }
 
 type configDatabase struct {

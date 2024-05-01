@@ -1,10 +1,11 @@
 FROM cubicrootxyz/matrix-go:1.22 as builder
+ARG VERSION="development"
 
 WORKDIR /run
 
 COPY ./ ./
 RUN go mod download
-RUN go build -ldflags="-w -s" -o /run ./cmd/remindme
+RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}}" -o /run ./cmd/remindme
 
 FROM ubuntu:22.04 
 RUN apt update && apt upgrade -y && \

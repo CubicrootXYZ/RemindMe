@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	mcmd "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/cmd"
 )
 
@@ -25,6 +26,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	config.BuildVersion = mcmd.Version
 
 	err = cmd.Run(config)
 	if err != nil {
