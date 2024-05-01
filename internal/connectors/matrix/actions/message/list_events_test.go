@@ -26,7 +26,7 @@ func TestListEventsAction_Meta(t *testing.T) {
 	title, expl, examples := action.GetDocu()
 	assert.Greater(t, len(title), 2)
 	assert.Greater(t, len(expl), 2)
-	assert.Greater(t, len(examples), 0)
+	assert.NotEmpty(t, examples)
 }
 
 func TestListEventsAction_Selector(t *testing.T) {

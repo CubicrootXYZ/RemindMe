@@ -239,7 +239,7 @@ func TestService_Fetcher(t *testing.T) {
 	require.NoError(t, err)
 
 	called := false
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(content)
 		called = true
 	}))
@@ -302,7 +302,7 @@ func TestService_Fetcher(t *testing.T) {
 	icalDB.EXPECT().UpdateIcalInput(gomock.Any()).Return(nil, nil)
 
 	go func() {
-		require.NoError(t, service.Start())
+		assert.NoError(t, service.Start())
 	}()
 
 	time.Sleep(time.Millisecond * 50)

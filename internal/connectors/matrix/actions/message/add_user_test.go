@@ -68,7 +68,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		nil,
 	)
 
-	t.Run("formatted username", func(t *testing.T) { //nolint:dupl
+	t.Run("formatted username", func(_ *testing.T) { //nolint:dupl
 		// Expectations
 		client.EXPECT().JoinedMembers(id.RoomID("!room123")).Return(
 			&mautrix.RespJoinedMembers{
@@ -96,7 +96,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		))
 	})
 
-	t.Run("plain text username", func(t *testing.T) { //nolint:dupl
+	t.Run("plain text username", func(_ *testing.T) { //nolint:dupl
 		// Expectations
 		client.EXPECT().JoinedMembers(id.RoomID("!room123")).Return(
 			&mautrix.RespJoinedMembers{

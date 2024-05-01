@@ -18,7 +18,7 @@ func testServer(ctrl *gomock.Controller) (*database.MockService, *matrixdb.MockS
 	api := api.New(&api.Config{
 		Database:            db,
 		MatrixDB:            matrixDB,
-		DefaultAuthProvider: func(ctx *gin.Context) {},
+		DefaultAuthProvider: func(_ *gin.Context) {},
 	}, gologger.New(gologger.LogLevelDebug, 0))
 
 	r := gin.New()

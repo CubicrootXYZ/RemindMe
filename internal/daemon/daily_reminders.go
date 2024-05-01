@@ -13,9 +13,7 @@ func (service *service) sendOutDailyReminders() error {
 	}
 
 	for _, channel := range channels {
-		channel := channel
-
-		if !isDailyReminderTimeReached(&channel) {
+		if !isDailyReminderTimeReached(channel) {
 			continue
 		}
 
@@ -26,8 +24,6 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		for _, output := range channel.Outputs {
-			output := output
-
 			if isDailyReminderSentToday(&output) {
 				continue
 			}
@@ -56,7 +52,7 @@ func (service *service) sendOutDailyReminders() error {
 	return nil
 }
 
-func isDailyReminderTimeReached(channel *database.Channel) bool {
+func isDailyReminderTimeReached(channel database.Channel) bool {
 	if channel.DailyReminder == nil {
 		return false
 	}

@@ -63,7 +63,7 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	}
 
 	for _, msg := range msgs {
-		t.Run(msg, func(t *testing.T) {
+		t.Run(msg, func(_ *testing.T) {
 			event := tests.TestEvent(
 				tests.MessageWithBody(
 					msg,

@@ -47,9 +47,9 @@ func (messenger *service) deleteMessage(deleteAction *Delete, retries uint, retr
 			// Errors indicating that the request is invalid, do not try again
 			messenger.logger.Infof("Deleting message failed with error: " + err.Error())
 			return err
-		} else {
-			messenger.logger.Infof(fmt.Sprintf("Deleting message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error()))
 		}
+
+		messenger.logger.Infof(fmt.Sprintf("Deleting message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error()))
 
 		retries--
 		time.Sleep(retryTime * (time.Duration(maxRetries) - time.Duration(retries)))

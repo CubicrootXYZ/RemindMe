@@ -7,7 +7,6 @@ func (service *service) sendOutEvents() error {
 	}
 
 	for _, event := range events {
-		event := event
 		for j := range event.Channel.Outputs {
 			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 

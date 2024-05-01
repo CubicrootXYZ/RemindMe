@@ -97,7 +97,7 @@ func TestService_AddInputToChannel(t *testing.T) {
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	require.Equal(t, 1, len(channelAfter.Inputs))
+	require.Len(t, channelAfter.Inputs, 1)
 	assert.Equal(t, inputBefore.InputType, channelAfter.Inputs[0].InputType)
 	assert.Equal(t, inputBefore.InputID, channelAfter.Inputs[0].InputID)
 	assert.Equal(t, inputBefore.Enabled, channelAfter.Inputs[0].Enabled)
@@ -115,7 +115,7 @@ func TestService_AddOutputToChannel(t *testing.T) {
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	require.Equal(t, 1, len(channelAfter.Outputs))
+	require.Len(t, channelAfter.Outputs, 1)
 	assert.Equal(t, outputBefore.OutputType, channelAfter.Outputs[0].OutputType)
 	assert.Equal(t, outputBefore.OutputID, channelAfter.Outputs[0].OutputID)
 	assert.Equal(t, outputBefore.Enabled, channelAfter.Outputs[0].Enabled)
@@ -146,7 +146,7 @@ func TestService_RemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong h
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 0, len(channelAfter.Inputs))
+	assert.Empty(t, channelAfter.Inputs)
 
 	_, err = service.GetInputByID(input.ID)
 	require.Error(t, err)
@@ -176,12 +176,12 @@ func TestService_RemoveInputFromChannelWithInputServiceError(t *testing.T) {
 
 	err = service.RemoveInputFromChannel(channelBefore.ID, input.ID)
 	require.Error(t, err)
-	assert.ErrorIs(t, err, expectedErr)
+	require.ErrorIs(t, err, expectedErr)
 
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 1, len(channelAfter.Inputs))
+	require.Len(t, channelAfter.Inputs, 1)
 }
 
 func TestService_RemoveInputFromChannelWithoutInputService(t *testing.T) {
@@ -195,12 +195,12 @@ func TestService_RemoveInputFromChannelWithoutInputService(t *testing.T) {
 
 	err = service.RemoveInputFromChannel(channelBefore.ID, input.ID)
 	require.Error(t, err)
-	assert.ErrorIs(t, err, database.ErrUnknownInput)
+	require.ErrorIs(t, err, database.ErrUnknownInput)
 
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 1, len(channelAfter.Inputs))
+	require.Len(t, channelAfter.Inputs, 1)
 }
 
 func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
@@ -228,7 +228,7 @@ func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong 
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 0, len(channelAfter.Outputs))
+	assert.Empty(t, channelAfter.Outputs)
 
 	_, err = service.GetOutputByID(output.ID)
 	require.Error(t, err)
@@ -258,12 +258,12 @@ func TestService_RemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
 
 	err = service.RemoveOutputFromChannel(channelBefore.ID, output.ID)
 	require.Error(t, err)
-	assert.ErrorIs(t, err, expectedErr)
+	require.ErrorIs(t, err, expectedErr)
 
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 1, len(channelAfter.Outputs))
+	require.Len(t, channelAfter.Outputs, 1)
 }
 
 func TestService_RemoveOutputFromChannelWithoutOutputService(t *testing.T) {
@@ -277,12 +277,12 @@ func TestService_RemoveOutputFromChannelWithoutOutputService(t *testing.T) {
 
 	err = service.RemoveOutputFromChannel(channelBefore.ID, output.ID)
 	require.Error(t, err)
-	assert.ErrorIs(t, err, database.ErrUnknownOutput)
+	require.ErrorIs(t, err, database.ErrUnknownOutput)
 
 	channelAfter, err := service.GetChannelByID(channelBefore.ID)
 	require.NoError(t, err)
 
-	assert.Equal(t, 1, len(channelAfter.Outputs))
+	assert.Len(t, channelAfter.Outputs, 1)
 }
 
 func TestService_UpdateChannel(t *testing.T) {

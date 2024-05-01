@@ -68,7 +68,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		nil,
 	)
 
-	t.Run("add 1 hour", func(t *testing.T) {
+	t.Run("add 1 hour", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -84,7 +84,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("add 1 week", func(t *testing.T) {
+	t.Run("add 1 week", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -100,7 +100,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("sending response fails", func(t *testing.T) {
+	t.Run("sending response fails", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -116,7 +116,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("update fails", func(t *testing.T) {
+	t.Run("update fails", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -135,7 +135,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("message has no event", func(t *testing.T) {
+	t.Run("message has no event", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithoutEvent(),
 		)

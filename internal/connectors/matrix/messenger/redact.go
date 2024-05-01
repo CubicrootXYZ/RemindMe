@@ -46,9 +46,9 @@ func (messenger *service) sendRedact(roomID string, eventID string, retries uint
 			// Errors indicating that the request is invalid, do not try again
 			messenger.logger.Infof("Sending message failed with error: " + err.Error())
 			return err
-		} else {
-			messenger.logger.Infof(fmt.Sprintf("Sending message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error()))
 		}
+
+		messenger.logger.Infof(fmt.Sprintf("Sending message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error()))
 
 		retries--
 		time.Sleep(retryTime * (time.Duration(maxRetries) - time.Duration(retries)))

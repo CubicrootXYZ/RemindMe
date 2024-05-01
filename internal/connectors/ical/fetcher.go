@@ -28,7 +28,6 @@ func (service *service) refreshIcalInputs() {
 	}
 
 	for _, input := range inputs {
-		input := input
 		l := service.logger.WithField("iCal input ID", input.ID)
 
 		now := time.Now()

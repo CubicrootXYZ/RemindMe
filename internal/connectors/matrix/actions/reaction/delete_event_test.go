@@ -68,7 +68,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		nil,
 	)
 
-	t.Run("success case", func(t *testing.T) {
+	t.Run("success case", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -92,7 +92,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("sending response fails", func(t *testing.T) {
+	t.Run("sending response fails", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -116,7 +116,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("update fails", func(t *testing.T) {
+	t.Run("update fails", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithTestEvent(),
 		)
@@ -137,7 +137,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		), msg)
 	})
 
-	t.Run("missing event in message", func(t *testing.T) {
+	t.Run("missing event in message", func(_ *testing.T) {
 		msg := tests.TestMessage(
 			tests.WithoutEvent(),
 		)
