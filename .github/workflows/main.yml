@@ -40,13 +40,11 @@ jobs:
     container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
-    env:
-      GOFLAGS: “-buildvcs=false”
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.sha }}
       - name: Run golangci
         run: golangci-lint run --timeout 3m0s
 
