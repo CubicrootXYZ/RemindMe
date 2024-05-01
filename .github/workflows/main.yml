@@ -2,18 +2,18 @@ name: Main
 on:
   push:
     paths-ignore:
-      - '**.md'
-      - '**.jpg'
-      - '**.jpeg'
-      - '**.png'
-      - 'index.html'
+      - "**.md"
+      - "**.jpg"
+      - "**.jpeg"
+      - "**.png"
+      - "index.html"
 
-jobs: 
+jobs:
   tests:
     needs: [build_documentation] # Validates agains OpenAPI spec
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
-    container: 
+    container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
     services:
@@ -37,7 +37,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
-    container: 
+    container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
     steps:
@@ -48,7 +48,7 @@ jobs:
   build_documentation:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
-    container: 
+    container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
     steps:
@@ -58,7 +58,7 @@ jobs:
           ref: ${{ github.head_ref }}
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: "14"
       - name: Get dependencies
         run: go get ./...
       - name: Build the api documentation
@@ -78,11 +78,11 @@ jobs:
       - name: Commit static html back
         if: "${{ github.ref == 'refs/heads/main' }}"
         uses: stefanzweifel/git-auto-commit-action@v4
-  
+
   tidy:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
-    container: 
+    container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
     steps:
@@ -96,7 +96,7 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
-    container: 
+    container:
       image: cubicrootxyz/matrix-go:1.22
       options: --user root
     steps:
@@ -117,7 +117,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
       - name: Build container
-        run: docker build -t cubicrootxyz/remindme:beta .
+        run: docker build --build-arg VERSION=${{ github.sha }} -t cubicrootxyz/remindme:beta .
       - name: Login to Docker Hub
         if: "${{ github.ref == 'refs/heads/main' }}"
         uses: docker/login-action@v2
@@ -127,4 +127,3 @@ jobs:
       - name: Push image
         if: "${{ github.ref == 'refs/heads/main' }}"
         run: docker push cubicrootxyz/remindme:beta
-      
