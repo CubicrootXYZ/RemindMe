@@ -56,13 +56,6 @@ jobs:
     container:
       image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3
@@ -87,6 +80,20 @@ jobs:
           name: rendered-api-docu
           path: |
             index.html
+
+  publish_documentation:
+    runs-on: ubuntu-latest
+    if: "${{ github.ref == 'refs/heads/main' }}"
+    needs:
+      - build_documentation
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         if: "${{ github.ref == 'refs/heads/main' }}"
         id: deployment
