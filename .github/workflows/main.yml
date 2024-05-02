@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-1
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     services:
       database:
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-1
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       # Otherwise golangci-lint fails with build VCS error.
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-1
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - name: Checkout the repository
@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-1
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - uses: actions/checkout@v3
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-1
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - uses: actions/checkout@v3
