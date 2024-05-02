@@ -82,7 +82,7 @@ jobs:
       - name: Build static html
         run: npx redoc-cli bundle docs/api-spec.yaml --output index.html
       - name: Archive rendered HTML
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rendered-api-docu
           path: |
