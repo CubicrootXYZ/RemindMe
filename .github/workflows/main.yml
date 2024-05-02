@@ -75,14 +75,31 @@ jobs:
       - name: Build static html
         run: npx redoc-cli bundle docs/api-spec.yaml --output index.html
       - name: Archive rendered HTML
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rendered-api-docu
           path: |
             index.html
-      - name: Commit static html back
+
+  publish_documentation:
+    runs-on: ubuntu-latest
+    if: "${{ github.ref == 'refs/heads/main' }}"
+    needs:
+      - build_documentation
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
         if: "${{ github.ref == 'refs/heads/main' }}"
-        uses: stefanzweifel/git-auto-commit-action@v4
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: rendered-api-docu
 
   tidy:
     runs-on: ubuntu-latest

@@ -68,8 +68,6 @@ Take a look into our [wiki](https://github.com/CubicrootXYZ/matrix-reminder-and-
 
 ### API
 
-⚠️ The documentation currently is only available for `v1` ⚠️
-
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 
 The documentation can be found at [cubicrootxyz.github.io/RemindMe/](https://cubicrootxyz.github.io/RemindMe/).
