@@ -41,16 +41,14 @@ jobs:
       image: cubicrootxyz/matrix-go:1.22-1
       options: --user root
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      # Otherwise golangci-lint fails with build VCS error.
+      - run: apt install git/buster-backports -y
+      - name: Checkout the repository
+        uses: actions/checkout@v4
         with:
-          go-version: "1.22"
-      - run: "git config --global --add safe.directory ${{ github.workspace }}"
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v5
-        with:
-          version: v1.57
-          args: --timeout=3m
+          ref: ${{ github.sha }}
+      - name: Run golangci
+        run: golangci-lint run --timeout 3m0s
 
   build_documentation:
     runs-on: ubuntu-latest
