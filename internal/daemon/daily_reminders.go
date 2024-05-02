@@ -24,7 +24,7 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		for _, output := range channel.Outputs {
-			if isDailyReminderSentToday(&output) {
+			if isDailyReminderSentToday(&output) { //nolint:gosec // Reference stays in same routine.
 				continue
 			}
 
@@ -34,7 +34,7 @@ func (service *service) sendOutDailyReminders() error {
 				continue
 			}
 
-			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output))
+			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output)) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
 				service.logger.Err(err)
 				continue
@@ -42,7 +42,7 @@ func (service *service) sendOutDailyReminders() error {
 
 			now := time.Now().UTC()
 			output.LastDailyReminder = &now
-			_, err = service.database.UpdateOutput(&output)
+			_, err = service.database.UpdateOutput(&output) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
 				service.logger.Err(err)
 			}

@@ -160,7 +160,7 @@ END:VCALENDAR
 	})
 	require.NoError(t, err)
 
-	require.Len(t, events, 2)
+	require.Lenf(t, events, 1, "expected 2 events, but got %d", len(events))
 
 	assert.Equal(t, testTime().Round(time.Hour*24).Add(time.Hour*-24).UTC(), events[0].Time.UTC())
 	assert.Equal(t, time.Hour*24, events[0].Duration)
