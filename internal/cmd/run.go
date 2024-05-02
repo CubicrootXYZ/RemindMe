@@ -59,7 +59,6 @@ func Run(config *Config) error {
 	}()
 
 	for _, p := range processes {
-		p := p
 		eg.Go(func() error {
 			return p.Start()
 		})

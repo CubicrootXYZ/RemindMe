@@ -7,7 +7,6 @@ func (service *service) sendOutEvents() error {
 	}
 
 	for _, event := range events {
-		event := event
 		for j := range event.Channel.Outputs {
 			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 
@@ -16,7 +15,7 @@ func (service *service) sendOutEvents() error {
 				continue
 			}
 
-			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j]))
+			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j])) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
 				service.logger.Err(err)
 				continue
@@ -29,7 +28,7 @@ func (service *service) sendOutEvents() error {
 				event.Active = false
 			}
 
-			_, err = service.database.UpdateEvent(&event)
+			_, err = service.database.UpdateEvent(&event) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
 				service.logger.Errorf("failed updating event after sending reminder: %w", err)
 				continue

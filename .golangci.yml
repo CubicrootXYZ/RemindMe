@@ -1,7 +1,7 @@
 linters:
   enable-all: true
-  disable: 
-    - gofumpt # Only formatting 
+  disable:
+    - gofumpt # Only formatting
     - godot # Only formatting
     - varnamelen # Imho not important
     - wrapcheck # This project does not use error wrapping
@@ -43,11 +43,12 @@ linters:
     - structcheck
     - wastedassign
     - depguard
+    - inamedparam
 
 linters-settings:
   cyclop:
     max-complexity: 30
-  funlen: 
+  funlen:
     lines: 150
     statements: 80
   gocognit:
@@ -64,13 +65,13 @@ issues:
         - forbidigo
     - path: internal/connectors/matrix/tests
       linters:
-        - forbidigo   
+        - forbidigo
     - path: '(.*)\/string\.go'
-      text: 'G404: Use of weak random number generator' # Used as fallback
+      text: "G404: Use of weak random number generator" # Used as fallback
     - path: '(.*)\/motivational_sentence\.go'
-      text: 'G404: Use of weak random number generator' # Not important
+      text: "G404: Use of weak random number generator" # Not important
     - path: '(.*)\/initializers\.go'
-      text: 'SA4009: argument db is overwritten before first use' # Preparation for later usage
+      text: "SA4009: argument db is overwritten before first use" # Preparation for later usage
     - path: '(.*)\/initializers\.go'
       text: 'SA4009\(related information\): assignment to db' # Preparation for later usage
   exclude:

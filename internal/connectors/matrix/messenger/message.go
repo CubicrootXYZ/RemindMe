@@ -109,9 +109,9 @@ func (messenger *service) sendMessage(messageEvent *messageEvent, channel string
 			// Errors indicating that the request is invalid, do not try again
 			messenger.logger.Infof("Sending message failed with error: " + err.Error())
 			return nil, err
-		} else {
-			messenger.logger.Infof("Sending message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error())
 		}
+
+		messenger.logger.Infof("Sending message failed in try %d from try %d with error: %s", retries, maxRetries, err.Error())
 
 		retries--
 		time.Sleep(retryTime * (time.Duration(maxRetries) - time.Duration(retries)))

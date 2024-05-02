@@ -103,7 +103,6 @@ func TestMinutesToIcalRecurrenceRule(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			assert.Equal(
 				t,
@@ -123,7 +122,7 @@ func TestEventsFromIcal(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, 3, len(events))
+	require.Len(t, events, 3)
 
 	assert.Equal(t, testTime().UTC(), events[0].Time.UTC())
 	assert.Equal(t, time.Minute*5, events[0].Duration)
@@ -161,7 +160,7 @@ END:VCALENDAR
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, 1, len(events))
+	require.Lenf(t, events, 1, "expected 2 events, but got %d", len(events))
 
 	assert.Equal(t, testTime().Round(time.Hour*24).Add(time.Hour*-24).UTC(), events[0].Time.UTC())
 	assert.Equal(t, time.Hour*24, events[0].Duration)
@@ -190,7 +189,7 @@ END:VCALENDAR
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, 0, len(events))
+	require.Empty(t, events)
 }
 
 func toP[T any](elem T) *T {

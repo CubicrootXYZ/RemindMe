@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     services:
       database:
@@ -38,18 +38,23 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
-      - uses: actions/checkout@v3
+      # Otherwise golangci-lint fails with build VCS error.
+      - run: apt install git/buster-backports -y
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
       - name: Run golangci
-        run: GOFLAGS=-buildvcs=false && golangci-lint run --timeout 3m0s
+        run: golangci-lint run --timeout 3m0s
 
   build_documentation:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - name: Checkout the repository
@@ -83,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - uses: actions/checkout@v3
@@ -97,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22
+      image: cubicrootxyz/matrix-go:1.22-2
       options: --user root
     steps:
       - uses: actions/checkout@v3

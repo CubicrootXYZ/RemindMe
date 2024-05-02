@@ -257,7 +257,7 @@ func assertRoomsEqual(t *testing.T, a *matrixdb.MatrixRoom, b *matrixdb.MatrixRo
 	}
 	assert.Equal(t, a.RoomID, b.RoomID)
 	if len(a.Users) == 0 {
-		assert.Equal(t, 0, len(b.Users))
+		assert.Empty(t, b.Users)
 	} else {
 		assert.Equal(t, a.Users, b.Users)
 	}

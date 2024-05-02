@@ -28,11 +28,10 @@ func (service *service) refreshIcalInputs() {
 	}
 
 	for _, input := range inputs {
-		input := input
 		l := service.logger.WithField("iCal input ID", input.ID)
 
 		now := time.Now()
-		err := service.refreshIcalInput(&input)
+		err := service.refreshIcalInput(&input) //nolint:gosec // Reference stays in same routine.
 		if err != nil {
 			l.Infof("failed refreshing: %v", input.ID, err)
 			if input.LastRefresh != nil && time.Since(*input.LastRefresh) > time.Hour*48 {
@@ -44,7 +43,7 @@ func (service *service) refreshIcalInputs() {
 			input.Disabled = false
 		}
 
-		_, err = service.config.ICalDB.UpdateIcalInput(&input)
+		_, err = service.config.ICalDB.UpdateIcalInput(&input) //nolint:gosec // Reference stays in same routine.
 		if err != nil {
 			l.Infof("failed updating input in database: %v", err)
 			continue

@@ -125,7 +125,7 @@ func TestStore_FindSharedRooms(t *testing.T) {
 	}, nil)
 
 	roomIDs := store.FindSharedRooms("abcd")
-	require.Equal(t, 2, len(roomIDs), "expected 2 room IDs")
+	require.Len(t, roomIDs, 2, "expected 2 room IDs")
 	assert.Equal(t, "123", roomIDs[0].String())
 	assert.Equal(t, "456", roomIDs[1].String())
 }
@@ -138,7 +138,7 @@ func TestStore_FindSharedRoomsWithError(t *testing.T) {
 	db.EXPECT().GetUserByID("abcd").Return(nil, errors.New("test"))
 
 	roomIDs := store.FindSharedRooms("abcd")
-	require.Equal(t, 0, len(roomIDs), "expected 0 room IDs")
+	require.Empty(t, roomIDs, "expected 0 room IDs")
 }
 
 func TestStore_SetEncryptionEvent(t *testing.T) {
@@ -212,7 +212,7 @@ func TestStore_GetUserIDs(t *testing.T) {
 
 	userIDs := store.GetUserIDs("abcd")
 
-	require.Equal(t, 3, len(userIDs), "expected 3 user IDs")
+	require.Len(t, userIDs, 3, "expected 3 user IDs")
 	assert.Equal(t, "@bot:example.com", userIDs[0].String())
 	assert.Equal(t, "123", userIDs[1].String())
 	assert.Equal(t, "456", userIDs[2].String())
@@ -227,6 +227,6 @@ func TestStore_GetUserIDsWithError(t *testing.T) {
 
 	userIDs := store.GetUserIDs("abcd")
 
-	require.Equal(t, 1, len(userIDs), "expected 1 user IDs")
+	require.Len(t, userIDs, 1, "expected 1 user IDs")
 	assert.Equal(t, "@bot:example.com", userIDs[0].String())
 }

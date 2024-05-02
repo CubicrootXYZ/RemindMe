@@ -154,7 +154,7 @@ func TestService_GetEventsByChannel(t *testing.T) {
 	events, err := service.GetEventsByChannel(eventBefore.ChannelID)
 	require.NoError(t, err)
 
-	require.Less(t, 0, len(events))
+	require.NotEmpty(t, events)
 	evtFound := false
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
@@ -189,7 +189,7 @@ func TestService_ListEvents(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	require.Less(t, 0, len(events))
+	require.NotEmpty(t, events)
 	evtFound := false
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
@@ -208,7 +208,7 @@ func TestService_GetEventsByChannelWithEmptyResponse(t *testing.T) {
 	events, err := service.GetEventsByChannel(123456)
 	require.NoError(t, err)
 
-	require.Equal(t, 0, len(events))
+	require.Empty(t, events)
 }
 
 func TestService_GetEventsPending(t *testing.T) {
@@ -221,7 +221,7 @@ func TestService_GetEventsPending(t *testing.T) {
 	events, err := service.GetEventsPending()
 	require.NoError(t, err)
 
-	require.Less(t, 0, len(events))
+	require.NotEmpty(t, events)
 	evtFound := false
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
@@ -288,5 +288,5 @@ func TestService_DeleteEvent(t *testing.T) {
 		IDs: []uint{event.ID},
 	})
 	require.NoError(t, err)
-	assert.Len(t, events, 0)
+	assert.Empty(t, events)
 }

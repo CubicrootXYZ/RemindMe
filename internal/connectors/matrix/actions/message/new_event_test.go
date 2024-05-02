@@ -66,7 +66,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 	}
 
 	for _, msg := range msgs {
-		t.Run(msg, func(t *testing.T) {
+		t.Run(msg, func(_ *testing.T) {
 			// Expectations
 			db.EXPECT().NewEvent(&eventMatcher{
 				evt: &database.Event{
