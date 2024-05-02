@@ -8,6 +8,8 @@
 
 A matrix bot that handles reminders and knows your agenda.
 
+⚠️ The main branch currently contains the `v2` which is not yet considered stable. `v1` is moved to the similiar named branch. ⚠️
+
 ## Example
 
 ![Example chat interaction](media/Chat_Example.png)
@@ -66,6 +68,8 @@ Take a look into our [wiki](https://github.com/CubicrootXYZ/matrix-reminder-and-
 
 ### API
 
+⚠️ The documentation currently is only available for `v1` ⚠️
+
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 
 The documentation can be found at [cubicrootxyz.github.io/RemindMe/](https://cubicrootxyz.github.io/RemindMe/).
@@ -74,7 +78,7 @@ The documentation can be found at [cubicrootxyz.github.io/RemindMe/](https://cub
 
 Any project missing? Open a pull request!
 
-* [RemindMe-Web](https://github.com/CubicrootXYZ/RemindMe-Web) - Web UI for controlling the bot
+* [RemindMe-Web](https://github.com/CubicrootXYZ/RemindMe-Web) - Web UI for controlling the bot (only works with `v1`)
 
 ## ❤️ Attribution
 
