@@ -45,6 +45,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+      - run: "git config --global --add safe.directory ${{ github.workspace }}"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v5
         with:
