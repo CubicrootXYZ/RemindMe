@@ -93,7 +93,15 @@ func TestEvent_NextEventTime(t *testing.T) {
 	}
 }
 
-func testEvent() *database.Event {
+type eventOpt func(*database.Event)
+
+func eventWithTime(eventTime time.Time) eventOpt {
+	return func(evt *database.Event) {
+		evt.Time = eventTime
+	}
+}
+
+func testEvent(opts ...eventOpt) *database.Event {
 	var channel *database.Channel
 	err := gormDB.First(&channel).Error
 	if err != nil {
@@ -106,7 +114,7 @@ func testEvent() *database.Event {
 		panic(err)
 	}
 
-	return &database.Event{
+	evt := &database.Event{
 		Time:           time2123(),
 		Duration:       *interval40Hours(),
 		Message:        "test",
@@ -115,6 +123,12 @@ func testEvent() *database.Event {
 		RepeatUntil:    timeP2124(),
 		ChannelID:      channel.ID,
 	}
+
+	for _, opt := range opts {
+		opt(evt)
+	}
+
+	return evt
 }
 
 func TestService_NewEvent(t *testing.T) {
@@ -234,6 +248,53 @@ func TestService_GetEventsPending(t *testing.T) {
 	}
 
 	assert.True(t, evtFound, "missing event not in response")
+}
+
+func TestService_GetEventsPendingWithDifferentTimezones(t *testing.T) {
+	shouldEventNotBePending := map[uint]bool{}
+
+	for _, evt := range []database.Event{
+		*testEvent(eventWithTime(time.Now().Add(time.Minute * 2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Minute * 2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Hour * 2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Hour * 24))),
+	} {
+		evt, err := service.NewEvent(&evt) //nolint:gosec
+		require.NoError(t, err)
+		shouldEventNotBePending[evt.ID] = true
+	}
+
+	for _, evt := range []database.Event{
+		*testEvent(eventWithTime(time.Now().Add(time.Minute * -2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Minute * -2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Hour * -2))),
+		*testEvent(eventWithTime(time.Now().UTC().Add(time.Hour * -24))),
+	} {
+		evt, err := service.NewEvent(&evt) //nolint:gosec
+		require.NoError(t, err)
+		shouldEventNotBePending[evt.ID] = false
+	}
+
+	evts, err := service.GetEventsPending()
+	require.NoError(t, err)
+
+	for _, evt := range evts {
+		assert.Falsef(t, shouldEventNotBePending[evt.ID], "event %v should not be pending", evt)
+	}
+
+	for evtID, shouldNotBePending := range shouldEventNotBePending {
+		if shouldNotBePending {
+			continue
+		}
+		found := false
+		for _, evt := range evts {
+			if evt.ID == evtID {
+				found = true
+				break
+			}
+		}
+		assert.Truef(t, found, "missing event with ID %d", evtID)
+	}
 }
 
 func TestService_GetEventsPendingWithInactiveEvent(t *testing.T) {

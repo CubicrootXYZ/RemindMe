@@ -70,7 +70,7 @@ func (service *service) GetEventsByChannel(channelID uint) ([]Event, error) {
 func (service *service) GetEventsPending() ([]Event, error) {
 	var events []Event
 
-	err := service.db.Preload("Channel").Preload("Input").Preload("Channel.Outputs").Find(&events, "events.active = ? AND events.time <= ?", true, time.Now()).Error
+	err := service.db.Preload("Channel").Preload("Input").Preload("Channel.Outputs").Find(&events, "events.active = ? AND events.time <= ?", true, time.Now().UTC()).Error
 	return events, err
 }
 
