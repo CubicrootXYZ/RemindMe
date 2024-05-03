@@ -81,25 +81,25 @@ jobs:
           path: |
             index.html
 
-  publish_documentation:
-    runs-on: ubuntu-latest
-    if: "${{ github.ref == 'refs/heads/main' }}"
-    needs:
-      - build_documentation
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        if: "${{ github.ref == 'refs/heads/main' }}"
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          artifact_name: rendered-api-docu
+  # publish_documentation:
+  #   runs-on: ubuntu-latest
+  #   if: "${{ github.ref == 'refs/heads/main' }}"
+  #   needs:
+  #     - build_documentation
+  #   # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       if: "${{ github.ref == 'refs/heads/main' }}"
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
+  #       with:
+  #         artifact_name: rendered-api-docu
 
   tidy:
     runs-on: ubuntu-latest
