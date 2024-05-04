@@ -63,35 +63,45 @@ func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 		},
 	)
 
-	matrixDB.EXPECT().UpdateRoom(&matrixdb.MatrixRoom{
-		RoomID:   "!room123",
-		Users:    []matrixdb.MatrixUser{},
-		TimeZone: "Europe/Berlin",
-	}).Return(nil, nil)
+	messages := map[string]string{
+		"Set timezone Europe/Berlin":       "Europe/Berlin",
+		"set timezone Europe/Berlin":       "Europe/Berlin",
+		"set timezone UTC":                 "UTC",
+		"SeT tImezone Australia/Melbourne": "Australia/Melbourne",
+	}
 
-	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
-		"Changed this channels timezone from UTC to Europe/Berlin 🛫 🛬",
-		"evt1",
-		"set timezone Europe/Berlin",
-		"@user:example.com",
-		"!room123",
-	)).Return(&messenger.MessageResponse{
-		ExternalIdentifier: "id1",
-	}, nil)
+	for msg, tz := range messages {
+		t.Run(msg, func(_ *testing.T) {
+			matrixDB.EXPECT().UpdateRoom(&matrixdb.MatrixRoom{
+				RoomID:   "!room123",
+				Users:    []matrixdb.MatrixUser{},
+				TimeZone: tz,
+			}).Return(nil, nil)
 
-	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
-		ID:            "id1",
-		UserID:        toP("@user:example.com"),
-		Body:          `Changed this channels timezone from UTC to Europe/Berlin 🛫 🛬`,
-		BodyFormatted: `Changed this channels timezone from UTC to Europe/Berlin 🛫 🛬`,
-		Type:          matrixdb.MessageTypeTimezoneChange,
-	},
-	).Return(nil, nil)
+			msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
+				"Changed this channels timezone from UTC to "+tz+" 🛫 🛬",
+				"evt1",
+				msg,
+				"@user:example.com",
+				"!room123",
+			)).Return(&messenger.MessageResponse{
+				ExternalIdentifier: "id1",
+			}, nil)
 
-	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("set timezone Europe/Berlin", "set timezone Europe/Berlin")))
+			matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+				ID:            "id1",
+				UserID:        toP("@user:example.com"),
+				Body:          `Changed this channels timezone from UTC to ` + tz + ` 🛫 🛬`,
+				BodyFormatted: `Changed this channels timezone from UTC to ` + tz + ` 🛫 🛬`,
+				Type:          matrixdb.MessageTypeTimezoneChange,
+			},
+			).Return(nil, nil)
 
-	// Wait for async message sending.
-	time.Sleep(time.Millisecond * 10)
+			action.HandleEvent(tests.TestEvent(tests.MessageWithBody(msg, msg)))
+			// Wait for async message sending.
+			time.Sleep(time.Millisecond * 10)
+		})
+	}
 }
 
 func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
