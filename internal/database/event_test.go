@@ -204,6 +204,51 @@ func TestService_ListEvents(t *testing.T) {
 	assert.True(t, evtFound, "missing event not in response")
 }
 
+func TestService_ListEventsWithInactiveEvent(t *testing.T) {
+	eventBefore, err := service.NewEvent(testEvent())
+	eventBefore.Active = false
+	require.NoError(t, err)
+
+	input := &database.Input{
+		InputType: "test",
+		InputID:   uint(rand.Int()), //nolint:gosec
+	}
+	err = service.AddInputToChannel(eventBefore.ChannelID, input)
+	require.NoError(t, err)
+
+	eventBefore.InputID = &input.ID
+	eventBefore, err = service.UpdateEvent(eventBefore)
+	require.NoError(t, err)
+
+	// Should not show up as is inactive.
+	events, err := service.ListEvents(&database.ListEventsOpts{
+		InputID: &input.ID,
+	})
+	require.NoError(t, err)
+	require.Empty(t, events)
+
+	// Should show up as we include inactive now.
+	events, err = service.ListEvents(&database.ListEventsOpts{
+		InputID:         &input.ID,
+		IncludeInactive: true,
+	})
+	require.NoError(t, err)
+
+	require.NotEmpty(t, events)
+	evtFound := false
+	for _, eventAfter := range events {
+		if eventAfter.ID == eventBefore.ID {
+			evtFound = true
+			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+			assert.Equal(t, eventBefore.Message, eventAfter.Message)
+			assert.Equal(t, eventBefore.Active, eventAfter.Active)
+			assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+		}
+	}
+
+	assert.True(t, evtFound, "missing event not in response")
+}
+
 func TestService_GetEventsByChannelWithEmptyResponse(t *testing.T) {
 	events, err := service.GetEventsByChannel(123456)
 	require.NoError(t, err)

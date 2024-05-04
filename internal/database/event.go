@@ -37,6 +37,7 @@ type ListEventsOpts struct {
 	InputID   *uint
 	ChannelID *uint
 	// TODO add filter for inactive events and exclude them from default search.
+	IncludeInactive bool
 }
 
 func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
@@ -50,6 +51,9 @@ func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 	}
 	if opts.IDs != nil {
 		query = query.Where("events.id IN ?", opts.IDs)
+	}
+	if !opts.IncludeInactive {
+		query = query.Where("events.Active = ?", true)
 	}
 
 	var events []Event
