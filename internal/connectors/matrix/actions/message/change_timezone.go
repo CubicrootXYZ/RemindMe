@@ -2,7 +2,6 @@ package message
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
@@ -16,6 +15,7 @@ import (
 )
 
 var changeTimezoneActionRegex = regexp.MustCompile("(?i)^set timezone .*$")
+var timezoneCaptureGroup = regexp.MustCompile("(?i)^set timezone (.*)$")
 
 // ChangeTimezoneAction allows setting a timezone for the matrix channel.
 type ChangeTimezoneAction struct {
@@ -56,7 +56,11 @@ func (action *ChangeTimezoneAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
-	tz := strings.ReplaceAll(event.Content.Body, "set timezone ", "")
+	tz := ""
+	matches := timezoneCaptureGroup.FindStringSubmatch(event.Content.Body)
+	if len(matches) >= 2 {
+		tz = matches[1]
+	}
 	_, err := time.LoadLocation(tz)
 	if err != nil {
 		action.storer.SendAndStoreResponse("Sorry, but I do not know what timezone this is.", matrixdb.MessageTypeTimezoneChange, *event)
