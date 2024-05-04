@@ -1,0 +1,22 @@
+{
+    "packageRules": [
+        {
+            "matchManagers": [
+                "gomod"
+            ],
+            "matchDepTypes": [
+                "indirect"
+            ],
+            "enabled": true
+        }
+    ],
+    "baseBranches": [
+        "main"
+    ],
+    "rebaseWhen": "conflicted",
+    "labels": [
+        "dependencies"
+    ],
+    "automergeStrategy": "merge-commit",
+    "automerge": false
+}
