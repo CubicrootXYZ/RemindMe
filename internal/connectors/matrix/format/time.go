@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/tj/go-naturaldate"
+
+	_ "time/tzdata" // Import timezone data.
 )
 
 const (

@@ -12,6 +12,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+
+	_ "time/tzdata" // Import timezone data.
 )
 
 var changeTimezoneActionRegex = regexp.MustCompile("(?i)^set timezone .*$")
