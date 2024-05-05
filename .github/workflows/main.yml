@@ -146,6 +146,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Push image
+      - name: Push development image
+        if: "${{ github.ref != 'refs/heads/main' }}"
+        run: |
+          docker tag cubicrootxyz/remindme:beta cubicrootxyz/remindme:${{ github.sha }}
+          docker push cubicrootxyz/remindme:${{ github.sha }}
+      - name: Push beta image
         if: "${{ github.ref == 'refs/heads/main' }}"
         run: docker push cubicrootxyz/remindme:beta
