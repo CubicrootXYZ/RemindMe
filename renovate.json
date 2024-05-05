@@ -18,5 +18,9 @@
         "dependencies"
     ],
     "automergeStrategy": "merge-commit",
-    "automerge": false
+    "automerge": false,
+    "postUpdateOptions": [
+        "gomodTidy",
+        "gomodUpdateImportPaths"
+    ]
 }
