@@ -183,7 +183,7 @@ func (service *service) setupNewChannel(room *database.MatrixRoom, user *databas
 }
 
 func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *database.MatrixUser) {
-	message, messageFormatted := getWelcomeMessage()
+	message, messageFormatted := getWelcomeMessage(room)
 
 	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
 		message,
@@ -210,13 +210,19 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 	}
 }
 
-func getWelcomeMessage() (string, string) {
+func getWelcomeMessage(room *database.MatrixRoom) (string, string) {
 	msg := format.Formater{}
 	msg.Title("Welcome to RemindMe")
 	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
 	msg.Text("You want to now what I am capable of? Just text me ")
 	msg.BoldLine("list all commands")
-	msg.TextLine("First things you should do are setting your timezone and a daily reminder.")
+	msg.Text("Is this your current local time? ")
+	msg.Italic(format.ToLocalTime(time.Now(), room.TimeZone))
+	msg.NewLine()
+	msg.TextLine("If not, please adjust your timezone with ")
+	msg.BoldLine("set timezone Europe/Berlin")
+
+	msg.TextLine("You can set up a daily reminder too!")
 
 	msg.SubTitle("Attribution")
 	msg.TextLine("This bot is open for everyone and build with the help of voluntary software developers.")
