@@ -63,6 +63,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 	_, err := time.LoadLocation(tz)
 	if err != nil {
+		action.logger.Infof("failed to load timezone '%s' with: %s", tz, err.Error())
 		action.storer.SendAndStoreResponse("Sorry, but I do not know what timezone this is.", matrixdb.MessageTypeTimezoneChange, *event)
 		return
 	}
