@@ -15,7 +15,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-var listCommandsRegex = regexp.MustCompile("(?i)^(((show|list)( all| the| my)( command| commands))|commands|help)[ ]*$")
+var listCommandsRegex = regexp.MustCompile("(?i)^(((show|list)( all| the| my|)( command| commands))|commands|help)[ ]*$")
 
 // ListCommandsAction sets the time for the daily reminder.
 type ListCommandsAction struct {
@@ -46,7 +46,7 @@ func (action *ListCommandsAction) Name() string {
 func (action *ListCommandsAction) GetDocu() (title, explaination string, examples []string) {
 	return "List Commands",
 		"List available commands",
-		[]string{"show all commands", "list the commands", "commands"}
+		[]string{"show all commands", "list the commands", "commands", "list commands", "help"}
 }
 
 // Selector defines a regex on what messages the action should be used.
