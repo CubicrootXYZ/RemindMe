@@ -12,6 +12,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+
+	_ "time/tzdata" // Import timezone data.
 )
 
 var changeTimezoneActionRegex = regexp.MustCompile("(?i)^set timezone .*$")
@@ -63,6 +65,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 	_, err := time.LoadLocation(tz)
 	if err != nil {
+		action.logger.Infof("failed to load timezone '%s' with: %s", tz, err.Error())
 		action.storer.SendAndStoreResponse("Sorry, but I do not know what timezone this is.", matrixdb.MessageTypeTimezoneChange, *event)
 		return
 	}

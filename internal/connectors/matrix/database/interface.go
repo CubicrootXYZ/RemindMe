@@ -6,6 +6,8 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"gorm.io/gorm"
+
+	_ "time/tzdata" // Import timezone data.
 )
 
 var (
