@@ -14,7 +14,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/stretchr/testify v1.9.0
 	github.com/teambition/rrule-go v1.8.2
-	github.com/tj/assert v0.0.0-20190920132354-ee03d75cd160
+	github.com/tj/assert v0.0.3
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/net v0.24.0
 	golang.org/x/sync v0.1.0
