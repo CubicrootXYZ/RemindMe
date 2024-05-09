@@ -8,6 +8,7 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
@@ -20,6 +21,7 @@ type DeleteEventAction struct {
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
+	storer    *msghelper.Storer
 }
 
 // Configure is called on startup and sets all dependencies.
@@ -29,6 +31,7 @@ func (action *DeleteEventAction) Configure(logger gologger.Logger, client mautri
 	action.matrixDB = matrixDB
 	action.db = db
 	action.messenger = messenger
+	action.storer = msghelper.NewStorer(matrixDB, messenger, logger)
 }
 
 // Name of the action
@@ -58,15 +61,29 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 
 	err := action.db.DeleteEvent(replyToMessage.Event)
 	if err != nil {
-		action.logger.Errorf("failed to update event in database: %v", err)
+		action.logger.Errorf("failed to update event in database: %w", err)
 		return
 	}
 
-	_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
-		"I deleted this Event!",
-		event.Event.ID.String(),
-		event.Content.Body,
-		event.Event.Sender.String(),
-		event.Room.RoomID,
-	))
+	go action.storer.SendAndStoreResponse("Deleted event \""+replyToMessage.Event.Message+"\"", matrixdb.MessageTypeEventDelete, *event, msghelper.WithEventID(replyToMessage.Event.ID))
+
+	// Best effort approach to delete messages related to that event.
+	messages, err := action.matrixDB.ListMessages(matrixdb.ListMessageOpts{
+		RoomID:  &event.Room.ID,
+		EventID: replyToMessage.EventID,
+	})
+	if err != nil {
+		action.logger.Errorf("failed to list messages for event: %w", err)
+		return
+	}
+
+	for _, message := range messages {
+		err := action.messenger.DeleteMessageAsync(&messenger.Delete{
+			ExternalIdentifier:        message.ID,
+			ChannelExternalIdentifier: event.Room.RoomID,
+		})
+		if err != nil {
+			action.logger.Errorf("failed to delete message: %w", err)
+		}
+	}
 }

@@ -79,12 +79,34 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		db.EXPECT().UpdateEvent(&evt).Return(nil, nil)
 
 		msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
-			"I deleted that reminder!",
+			"Deleted event \"\"",
 			"msg1",
 			"",
 			"@user:example.com",
 			"!room123",
 		)).Return(nil)
+
+		matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
+			RoomID:  &tests.TestEvent().Room.ID,
+			EventID: tests.TestMessage().EventID,
+		}).Return([]matrixdb.MatrixMessage{
+			{
+				ID: "123456",
+			},
+			{
+				ID: "1234567",
+			},
+		}, nil)
+
+		msngr.EXPECT().DeleteMessageAsync(&messenger.Delete{
+			ExternalIdentifier:        "123456",
+			ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
+		}).Return(nil)
+
+		msngr.EXPECT().DeleteMessageAsync(&messenger.Delete{
+			ExternalIdentifier:        "1234567",
+			ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
+		}).Return(errors.New("test"))
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -103,7 +125,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 		db.EXPECT().UpdateEvent(&evt).Return(nil, nil)
 
 		msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
-			"I deleted that reminder!",
+			"Deleted event \"\"",
 			"msg1",
 			"",
 			"@user:example.com",
