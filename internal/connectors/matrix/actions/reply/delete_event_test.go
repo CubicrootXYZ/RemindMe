@@ -3,6 +3,7 @@ package reply_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
@@ -74,7 +75,10 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 			db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
 				Return(nil)
 
-			msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+				ExternalIdentifier: "abcde",
+			}, nil)
+			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
 				RoomID:  &tests.TestEvent().Room.ID,
@@ -100,6 +104,8 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 			// Execute
 			action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
+			// Give async message handling some time.
+			time.Sleep(time.Millisecond * 10)
 		})
 	}
 }
@@ -140,7 +146,10 @@ func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 			db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
 				Return(nil)
 
-			msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+				ExternalIdentifier: "abcde",
+			}, nil)
+			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
 				RoomID:  &tests.TestEvent().Room.ID,
@@ -149,6 +158,8 @@ func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 
 			// Execute
 			action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
+			// Give async message handling some time.
+			time.Sleep(time.Millisecond * 10)
 		})
 	}
 }
