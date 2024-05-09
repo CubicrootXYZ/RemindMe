@@ -72,14 +72,37 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 		return
 	}
 
+	// Later improvement: extend storer for reaction events and store this
+	// message to the database as well.
 	err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
-		"I deleted that reminder!",
+		"Deleted event \""+reactionToMessage.Event.Message+"\"",
 		reactionToMessage.ID,
 		reactionToMessage.Body,
 		event.Event.Sender.String(),
 		event.Room.RoomID,
 	))
 	if err != nil {
-		l.Err(err)
+		action.logger.Errorf("failed to send message: %w", err)
+		return
+	}
+
+	// Best effort approach to delete messages related to that event.
+	messages, err := action.matrixDB.ListMessages(matrixdb.ListMessageOpts{
+		RoomID:  &event.Room.ID,
+		EventID: reactionToMessage.EventID,
+	})
+	if err != nil {
+		action.logger.Errorf("failed to list messages for event: %w", err)
+		return
+	}
+
+	for _, message := range messages {
+		err := action.messenger.DeleteMessageAsync(&messenger.Delete{
+			ExternalIdentifier:        message.ID,
+			ChannelExternalIdentifier: event.Room.RoomID,
+		})
+		if err != nil {
+			action.logger.Errorf("failed to delete message: %w", err)
+		}
 	}
 }

@@ -21,7 +21,7 @@ type DeleteEventAction struct {
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
-	storer    msghelper.Storer
+	storer    *msghelper.Storer
 }
 
 // Configure is called on startup and sets all dependencies.
@@ -31,7 +31,7 @@ func (action *DeleteEventAction) Configure(logger gologger.Logger, client mautri
 	action.matrixDB = matrixDB
 	action.db = db
 	action.messenger = messenger
-	action.storer = *msghelper.NewStorer(matrixDB, messenger, logger)
+	action.storer = msghelper.NewStorer(matrixDB, messenger, logger)
 }
 
 // Name of the action
