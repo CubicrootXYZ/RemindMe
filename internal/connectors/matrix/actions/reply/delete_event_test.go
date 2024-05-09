@@ -76,6 +76,77 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 			msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
 
+			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
+				RoomID:  &tests.TestEvent().Room.ID,
+				EventID: tests.TestMessage().EventID,
+			}).Return([]matrixdb.MatrixMessage{
+				{
+					ID: "123456",
+				},
+				{
+					ID: "1234567",
+				},
+			}, nil)
+
+			msngr.EXPECT().DeleteMessageAsync(&messenger.Delete{
+				ExternalIdentifier:        "123456",
+				ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
+			}).Return(nil)
+
+			msngr.EXPECT().DeleteMessageAsync(&messenger.Delete{
+				ExternalIdentifier:        "1234567",
+				ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
+			}).Return(errors.New("test"))
+
+			// Execute
+			action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
+		})
+	}
+}
+
+func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+
+	action := &reply.DeleteEventAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		nil,
+	)
+
+	msgs := []string{
+		"delete",
+		" remove ",
+	}
+
+	for _, msg := range msgs {
+		t.Run(msg, func(_ *testing.T) {
+			event := tests.TestEvent(
+				tests.MessageWithBody(
+					msg,
+					msg,
+				))
+
+			// Expectations
+			db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
+				Return(nil)
+
+			msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+
+			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
+				RoomID:  &tests.TestEvent().Room.ID,
+				EventID: tests.TestMessage().EventID,
+			}).Return([]matrixdb.MatrixMessage{}, errors.New("test"))
+
 			// Execute
 			action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
 		})

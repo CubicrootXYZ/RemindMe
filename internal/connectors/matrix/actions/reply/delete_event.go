@@ -58,7 +58,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 
 	err := action.db.DeleteEvent(replyToMessage.Event)
 	if err != nil {
-		action.logger.Errorf("failed to update event in database: %v", err)
+		action.logger.Errorf("failed to update event in database: %w", err)
 		return
 	}
 
@@ -71,5 +71,22 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 	))
 
 	// Best effort approach to delete messages related to that event.
-	messages, err := action.matrixDB.Get
+	messages, err := action.matrixDB.ListMessages(matrixdb.ListMessageOpts{
+		RoomID:  &event.Room.ID,
+		EventID: replyToMessage.EventID,
+	})
+	if err != nil {
+		action.logger.Errorf("failed to list messages for event: %w", err)
+		return
+	}
+
+	for _, message := range messages {
+		err := action.messenger.DeleteMessageAsync(&messenger.Delete{
+			ExternalIdentifier:        message.ID,
+			ChannelExternalIdentifier: event.Room.RoomID,
+		})
+		if err != nil {
+			action.logger.Errorf("failed to delete message: %w", err)
+		}
+	}
 }
