@@ -8,8 +8,8 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/tj/assert"
 )
 
 func TestCoreAPI_ListChannelsHandler(t *testing.T) {
