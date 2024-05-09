@@ -3,7 +3,7 @@ module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 go 1.22
 
 require (
-	github.com/CubicrootXYZ/gologger v0.2.2
+	github.com/CubicrootXYZ/gologger v0.4.0
 	github.com/CubicrootXYZ/gonaturalduration v0.5.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/arran4/golang-ical v0.0.0-20230425234049-f69e132f2b0c
@@ -57,9 +57,8 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
-	go.uber.org/zap v1.24.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
