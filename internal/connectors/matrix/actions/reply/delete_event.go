@@ -69,4 +69,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 		event.Event.Sender.String(),
 		event.Room.RoomID,
 	))
+
+	// Best effort approach to delete messages related to that event.
+	messages, err := action.matrixDB.Get
 }

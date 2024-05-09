@@ -143,6 +143,36 @@ func TestService_GetEventMessageByOutputAndEventWithMessageNotFound(t *testing.T
 	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
+func TestService_ListMessages(t *testing.T) {
+	msg1, err := service.NewMessage(testMessage())
+	require.NoError(t, err)
+	time.Sleep(time.Millisecond * 50)
+
+	msg2 := testMessage()
+	msg2.Type = matrixdb.MessageTypeChangeEvent
+	msg2, err = service.NewMessage(msg2)
+	require.NoError(t, err)
+	time.Sleep(time.Second)
+
+	// List first message.
+	msgs, err := service.ListMessages(matrixdb.ListMessageOpts{
+		RoomID:   &msg1.RoomID,
+		Incoming: toP(true),
+	})
+	require.NoError(t, err)
+	require.Len(t, msgs, 1)
+	assertMessagesEqual(t, msg1, &msgs[0])
+
+	// List second message.
+	msgs, err = service.ListMessages(matrixdb.ListMessageOpts{
+		RoomID: &msg2.RoomID,
+		Type:   &matrixdb.MessageTypeChangeEvent,
+	})
+	require.NoError(t, err)
+	require.Len(t, msgs, 1)
+	assertMessagesEqual(t, msg2, &msgs[0])
+}
+
 func assertMessagesEqual(t *testing.T, a *matrixdb.MatrixMessage, b *matrixdb.MatrixMessage) {
 	t.Helper()
 
@@ -160,4 +190,8 @@ func assertMessagesEqual(t *testing.T, a *matrixdb.MatrixMessage, b *matrixdb.Ma
 	assert.Equal(t, a.Incoming, b.Incoming)
 	assertUsersEqual(t, a.User, b.User)
 	assertRoomsEqual(t, &a.Room, &b.Room)
+}
+
+func toP[T any](elem T) *T {
+	return &elem
 }

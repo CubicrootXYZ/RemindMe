@@ -6,6 +6,36 @@ import (
 	"gorm.io/gorm"
 )
 
+// ListMessageOpts allows to specify options for listing messages.
+type ListMessageOpts struct {
+	RoomID   *uint
+	Type     *MatrixMessageType
+	Incoming *bool
+	EventID  *uint
+}
+
+func (service *service) ListMessages(opts ListMessageOpts) ([]MatrixMessage, error) {
+	var messages []MatrixMessage
+
+	q := service.db
+
+	if opts.RoomID != nil {
+		q = q.Where("room_id = ?", *opts.RoomID)
+	}
+	if opts.Type != nil {
+		q = q.Where("type = ?", *opts.Type)
+	}
+	if opts.Incoming != nil {
+		q = q.Where("incoming = ?", *opts.Incoming)
+	}
+	if opts.EventID != nil {
+		q = q.Where("event_id = ?", *opts.Incoming)
+	}
+
+	return messages,
+		q.Preload("Event").Preload("Room").Preload("User").Find(&messages).Error
+}
+
 func (service *service) NewMessage(message *MatrixMessage) (*MatrixMessage, error) {
 	err := service.db.Create(message).Error
 	return message, err

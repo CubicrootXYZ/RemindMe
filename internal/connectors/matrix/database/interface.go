@@ -32,6 +32,7 @@ type Service interface {
 	NewUser(user *MatrixUser) (*MatrixUser, error)
 
 	GetLastMessage() (*MatrixMessage, error)
+	ListMessages(opts ListMessageOpts) ([]MatrixMessage, error)
 	GetMessageByID(messageID string) (*MatrixMessage, error)
 	GetEventMessageByOutputAndEvent(eventID uint, outputID uint, outputType string) (*MatrixMessage, error)
 	NewMessage(message *MatrixMessage) (*MatrixMessage, error)
