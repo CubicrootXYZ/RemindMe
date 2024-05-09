@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/random"
-	"github.com/tj/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestURLSaveString(t *testing.T) {

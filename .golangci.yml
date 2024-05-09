@@ -42,7 +42,6 @@ linters:
     - sqlclosecheck
     - structcheck
     - wastedassign
-    - depguard
     - inamedparam
 
 linters-settings:
@@ -53,6 +52,13 @@ linters-settings:
     statements: 80
   gocognit:
     min-complexity: 40 # not ideal, should be improved
+
+  depguard:
+    rules:
+      main:
+        deny:
+          - pkg: github.com/tj/assert
+            desc: github.com/stretchr/testify/assert is preferred
 
 issues:
   exclude-rules:
