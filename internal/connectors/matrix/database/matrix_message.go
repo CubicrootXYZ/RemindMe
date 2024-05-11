@@ -29,7 +29,7 @@ func (service *service) ListMessages(opts ListMessageOpts) ([]MatrixMessage, err
 		q = q.Where("incoming = ?", *opts.Incoming)
 	}
 	if opts.EventID != nil {
-		q = q.Where("event_id = ?", *opts.Incoming)
+		q = q.Where("event_id = ?", *opts.EventID)
 	}
 
 	return messages,
