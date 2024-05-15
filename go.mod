@@ -19,7 +19,7 @@ require (
 	golang.org/x/sync v0.1.0
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
-	maunium.net/go/maulogger/v2 v2.3.2
+	maunium.net/go/maulogger/v2 v2.4.1
 	maunium.net/go/mautrix v0.13.0
 )
 
@@ -50,7 +50,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
+	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
