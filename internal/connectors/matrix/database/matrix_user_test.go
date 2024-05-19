@@ -5,12 +5,12 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testUser() *database.MatrixUser {
+func testUser() *matrixdb.MatrixUser {
 	room, err := service.NewRoom(testRoom())
 	if err != nil {
 		panic(err)
@@ -22,9 +22,9 @@ func testUser() *database.MatrixUser {
 		_, err = service.GetUserByID(userID)
 	}
 
-	return &database.MatrixUser{
+	return &matrixdb.MatrixUser{
 		ID:    userID,
-		Rooms: []database.MatrixRoom{*room},
+		Rooms: []matrixdb.MatrixRoom{*room},
 	}
 }
 
@@ -40,10 +40,10 @@ func TestService_GetUserByID(t *testing.T) {
 
 func TestService_GetUserByIDWithUserNotFound(t *testing.T) {
 	_, err := service.GetUserByID("abc")
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
-func assertUsersEqual(t *testing.T, a *database.MatrixUser, b *database.MatrixUser) {
+func assertUsersEqual(t *testing.T, a *matrixdb.MatrixUser, b *matrixdb.MatrixUser) {
 	t.Helper()
 
 	assert.Equal(t, a.ID, b.ID)

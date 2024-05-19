@@ -53,11 +53,11 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 	}
 
 	// Check if we already know the message
-	_, err = service.matrixDatabase.GetMessageByID(evt.ID.String())
-	if err == nil {
+	msg, err := service.matrixDatabase.GetMessageByID(evt.ID.String())
+	if err == nil && msg != nil {
 		return
 	}
-	if !errors.Is(err, database.ErrNotFound) { // TODO this logs not found
+	if !errors.Is(err, matrixdb.ErrNotFound) {
 		logger.Err(err)
 	}
 
