@@ -47,6 +47,11 @@ func TestService_GetMessageByID(t *testing.T) {
 	assertMessagesEqual(t, messageBefore, messageAfter)
 }
 
+func TestService_GetMessageByIDWithNotFoundError(t *testing.T) {
+	_, err := service.GetMessageByID("dslkfajgö9w40tßegpjdfapg")
+	require.ErrorIs(t, err, matrixdb.ErrNotFound)
+}
+
 func TestService_GetLastMessage(t *testing.T) {
 	_, err := service.NewMessage(testMessage())
 	require.NoError(t, err)

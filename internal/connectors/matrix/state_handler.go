@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
@@ -41,7 +40,7 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	_, err := service.matrixDatabase.GetEventByID(evt.ID.String())
 	if err == nil {
 		return
-	} else if !errors.Is(err, database.ErrNotFound) {
+	} else if !errors.Is(err, matrixdb.ErrNotFound) {
 		logger.Err(err)
 		return
 	}
@@ -75,7 +74,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 
 	user, err := service.matrixDatabase.GetUserByID(evt.Sender.String())
 	if err != nil {
-		if !errors.Is(err, database.ErrNotFound) {
+		if !errors.Is(err, matrixdb.ErrNotFound) {
 			return err
 		}
 		user = nil
@@ -88,7 +87,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 
 	_, err = service.matrixDatabase.GetRoomByRoomID(evt.RoomID.String())
 	if err != nil {
-		if !errors.Is(err, database.ErrNotFound) {
+		if !errors.Is(err, matrixdb.ErrNotFound) {
 			return err
 		}
 	} else {
@@ -104,7 +103,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	}
 
 	if user == nil {
-		user, err = service.matrixDatabase.NewUser(&database.MatrixUser{
+		user, err = service.matrixDatabase.NewUser(&matrixdb.MatrixUser{
 			ID: evt.Sender.String(),
 		})
 		if err != nil {
@@ -112,7 +111,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		}
 	}
 
-	room, err := service.matrixDatabase.NewRoom(&database.MatrixRoom{
+	room, err := service.matrixDatabase.NewRoom(&matrixdb.MatrixRoom{
 		RoomID: evt.RoomID.String(),
 	})
 	if err != nil {
@@ -125,7 +124,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		return err
 	}
 
-	_, err = service.matrixDatabase.NewEvent(&database.MatrixEvent{
+	_, err = service.matrixDatabase.NewEvent(&matrixdb.MatrixEvent{
 		ID:     evt.ID.String(),
 		UserID: user.ID,
 		RoomID: room.ID,
@@ -145,7 +144,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	return nil
 }
 
-func (service *service) setupNewChannel(room *database.MatrixRoom, user *database.MatrixUser) error {
+func (service *service) setupNewChannel(room *matrixdb.MatrixRoom, user *matrixdb.MatrixUser) error {
 	channel, err := service.database.NewChannel(&db.Channel{
 		Description: "auto generated channel for matrix room " + room.RoomID,
 	})
@@ -182,7 +181,7 @@ func (service *service) setupNewChannel(room *database.MatrixRoom, user *databas
 	return nil
 }
 
-func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *database.MatrixUser) {
+func (service *service) sendWelcomeMessage(room *matrixdb.MatrixRoom, user *matrixdb.MatrixUser) {
 	message, messageFormatted := getWelcomeMessage(room)
 
 	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
@@ -195,14 +194,14 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 		return
 	}
 
-	_, err = service.matrixDatabase.NewMessage(&database.MatrixMessage{
+	_, err = service.matrixDatabase.NewMessage(&matrixdb.MatrixMessage{
 		ID:            resp.ExternalIdentifier,
 		UserID:        &user.ID,
 		RoomID:        room.ID,
 		Body:          message,
 		BodyFormatted: messageFormatted,
 		SendAt:        resp.Timestamp,
-		Type:          database.MessageTypeWelcome,
+		Type:          matrixdb.MessageTypeWelcome,
 		Incoming:      false,
 	})
 	if err != nil {
@@ -210,7 +209,7 @@ func (service *service) sendWelcomeMessage(room *database.MatrixRoom, user *data
 	}
 }
 
-func getWelcomeMessage(room *database.MatrixRoom) (string, string) {
+func getWelcomeMessage(room *matrixdb.MatrixRoom) (string, string) {
 	msg := format.Formater{}
 	msg.Title("Welcome to RemindMe")
 	msg.TextLine("Hey, I am your personal reminder bot. Beep boop beep.")
@@ -261,7 +260,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 
 	room, err := service.matrixDatabase.GetRoomByRoomID(string(evt.RoomID))
 	if err != nil {
-		if errors.Is(err, database.ErrNotFound) {
+		if errors.Is(err, matrixdb.ErrNotFound) {
 			return nil
 		}
 		return err
@@ -309,7 +308,7 @@ func (service *service) removeRoom(room *matrixdb.MatrixRoom) error {
 	return nil
 }
 
-func (service *service) removeFromChannel(room *database.MatrixRoom) error {
+func (service *service) removeFromChannel(room *matrixdb.MatrixRoom) error {
 	output, err := service.database.GetOutputByType(room.ID, OutputType)
 	if err == nil {
 		err = service.database.RemoveOutputFromChannel(output.ChannelID, output.ID)

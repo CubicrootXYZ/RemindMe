@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func testEvent() *database.MatrixEvent {
+func testEvent() *matrixdb.MatrixEvent {
 	user, err := service.NewUser(testUser())
 	if err != nil {
 		panic(err)
@@ -23,7 +23,7 @@ func testEvent() *database.MatrixEvent {
 		_, err = service.GetEventByID(eventID)
 	}
 
-	return &database.MatrixEvent{
+	return &matrixdb.MatrixEvent{
 		ID:     eventID,
 		User:   *user,
 		Room:   user.Rooms[0],
@@ -68,10 +68,10 @@ func TestService_DeleteAllEventsFromRoom(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = service.GetEventByID(event.Type)
-	assert.ErrorIs(t, err, database.ErrNotFound)
+	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
-func assertEventsEqual(t *testing.T, a *database.MatrixEvent, b *database.MatrixEvent) {
+func assertEventsEqual(t *testing.T, a *matrixdb.MatrixEvent, b *matrixdb.MatrixEvent) {
 	t.Helper()
 
 	// We do not load them, so ignore them
