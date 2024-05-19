@@ -55,6 +55,10 @@ func InfoFromEvent(event *database.Event, timeZone string) (string, string) {
 
 // InfoFromEvents translates multiple database events into a nice human readable format.
 func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
+	if len(events) == 0 {
+		return "no pending events found", "<i>no pending events found</i>"
+	}
+
 	var str, strFormatted strings.Builder
 	for i := range events {
 		msg, msgF := InfoFromEvent(&events[i], timeZone)

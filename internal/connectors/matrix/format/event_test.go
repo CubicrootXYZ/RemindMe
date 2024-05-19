@@ -126,3 +126,18 @@ at 11:45 12.11.2014 (UTC) (ID: 1)
 		msgF,
 	)
 }
+
+func TestInfoFromEventsWithNoEvent(t *testing.T) {
+	msg, msgF := format.InfoFromEvents(nil, "")
+
+	assert.Equal(
+		t,
+		`no pending events found`,
+		msg,
+	)
+	assert.Equal(
+		t,
+		`<i>no pending events found</i>`,
+		msgF,
+	)
+}
