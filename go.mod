@@ -20,7 +20,7 @@ require (
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
 	maunium.net/go/maulogger/v2 v2.4.1
-	maunium.net/go/mautrix v0.13.0
+	maunium.net/go/mautrix v0.18.1
 )
 
 require (
