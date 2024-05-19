@@ -18,7 +18,7 @@ require (
 	golang.org/x/net v0.25.0
 	golang.org/x/sync v0.7.0
 	gorm.io/driver/mysql v1.4.3
-	gorm.io/gorm v1.24.0
+	gorm.io/gorm v1.25.10
 	maunium.net/go/maulogger/v2 v2.4.1
 	maunium.net/go/mautrix v0.13.0
 )
