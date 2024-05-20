@@ -69,6 +69,25 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 	return nil
 }
 
-func (service *service) SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error {
+func (service *service) SendDailyReminder(reminder *daemon.DailyReminder, output *daemon.Output) error {
+	// TODO test
+	room, err := service.matrixDatabase.GetRoomByID(output.OutputID)
+	if err != nil {
+		return err
+	}
+
+	msg, msgFormatted := format.InfoFromDaemonEvents(reminder.Events, room.TimeZone)
+
+	_, err = service.messenger.SendMessage(messenger.HTMLMessage(
+		"Your Events for Today\n\n"+msg,
+		"<h2>Your Events for Today</h2>\n"+msgFormatted,
+		room.RoomID,
+	))
+	if err != nil {
+		return err
+	}
+
+	// TODO store msg in db
+
 	return nil
 }
