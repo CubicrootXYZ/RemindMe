@@ -12,8 +12,15 @@ func (service *service) sendOutDailyReminders() error {
 		return err
 	}
 
+	service.logger.
+		WithField("channels", len(channels)).
+		Debugf("checking channels for daily reminder")
+
 	for _, channel := range channels {
 		if !isDailyReminderTimeReached(channel) {
+			service.logger.
+				WithField("channel", channel.ID).
+				Debugf("no daily reminder send out - reminder time not reached")
 			continue
 		}
 
@@ -25,6 +32,9 @@ func (service *service) sendOutDailyReminders() error {
 
 		for _, output := range channel.Outputs {
 			if isDailyReminderSentToday(&output) { //nolint:gosec // Reference stays in same routine.
+				service.logger.
+					WithField("channel", channel.ID).
+					Debugf("no daily reminder send out - already done")
 				continue
 			}
 
