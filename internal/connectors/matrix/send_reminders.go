@@ -70,24 +70,37 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 }
 
 func (service *service) SendDailyReminder(reminder *daemon.DailyReminder, output *daemon.Output) error {
-	// TODO test
 	room, err := service.matrixDatabase.GetRoomByID(output.OutputID)
 	if err != nil {
 		return err
 	}
 
 	msg, msgFormatted := format.InfoFromDaemonEvents(reminder.Events, room.TimeZone)
+	msg = "Your Events for Today\n\n" + msg
+	msgFormatted = "<h2>Your Events for Today</h2>\n" + msgFormatted
 
-	_, err = service.messenger.SendMessage(messenger.HTMLMessage(
-		"Your Events for Today\n\n"+msg,
-		"<h2>Your Events for Today</h2>\n"+msgFormatted,
+	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
+		msg,
+		msgFormatted,
 		room.RoomID,
 	))
 	if err != nil {
 		return err
 	}
 
-	// TODO store msg in db
+	dbMsg := &matrixdb.MatrixMessage{
+		ID:            resp.ExternalIdentifier,
+		UserID:        nil, // There can be many users in a channel.
+		RoomID:        room.ID,
+		Body:          msg,
+		BodyFormatted: msgFormatted,
+		SendAt:        resp.Timestamp,
+		Type:          matrixdb.MessageTypeDailyReminder,
+	}
+	_, err = service.matrixDatabase.NewMessage(dbMsg)
+	if err != nil {
+		service.logger.Errorf("failed to save message to database: %v", err)
+	}
 
 	return nil
 }

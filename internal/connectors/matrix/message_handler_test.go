@@ -8,6 +8,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/golang/mock/gomock"
 	"maunium.net/go/mautrix"
@@ -16,6 +17,7 @@ import (
 )
 
 type fixture struct {
+	messenger            *messenger.MockMessenger
 	matrixDB             *matrixdb.MockService
 	db                   *database.MockService
 	defaultMessageAction *MockMessageAction
@@ -38,6 +40,7 @@ func testRoom() *matrixdb.MatrixRoom {
 
 func testService(ctrl *gomock.Controller) (service, *fixture) {
 	fx := fixture{
+		messenger:            messenger.NewMockMessenger(ctrl),
 		matrixDB:             matrixdb.NewMockService(ctrl),
 		db:                   database.NewMockService(ctrl),
 		defaultMessageAction: NewMockMessageAction(ctrl),
@@ -64,6 +67,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 		matrixDatabase: fx.matrixDB,
 		logger:         gologger.New(gologger.LogLevelDebug, 0),
 		botname:        "@bot:example.com",
+		messenger:      fx.messenger,
 	}
 
 	return s, &fx
