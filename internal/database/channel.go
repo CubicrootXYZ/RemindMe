@@ -22,7 +22,7 @@ func (service *service) GetChannelByID(channelID uint) (*Channel, error) {
 
 func (service *service) GetChannels() ([]Channel, error) {
 	var channels []Channel
-	err := service.db.Find(&channels).Error
+	err := service.db.Preload("Inputs").Preload("Outputs").Find(&channels).Error
 
 	return channels, err
 }
