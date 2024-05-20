@@ -34,6 +34,13 @@ func (service *service) sendOutDailyReminders() error {
 				continue
 			}
 
+			service.logger.WithFields(map[string]any{
+				"events":              len(events),
+				"output_type":         output.OutputType,
+				"output_id":           output.OutputID,
+				"daily_reminder_time": channel.DailyReminder,
+			}).Debugf("sending out daily reminder")
+
 			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output)) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
 				service.logger.Err(err)
