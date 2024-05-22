@@ -17,8 +17,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-// TODO testing
-
 var makeRecurringActionRegex = regexp.MustCompile("(?i)^(repeat|every|each|always|recurring|all|any).*(second|minute|hour|day|week|month|year)(|s)[ ]*$")
 
 // MakeRecurringAction makes an event recurring.

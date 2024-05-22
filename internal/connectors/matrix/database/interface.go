@@ -78,6 +78,7 @@ var (
 	MessageTypeTimezoneChange        = MatrixMessageType("TIMEZONE_CHANGE")
 	MessageTypeSetDailyReminderError = MatrixMessageType("SET_DAILY_REMINDER_ERROR")
 	MessageTypeSetDailyReminder      = MatrixMessageType("SET_DAILY_REMINDER")
+	MessageTypeDailyReminder         = MatrixMessageType("DAILY_REMINDER")
 )
 
 // MatrixMessage holds information about a matrix message.

@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"sync"
 	"time"
 
 	"github.com/CubicrootXYZ/gologger"
@@ -12,6 +13,8 @@ type service struct {
 	database database.Service
 	logger   gologger.Logger
 	done     chan interface{}
+
+	daemonWG *sync.WaitGroup
 }
 
 //go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
@@ -35,13 +38,24 @@ func New(config *Config, database database.Service, logger gologger.Logger) Serv
 		database: database,
 		logger:   logger,
 		done:     make(chan interface{}),
+
+		daemonWG: &sync.WaitGroup{},
 	}
 }
 
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
+	go service.startDailyReminderDaemon()
+	service.startEventDaemon()
+
+	service.daemonWG.Wait()
+
+	return nil
+}
+
+func (service *service) startEventDaemon() {
+	service.daemonWG.Add(1)
 	eventsTicker := time.NewTicker(service.config.EventsInterval)
-	dailyReminderTicker := time.NewTicker(service.config.DailyReminderInterval)
 
 	for {
 		select {
@@ -50,14 +64,29 @@ func (service *service) Start() error {
 			if err != nil {
 				service.logger.Err(err)
 			}
+		case <-service.done:
+			service.logger.Debugf("event daemon stopped")
+			service.daemonWG.Done()
+			return
+		}
+	}
+}
+
+func (service *service) startDailyReminderDaemon() {
+	service.daemonWG.Add(1)
+	dailyReminderTicker := time.NewTicker(service.config.DailyReminderInterval)
+
+	for {
+		select {
 		case <-dailyReminderTicker.C:
 			err := service.sendOutDailyReminders()
 			if err != nil {
 				service.logger.Err(err)
 			}
 		case <-service.done:
-			service.logger.Debugf("daemon stopped")
-			return nil
+			service.logger.Debugf("event daemon stopped")
+			service.daemonWG.Done()
+			return
 		}
 	}
 }
