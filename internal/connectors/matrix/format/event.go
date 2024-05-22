@@ -71,7 +71,6 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 
 // InfoFromDaemonEvents translates multiple daemon events into a nice human readable format.
 func InfoFromDaemonEvents(events []daemon.Event, timeZone string) (string, string) {
-	// TODO test
 	if len(events) == 0 {
 		return "no pending events found", "<i>no pending events found</i>"
 	}
@@ -88,7 +87,10 @@ func InfoFromDaemonEvents(events []daemon.Event, timeZone string) (string, strin
 
 // InfoFromDaemonEvent translates a daemon event into a nice human readable format.
 func InfoFromDaemonEvent(event *daemon.Event, timeZone string) (string, string) {
-	// TODO test
+	if event == nil {
+		return "", ""
+	}
+
 	f := Formater{}
 	f.Text("➡️ ")
 	f.BoldLine(event.Message)

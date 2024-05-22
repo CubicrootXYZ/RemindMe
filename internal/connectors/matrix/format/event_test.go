@@ -141,3 +141,86 @@ func TestInfoFromEventsWithNoEvent(t *testing.T) {
 		msgF,
 	)
 }
+
+func TestInfoFromDaemonEvent(t *testing.T) {
+	testCases := []struct {
+		name                 string
+		event                *daemon.Event
+		timeZone             string
+		expectedMsg          string
+		expectedFormattedMsg string
+	}{
+		{
+			name: "nil event",
+		},
+		{
+			name: "simple event",
+			event: &daemon.Event{
+				Message:   "my event",
+				EventTime: refTime(),
+			},
+			expectedMsg:          "➡️ MY EVENT\nat 11:45 12.11.2014 (UTC) (ID: 0) \n",
+			expectedFormattedMsg: "➡️ <b>my event</b><br>at 11:45 12.11.2014 (UTC) (ID: 0) <br>",
+		},
+		{
+			name: "simple event with repeat interval",
+			event: &daemon.Event{
+				Message:        "my event",
+				EventTime:      refTime(),
+				RepeatInterval: toP(time.Hour),
+			},
+			expectedMsg:          "➡️ MY EVENT\nat 11:45 12.11.2014 (UTC) (ID: 0) 🔁 \n",
+			expectedFormattedMsg: "➡️ <b>my event</b><br>at 11:45 12.11.2014 (UTC) (ID: 0) <i>🔁 </i><br>",
+		},
+		{
+			name: "simple event with timezone",
+			event: &daemon.Event{
+				Message:   "my event",
+				EventTime: refTime(),
+			},
+			timeZone:             "America/New_York",
+			expectedMsg:          "➡️ MY EVENT\nat 06:45 12.11.2014 (EST) (ID: 0) \n",
+			expectedFormattedMsg: "➡️ <b>my event</b><br>at 06:45 12.11.2014 (EST) (ID: 0) <br>",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			msg, msgFormatted := format.InfoFromDaemonEvent(tc.event, tc.timeZone)
+			assert.Equal(t, tc.expectedMsg, msg)
+			assert.Equal(t, tc.expectedFormattedMsg, msgFormatted)
+		})
+	}
+}
+
+func TestInfoFromDaemonEvents(t *testing.T) {
+	msg, formattedMsg := format.InfoFromDaemonEvents(
+		[]daemon.Event{
+			{
+				Message:        "my event",
+				EventTime:      refTime(),
+				RepeatInterval: toP(time.Hour),
+			},
+			{
+				Message:   "my event2",
+				EventTime: refTime(),
+			},
+		}, "",
+	)
+
+	assert.Equal(t, "➡️ MY EVENT\nat 11:45 12.11.2014 (UTC) (ID: 0) 🔁 \n➡️ MY EVENT2\nat 11:45 12.11.2014 (UTC) (ID: 0) \n", msg)
+	assert.Equal(t, "➡️ <b>my event</b><br>at 11:45 12.11.2014 (UTC) (ID: 0) <i>🔁 </i><br>➡️ <b>my event2</b><br>at 11:45 12.11.2014 (UTC) (ID: 0) <br>", formattedMsg)
+}
+
+func TestInfoFromDaemonEventsWithNoEvents(t *testing.T) {
+	msg, formattedMsg := format.InfoFromDaemonEvents(
+		nil, "",
+	)
+
+	assert.Equal(t, "no pending events found", msg)
+	assert.Equal(t, "<i>no pending events found</i>", formattedMsg)
+}
+
+func toP[T any](elem T) *T {
+	return &elem
+}
