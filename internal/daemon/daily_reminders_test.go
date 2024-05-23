@@ -27,7 +27,7 @@ func TestService_SendOutDailyReminders(t *testing.T) {
 	output := testOutput()
 
 	db.EXPECT().GetChannels().MinTimes(1).Return([]database.Channel{channel}, nil)
-	db.EXPECT().GetEventsByChannel(channel.ID).MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
+	db.EXPECT().ListEvents(gomock.Any()).MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
 	outputService.EXPECT().SendDailyReminder(&daemon.DailyReminder{
 		Events: []daemon.Event{*testEvent()},
 	}, output).MinTimes(1).Return(nil)

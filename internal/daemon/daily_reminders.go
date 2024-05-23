@@ -28,7 +28,7 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		events, err := service.database.ListEvents(&database.ListEventsOpts{
-			ChannelID:    &channel.ID,
+			ChannelID:    &channel.ID, //nolint:gosec // Not used in different goroutine.
 			EventsAfter:  &eventsAfter,
 			EventsBefore: &eventsBefore,
 		})

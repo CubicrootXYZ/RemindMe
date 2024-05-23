@@ -224,7 +224,7 @@ func TestService_ListEvents(t *testing.T) {
 			EventsAfter: toP(eventBefore.Time.Add(time.Second)),
 		})
 		require.NoError(t, err)
-		require.Len(t, events, 0)
+		require.Empty(t, events)
 	})
 }
 
