@@ -16,6 +16,9 @@ func (service *service) sendOutDailyReminders() error {
 		WithField("channels", len(channels)).
 		Debugf("checking channels for daily reminder")
 
+	eventsAfter := time.Now()
+	eventsBefore := eventsAfter.Add(time.Hour*24 + time.Second)
+
 	for _, channel := range channels {
 		if !isDailyReminderTimeReached(channel) {
 			service.logger.
@@ -24,7 +27,11 @@ func (service *service) sendOutDailyReminders() error {
 			continue
 		}
 
-		events, err := service.database.GetEventsByChannel(channel.ID)
+		events, err := service.database.ListEvents(&database.ListEventsOpts{
+			ChannelID:    &channel.ID, //nolint:gosec // Not used in different goroutine.
+			EventsAfter:  &eventsAfter,
+			EventsBefore: &eventsBefore,
+		})
 		if err != nil {
 			service.logger.Err(err)
 			continue

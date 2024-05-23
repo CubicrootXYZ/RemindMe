@@ -107,7 +107,7 @@ func testEvent() *database.Event {
 	}
 
 	return &database.Event{
-		Time:           time2123(),
+		Time:           time2123().UTC(),
 		Duration:       *interval40Hours(),
 		Message:        "test",
 		Active:         true,
@@ -184,24 +184,48 @@ func TestService_ListEvents(t *testing.T) {
 	eventBefore, err = service.UpdateEvent(eventBefore)
 	require.NoError(t, err)
 
-	events, err := service.ListEvents(&database.ListEventsOpts{
-		InputID: &input.ID,
-	})
-	require.NoError(t, err)
+	t.Run("list by input", func(t *testing.T) {
+		events, err := service.ListEvents(&database.ListEventsOpts{
+			InputID: &input.ID,
+		})
+		require.NoError(t, err)
 
-	require.NotEmpty(t, events)
-	evtFound := false
-	for _, eventAfter := range events {
-		if eventAfter.ID == eventBefore.ID {
-			evtFound = true
-			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
-			assert.Equal(t, eventBefore.Message, eventAfter.Message)
-			assert.Equal(t, eventBefore.Active, eventAfter.Active)
-			assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+		require.NotEmpty(t, events)
+		evtFound := false
+		for _, eventAfter := range events {
+			if eventAfter.ID == eventBefore.ID {
+				evtFound = true
+				assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
+				assert.Equal(t, eventBefore.Message, eventAfter.Message)
+				assert.Equal(t, eventBefore.Active, eventAfter.Active)
+				assert.Equal(t, eventBefore.RepeatInterval, eventAfter.RepeatInterval)
+			}
 		}
-	}
 
-	assert.True(t, evtFound, "missing event not in response")
+		assert.True(t, evtFound, "missing event not in response")
+	})
+
+	t.Run("list by channel and time", func(t *testing.T) {
+		events, err := service.ListEvents(&database.ListEventsOpts{
+			ChannelID:    &eventBefore.ChannelID,
+			EventsBefore: toP(eventBefore.Time.Add(time.Second)),
+			EventsAfter:  toP(eventBefore.Time.Add(-1 * time.Second)),
+		})
+		require.NoError(t, err)
+		require.Len(t, events, 1)
+
+		assert.Equal(t, eventBefore.ChannelID, events[0].ChannelID)
+		assert.Equal(t, eventBefore.Time, events[0].Time)
+	})
+
+	t.Run("list by channel and time - nothing found", func(t *testing.T) {
+		events, err := service.ListEvents(&database.ListEventsOpts{
+			ChannelID:   &eventBefore.ChannelID,
+			EventsAfter: toP(eventBefore.Time.Add(time.Second)),
+		})
+		require.NoError(t, err)
+		require.Empty(t, events)
+	})
 }
 
 func TestService_ListEventsWithInactiveEvent(t *testing.T) {
@@ -334,4 +358,8 @@ func TestService_DeleteEvent(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Empty(t, events)
+}
+
+func toP[T any](elem T) *T {
+	return &elem
 }
