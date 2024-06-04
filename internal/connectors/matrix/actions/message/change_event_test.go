@@ -260,5 +260,5 @@ func today9PM() string {
 		now = now.Add(time.Hour * 4)
 	}
 
-	return time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC).Format(format.DateFormatDefault)
+	return time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC).Format(format.DateTimeFormatDefault)
 }

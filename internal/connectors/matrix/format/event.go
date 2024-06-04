@@ -2,8 +2,10 @@ package format
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -34,11 +36,16 @@ func MessageFromEvent(event *daemon.Event, timeZone string) (string, string, err
 
 // InfoFromEvent translates a database event into a nice human readable format.
 func InfoFromEvent(event *database.Event, timeZone string) (string, string) {
+	loc := tzFromString(timeZone)
+	return infoFromEvent(event, loc)
+}
+
+func infoFromEvent(event *database.Event, loc *time.Location) (string, string) {
 	f := Formater{}
 	f.Text("➡️ ")
 	f.BoldLine(event.Message)
 	f.Text("at ")
-	f.Text(ToLocalTime(event.Time, timeZone))
+	f.Text(toLocalTime(event.Time, loc))
 	f.Text(" (ID: ")
 	f.Text(strconv.Itoa(int(event.ID)))
 	f.Text(") ")
@@ -59,9 +66,27 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 		return "no pending events found", "<i>no pending events found</i>"
 	}
 
+	loc := tzFromString(timeZone)
+
+	// Sort events by time.
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].Time.Sub(events[j].Time) < 0
+	})
+
 	var str, strFormatted strings.Builder
+	currentHeader := ""
 	for i := range events {
-		msg, msgF := InfoFromEvent(&events[i], timeZone)
+		newHeader := headerFromEvent(&events[i], loc)
+		if newHeader != currentHeader {
+			str.WriteString(strings.ToUpper(newHeader))
+			str.WriteString("\n")
+			strFormatted.WriteString("<b>")
+			strFormatted.WriteString(newHeader)
+			strFormatted.WriteString("</b><br>\n")
+			currentHeader = newHeader
+		}
+
+		msg, msgF := infoFromEvent(&events[i], loc)
 		str.WriteString(msg)
 		strFormatted.WriteString(msgF)
 	}
@@ -105,4 +130,34 @@ func InfoFromDaemonEvent(event *daemon.Event, timeZone string) (string, string) 
 	f.NewLine()
 
 	return f.Build()
+}
+
+func headerFromEvent(event *database.Event, loc *time.Location) string {
+	nowInUserTZ := time.Now().In(loc)
+	eventInUserTZ := event.Time.In(loc)
+
+	eventYear, eventWeek := eventInUserTZ.ISOWeek()
+	eventDay := eventInUserTZ.Day()
+
+	nowYear, nowWeek := nowInUserTZ.ISOWeek()
+	nowDay := eventInUserTZ.Day()
+
+	switch {
+	case eventYear == nowYear &&
+		eventWeek == nowWeek &&
+		eventDay == nowDay:
+		return "Today (" + nowInUserTZ.Format(DateFormatShort) + ")"
+	case eventYear == nowYear &&
+		(eventWeek == nowWeek || eventWeek == nowWeek+1) &&
+		eventDay == nowInUserTZ.Add(time.Hour*24).Day():
+		return "Tomorrow (" + nowInUserTZ.Format(DateFormatShort) + ")"
+	case eventYear == nowYear &&
+		eventWeek == nowWeek:
+		return "This Week"
+	case eventYear == nowYear &&
+		eventWeek == nowWeek+1:
+		return "Next Week"
+	default:
+		return eventInUserTZ.Month().String()
+	}
 }
