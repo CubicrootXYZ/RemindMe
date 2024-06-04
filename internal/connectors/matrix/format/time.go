@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	// DateFormatDefault is the default date format used by remindme
-	DateFormatDefault = "15:04 02.01.2006 (MST)"
+	// DateTimeFormatDefault is the default date format used by remindme
+	DateTimeFormatDefault = "15:04 02.01.2006 (MST)"
+	// DateFormatShort is a short date format used.
+	DateFormatShort = "Mon, 02 Jan"
 )
 
 // ParseTime parses the time from the input.
@@ -70,15 +72,19 @@ func alphaNumericString(in []byte) []byte {
 // ToLocalTime converts the time object to a localized time string
 func ToLocalTime(datetime time.Time, timezone string) string {
 	if timezone == "" {
-		return datetime.UTC().Format(DateFormatDefault)
+		return datetime.UTC().Format(DateTimeFormatDefault)
 	}
 
 	loc, err := time.LoadLocation(timezone)
 	if err != nil {
-		return datetime.UTC().Format(DateFormatDefault)
+		return datetime.UTC().Format(DateTimeFormatDefault)
 	}
 
-	return datetime.In(loc).Format(DateFormatDefault)
+	return datetime.In(loc).Format(DateTimeFormatDefault)
+}
+
+func toLocalTime(datetime time.Time, loc *time.Location) string {
+	return datetime.In(loc).Format(DateTimeFormatDefault)
 }
 
 // TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format.
@@ -108,4 +114,12 @@ func ToNiceDuration(d time.Duration) string {
 		return fmt.Sprintf("%s%.0f hours", pre, float64(d/time.Hour))
 	}
 	return fmt.Sprintf("%s%.0f days", pre, float64(d/(24*time.Hour)))
+}
+
+func tzFromString(timezone string) *time.Location {
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		return time.UTC
+	}
+	return loc
 }
