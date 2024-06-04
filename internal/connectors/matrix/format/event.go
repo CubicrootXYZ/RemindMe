@@ -2,6 +2,7 @@ package format
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -58,6 +59,11 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 	if len(events) == 0 {
 		return "no pending events found", "<i>no pending events found</i>"
 	}
+
+	// Sort events by time.
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].Time.Sub(events[j].Time) < 0
+	})
 
 	var str, strFormatted strings.Builder
 	for i := range events {
