@@ -36,23 +36,8 @@ func MessageFromEvent(event *daemon.Event, timeZone string) (string, string, err
 
 // InfoFromEvent translates a database event into a nice human readable format.
 func InfoFromEvent(event *database.Event, timeZone string) (string, string) {
-	f := Formater{}
-	f.Text("➡️ ")
-	f.BoldLine(event.Message)
-	f.Text("at ")
-	f.Text(ToLocalTime(event.Time, timeZone))
-	f.Text(" (ID: ")
-	f.Text(strconv.Itoa(int(event.ID)))
-	f.Text(") ")
-	if event.RepeatInterval != nil {
-		f.Italic("🔁 ")
-	}
-	if event.ExternalReference != "" {
-		f.Italic("🌐 ")
-	}
-	f.NewLine()
-
-	return f.Build()
+	loc := tzFromString(timeZone)
+	return infoFromEvent(event, loc)
 }
 
 func infoFromEvent(event *database.Event, loc *time.Location) (string, string) {
