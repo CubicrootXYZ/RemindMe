@@ -34,7 +34,7 @@ func TestService_SendDailyReminder(t *testing.T) {
 ➡️ TEST EVENT
 at 11:45 12.11.2014 (UTC) (ID: 56) 
 `,
-		`<h2>Your Events for Today</h2>
+		`<h2>Your Events for Today</h2><br>
 ➡️ <b>test event</b><br>at 11:45 12.11.2014 (UTC) (ID: 56) <br>`,
 		"!1234",
 	)).Return(
@@ -85,7 +85,7 @@ func TestService_SendDailyReminderWithNewMessageError(t *testing.T) {
 ➡️ TEST EVENT
 at 11:45 12.11.2014 (UTC) (ID: 56) 
 `,
-		`<h2>Your Events for Today</h2>
+		`<h2>Your Events for Today</h2><br>
 ➡️ <b>test event</b><br>at 11:45 12.11.2014 (UTC) (ID: 56) <br>`,
 		"!1234",
 	)).Return(
@@ -138,7 +138,7 @@ func TestService_SendDailyReminderWithSendMessageError(t *testing.T) {
 ➡️ TEST EVENT
 at 11:45 12.11.2014 (UTC) (ID: 56) 
 `,
-		`<h2>Your Events for Today</h2>
+		`<h2>Your Events for Today</h2><br>
 ➡️ <b>test event</b><br>at 11:45 12.11.2014 (UTC) (ID: 56) <br>`,
 		"!1234",
 	)).Return(
