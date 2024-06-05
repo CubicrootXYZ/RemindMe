@@ -6,6 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
@@ -87,7 +88,7 @@ func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger g
 		return
 	}
 
-	msg := strings.ToLower(msgEvent.Content.Body)
+	msg := strings.ToLower(format.StripReply(msgEvent.Content.Body))
 	for i := range service.config.ReplyActions {
 		if service.config.ReplyActions[i].Selector().MatchString(msg) {
 			logger.Infof("moving event to reply action: %s", service.config.ReplyActions[i].Name())
