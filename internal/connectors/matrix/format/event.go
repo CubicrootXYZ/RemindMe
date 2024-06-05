@@ -78,9 +78,10 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 	for i := range events {
 		newHeader := headerFromEvent(&events[i], loc)
 		if newHeader != currentHeader {
+			str.WriteString("\n")
 			str.WriteString(strings.ToUpper(newHeader))
 			str.WriteString("\n")
-			strFormatted.WriteString("<b>")
+			strFormatted.WriteString("<br><b>")
 			strFormatted.WriteString(newHeader)
 			strFormatted.WriteString("</b><br>\n")
 			currentHeader = newHeader

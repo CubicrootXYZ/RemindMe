@@ -130,12 +130,12 @@ func TestInfoFromEvents(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"NOVEMBER\n➡️ MY EVENT 3\nat 11:43 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 1\nat 11:45 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 2\nat 11:47 12.11.2014 (UTC) (ID: 1) \n",
+		"\nNOVEMBER\n➡️ MY EVENT 3\nat 11:43 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 1\nat 11:45 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 2\nat 11:47 12.11.2014 (UTC) (ID: 1) \n",
 		msg,
 	)
 	assert.Equal(
 		t,
-		"<b>November</b><br>\n➡️ <b>my event 3</b><br>at 11:43 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 1</b><br>at 11:45 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 2</b><br>at 11:47 12.11.2014 (UTC) (ID: 1) <br>",
+		"<br><b>November</b><br>\n➡️ <b>my event 3</b><br>at 11:43 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 1</b><br>at 11:45 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 2</b><br>at 11:47 12.11.2014 (UTC) (ID: 1) <br>",
 		msgF,
 	)
 }

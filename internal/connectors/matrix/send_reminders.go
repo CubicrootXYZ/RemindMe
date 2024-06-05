@@ -77,7 +77,7 @@ func (service *service) SendDailyReminder(reminder *daemon.DailyReminder, output
 
 	msg, msgFormatted := format.InfoFromDaemonEvents(reminder.Events, room.TimeZone)
 	msg = "Your Events for Today\n\n" + msg
-	msgFormatted = "<h2>Your Events for Today</h2>\n" + msgFormatted
+	msgFormatted = "<h2>Your Events for Today</h2><br>\n" + msgFormatted
 
 	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
 		msg,
