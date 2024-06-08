@@ -11,6 +11,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/msghelper"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
@@ -23,6 +24,7 @@ type ChangeTimeAction struct {
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
+	storer    *msghelper.Storer
 }
 
 // Configure is called on startup and sets all dependencies.
@@ -32,6 +34,7 @@ func (action *ChangeTimeAction) Configure(logger gologger.Logger, client mautrix
 	action.matrixDB = matrixDB
 	action.db = db
 	action.messenger = messenger
+	action.storer = msghelper.NewStorer(matrixDB, messenger, logger)
 }
 
 // Name of the action
@@ -87,11 +90,10 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 		return
 	}
 
-	_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
+	go action.storer.SendAndStoreResponse(
 		fmt.Sprintf("I rescheduled your reminder \"%s\" to %s.", replyToMessage.Event.Message, format.ToLocalTime(replyToMessage.Event.Time, event.Room.TimeZone)),
-		event.Event.ID.String(),
-		event.Content.Body,
-		event.Event.Sender.String(),
-		event.Room.RoomID,
-	))
+		matrixdb.MessageTypeChangeEvent,
+		*event,
+		msghelper.WithEventID(replyToMessage.Event.ID),
+	)
 }
