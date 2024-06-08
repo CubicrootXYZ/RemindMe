@@ -3,6 +3,7 @@ package reply_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
@@ -76,10 +77,15 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 			db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
 				Return(nil, nil)
 
-			msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+				ExternalIdentifier: "abcde",
+			}, nil)
+			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
 
 			// Execute
 			action.HandleEvent(event, tests.TestMessage())
+			// Wait for async message processing.
+			time.Sleep(time.Millisecond * 5)
 		})
 	}
 }
