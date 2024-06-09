@@ -89,7 +89,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 
 	err = action.messenger.DeleteMessageAsync(&messenger.Delete{
 		ExternalIdentifier:        string(event.Event.ID),
-		ChannelExternalIdentifier: string(event.Room.RoomID),
+		ChannelExternalIdentifier: event.Room.RoomID,
 	})
 	if err != nil {
 		action.logger.Errorf("failed to delete message: %w", err)
