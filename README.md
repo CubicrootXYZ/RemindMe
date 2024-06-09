@@ -23,7 +23,6 @@ A matrix bot that handles reminders and knows your agenda.
 * Quick actions via reactions
 * Daily message with open reminders for the day
 * Repeatable reminders
-* End to end encrypted channels _(enable in settings)_
 * Import reminders from an Ical link _(via API)_
 * iCal export of all reminders
 * Allow bot to be invited _(enable in settings)_
@@ -37,6 +36,7 @@ Not yet ported to `v2`:
 The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
 * Multi-User channels
+* End to end encrypted channels _(enable in settings)_
 
 ## 👩‍🔧 Contribute
 
