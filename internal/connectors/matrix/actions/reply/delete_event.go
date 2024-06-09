@@ -86,4 +86,12 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent, replyTo
 			action.logger.Errorf("failed to delete message: %w", err)
 		}
 	}
+
+	err = action.messenger.DeleteMessageAsync(&messenger.Delete{
+		ExternalIdentifier:        string(event.Event.ID),
+		ChannelExternalIdentifier: string(event.Room.RoomID),
+	})
+	if err != nil {
+		action.logger.Errorf("failed to delete message: %w", err)
+	}
 }

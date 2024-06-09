@@ -102,6 +102,11 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 				ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
 			}).Return(errors.New("test"))
 
+			msngr.EXPECT().DeleteMessageAsync(&messenger.Delete{
+				ExternalIdentifier:        tests.TestMessage(tests.WithFromTestEvent()).ID,
+				ChannelExternalIdentifier: tests.TestEvent().Room.RoomID,
+			}).Return(errors.New("test"))
+
 			// Execute
 			action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
 			// Give async message handling some time.
