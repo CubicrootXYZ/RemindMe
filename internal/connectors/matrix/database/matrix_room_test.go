@@ -167,14 +167,7 @@ func TestService_UpdateRoom(t *testing.T) {
 }
 
 func TestService_DeleteRoom(t *testing.T) {
-	user, err := service.NewUser(testUser())
-	require.NoError(t, err)
-
-	room := testRoom()
-	room.Users = append(room.Users, *user)
-
-	room, err = service.NewRoom(room)
-	require.NoError(t, err)
+	user, room := createRoomWithUser(t)
 
 	roomAfter, err := service.GetRoomByID(room.ID)
 	require.NoError(t, err)

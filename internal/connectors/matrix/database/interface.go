@@ -30,6 +30,7 @@ type Service interface {
 
 	GetUserByID(userID string) (*MatrixUser, error)
 	NewUser(user *MatrixUser) (*MatrixUser, error)
+	RemoveDanglingUsers() (int64, error)
 
 	GetLastMessage() (*MatrixMessage, error)
 	ListMessages(opts ListMessageOpts) ([]MatrixMessage, error)
