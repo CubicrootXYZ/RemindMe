@@ -44,9 +44,11 @@ func TestService_GetUserByIDWithUserNotFound(t *testing.T) {
 }
 
 func TestService_RemoveDanglingUsers(t *testing.T) {
-	user1, err := service.NewUser(testUser())
+	user1, room := createRoomWithUser(t)
+	err := service.DeleteRoom(room.ID)
 	require.NoError(t, err)
-	user2, err := service.NewUser(testUser())
+	user2, room := createRoomWithUser(t)
+	err = service.DeleteRoom(room.ID)
 	require.NoError(t, err)
 
 	user3, _ := createRoomWithUser(t)
@@ -75,13 +77,7 @@ func createRoomWithUser(t *testing.T) (*matrixdb.MatrixUser, *matrixdb.MatrixRoo
 	user, err := service.NewUser(testUser())
 	require.NoError(t, err)
 
-	room := testRoom()
-	room.Users = append(room.Users, *user)
-
-	room, err = service.NewRoom(room)
-	require.NoError(t, err)
-
-	return user, room
+	return user, &user.Rooms[0]
 }
 
 func assertUsersEqual(t *testing.T, a *matrixdb.MatrixUser, b *matrixdb.MatrixUser) {
