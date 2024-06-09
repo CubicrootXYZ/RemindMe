@@ -65,14 +65,15 @@ func (service *service) UpdateRoom(room *MatrixRoom) (*MatrixRoom, error) {
 }
 
 func (service *service) DeleteRoom(roomID uint) error {
-	// Delete associations upfront
+	// Delete users associations upfront, simplest way to soft delete the room as well.
 	room := &MatrixRoom{}
 	room.ID = roomID
-	err := service.db.Model(room).Association("Users").Delete(room.Users)
+	err := service.db.Select("Users").Delete(room).Error
 	if err != nil {
 		return err
 	}
 
+	// Hard delete the room.
 	return service.db.Unscoped().Delete(&MatrixRoom{}, "matrix_rooms.id = ?", roomID).Error
 }
 
