@@ -167,20 +167,21 @@ func TestService_UpdateRoom(t *testing.T) {
 }
 
 func TestService_DeleteRoom(t *testing.T) {
-	user, err := service.NewUser(testUser())
-	require.NoError(t, err)
+	user, room := createRoomWithUser(t)
 
-	room := testRoom()
-	room.Users = append(room.Users, *user)
-
-	room, err = service.NewRoom(testRoom())
+	roomAfter, err := service.GetRoomByID(room.ID)
 	require.NoError(t, err)
+	require.Len(t, roomAfter.Users, 1)
 
 	err = service.DeleteRoom(room.ID)
 	require.NoError(t, err)
 
 	_, err = service.GetRoomByRoomID(room.RoomID)
-	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
+	require.ErrorIs(t, err, matrixdb.ErrNotFound)
+
+	userAfter, err := service.GetUserByID(user.ID)
+	require.NoError(t, err)
+	assert.Equal(t, user.ID, userAfter.ID)
 }
 
 func TestService_GetRoomCount(t *testing.T) {

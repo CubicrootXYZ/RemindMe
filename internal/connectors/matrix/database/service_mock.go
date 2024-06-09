@@ -330,6 +330,21 @@ func (mr *MockServiceMockRecorder) NewUser(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewUser", reflect.TypeOf((*MockService)(nil).NewUser), arg0)
 }
 
+// RemoveDanglingUsers mocks base method.
+func (m *MockService) RemoveDanglingUsers() (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RemoveDanglingUsers")
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RemoveDanglingUsers indicates an expected call of RemoveDanglingUsers.
+func (mr *MockServiceMockRecorder) RemoveDanglingUsers() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveDanglingUsers", reflect.TypeOf((*MockService)(nil).RemoveDanglingUsers))
+}
+
 // UpdateRoom mocks base method.
 func (m *MockService) UpdateRoom(arg0 *MatrixRoom) (*MatrixRoom, error) {
 	m.ctrl.T.Helper()

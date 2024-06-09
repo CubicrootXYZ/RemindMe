@@ -303,7 +303,12 @@ func (service *service) removeRoom(room *matrixdb.MatrixRoom) error {
 		return err
 	}
 
-	// TODO check if any user is dangling now and remove them too.
+	cnt, err := service.matrixDatabase.RemoveDanglingUsers()
+	if err != nil {
+		return err
+	}
+
+	service.logger.Infof("found %d dangling matrix users, deleted them", cnt)
 
 	return nil
 }

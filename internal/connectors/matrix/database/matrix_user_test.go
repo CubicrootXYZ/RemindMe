@@ -43,6 +43,43 @@ func TestService_GetUserByIDWithUserNotFound(t *testing.T) {
 	assert.ErrorIs(t, err, matrixdb.ErrNotFound)
 }
 
+func TestService_RemoveDanglingUsers(t *testing.T) {
+	user1, room := createRoomWithUser(t)
+	err := service.DeleteRoom(room.ID)
+	require.NoError(t, err)
+	user2, room := createRoomWithUser(t)
+	err = service.DeleteRoom(room.ID)
+	require.NoError(t, err)
+
+	user3, _ := createRoomWithUser(t)
+	user4, _ := createRoomWithUser(t)
+
+	cnt, err := service.RemoveDanglingUsers()
+	require.NoError(t, err)
+	assert.LessOrEqual(t, int64(2), cnt)
+
+	// Assert users removed.
+	_, err = service.GetUserByID(user1.ID)
+	require.ErrorIs(t, err, matrixdb.ErrNotFound)
+	_, err = service.GetUserByID(user2.ID)
+	require.ErrorIs(t, err, matrixdb.ErrNotFound)
+
+	// Assert users not removed.
+	_, err = service.GetUserByID(user3.ID)
+	require.NoError(t, err)
+	_, err = service.GetUserByID(user4.ID)
+	require.NoError(t, err)
+}
+
+func createRoomWithUser(t *testing.T) (*matrixdb.MatrixUser, *matrixdb.MatrixRoom) {
+	t.Helper()
+
+	user, err := service.NewUser(testUser())
+	require.NoError(t, err)
+
+	return user, &user.Rooms[0]
+}
+
 func assertUsersEqual(t *testing.T, a *matrixdb.MatrixUser, b *matrixdb.MatrixUser) {
 	t.Helper()
 
