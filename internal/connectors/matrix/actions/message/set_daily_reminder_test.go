@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	_ "time/tzdata"
+
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -100,6 +102,73 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 	).Return(nil, nil)
 
 	action.HandleEvent(tests.TestEvent(tests.MessageWithBody("daily reminder at 10am", "daily reminder at 10am")))
+
+	// Wait for async message sending.
+	time.Sleep(time.Millisecond * 10)
+}
+
+func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
+	// Setup
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	db := database.NewMockService(ctrl)
+	matrixDB := matrixdb.NewMockService(ctrl)
+	client := mautrixcl.NewMockClient(ctrl)
+	msngr := messenger.NewMockMessenger(ctrl)
+	icalBridge := ical.NewMockService(ctrl)
+
+	action := &message.SetDailyReminderAction{}
+	action.Configure(
+		gologger.New(gologger.LogLevelDebug, 0),
+		client,
+		msngr,
+		matrixDB,
+		db,
+		&matrix.BridgeServices{
+			ICal: icalBridge,
+		},
+	)
+
+	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+		ID:            "evt1",
+		UserID:        toP("@user:example.com"),
+		Body:          "daily reminder at 10am",
+		BodyFormatted: "daily reminder at 10am",
+		Type:          matrixdb.MessageTypeSetDailyReminder,
+		Incoming:      true,
+		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
+	},
+	).Return(nil, nil)
+
+	channel := tests.TestEvent().Channel
+	channel.DailyReminder = toP(uint(480))
+	db.EXPECT().UpdateChannel(channel).Return(nil, nil)
+
+	msngr.EXPECT().SendResponse(&messenger.Response{
+		Message:                   "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
+		MessageFormatted:          "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
+		RespondToMessage:          "daily reminder at 10am",
+		RespondToMessageFormatted: "daily reminder at 10am",
+		RespondToUserID:           "@user:example.com",
+		RespondToEventID:          "evt1",
+		ChannelExternalIdentifier: "!room123",
+	}).Return(&messenger.MessageResponse{
+		ExternalIdentifier: "id1",
+	}, nil)
+
+	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+		ID:            "id1",
+		UserID:        toP("@user:example.com"),
+		Body:          "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
+		BodyFormatted: "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
+		Type:          matrixdb.MessageTypeSetDailyReminder,
+	},
+	).Return(nil, nil)
+
+	event := tests.TestEvent(tests.MessageWithBody("daily reminder at 10am", "daily reminder at 10am"))
+	event.Room.TimeZone = "Etc/GMT-2"
+
+	action.HandleEvent(event)
 
 	// Wait for async message sending.
 	time.Sleep(time.Millisecond * 10)

@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -71,8 +72,7 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 		return
 	}
 
-	minutesSinceMidnight := uint(timeRemind.Hour()*60 + timeRemind.Minute())
-
+	minutesSinceMidnight := uint(timeRemind.In(time.UTC).Hour()*60 + timeRemind.In(time.UTC).Minute())
 	event.Channel.DailyReminder = &minutesSinceMidnight
 	_, err = action.db.UpdateChannel(event.Channel)
 	if err != nil {
