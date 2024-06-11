@@ -18,6 +18,7 @@ type Config struct {
 	Database configDatabase
 	Daemon   configDaemon
 	Matrix   configMatrix
+	ICal     configICal
 	API      configAPI
 
 	BuildVersion string
@@ -47,6 +48,10 @@ type configMatrix struct {
 	AllowInvites  bool
 	RoomLimit     uint
 	UserWhitelist []string
+}
+
+type configICal struct {
+	RefreshInterval uint `default:"60"`
 }
 
 type configAPI struct {

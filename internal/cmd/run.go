@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
@@ -102,9 +103,10 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		return nil, err
 	}
 	icalConnector := ical.New(&ical.Config{
-		ICalDB:   icalDB,
-		Database: db,
-		BaseURL:  baseURL,
+		ICalDB:          icalDB,
+		Database:        db,
+		BaseURL:         baseURL,
+		RefreshInterval: time.Minute * time.Duration(config.ICal.RefreshInterval),
 	}, logger.WithField("component", "ical connector"))
 
 	dbConfig.OutputServices[ical.OutputType] = icalConnector

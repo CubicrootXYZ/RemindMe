@@ -30,6 +30,11 @@ func (service *service) refreshIcalInputs() {
 	for _, input := range inputs {
 		l := service.logger.WithField("iCal input ID", input.ID)
 
+		if input.LastRefresh != nil && time.Since(*input.LastRefresh) < service.config.RefreshInterval {
+			l.Debugf("skipping input as has not yet reached the refresh interval")
+			continue
+		}
+
 		now := time.Now()
 		err := service.refreshIcalInput(&input) //nolint:gosec // Reference stays in same routine.
 		if err != nil {

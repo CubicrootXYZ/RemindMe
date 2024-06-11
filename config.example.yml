@@ -41,6 +41,11 @@ matrix:
   userwhitelist:
     - "@me:example.com"
 
+# iCal connector settings
+ical:
+  # How often to fetch iCal resources for events, in minutes
+  refreshinterval: 60
+
 # API settings
 api:
   enabled: false

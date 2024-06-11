@@ -18,6 +18,8 @@ type Config struct {
 	Database database.Service
 
 	BaseURL *url.URL
+
+	RefreshInterval time.Duration
 }
 
 type service struct {
