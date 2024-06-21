@@ -286,7 +286,10 @@ func (service *service) InputRemoved(inputType string, inputID uint) error {
 	}
 
 	room, err := service.matrixDatabase.GetRoomByID(inputID)
-	if err != nil && !errors.Is(err, matrixdb.ErrNotFound) {
+	if err != nil {
+		if errors.Is(err, matrixdb.ErrNotFound) {
+			return nil
+		}
 		return err
 	}
 
@@ -297,7 +300,7 @@ func (service *service) InputRemoved(inputType string, inputID uint) error {
 // OutputRemoved to tell the connector an output got removed.
 func (service *service) OutputRemoved(outputType string, outputID uint) error {
 	if outputType != OutputType {
-		// Input is not from this connector, ignore
+		// Output is not from this connector, ignore
 		return nil
 	}
 
