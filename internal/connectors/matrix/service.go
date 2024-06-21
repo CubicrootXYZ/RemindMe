@@ -302,7 +302,11 @@ func (service *service) OutputRemoved(outputType string, outputID uint) error {
 	}
 
 	room, err := service.matrixDatabase.GetRoomByID(outputID)
-	if err != nil && !errors.Is(err, matrixdb.ErrNotFound) {
+	if err != nil {
+		if errors.Is(err, matrixdb.ErrNotFound) {
+			// No need to delete already deleted room.
+			return nil
+		}
 		return err
 	}
 
