@@ -7,6 +7,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 )
 
+var ReminderReactions = []string{"✅", "▶️", "⏩", "1️⃣", "4️⃣"}
+
 func (service *service) SendReminder(event *daemon.Event, output *daemon.Output) error {
 	room, err := service.matrixDatabase.GetRoomByID(output.OutputID)
 	if err != nil {
@@ -64,6 +66,18 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 	_, err = service.matrixDatabase.NewMessage(dbMsg)
 	if err != nil {
 		service.logger.Errorf("failed to save message to database: %v", err)
+	}
+
+	for _, reaction := range ReminderReactions {
+		err := service.messenger.SendReactionAsync(&messenger.Reaction{
+			Reaction:                  reaction,
+			ChannelExternalIdentifier: room.RoomID,
+			MessageExternalIdentifier: resp.ExternalIdentifier,
+		})
+		if err != nil {
+			service.logger.Errorf("failed to send '%s' reaction: %s", reaction, err.Error())
+			continue
+		}
 	}
 
 	return nil
