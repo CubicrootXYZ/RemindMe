@@ -266,6 +266,15 @@ func (service *service) handleLeave(evt *event.Event) error {
 		return err
 	}
 
+	if time.Unix(evt.Timestamp/1000, 0).Sub(room.CreatedAt) < 0 {
+		// Got invited to room after this event. Ignore this event.
+		service.logger.Infof(
+			"ignoring leave/ban for room '%s' as go invited afterwards again",
+			room.RoomID,
+		)
+		return nil
+	}
+
 	err = service.removeRoom(room)
 	if err != nil {
 		return err
