@@ -1,7 +1,6 @@
 package format
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -16,14 +15,13 @@ func MessageFromEvent(event *daemon.Event, timeZone string) (string, string, err
 	f := Formater{}
 
 	f.Text("🔔 ")
-	f.Bold("New Event:")
-	f.Text("\"")
-	f.Text(event.Message)
-	f.TextLine("\"")
+	f.Bold(event.Message)
+	f.Text(" (#")
+	f.Text(strconv.Itoa(int(event.ID)))
+	f.Text(")")
 	f.NewLine()
 
-	f.Italic(fmt.Sprintf("ID: %d; ", event.ID))
-	f.Italic("Scheduled for " + ToLocalTime(event.EventTime, timeZone))
+	f.Italic(ToShortLocalTime(event.EventTime, timeZone))
 	f.Text(" ")
 
 	if event.RepeatInterval != nil {

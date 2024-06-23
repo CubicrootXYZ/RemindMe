@@ -26,28 +26,13 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 		return err
 	}
 
-	var resp *messenger.MessageResponse
-	if originalMessage == nil {
-		resp, err = service.messenger.SendMessage(messenger.HTMLMessage(
-			message,
-			messageFormatted,
-			room.RoomID,
-		))
-		if err != nil {
-			return err
-		}
-	} else {
-		resp, err = service.messenger.SendResponse(&messenger.Response{
-			Message:                   message,
-			MessageFormatted:          messageFormatted,
-			RespondToMessage:          originalMessage.Body,
-			RespondToMessageFormatted: originalMessage.BodyFormatted,
-			RespondToEventID:          originalMessage.ID,
-			ChannelExternalIdentifier: room.RoomID,
-		})
-		if err != nil {
-			return err
-		}
+	resp, err := service.messenger.SendMessage(messenger.HTMLMessage(
+		message,
+		messageFormatted,
+		room.RoomID,
+	))
+	if err != nil {
+		return err
 	}
 
 	dbMsg := &matrixdb.MatrixMessage{
