@@ -77,6 +77,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeChangeEvent
+	message.EventID = replyToMessage.EventID
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Errorf("failed to save message to db: %v", err)

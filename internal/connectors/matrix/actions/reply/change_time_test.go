@@ -72,7 +72,7 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 				))
 
 			// Expectations
-			tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent)
+			tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
 			db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
 				Return(nil, nil)
@@ -116,7 +116,7 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 		))
 
 	// Expectations
-	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent)
+	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
 	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
 		Return(nil, errors.New("test"))
