@@ -7,9 +7,11 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 )
 
-func ExpectNewMessageFromEvent(matrixDB *matrixdb.MockService, event *matrix.MessageEvent, t matrixdb.MatrixMessageType) {
+type MatrixMessageAssertion func(*matrixdb.MatrixMessage)
+
+func ExpectNewMessageFromEvent(matrixDB *matrixdb.MockService, event *matrix.MessageEvent, t matrixdb.MatrixMessageType, assertions ...MatrixMessageAssertion) {
 	sender := event.Event.Sender.String()
-	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
+	msg := &matrixdb.MatrixMessage{
 		ID:            event.Event.ID.String(),
 		UserID:        &sender,
 		RoomID:        event.Room.ID,
@@ -18,5 +20,17 @@ func ExpectNewMessageFromEvent(matrixDB *matrixdb.MockService, event *matrix.Mes
 		SendAt:        time.UnixMilli(event.Event.Timestamp),
 		Incoming:      true,
 		Type:          t,
-	}).Return(nil, nil)
+	}
+
+	for _, assertion := range assertions {
+		assertion(msg)
+	}
+
+	matrixDB.EXPECT().NewMessage(msg).Return(nil, nil)
+}
+
+func MsgWithDBEventID(id uint) MatrixMessageAssertion {
+	return func(mm *matrixdb.MatrixMessage) {
+		mm.EventID = &id
+	}
 }

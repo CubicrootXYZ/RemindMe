@@ -66,7 +66,7 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 		))
 
 	// Expectations
-	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent)
+	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
 	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage(
 		tests.WithFromTestEvent(),
@@ -112,7 +112,7 @@ func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 		))
 
 	// Expectations
-	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent)
+	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
 	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage(
 		tests.WithFromTestEvent(),

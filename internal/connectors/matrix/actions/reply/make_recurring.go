@@ -80,6 +80,7 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeChangeEvent
+	message.EventID = replyToMessage.EventID
 	_, err := action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Errorf("failed to save message to db: %v", err)
@@ -108,5 +109,10 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 		format.ToNiceDuration(duration),
 		format.ToLocalTime(*dbEvent.RepeatUntil, event.Room.TimeZone),
 	)
-	go action.storer.SendAndStoreResponse(msg, matrixdb.MessageTypeTimezoneChange, *event)
+	go action.storer.SendAndStoreResponse(
+		msg,
+		matrixdb.MessageTypeTimezoneChange,
+		*event,
+		msghelper.WithEventID(*replyToMessage.EventID),
+	)
 }
