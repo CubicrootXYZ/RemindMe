@@ -15,6 +15,8 @@ const (
 	DateTimeFormatDefault = "15:04 02.01.2006 (MST)"
 	// DateFormatShort is a short date format used.
 	DateFormatShort = "Mon, 02 Jan"
+	// TimeFormatShot is a short time format used.
+	TimeFormatShort = "15:04 (MST)"
 )
 
 // ParseTime parses the time from the input.
@@ -81,6 +83,20 @@ func ToLocalTime(datetime time.Time, timezone string) string {
 	}
 
 	return datetime.In(loc).Format(DateTimeFormatDefault)
+}
+
+// ToShortLocalTime converts the time object to a short localized time string
+func ToShortLocalTime(datetime time.Time, timezone string) string {
+	if timezone == "" {
+		return datetime.UTC().Format(TimeFormatShort)
+	}
+
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		return datetime.UTC().Format(TimeFormatShort)
+	}
+
+	return datetime.In(loc).Format(TimeFormatShort)
 }
 
 func toLocalTime(datetime time.Time, loc *time.Location) string {

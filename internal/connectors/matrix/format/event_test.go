@@ -21,14 +21,13 @@ func TestMessageFromEvent(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(
 		t,
-		`🔔 NEW EVENT:"my event"
-
-ID: 1; Scheduled for 11:45 12.11.2014 (UTC) `,
+		`🔔 MY EVENT (#1)
+11:45 (UTC) `,
 		msg,
 	)
 	assert.Equal(
 		t,
-		`🔔 <b>New Event:</b>"my event"<br><br><i>ID: 1; </i><i>Scheduled for 11:45 12.11.2014 (UTC)</i> `,
+		`🔔 <b>my event</b> (#1)<br><i>11:45 (UTC)</i> `,
 		msgF,
 	)
 }
@@ -43,14 +42,13 @@ func TestMessageFromEventWithRecurring(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(
 		t,
-		`🔔 NEW EVENT:"my event"
-
-ID: 1; Scheduled for 11:45 12.11.2014 (UTC) 🔁`,
+		`🔔 MY EVENT (#1)
+11:45 (UTC) 🔁`,
 		msg,
 	)
 	assert.Equal(
 		t,
-		`🔔 <b>New Event:</b>"my event"<br><br><i>ID: 1; </i><i>Scheduled for 11:45 12.11.2014 (UTC)</i> 🔁`,
+		`🔔 <b>my event</b> (#1)<br><i>11:45 (UTC)</i> 🔁`,
 		msgF,
 	)
 }
