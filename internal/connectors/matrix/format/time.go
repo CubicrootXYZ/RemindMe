@@ -87,7 +87,6 @@ func ToLocalTime(datetime time.Time, timezone string) string {
 
 // ToShortLocalTime converts the time object to a short localized time string
 func ToShortLocalTime(datetime time.Time, timezone string) string {
-	// TODO test!
 	if timezone == "" {
 		return datetime.UTC().Format(TimeFormatShort)
 	}

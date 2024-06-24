@@ -66,6 +66,24 @@ func TestToLocalTime(t *testing.T) {
 	}
 }
 
+func TestToShortLocalTime(t *testing.T) {
+	refTime := refTime()
+
+	testCases := make(map[string]string)
+	testCases["UTC"] = "11:45 (UTC)"
+	testCases[""] = "11:45 (UTC)"
+	testCases["abcdefg"] = "11:45 (UTC)"
+	testCases["Europe/Berlin"] = "12:45 (CET)"
+	testCases["America/Mexico_City"] = "05:45 (CST)"
+	testCases["Asia/Jakarta"] = "18:45 (WIB)"
+
+	for timeZone, should := range testCases {
+		is := format.ToShortLocalTime(refTime, timeZone)
+
+		assert.Equal(t, should, is)
+	}
+}
+
 func TestTimeToHourAndMinute(t *testing.T) {
 	time1, _ := time.Parse("2006-01-02T15:04:05.000Z", "2014-11-12T17:01:26.371Z")
 
