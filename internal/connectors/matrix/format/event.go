@@ -139,17 +139,17 @@ func headerFromEvent(event *database.Event, loc *time.Location) string {
 	eventDay := eventInUserTZ.Day()
 
 	nowYear, nowWeek := nowInUserTZ.ISOWeek()
-	nowDay := eventInUserTZ.Day()
+	nowDay := nowInUserTZ.Day()
 
 	switch {
 	case eventYear == nowYear &&
 		eventWeek == nowWeek &&
 		eventDay == nowDay:
-		return "Today (" + nowInUserTZ.Format(DateFormatShort) + ")"
+		return "Today (" + eventInUserTZ.Format(DateFormatShort) + ")"
 	case eventYear == nowYear &&
 		(eventWeek == nowWeek || eventWeek == nowWeek+1) &&
 		eventDay == nowInUserTZ.Add(time.Hour*24).Day():
-		return "Tomorrow (" + nowInUserTZ.Format(DateFormatShort) + ")"
+		return "Tomorrow (" + eventInUserTZ.Format(DateFormatShort) + ")"
 	case eventYear == nowYear &&
 		eventWeek == nowWeek:
 		return "This Week"

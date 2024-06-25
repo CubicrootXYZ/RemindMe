@@ -65,6 +65,8 @@ func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 		query = query.Where("events.time >= ?", *opts.EventsAfter)
 	}
 
+	query = query.Order("time DESC")
+
 	var events []Event
 
 	err := query.Preload("Channel").Preload("Input").Find(&events).Error
