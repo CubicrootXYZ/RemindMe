@@ -1,13 +1,15 @@
-FROM golang:1.22.4-alpine3.20 as builder
+FROM cubicrootxyz/matrix-go:1.22 as builder
 ARG VERSION="development"
 
 WORKDIR /run
 
 COPY ./ ./
 RUN go mod download
-RUN export CGO_ENABLED=0 && go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
+RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
 
 FROM scratch
+
+WORKDIR /run
 
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
@@ -15,8 +17,5 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 
 COPY --from=builder /run/remindme /run/
-WORKDIR /run
-
-USER runner:runner
 
 CMD ["/run/remindme"]
