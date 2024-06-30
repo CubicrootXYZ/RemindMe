@@ -74,7 +74,7 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 	var str, strFormatted strings.Builder
 	currentHeader := ""
 	for i := range events {
-		newHeader := headerFromEvent(&events[i], loc)
+		newHeader := headerFromEvent(&events[i], loc, time.Now())
 		if newHeader != currentHeader {
 			str.WriteString("\n")
 			str.WriteString(strings.ToUpper(newHeader))
@@ -131,15 +131,15 @@ func InfoFromDaemonEvent(event *daemon.Event, timeZone string) (string, string) 
 	return f.Build()
 }
 
-func headerFromEvent(event *database.Event, loc *time.Location) string {
-	nowInUserTZ := time.Now().In(loc)
+func headerFromEvent(event *database.Event, loc *time.Location, baseTime time.Time) string {
+	nowInUserTZ := baseTime.In(loc)
 	eventInUserTZ := event.Time.In(loc)
 
 	eventYear, eventWeek := eventInUserTZ.ISOWeek()
-	eventDay := eventInUserTZ.Day()
+	eventDay := eventInUserTZ.YearDay()
 
 	nowYear, nowWeek := nowInUserTZ.ISOWeek()
-	nowDay := nowInUserTZ.Day()
+	nowDay := nowInUserTZ.YearDay()
 
 	switch {
 	case eventYear == nowYear &&
@@ -148,7 +148,7 @@ func headerFromEvent(event *database.Event, loc *time.Location) string {
 		return "Today (" + eventInUserTZ.Format(DateFormatShort) + ")"
 	case eventYear == nowYear &&
 		(eventWeek == nowWeek || eventWeek == nowWeek+1) &&
-		eventDay == nowInUserTZ.Add(time.Hour*24).Day():
+		eventDay == nowDay+1:
 		return "Tomorrow (" + eventInUserTZ.Format(DateFormatShort) + ")"
 	case eventYear == nowYear &&
 		eventWeek == nowWeek:
@@ -157,6 +157,6 @@ func headerFromEvent(event *database.Event, loc *time.Location) string {
 		eventWeek == nowWeek+1:
 		return "Next Week"
 	default:
-		return eventInUserTZ.Month().String()
+		return eventInUserTZ.Month().String() + " " + strconv.Itoa(eventYear)
 	}
 }
