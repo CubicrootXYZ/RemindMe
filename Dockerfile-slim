@@ -18,4 +18,5 @@ COPY --from=builder /etc/group /etc/group
 
 COPY --from=builder /run/remindme /run/
 
+# Fails due to libolm link not available.
 CMD ["/run/remindme"]

@@ -10,8 +10,13 @@ RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-cale
 FROM ubuntu:24.04 
 RUN apt update && apt upgrade -y && \
     apt install -y gcc && \
-    apt install libolm-dev npm -y
+    apt install libolm-dev npm -y && \
+    apt clean
 COPY --from=builder /run/remindme /run/
 WORKDIR /run
+
+RUN rm -rf /usr/share && \
+    rm -rf /var/lib && \ 
+    rm -rf /usr/bin
 
 CMD ["/run/remindme"]
