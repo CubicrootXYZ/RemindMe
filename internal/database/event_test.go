@@ -36,6 +36,12 @@ func interval40Hours() *time.Duration {
 	return &d
 }
 
+func interval24Hours() *time.Duration {
+	d := time.Hour * 24
+
+	return &d
+}
+
 func TestEvent_NextEventTime(t *testing.T) {
 	type testCase struct {
 		Name         string
@@ -82,6 +88,15 @@ func TestEvent_NextEventTime(t *testing.T) {
 				RepeatInterval: interval40Hours(),
 			},
 			ExpectedTime: time2123().Add(*interval40Hours()),
+		},
+		{
+			Name: "Success with 24 hours",
+			Event: database.Event{
+				Time:           time2123(),
+				RepeatUntil:    timeP2124(),
+				RepeatInterval: interval24Hours(),
+			},
+			ExpectedTime: time2123().Add(time.Hour * 24),
 		},
 	}
 
