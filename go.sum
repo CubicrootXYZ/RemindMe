@@ -11,8 +11,8 @@ github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d/go.mod h1:CN47TkXtxcVeEZ9KqqwEoRKVsfqTh2pl0XKPWIB/Z8o=
 github.com/DATA-DOG/go-sqlmock v1.5.0 h1:Shsta01QNfFxHCfpW6YH2STWB0MudeXXEWMr20OEh60=
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/arran4/golang-ical v0.3.0 h1:QsH5giiitaAtK0zZTPA0hyTGuoFLYa+f+j9LsGOlvgk=
-github.com/arran4/golang-ical v0.3.0/go.mod h1:LZWxF8ZIu/sjBVUCV0udiVPrQAgq3V0aa0RfbO99Qkk=
+github.com/arran4/golang-ical v0.3.1 h1:v13B3eQZ9VDHTAvT6M11vVzxYgcYmjyPBE2eAZl3VZk=
+github.com/arran4/golang-ical v0.3.1/go.mod h1:LZWxF8ZIu/sjBVUCV0udiVPrQAgq3V0aa0RfbO99Qkk=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/bytedance/sonic v1.11.9 h1:LFHENlIY/SLzDWverzdOvgMztTxcfcF+cqNsz9pK5zg=
 github.com/bytedance/sonic v1.11.9/go.mod h1:LysEHSvpvDySVdC2f87zGWf6CIKJcAvqab1ZaiQtds4=

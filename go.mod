@@ -6,7 +6,7 @@ require (
 	github.com/CubicrootXYZ/gologger v0.4.0
 	github.com/CubicrootXYZ/gonaturalduration v0.5.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
-	github.com/arran4/golang-ical v0.3.0
+	github.com/arran4/golang-ical v0.3.1
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang/mock v1.6.0
