@@ -14,9 +14,9 @@ func (event *Event) NextEventTime() time.Time {
 
 	fmt.Printf("Event time is: %s\n", event.Time.String()) //nolint:forbidigo
 
-	if time.Until(event.Time) > time.Minute {
+	/*if time.Until(event.Time) > time.Minute {
 		return event.Time
-	}
+	}*/
 
 	nextTime := event.Time.Add(*event.RepeatInterval)
 	for time.Until(nextTime) < 0 {
