@@ -1,6 +1,8 @@
 package database
 
-import "time"
+import (
+	"time"
+)
 
 // NextEventTime returns the next time the event will happen.
 // If the RepeatUntil date is reached or the event is not recurring the zero time is returned.

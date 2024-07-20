@@ -20,19 +20,19 @@ func (service *service) sendOutEvents() error {
 				service.logger.Err(err)
 				continue
 			}
+		}
 
-			nextTime := event.NextEventTime()
-			if !nextTime.IsZero() {
-				event.Time = nextTime
-			} else {
-				event.Active = false
-			}
+		nextTime := event.NextEventTime()
+		if !nextTime.IsZero() {
+			event.Time = nextTime
+		} else {
+			event.Active = false
+		}
 
-			_, err = service.database.UpdateEvent(&event) //nolint:gosec // Reference stays in same routine.
-			if err != nil {
-				service.logger.Errorf("failed updating event after sending reminder: %w", err)
-				continue
-			}
+		_, err = service.database.UpdateEvent(&event) //nolint:gosec // Reference stays in same routine.
+		if err != nil {
+			service.logger.Errorf("failed updating event after sending reminder: %w", err)
+			continue
 		}
 	}
 
