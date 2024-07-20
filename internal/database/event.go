@@ -1,6 +1,9 @@
 package database
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // NextEventTime returns the next time the event will happen.
 // If the RepeatUntil date is reached or the event is not recurring the zero time is returned.
@@ -9,14 +12,23 @@ func (event *Event) NextEventTime() time.Time {
 		return time.Time{}
 	}
 
+	fmt.Printf("Event time is: %s\n", event.Time.String()) //nolint:forbidigo
+
+	if time.Until(event.Time) > time.Minute {
+		return event.Time
+	}
+
 	nextTime := event.Time.Add(*event.RepeatInterval)
 	for time.Until(nextTime) < 0 {
 		nextTime = nextTime.Add(*event.RepeatInterval)
+		fmt.Printf("Adding repeat interval time is now: %s\n", nextTime.String()) //nolint:forbidigo
 	}
 
 	if nextTime.After(*event.RepeatUntil) {
 		return time.Time{}
 	}
+
+	fmt.Printf("Updating event time to: %s\n", nextTime.String()) //nolint:forbidigo
 
 	return nextTime
 }
