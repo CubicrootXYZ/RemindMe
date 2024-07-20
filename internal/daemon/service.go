@@ -60,6 +60,7 @@ func (service *service) startEventDaemon() {
 	for {
 		select {
 		case <-eventsTicker.C:
+			service.logger.Debugf("sending out events ...")
 			err := service.sendOutEvents()
 			if err != nil {
 				service.logger.Err(err)
