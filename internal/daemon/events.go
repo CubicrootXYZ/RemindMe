@@ -7,6 +7,7 @@ func (service *service) sendOutEvents() error {
 	}
 
 	for _, event := range events {
+		eventSuccess := true
 		for j := range event.Channel.Outputs {
 			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 
@@ -17,9 +18,18 @@ func (service *service) sendOutEvents() error {
 
 			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j])) //nolint:gosec // Reference stays in same routine.
 			if err != nil {
+				eventSuccess = false
 				service.logger.Err(err)
 				continue
 			}
+		}
+
+		if !eventSuccess {
+			// Try again later.
+			//
+			// This approach is only viable as there is only 1 output (matrix channel) possible currently. The iCal
+			// output is no-op. Adding more outputs requires another solution here!
+			continue
 		}
 
 		nextTime := event.NextEventTime()
