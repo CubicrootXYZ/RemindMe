@@ -80,6 +80,12 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 		action.logger.Err(err)
 	}
 
-	msg, msgFormatted := format.InfoFromEvents(events, event.Room.TimeZone)
-	go action.storer.SendAndStoreMessage(msg, msgFormatted, matrixdb.MessageTypeEventList, *event)
+	msg := format.Formater{}
+	msg.Title("Your Events")
+
+	msgEvts, msgEvtsFormatted := format.InfoFromEvents(events, event.Room.TimeZone)
+
+	msgOut, msgOutFormatted := msg.Build()
+
+	go action.storer.SendAndStoreMessage(msgOut+msgEvts, msgOutFormatted+msgEvtsFormatted, matrixdb.MessageTypeEventList, *event)
 }

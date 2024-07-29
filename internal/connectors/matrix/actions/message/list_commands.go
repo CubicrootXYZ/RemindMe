@@ -65,6 +65,7 @@ func (action *ListCommandsAction) listMessageCommands(event *matrix.MessageEvent
 	msg := format.Formater{}
 	msg.Title("RemindMe Commands")
 	msg.TextLine("Try messaging me with the following messages and I will give my best to assist you!")
+	msg.NewLine()
 
 	for _, action := range []interface {
 		GetDocu() (string, string, []string)
@@ -100,6 +101,7 @@ func (action *ListCommandsAction) listReplyCommands(event *matrix.MessageEvent) 
 	msg := format.Formater{}
 	msg.Title("RemindMe Reply Commands")
 	msg.TextLine("I can understand the following messages if you reply with them to certain messages.")
+	msg.NewLine()
 
 	for _, action := range []interface {
 		GetDocu() (string, string, []string)
@@ -128,6 +130,7 @@ func (action *ListCommandsAction) listReactions(event *matrix.MessageEvent) {
 	msg := format.Formater{}
 	msg.Title("RemindMe Reactions")
 	msg.TextLine("You can react to some messages to let me know I should act.")
+	msg.NewLine()
 
 	for _, action := range []interface {
 		GetDocu() (string, string, []string)

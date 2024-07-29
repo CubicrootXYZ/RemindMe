@@ -74,12 +74,13 @@ func TestListEventsAction_HandleEvent(t *testing.T) {
 	)).Return(nil, nil)
 
 	msngr.EXPECT().SendMessage(&messenger.Message{
-		Body: `
+		Body: `== YOUR EVENTS ==
+
 JANUARY 2006
 ➡️ TEST EVENT
 at 08:04 02.01.2006 (UTC) (ID: 2824) 
 `,
-		BodyHTML: `<br><b>January 2006</b><br>
+		BodyHTML: `<h3>Your Events</h3><br><br><b>January 2006</b><br>
 ➡️ <b>test event</b><br>at 08:04 02.01.2006 (UTC) (ID: 2824) <br>`,
 		ChannelExternalIdentifier: "!room123",
 	}).Return(&messenger.MessageResponse{
@@ -89,12 +90,13 @@ at 08:04 02.01.2006 (UTC) (ID: 2824)
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:     "!234",
 		UserID: toP("@user:example.com"),
-		Body: `
+		Body: `== YOUR EVENTS ==
+
 JANUARY 2006
 ➡️ TEST EVENT
 at 08:04 02.01.2006 (UTC) (ID: 2824) 
 `,
-		BodyFormatted: `<br><b>January 2006</b><br>
+		BodyFormatted: `<h3>Your Events</h3><br><br><b>January 2006</b><br>
 ➡️ <b>test event</b><br>at 08:04 02.01.2006 (UTC) (ID: 2824) <br>`,
 		Type:   matrixdb.MessageTypeEventList,
 		RoomID: 0,
