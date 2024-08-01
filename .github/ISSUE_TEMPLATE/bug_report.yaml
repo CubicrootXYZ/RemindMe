@@ -9,7 +9,7 @@ body:
     attributes:
       label: Describe the bug
       description: A clear and concise description of what behavior you did expect and what behavior you actually saw.
-      placeholder: 'In a direct message room with the bot (unencrypted) I wrote "buy milk at saturday". I expected the bot to add a reminder for saturday, but instead it crashed.'
+      placeholder: 'In a direct message room with the bot I wrote "buy milk at saturday". I expected the bot to add a reminder for saturday, but instead it crashed.'
     validations:
       required: true
   - type: textarea

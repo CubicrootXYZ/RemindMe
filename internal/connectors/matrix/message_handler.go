@@ -13,12 +13,11 @@ import (
 )
 
 type MessageEvent struct {
-	Event       *event.Event
-	Content     *event.MessageEventContent
-	IsEncrypted bool
-	Room        *matrixdb.MatrixRoom
-	Input       *database.Input
-	Channel     *database.Channel
+	Event   *event.Event
+	Content *event.MessageEventContent
+	Room    *matrixdb.MatrixRoom
+	Input   *database.Input
+	Channel *database.Channel
 }
 
 func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Event) {
@@ -136,7 +135,6 @@ func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.Matri
 	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if ok {
 		msgEvt.Content = content
-		msgEvt.IsEncrypted = false
 		return &msgEvt, nil
 	}
 

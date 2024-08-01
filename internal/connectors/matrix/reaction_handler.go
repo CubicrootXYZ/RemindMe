@@ -10,12 +10,11 @@ import (
 // TODO increase test coverage.
 
 type ReactionEvent struct {
-	Event       *event.Event
-	Content     *event.ReactionEventContent
-	IsEncrypted bool
-	Room        *matrixdb.MatrixRoom
-	Input       *database.Input
-	Channel     *database.Channel
+	Event   *event.Event
+	Content *event.ReactionEventContent
+	Room    *matrixdb.MatrixRoom
+	Input   *database.Input
+	Channel *database.Channel
 }
 
 func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.Event) {
@@ -113,7 +112,6 @@ func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.Matr
 	content, ok := evt.Content.Parsed.(*event.ReactionEventContent)
 	if ok {
 		reactionEvent.Content = content
-		reactionEvent.IsEncrypted = false
 		return &reactionEvent, nil
 	}
 

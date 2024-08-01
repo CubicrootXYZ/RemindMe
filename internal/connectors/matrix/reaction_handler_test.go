@@ -51,12 +51,11 @@ func TestService_ReactionEventHandler(t *testing.T) {
 	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.reactionAction.EXPECT().HandleEvent(
 		&ReactionEvent{
-			Event:       &evt,
-			Content:     evt.Content.Parsed.(*event.ReactionEventContent),
-			IsEncrypted: false,
-			Room:        testRoom(),
-			Channel:     &database.Channel{},
-			Input:       &database.Input{},
+			Event:   &evt,
+			Content: evt.Content.Parsed.(*event.ReactionEventContent),
+			Room:    testRoom(),
+			Channel: &database.Channel{},
+			Input:   &database.Input{},
 		},
 		&matrixdb.MatrixMessage{
 			RoomID: testRoom().ID,
