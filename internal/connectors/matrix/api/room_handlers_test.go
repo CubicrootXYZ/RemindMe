@@ -68,7 +68,6 @@ func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
 	_, matrixDB, server := testServer(ctrl)
 
 	room := testRoom()
-	room.LastCryptoEvent = "abc"
 	matrixDB.EXPECT().ListInputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{room},
 		nil,
@@ -184,7 +183,6 @@ func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
 	_, matrixDB, server := testServer(ctrl)
 
 	room := testRoom()
-	room.LastCryptoEvent = "abc"
 	matrixDB.EXPECT().ListOutputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{room},
 		nil,

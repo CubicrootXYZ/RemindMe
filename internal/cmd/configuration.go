@@ -88,7 +88,6 @@ func (config *Config) matrixConfig() *matrix.Config {
 		Password:      config.Matrix.Bot.Password,
 		Homeserver:    config.Matrix.Bot.Homeserver,
 		DeviceID:      config.Matrix.Bot.DeviceID,
-		EnableE2EE:    config.Matrix.Bot.E2EE,
 		DeviceKey:     config.Matrix.Bot.DeviceKey,
 		AllowInvites:  config.Matrix.AllowInvites,
 		RoomLimit:     config.Matrix.RoomLimit,

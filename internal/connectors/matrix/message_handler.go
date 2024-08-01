@@ -140,25 +140,5 @@ func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.Matri
 		return &msgEvt, nil
 	}
 
-	if !service.crypto.enabled {
-		return nil, ErrUnknowEvent
-	}
-
-	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
-	if ok {
-		decrypted, err := service.crypto.olm.DecryptMegolmEvent(evt)
-
-		if err != nil {
-			return nil, err
-		}
-
-		content, ok = decrypted.Content.Parsed.(*event.MessageEventContent)
-		if ok {
-			msgEvt.Content = content
-			msgEvt.IsEncrypted = true
-			return &msgEvt, nil
-		}
-	}
-
 	return nil, ErrUnknowEvent
 }
