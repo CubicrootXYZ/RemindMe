@@ -92,7 +92,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 	logger.Infof("No action found matching key %s", content.RelatesTo.Key)
 }
 
-func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*ReactionEvent, error) { //nolint: dupl
+func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*ReactionEvent, error) {
 	reactionEvent := ReactionEvent{
 		Event: evt,
 		Room:  room,

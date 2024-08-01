@@ -48,29 +48,6 @@ func (messenger *service) sendMessageEvent(messageEvent *messageEvent, roomID st
 	return messenger.client.SendMessageEvent(id.RoomID(roomID), eventType, &messageEvent)
 }
 
-func (messenger *service) getUserIDsInRoom(roomID id.RoomID) []id.UserID {
-	// Check cache first
-	if users := messenger.roomUserCache.GetUsers(roomID); users != nil {
-		return users
-	}
-
-	userIDs := make([]id.UserID, 0)
-	members, err := messenger.client.JoinedMembers(roomID)
-	if err != nil {
-		messenger.logger.Err(err)
-		return userIDs
-	}
-
-	i := 0
-	for userID := range members.Joined {
-		userIDs = append(userIDs, userID)
-		i++
-	}
-
-	messenger.roomUserCache.AddUsers(roomID, userIDs)
-	return userIDs
-}
-
 func (messenger *service) encounteredRateLimit() {
 	messenger.state.rateLimitedUntilMutex.Lock()
 	messenger.state.rateLimitedUntil = time.Now().Add(time.Minute)

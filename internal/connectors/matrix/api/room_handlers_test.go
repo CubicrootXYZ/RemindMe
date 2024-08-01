@@ -61,7 +61,7 @@ func TestAPI_ListInputRoomsHandler(t *testing.T) {
 	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":false,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
-func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
+func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -176,7 +176,7 @@ func TestAPI_ListOutputRoomsHandler(t *testing.T) {
 	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":false,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
-func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
+func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
