@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/golang-ci:v1.22.5-0
+      image: cubicrootxyz/golang-ci:v1.22.5-3
       options: --user root
     steps:
       # Otherwise golangci-lint fails with build VCS error.
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/golang-ci:v1.22.5-0
+      image: cubicrootxyz/golang-ci:v1.22.5-3
       options: --user root
     steps:
       - name: Checkout the repository
