@@ -10,7 +10,7 @@ on:
 
 jobs:
   golang_quality:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.5
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@main
 
   tests:
     needs: [build_documentation] # Validates agains OpenAPI spec
