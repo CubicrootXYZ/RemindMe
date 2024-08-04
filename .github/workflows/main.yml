@@ -9,6 +9,9 @@ on:
       - "index.html"
 
 jobs:
+  golang_quality:
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.5
+
   tests:
     needs: [build_documentation] # Validates agains OpenAPI spec
     runs-on: ubuntu-latest
@@ -33,20 +36,6 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Run tests
         run: go test ./...
-
-  lint:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: cubicrootxyz/golang-ci:v1.22.5-3
-      options: --user root
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-      - name: Run golangci
-        run: golangci-lint run --timeout 3m0s
 
   build_documentation:
     runs-on: ubuntu-latest
@@ -98,40 +87,6 @@ jobs:
   #       uses: actions/deploy-pages@v4
   #       with:
   #         artifact_name: rendered-api-docu
-
-  tidy:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: golang:1.22.5-alpine3.20
-      options: --user root
-    steps:
-      - name: install deps
-        run: apk update && apk add git
-      - uses: actions/checkout@v3
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Run tidy
-        run: go mod tidy
-      - name: Diff
-        run: git diff --exit-code
-
-  generate:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: golang:1.22.5-alpine3.20
-      options: --user root
-    steps:
-      - name: install deps
-        run: apk update && apk add git
-      - uses: actions/checkout@v3
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Install mockgen
-        run: go install github.com/golang/mock/mockgen@v1.6.0
-      - name: Run golangci
-        run: go generate ./...
-      - name: Diff
-        run: git diff --exit-code
 
   build_and_push_image:
     needs: [tests, lint, build_documentation, tidy, generate]
