@@ -8,9 +8,14 @@ on:
       - "**.png"
       - "index.html"
 
+permissions:
+  # Required by golangci job to write annotations to the merge request.
+  contents: read
+  checks: write
+
 jobs:
   golang_quality:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@main
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.6
 
   tests:
     needs: [build_documentation] # Validates agains OpenAPI spec
