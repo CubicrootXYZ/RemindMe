@@ -13,7 +13,6 @@ type Room struct {
 	ID        uint   `json:"id"`
 	CreatedAt string `json:"created_at"` // RFC3339 formatted timestamp
 	RoomID    string `json:"room_id"`    // Matrix room identifier
-	Encrypted bool   `json:"encrypted"`  // True if an encrypted event is known
 	Users     []User `json:"users"`      // List of matrix user identifiers known in this room
 }
 
@@ -35,7 +34,6 @@ func roomToResponse(room *matrixdb.MatrixRoom) Room {
 		ID:        room.ID,
 		CreatedAt: room.CreatedAt.Format(time.RFC3339),
 		RoomID:    room.RoomID,
-		Encrypted: room.LastCryptoEvent != "",
 		Users:     users,
 	}
 }

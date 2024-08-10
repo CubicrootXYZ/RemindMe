@@ -10,12 +10,11 @@ import (
 // TODO increase test coverage.
 
 type ReactionEvent struct {
-	Event       *event.Event
-	Content     *event.ReactionEventContent
-	IsEncrypted bool
-	Room        *matrixdb.MatrixRoom
-	Input       *database.Input
-	Channel     *database.Channel
+	Event   *event.Event
+	Content *event.ReactionEventContent
+	Room    *matrixdb.MatrixRoom
+	Input   *database.Input
+	Channel *database.Channel
 }
 
 func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.Event) {
@@ -92,7 +91,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 	logger.Infof("No action found matching key %s", content.RelatesTo.Key)
 }
 
-func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*ReactionEvent, error) { //nolint: dupl
+func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*ReactionEvent, error) {
 	reactionEvent := ReactionEvent{
 		Event: evt,
 		Room:  room,
@@ -113,28 +112,7 @@ func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.Matr
 	content, ok := evt.Content.Parsed.(*event.ReactionEventContent)
 	if ok {
 		reactionEvent.Content = content
-		reactionEvent.IsEncrypted = false
 		return &reactionEvent, nil
-	}
-
-	if !service.crypto.enabled {
-		return nil, ErrUnknowEvent
-	}
-
-	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
-	if ok {
-		decrypted, err := service.crypto.olm.DecryptMegolmEvent(evt)
-
-		if err != nil {
-			return nil, err
-		}
-
-		content, ok = decrypted.Content.Parsed.(*event.ReactionEventContent)
-		if ok {
-			reactionEvent.Content = content
-			reactionEvent.IsEncrypted = true
-			return &reactionEvent, nil
-		}
 	}
 
 	return nil, ErrUnknowEvent

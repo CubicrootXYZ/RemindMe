@@ -28,7 +28,7 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		events, err := service.database.ListEvents(&database.ListEventsOpts{
-			ChannelID:    &channel.ID, //nolint:gosec // Not used in different goroutine.
+			ChannelID:    &channel.ID,
 			EventsAfter:  &eventsAfter,
 			EventsBefore: &eventsBefore,
 		})
@@ -38,7 +38,7 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		for _, output := range channel.Outputs {
-			if isDailyReminderSentToday(&output) { //nolint:gosec // Reference stays in same routine.
+			if isDailyReminderSentToday(&output) {
 				service.logger.
 					WithField("channel", channel.ID).
 					Debugf("no daily reminder send out - already done")
@@ -58,7 +58,7 @@ func (service *service) sendOutDailyReminders() error {
 				"daily_reminder_time": channel.DailyReminder,
 			}).Debugf("sending out daily reminder")
 
-			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output)) //nolint:gosec // Reference stays in same routine.
+			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output))
 			if err != nil {
 				service.logger.Err(err)
 				continue
@@ -66,7 +66,7 @@ func (service *service) sendOutDailyReminders() error {
 
 			now := time.Now().UTC()
 			output.LastDailyReminder = &now
-			_, err = service.database.UpdateOutput(&output) //nolint:gosec // Reference stays in same routine.
+			_, err = service.database.UpdateOutput(&output)
 			if err != nil {
 				service.logger.Err(err)
 			}

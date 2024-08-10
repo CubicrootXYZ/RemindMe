@@ -21,10 +21,6 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	})
 	logger.Debugf("new state event")
 
-	if service.crypto.enabled {
-		service.crypto.olm.HandleMemberEvent(evt)
-	}
-
 	// Ignore old events or events from the bot itself
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return

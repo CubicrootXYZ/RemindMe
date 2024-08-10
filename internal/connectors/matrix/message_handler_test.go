@@ -106,12 +106,11 @@ func TestService_MessageEventHandler(t *testing.T) {
 	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.defaultMessageAction.EXPECT().HandleEvent(
 		&MessageEvent{
-			Event:       &evt,
-			Content:     evt.Content.Parsed.(*event.MessageEventContent),
-			IsEncrypted: false,
-			Room:        testRoom(),
-			Channel:     &database.Channel{},
-			Input:       &database.Input{},
+			Event:   &evt,
+			Content: evt.Content.Parsed.(*event.MessageEventContent),
+			Room:    testRoom(),
+			Channel: &database.Channel{},
+			Input:   &database.Input{},
 		},
 	)
 
@@ -145,12 +144,11 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.messageAction.EXPECT().HandleEvent(
 		&MessageEvent{
-			Event:       &evt,
-			Content:     evt.Content.Parsed.(*event.MessageEventContent),
-			IsEncrypted: false,
-			Room:        testRoom(),
-			Channel:     &database.Channel{},
-			Input:       &database.Input{},
+			Event:   &evt,
+			Content: evt.Content.Parsed.(*event.MessageEventContent),
+			Room:    testRoom(),
+			Channel: &database.Channel{},
+			Input:   &database.Input{},
 		},
 	)
 
@@ -274,12 +272,11 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.defaultReplyAction.EXPECT().HandleEvent(
 		&MessageEvent{
-			Event:       &evt,
-			Content:     evt.Content.Parsed.(*event.MessageEventContent),
-			IsEncrypted: false,
-			Room:        testRoom(),
-			Channel:     &database.Channel{},
-			Input:       &database.Input{},
+			Event:   &evt,
+			Content: evt.Content.Parsed.(*event.MessageEventContent),
+			Room:    testRoom(),
+			Channel: &database.Channel{},
+			Input:   &database.Input{},
 		},
 		&matrixdb.MatrixMessage{},
 	)
@@ -320,12 +317,11 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 	fx.db.EXPECT().GetChannelByID(uint(0)).Return(&database.Channel{}, nil)
 	fx.replyAction.EXPECT().HandleEvent(
 		&MessageEvent{
-			Event:       &evt,
-			Content:     evt.Content.Parsed.(*event.MessageEventContent),
-			IsEncrypted: false,
-			Room:        testRoom(),
-			Channel:     &database.Channel{},
-			Input:       &database.Input{},
+			Event:   &evt,
+			Content: evt.Content.Parsed.(*event.MessageEventContent),
+			Room:    testRoom(),
+			Channel: &database.Channel{},
+			Input:   &database.Input{},
 		},
 		&matrixdb.MatrixMessage{},
 	)

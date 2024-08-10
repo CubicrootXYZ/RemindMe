@@ -9,9 +9,8 @@ linters:
     - nlreturn # Only formatting
     - ireturn # This project sometimes uses interfaces
     - gomnd # This project has some hardcoded numbers for times and delays
-    - goerr113 # This project has not yet moved to static errors
+    - err113 # This project has not yet moved to static errors
     - gochecknoglobals # This project still uses some global variables
-    - exhaustivestruct # This projects relies on using only parts of structs
     - exhaustruct # This projects relies on using only parts of structs
     - errorlint # This project has not yet moved to static errors
     - wsl # Formatting
@@ -28,21 +27,13 @@ linters:
     - testpackage # Naming
     - exhaustive # To many false positives
     - interfacebloat # Do not agree
+    - mnd # Do not agree
     # deprecated
-    - scopelint
-    - maligned
-    - interfacer
-    - golint
-    - deadcode
-    - varcheck
-    - structcheck
-    - ifshort
-    - nosnakecase
     - rowserrcheck
     - sqlclosecheck
-    - structcheck
     - wastedassign
     - inamedparam
+    - execinquery
 
 linters-settings:
   cyclop:

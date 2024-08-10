@@ -36,7 +36,6 @@ Not yet ported to `v2`:
 The following features are seen as **experimental**, we do not recommend them for use in production. Data losses or data leaks might happen.
 
 * Multi-User channels
-* End to end encrypted channels _(enable in settings)_
 
 ## 👩‍🔧 Contribute
 

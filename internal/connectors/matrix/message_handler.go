@@ -13,12 +13,11 @@ import (
 )
 
 type MessageEvent struct {
-	Event       *event.Event
-	Content     *event.MessageEventContent
-	IsEncrypted bool
-	Room        *matrixdb.MatrixRoom
-	Input       *database.Input
-	Channel     *database.Channel
+	Event   *event.Event
+	Content *event.MessageEventContent
+	Room    *matrixdb.MatrixRoom
+	Input   *database.Input
+	Channel *database.Channel
 }
 
 func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Event) {
@@ -115,7 +114,7 @@ func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger
 	service.config.DefaultMessageAction.HandleEvent(msgEvent)
 }
 
-func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*MessageEvent, error) { //nolint: dupl
+func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*MessageEvent, error) {
 	msgEvt := MessageEvent{
 		Event: evt,
 		Room:  room,
@@ -136,28 +135,7 @@ func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.Matri
 	content, ok := evt.Content.Parsed.(*event.MessageEventContent)
 	if ok {
 		msgEvt.Content = content
-		msgEvt.IsEncrypted = false
 		return &msgEvt, nil
-	}
-
-	if !service.crypto.enabled {
-		return nil, ErrUnknowEvent
-	}
-
-	_, ok = evt.Content.Parsed.(*event.EncryptedEventContent)
-	if ok {
-		decrypted, err := service.crypto.olm.DecryptMegolmEvent(evt)
-
-		if err != nil {
-			return nil, err
-		}
-
-		content, ok = decrypted.Content.Parsed.(*event.MessageEventContent)
-		if ok {
-			msgEvt.Content = content
-			msgEvt.IsEncrypted = true
-			return &msgEvt, nil
-		}
 	}
 
 	return nil, ErrUnknowEvent

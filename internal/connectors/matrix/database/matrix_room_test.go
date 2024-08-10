@@ -20,8 +20,7 @@ func testRoom() *matrixdb.MatrixRoom {
 	}
 
 	return &matrixdb.MatrixRoom{
-		RoomID:          roomID,
-		LastCryptoEvent: "{}",
+		RoomID: roomID,
 	}
 }
 
@@ -157,7 +156,6 @@ func TestService_UpdateRoom(t *testing.T) {
 	roomBefore, err := service.NewRoom(testRoom())
 	require.NoError(t, err)
 
-	roomBefore.LastCryptoEvent = "{\"a\": \"b\"}"
 	_, err = service.UpdateRoom(roomBefore)
 	require.NoError(t, err)
 
@@ -262,6 +260,4 @@ func assertRoomsEqual(t *testing.T, a *matrixdb.MatrixRoom, b *matrixdb.MatrixRo
 	} else {
 		assert.Equal(t, a.Users, b.Users)
 	}
-
-	assert.Equal(t, a.LastCryptoEvent, b.LastCryptoEvent)
 }

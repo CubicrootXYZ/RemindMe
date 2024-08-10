@@ -58,17 +58,16 @@ func TestAPI_ListInputRoomsHandler(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":false,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
-func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
+func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	_, matrixDB, server := testServer(ctrl)
 
 	room := testRoom()
-	room.LastCryptoEvent = "abc"
 	matrixDB.EXPECT().ListInputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{room},
 		nil,
@@ -91,7 +90,7 @@ func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":true,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
@@ -174,17 +173,16 @@ func TestAPI_ListOutputRoomsHandler(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":false,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
-func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
+func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	_, matrixDB, server := testServer(ctrl)
 
 	room := testRoom()
-	room.LastCryptoEvent = "abc"
 	matrixDB.EXPECT().ListOutputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{room},
 		nil,
@@ -207,7 +205,7 @@ func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) { //nolint:dupl
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","encrypted":true,"users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {

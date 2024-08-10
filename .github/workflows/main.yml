@@ -8,13 +8,21 @@ on:
       - "**.png"
       - "index.html"
 
+permissions:
+  # Required by golangci job to write annotations to the merge request.
+  contents: read
+  checks: write
+
 jobs:
+  golang_quality:
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.6
+
   tests:
     needs: [build_documentation] # Validates agains OpenAPI spec
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-2
+      image: golang:1.22.5-alpine3.20
       options: --user root
     services:
       database:
@@ -34,27 +42,11 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-  lint:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: cubicrootxyz/matrix-go:1.22-2
-      options: --user root
-    steps:
-      # Otherwise golangci-lint fails with build VCS error.
-      - run: apt install git/buster-backports -y
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-      - name: Run golangci
-        run: golangci-lint run --timeout 3m0s
-
   build_documentation:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/matrix-go:1.22-2
+      image: cubicrootxyz/golang-ci:v1.22.5-3
       options: --user root
     steps:
       - name: Checkout the repository
@@ -101,38 +93,8 @@ jobs:
   #       with:
   #         artifact_name: rendered-api-docu
 
-  tidy:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: cubicrootxyz/matrix-go:1.22-2
-      options: --user root
-    steps:
-      - uses: actions/checkout@v3
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Run tidy
-        run: go mod tidy
-      - name: Diff
-        run: git diff --exit-code
-
-  generate:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: cubicrootxyz/matrix-go:1.22-2
-      options: --user root
-    steps:
-      - uses: actions/checkout@v3
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      - name: Install mockgen
-        run: go install github.com/golang/mock/mockgen@v1.6.0
-      - name: Run golangci
-        run: go generate ./...
-      - name: Diff
-        run: git diff --exit-code
-
   build_and_push_image:
-    needs: [tests, lint, build_documentation, tidy, generate]
+    needs: [tests, golang_quality, build_documentation]
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:

@@ -47,11 +47,10 @@ type Service interface {
 
 // MatrixRoom holds information about a room.
 type MatrixRoom struct {
-	gorm.Model                   // numeric ID required to match main database in- and outputs
-	RoomID          string       `gorm:"unique"`
-	Users           []MatrixUser `gorm:"many2many:matrix_rooms_matrix_users;"`
-	LastCryptoEvent string
-	TimeZone        string
+	gorm.Model              // numeric ID required to match main database in- and outputs
+	RoomID     string       `gorm:"unique"`
+	Users      []MatrixUser `gorm:"many2many:matrix_rooms_matrix_users;"`
+	TimeZone   string
 	// TODO somehow get roles back
 }
 

@@ -8,13 +8,11 @@ import (
 	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/encryption"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/crypto"
 	"maunium.net/go/mautrix/id"
 )
 
@@ -26,13 +24,7 @@ type service struct {
 	messenger      messenger.Messenger
 	botname        string
 
-	client *mautrix.Client
-	crypto struct {
-		enabled     bool
-		cryptoStore crypto.Store
-		stateStore  *encryption.StateStore
-		olm         *crypto.OlmMachine
-	}
+	client          *mautrix.Client
 	lastMessageFrom time.Time
 }
 
@@ -72,7 +64,6 @@ type Config struct {
 	Password   string
 	Homeserver string
 	DeviceID   string
-	EnableE2EE bool
 	DeviceKey  string
 
 	MessageActions       []MessageAction
@@ -118,20 +109,12 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 		return nil, err
 	}
 
-	if config.EnableE2EE {
-		err = service.setupEncryption()
-		if err != nil {
-			service.logger.Err(err)
-			return nil, err
-		}
-	}
-
-	err = service.setupMessenger() // important to call after crypto setup
+	err = service.setupMessenger()
 	if err != nil {
 		return nil, err
 	}
 
-	service.setupActions() // important to call after crypto, db and mautrix setup
+	service.setupActions() // important to call after db and mautrix setup
 
 	service.setLastMessage()
 
@@ -206,49 +189,8 @@ func (service *service) setupMautrixClient() error {
 	return err
 }
 
-func (service *service) setupEncryption() error {
-	service.logger.Debugf("setting up matrix end to end encryption ...")
-
-	cryptoStore, deviceID, err := encryption.NewCryptoStore(
-		service.config.Username,
-		service.config.DeviceKey,
-		service.config.Homeserver,
-		service.config.DeviceID,
-		service.logger.WithField("component", "cryptostore"),
-	)
-	if err != nil {
-		return err
-	}
-	service.crypto.cryptoStore = cryptoStore
-
-	stateStore := encryption.NewStateStore(service.matrixDatabase, &encryption.StateStoreConfig{
-		Username:   service.config.Username,
-		Homeserver: service.config.Homeserver,
-	}, service.logger.WithField("component", "statestore"))
-	service.crypto.stateStore = stateStore
-
-	olm, err := encryption.NewOlmMachine(service.client, service.crypto.cryptoStore, service.crypto.stateStore, service.logger.WithField("component", "olm"))
-	if err != nil {
-		service.logger.Errorf("failed setting up olm machine: %s", err.Error())
-		return err
-	}
-	service.crypto.olm = olm
-
-	service.config.DeviceID = deviceID.String() // we might get a new device ID if none is set
-	service.crypto.enabled = true
-
-	service.logger.Debugf("matrix end to end encryption setup finished")
-	return nil
-}
-
 func (service *service) setupMessenger() error {
 	config := &messenger.Config{}
-
-	if service.crypto.enabled {
-		config.Crypto = &messenger.CryptoTools{}
-		config.Crypto.Olm = service.crypto.olm
-		config.Crypto.StateStore = service.crypto.stateStore
-	}
 
 	messenger, err := messenger.NewMessenger(config, service.matrixDatabase, service.client,
 		service.logger.WithField("component", "matrix-messenger"))
