@@ -16,7 +16,7 @@ func (service *service) sendOutEvents() error {
 				continue
 			}
 
-			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j])) //nolint:gosec // Reference stays in same routine.
+			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j]))
 			if err != nil {
 				eventSuccess = false
 				service.logger.Err(err)
@@ -39,7 +39,7 @@ func (service *service) sendOutEvents() error {
 			event.Active = false
 		}
 
-		_, err = service.database.UpdateEvent(&event) //nolint:gosec // Reference stays in same routine.
+		_, err = service.database.UpdateEvent(&event)
 		if err != nil {
 			service.logger.Errorf("failed updating event after sending reminder: %w", err)
 			continue

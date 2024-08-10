@@ -27,6 +27,7 @@ linters:
     - testpackage # Naming
     - exhaustive # To many false positives
     - interfacebloat # Do not agree
+    - mnd # Do not agree
     # deprecated
     - rowserrcheck
     - sqlclosecheck
