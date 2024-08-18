@@ -76,7 +76,7 @@ jobs:
   #         artifact_name: rendered-api-docu
 
   build_and_push_image:
-    needs: [tests, golang_quality, build_documentation]
+    needs: [golang_test, golang_quality, build_documentation]
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
