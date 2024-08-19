@@ -1,6 +1,6 @@
 module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-go 1.22
+go 1.23
 
 require (
 	github.com/CubicrootXYZ/gologger v0.4.0
