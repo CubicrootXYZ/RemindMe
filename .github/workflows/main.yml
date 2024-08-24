@@ -21,7 +21,7 @@ jobs:
     uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.7
     needs: [build_documentation] # Validates agains OpenAPI spec
     with:
-      services: '{"database": {"image": "mysql:8.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
+      services: '{"database": {"image": "mysql:9.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
       env: '{"TEST_DB_HOST": "database"}'
 
   build_documentation:
