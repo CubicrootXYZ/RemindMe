@@ -58,7 +58,7 @@ func TestService_NewChannel(t *testing.T) {
 
 	assert.Equal(t, channelBefore.Description, channelAfter.Description)
 	assert.Equal(t, channelBefore.DailyReminder, channelAfter.DailyReminder)
-	assert.Less(t, uint(0), channelAfter.ID)
+	assert.NotZero(t, channelAfter.ID)
 	assert.False(t, channelAfter.CreatedAt.IsZero())
 	assert.False(t, channelAfter.UpdatedAt.IsZero())
 }
@@ -73,7 +73,7 @@ func TestService_GetChannelByID(t *testing.T) {
 	assert.Equal(t, channelBefore.ID, channelAfter.ID)
 	assert.Equal(t, channelBefore.Description, channelAfter.Description)
 	assert.Equal(t, channelBefore.DailyReminder, channelAfter.DailyReminder)
-	assert.Less(t, uint(0), channelAfter.ID)
+	assert.NotZero(t, channelAfter.ID)
 	assert.False(t, channelAfter.CreatedAt.IsZero())
 	assert.False(t, channelAfter.UpdatedAt.IsZero())
 }

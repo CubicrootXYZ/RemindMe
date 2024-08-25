@@ -15,10 +15,10 @@ permissions:
 
 jobs:
   golang_quality:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.7
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.8
 
   golang_test:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.7
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.8
     needs: [build_documentation] # Validates agains OpenAPI spec
     with:
       services: '{"database": {"image": "mysql:9.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     container:
-      image: cubicrootxyz/golang-ci:v1.22.5-3
+      image: cubicrootxyz/golang-ci:v1.23.0
       options: --user root
     steps:
       - name: Checkout the repository

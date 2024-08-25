@@ -15,6 +15,10 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
+const (
+	defaultEventDuration = time.Minute * 5
+)
+
 func (service *service) refreshIcalInputs() {
 	service.logger.Debugf("refreshing iCal inputs now ...")
 
@@ -74,7 +78,7 @@ func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 	events, err := format.EventsFromIcal(content, &format.EventOpts{
 		// TODO make configurable
 		EventDelay:      time.Duration(0),
-		DefaultDuration: time.Minute * 5,
+		DefaultDuration: defaultEventDuration,
 
 		InputID:   i.ID,
 		ChannelID: i.ChannelID,

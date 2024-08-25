@@ -12,6 +12,10 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
+const (
+	iCalScrapeInteval = time.Minute * 15
+)
+
 // Config holds the configuration for the service.
 type Config struct {
 	ICalDB   icaldb.Service
@@ -39,7 +43,7 @@ func New(config *Config, logger gologger.Logger) Service {
 }
 
 func (service *service) Start() error {
-	ticker := time.NewTicker(time.Minute * 15)
+	ticker := time.NewTicker(iCalScrapeInteval)
 	for {
 		service.refreshIcalInputs()
 

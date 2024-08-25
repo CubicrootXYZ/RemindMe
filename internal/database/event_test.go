@@ -153,8 +153,8 @@ func TestService_NewEvents(t *testing.T) {
 	err := service.NewEvents(eventsBefore)
 	require.NoError(t, err)
 
-	require.Greater(t, eventsBefore[0].ID, uint(0))
-	require.Greater(t, eventsBefore[1].ID, uint(0))
+	require.NotZero(t, eventsBefore[0].ID)
+	require.NotZero(t, eventsBefore[1].ID)
 }
 
 func TestService_NewEventWithoutChannel(t *testing.T) {
