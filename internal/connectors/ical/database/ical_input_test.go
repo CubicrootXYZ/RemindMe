@@ -21,7 +21,7 @@ func TestService_NewIcalInput(t *testing.T) {
 	inputBefore, err := service.NewIcalInput(testInput())
 	require.NoError(t, err)
 
-	assert.Greater(t, inputBefore.ID, uint(0))
+	assert.NotZero(t, inputBefore.ID)
 	assert.GreaterOrEqual(t, inputBefore.CreatedAt, start)
 	assert.NotEmpty(t, inputBefore.URL)
 
@@ -34,7 +34,7 @@ func TestService_NewIcalInput(t *testing.T) {
 func TestService_DeleteIcalInput(t *testing.T) {
 	input, err := service.NewIcalInput(testInput())
 	require.NoError(t, err)
-	require.Greater(t, input.ID, uint(0))
+	require.NotZero(t, input.ID)
 
 	err = service.DeleteIcalInput(input.ID)
 	require.NoError(t, err)
@@ -51,7 +51,7 @@ func TestService_DeleteIcalInputWithNotFound(t *testing.T) {
 func TestService_ListIcalInput(t *testing.T) {
 	input, err := service.NewIcalInput(testInput())
 	require.NoError(t, err)
-	require.Greater(t, input.ID, uint(0))
+	require.NotZero(t, input.ID)
 
 	inputs, err := service.ListIcalInputs(&database.ListIcalInputsOpts{})
 	require.NoError(t, err)
@@ -84,7 +84,7 @@ func TestService_ListIcalInput(t *testing.T) {
 func TestService_UpdateIcalInput(t *testing.T) {
 	input, err := service.NewIcalInput(testInput())
 	require.NoError(t, err)
-	require.Greater(t, input.ID, uint(0))
+	require.NotZero(t, input.ID)
 
 	input.URL = "abcdef"
 

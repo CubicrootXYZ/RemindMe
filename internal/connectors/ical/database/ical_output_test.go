@@ -21,7 +21,7 @@ func TestService_NewIcalOutput(t *testing.T) {
 	outputBefore, err := service.NewIcalOutput(testOutput())
 	require.NoError(t, err)
 
-	assert.Greater(t, outputBefore.ID, uint(0))
+	assert.NotZero(t, outputBefore.ID)
 	assert.GreaterOrEqual(t, outputBefore.CreatedAt, start)
 	assert.NotEmpty(t, outputBefore.Token)
 
@@ -34,7 +34,7 @@ func TestService_NewIcalOutput(t *testing.T) {
 func TestService_DeleteIcalOutput(t *testing.T) {
 	output, err := service.NewIcalOutput(testOutput())
 	require.NoError(t, err)
-	require.Greater(t, output.ID, uint(0))
+	require.NotZero(t, output.ID)
 
 	err = service.DeleteIcalOutput(output.ID)
 	require.NoError(t, err)

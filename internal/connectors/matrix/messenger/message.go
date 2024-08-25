@@ -71,7 +71,12 @@ type MessageResponse struct {
 // If you need the MessageResponse use SendMessage.
 func (messenger *service) SendMessageAsync(message *Message) error {
 	go func() {
-		_, _ = messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 10, time.Second*10)
+		_, _ = messenger.sendMessage(
+			message.toEvent(),
+			message.ChannelExternalIdentifier,
+			defaultAsyncMessageRetries,
+			defaultAsyncMessageRetryDelay,
+		)
 	}()
 
 	return nil
@@ -80,7 +85,12 @@ func (messenger *service) SendMessageAsync(message *Message) error {
 // SendMessage sends the given message via matrix.
 // This will wait for rate limits to expire, thus the request can take some time.
 func (messenger *service) SendMessage(message *Message) (*MessageResponse, error) {
-	return messenger.sendMessage(message.toEvent(), message.ChannelExternalIdentifier, 3, time.Second*5)
+	return messenger.sendMessage(
+		message.toEvent(),
+		message.ChannelExternalIdentifier,
+		defaultSyncMessageRetries,
+		defaultSyncMessageRetryDelay,
+	)
 }
 
 // sendMessage will take care of sending the message via matrix

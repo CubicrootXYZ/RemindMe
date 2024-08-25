@@ -7,6 +7,13 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 )
 
+const (
+	defaultSyncMessageRetries     = 3
+	defaultSyncMessageRetryDelay  = time.Second * 5
+	defaultAsyncMessageRetries    = 10
+	defaultAsyncMessageRetryDelay = time.Second * 10
+)
+
 type Response struct {
 	Message                   string
 	MessageFormatted          string
@@ -75,7 +82,7 @@ func PlainTextResponse(msg, replyToEventID, replyToMessage, replyToUser, channel
 // If you need the MessageResponse use SendMessage.
 func (messenger *service) SendResponseAsync(response *Response) error {
 	go func() {
-		_, _ = messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 10, time.Second*10)
+		_, _ = messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, defaultAsyncMessageRetries, time.Second*10)
 	}()
 
 	return nil
@@ -84,5 +91,5 @@ func (messenger *service) SendResponseAsync(response *Response) error {
 // SendResponse sends the given response via matrix.
 // This will wait for rate limits to expire, thus the request can take some time.
 func (messenger *service) SendResponse(response *Response) (*MessageResponse, error) {
-	return messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, 3, time.Second*5)
+	return messenger.sendMessage(response.toEvent(), response.ChannelExternalIdentifier, defaultSyncMessageRetries, time.Second*5)
 }
