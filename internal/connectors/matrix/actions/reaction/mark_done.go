@@ -60,19 +60,21 @@ func (action *MarkDoneAction) HandleEvent(event *matrix.ReactionEvent, reactionT
 	}
 
 	evt := reactionToMessage.Event
-	evt.Active = false
+	if evt.RepeatInterval == nil && evt.RepeatUntil == nil {
+		evt.Active = false
 
-	_, err := action.db.UpdateEvent(evt)
-	if err != nil {
-		l.Err(err)
-		_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
-			"Whoopsie, can not update the event as requested.",
-			event.Room.RoomID,
-		))
-		return
+		_, err := action.db.UpdateEvent(evt)
+		if err != nil {
+			l.Err(err)
+			_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
+				"Whoopsie, can not update the event as requested.",
+				event.Room.RoomID,
+			))
+			return
+		}
 	}
 
-	err = action.messenger.DeleteMessageAsync(&messenger.Delete{
+	err := action.messenger.DeleteMessageAsync(&messenger.Delete{
 		ExternalIdentifier:        reactionToMessage.ID,
 		ChannelExternalIdentifier: reactionToMessage.Room.RoomID,
 	})

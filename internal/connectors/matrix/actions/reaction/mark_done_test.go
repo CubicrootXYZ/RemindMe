@@ -3,6 +3,7 @@ package reaction_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reaction"
@@ -78,6 +79,24 @@ func TestMarkDoneAction_HandleEvent(t *testing.T) {
 		evt.Active = false
 		db.EXPECT().UpdateEvent(&evt).Return(nil, nil)
 
+		msngr.EXPECT().DeleteMessageAsync(gomock.Any()).Return(nil)
+
+		// Execute
+		action.HandleEvent(tests.TestReactionEvent(
+			tests.ReactionWithKey("✅"),
+		), msg)
+	})
+
+	t.Run("success case with repeating event", func(_ *testing.T) {
+		dur := time.Minute
+		until := time.Now().Add(time.Hour * 24)
+		msg := tests.TestMessage(
+			tests.WithTestEvent(),
+		)
+		msg.Event.RepeatInterval = &dur
+		msg.Event.RepeatUntil = &until
+
+		// Expectations
 		msngr.EXPECT().DeleteMessageAsync(gomock.Any()).Return(nil)
 
 		// Execute
