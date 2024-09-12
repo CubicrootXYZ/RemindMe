@@ -8,7 +8,7 @@
 
 A matrix bot that handles reminders and knows your agenda.
 
-⚠️ The main branch currently contains the `v2` which is not yet considered stable. `v1` is moved to the similiar named branch. ⚠️
+⚠️ The main branch currently contains the `v2` which is not backwards compatible. `v1` is moved to the similiar named branch. ⚠️
 
 ## Example
 
