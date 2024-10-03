@@ -48,7 +48,6 @@ func (action *RescheduleRepeatingAction) Selector() []string {
 
 // HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
 func (action *RescheduleRepeatingAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
-	// TODO tests & add new reaction
 	l := action.logger.WithFields(
 		map[string]any{
 			"reaction":        event.Content.RelatesTo.Key,

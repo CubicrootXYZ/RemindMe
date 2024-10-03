@@ -7,7 +7,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 )
 
-var ReminderReactions = []string{"✅", "▶️", "⏩", "1️⃣", "4️⃣"}
+var ReminderReactions = []string{"✅", "▶️", "⏩", "1️⃣", "4️⃣", "🔂"}
 
 func (service *service) SendReminder(event *daemon.Event, output *daemon.Output) error {
 	room, err := service.matrixDatabase.GetRoomByID(output.OutputID)
