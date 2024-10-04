@@ -202,6 +202,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 		&reaction.DeleteEventAction{},
 		&reaction.AddTimeAction{},
 		&reaction.MarkDoneAction{},
+		&reaction.RescheduleRepeatingAction{},
 	)
 
 	cfg.BridgeServices = &matrix.BridgeServices{
