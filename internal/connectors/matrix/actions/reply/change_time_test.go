@@ -74,7 +74,9 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 			// Expectations
 			tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
-			db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
+			e := tests.TestMessage().Event
+			e.Active = true
+			db.EXPECT().UpdateEvent(tests.NewEventMatcher(e)).
 				Return(nil, nil)
 
 			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
@@ -118,7 +120,9 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 	// Expectations
 	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
-	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage().Event)).
+	e := tests.TestMessage().Event
+	e.Active = true
+	db.EXPECT().UpdateEvent(tests.NewEventMatcher(e)).
 		Return(nil, errors.New("test"))
 
 	// Execute
