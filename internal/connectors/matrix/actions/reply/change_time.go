@@ -85,6 +85,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 	}
 
 	replyToMessage.Event.Time = remindTime
+	replyToMessage.Event.Active = true
 	_, err = action.db.UpdateEvent(replyToMessage.Event)
 	if err != nil {
 		action.logger.Errorf("failed to update event in database: %v", err)
