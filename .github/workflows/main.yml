@@ -38,13 +38,13 @@ jobs:
       spec_artifact_path: docs/
       spec_filename: swagger.yaml
 
-  deploy_openapi_spec:
-    needs: 
-      - render_openapi_spec
-    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@59264c0b6ab33bd845849f9b00e1e9057c8518d5
-    with:
-      spec_artifact_name: rendered-api-docu
-      spec_artifact_path: ./
+  #deploy_openapi_spec:
+  #  needs: 
+  #    - render_openapi_spec
+  #  uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@59264c0b6ab33bd845849f9b00e1e9057c8518d5
+  #  with:
+  #    spec_artifact_name: rendered-api-docu
+  #    spec_artifact_path: ./
 
   build_and_push_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
