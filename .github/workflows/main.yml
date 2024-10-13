@@ -19,41 +19,24 @@ jobs:
 
   golang_test:
     uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.8
-    needs: [build_documentation] # Validates agains OpenAPI spec
+    needs: [build_openapi_spec] # Validates agains OpenAPI spec
     with:
       services: '{"database": {"image": "mysql:9.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
       env: '{"TEST_DB_HOST": "database"}'
 
-  build_documentation:
-    runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
-    container:
-      image: cubicrootxyz/golang-ci:v1.23.0
-      options: --user root
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "14"
-      - name: Get dependencies
-        run: go get ./...
-      - name: Build the api documentation
-        run: swag init --parseDependency=true -d . -g cmd/remindme/main.go
-      - name: Convert to OpenApi 3
-        run: openapi-code-sample-generator convert --file docs/swagger.yaml --output-file docs/swagger3.yaml
-      - name: Add code samples to api documentation
-        run: openapi-code-sample-generator generate --input-file docs/swagger3.yaml --output-file docs/api-spec.yaml
-      - name: Build static html
-        run: npx redoc-cli bundle docs/api-spec.yaml --output index.html
-      - name: Archive rendered HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: rendered-api-docu
-          path: |
-            index.html
+  build_openapi_spec:
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_golang_build.yaml@v0.0.10
+    with:
+      entrypoint: cmd/remindme/main.go
+
+  render_openapi_spec:
+    needs: 
+      - build_openapi_spec
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_render.yaml@v0.0.10
+    with:
+      spec_artifact_name: openapi-spec
+      spec_artifact_path: docs/
+      spec_filename: swagger.yaml
 
   # publish_documentation:
   #   runs-on: ubuntu-latest
@@ -76,7 +59,7 @@ jobs:
   #         artifact_name: rendered-api-docu
 
   build_and_push_image:
-    needs: [golang_test, golang_quality, build_documentation]
+    needs: [golang_test, golang_quality, render_openapi_spec]
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
