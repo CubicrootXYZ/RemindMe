@@ -39,20 +39,12 @@ jobs:
       spec_filename: swagger.yaml
 
   deploy_openapi_spec:
-    if: "${{ github.ref == 'refs/heads/main' }}"
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     needs: 
       - render_openapi_spec
-    permissions:
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: rendered-api-docu
-        uses: actions/deploy-pages@v4
+    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@59264c0b6ab33bd845849f9b00e1e9057c8518d5
+    with:
+      spec_artifact_name: rendered-api-docu
+      spec_artifact_path: ./
 
   build_and_push_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
