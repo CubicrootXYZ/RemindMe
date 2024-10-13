@@ -38,25 +38,21 @@ jobs:
       spec_artifact_path: docs/
       spec_filename: swagger.yaml
 
-  # publish_documentation:
-  #   runs-on: ubuntu-latest
-  #   if: "${{ github.ref == 'refs/heads/main' }}"
-  #   needs:
-  #     - build_documentation
-  #   # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-  #   permissions:
-  #     pages: write
-  #     id-token: write
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
-  #   steps:
-  #     - name: Deploy to GitHub Pages
-  #       if: "${{ github.ref == 'refs/heads/main' }}"
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
-  #       with:
-  #         artifact_name: rendered-api-docu
+  deploy_openapi_spec:
+    if: "${{ github.ref == 'refs/heads/main' }}"
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: 
+      - render_openapi_spec
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: rendered-api-docu
+        uses: actions/deploy-pages@v4
 
   build_and_push_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
