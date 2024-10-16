@@ -3,7 +3,7 @@ version: '3.2'
 
 services:
   remindme-db:
-    image: mysql:9.0
+    image: mysql:9.1
     environment:
       - 'MYSQL_ROOT_PASSWORD=mypass'
       - 'MYSQL_DATABASE=remindme'
