@@ -42,8 +42,8 @@ jobs:
     needs: [render_openapi_spec]
     uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.11
     with:
-      spec_artifact_name: rendered-api-docu
-      spec_artifact_path: index.html
+      artifact_name: rendered-api-docu
+      artifact_path: index.html
 
   build_and_push_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
