@@ -9,42 +9,41 @@ on:
       - "index.html"
 
 permissions:
-  # Required by golangci job to write annotations to the merge request.
   contents: read
   checks: write
+  pages: write
+  id-token: write
 
 jobs:
   golang_quality:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.8
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.11
 
   golang_test:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.8
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.11
     needs: [build_openapi_spec] # Validates agains OpenAPI spec
     with:
       services: '{"database": {"image": "mysql:9.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
       env: '{"TEST_DB_HOST": "database"}'
 
   build_openapi_spec:
-    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_golang_build.yaml@v0.0.10
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_golang_build.yaml@v0.0.11
     with:
       entrypoint: cmd/remindme/main.go
 
   render_openapi_spec:
-    needs: 
-      - build_openapi_spec
-    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_render.yaml@v0.0.10
+    needs: [build_openapi_spec]
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_render.yaml@v0.0.11
     with:
       spec_artifact_name: openapi-spec
       spec_artifact_path: docs/
       spec_filename: swagger.yaml
 
-  #deploy_openapi_spec:
-  #  needs: 
-  #    - render_openapi_spec
-  #  uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@59264c0b6ab33bd845849f9b00e1e9057c8518d5
-  #  with:
-  #    spec_artifact_name: rendered-api-docu
-  #    spec_artifact_path: ./
+  deploy_openapi_spec:
+    needs: [render_openapi_spec]
+    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.11
+    with:
+      spec_artifact_name: rendered-api-docu
+      spec_artifact_path: index.html
 
   build_and_push_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
