@@ -1,17 +1,23 @@
 ## Describe your changes
 
+Lorem ipsum ...
+
 ## Type of change
 
 - [ ] Documentation
 - [ ] New Feature
 - [ ] Bugfix
 - [ ] Improvements
+- [ ] Misc: 
 
 ## Related issue(s)
+
+- Resolves ... 
 
 ## Test plan
 
 _Please provide a test plan so other people can test your code faster_
+
 ## Checklists
 
 ### Before requesting a review
