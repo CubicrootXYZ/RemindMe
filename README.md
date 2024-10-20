@@ -74,4 +74,4 @@ Take a look into our [wiki](https://github.com/CubicrootXYZ/matrix-reminder-and-
 
 The bot offers an API. It needs to be enabled in the settings where the api key for the "Admin-Authentication" needs to be set. 
 
-Currently the documentation is not provided in a human readable way.
+Checkout the [API documentation](https://cubicrootxyz.github.io/RemindMe).
