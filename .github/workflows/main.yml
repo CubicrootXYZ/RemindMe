@@ -56,3 +56,8 @@ jobs:
     secrets:
       dockerhub_user: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  scan_image:
+    uses: anchore/scan-action@v3
+    with:
+      image: "cubicrootxyz/remindme:${{ github.sha }}"
