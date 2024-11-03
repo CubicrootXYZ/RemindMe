@@ -100,7 +100,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 	dbConfig := config.databaseConfig()
 	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.OutputServices = make(map[string]database.OutputService)
-	db, err := database.NewService(dbConfig, legacyLogger.WithField("component", "database"))
+	db, err := database.NewService(dbConfig, logger.With("component", "database"))
 	if err != nil {
 		logger.Error("failed to assemble database service", "error", err)
 		return nil, err

@@ -1,17 +1,17 @@
 package database_test
 
 import (
+	"log/slog"
 	"os"
 	"testing"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var logger gologger.Logger
+var logger *slog.Logger
 var service database.Service
 var gormDB *gorm.DB
 
@@ -45,8 +45,8 @@ func getGormDB() *gorm.DB {
 	return db
 }
 
-func getLogger() gologger.Logger {
-	return gologger.New(gologger.LogLevelDebug, 0)
+func getLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(os.Stdout, nil))
 }
 
 func TestMain(m *testing.M) {
