@@ -14,12 +14,12 @@ import (
 
 // EventStateHandler handles state events from matrix.
 func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Event) {
-	logger := service.logger.WithFields(map[string]any{
-		"sender":          evt.Sender,
-		"room":            evt.RoomID,
-		"event_timestamp": evt.Timestamp,
-	})
-	logger.Debugf("new state event")
+	logger := service.logger.With(
+		"sender", evt.Sender,
+		"room", evt.RoomID,
+		"event_timestamp", evt.Timestamp,
+	)
+	logger.Debug("new state event")
 
 	// Ignore old events or events from the bot itself
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
@@ -28,7 +28,7 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 
 	content, ok := evt.Content.Parsed.(*event.MemberEventContent)
 	if !ok {
-		logger.Infof("Event is not a member event. Can not handle it.")
+		logger.Info("cannot handle event", "reason", "not a member event")
 		return
 	}
 
@@ -37,7 +37,7 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	if err == nil {
 		return
 	} else if !errors.Is(err, matrixdb.ErrNotFound) {
-		logger.Err(err)
+		logger.Error("failed to get event", "error", err)
 		return
 	}
 
@@ -45,15 +45,15 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	case event.MembershipInvite, event.MembershipJoin:
 		err := service.handleInvite(evt, content)
 		if err != nil {
-			logger.Errorf("Failed to handle membership invite with: " + err.Error())
+			logger.Error("failed to handle state event", "event.membership", "invite/join", "error", err)
 		}
 	case event.MembershipLeave, event.MembershipBan:
 		err := service.handleLeave(evt)
 		if err != nil {
-			logger.Errorf("Failed to handle membership leave with: " + err.Error())
+			logger.Error("failed to handle state event", "event.membership", "leave/ban", "error", err)
 		}
 	default:
-		logger.Infof("No handling of this event as Membership %s is unknown.", content.Membership)
+		logger.Info("cannot handle state event", "reason", "unknown membership type", "event.membership", content.Membership)
 	}
 }
 
