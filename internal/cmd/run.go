@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log/slog"
 	"net/url"
 	"os"
 	"os/signal"
@@ -23,18 +24,26 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/lmittmann/tint"
 	"golang.org/x/sync/errgroup"
 )
 
 // Run setups the application and runs it
 func Run(config *Config) error {
-	logger := gologger.New(config.loggerConfig(), 0).WithField("component", "cmd")
-	defer logger.Flush()
+	legacyLogger := gologger.New(config.loggerConfig(), 0).WithField("component", "cmd")
+	defer legacyLogger.Flush()
 
-	logger.Infof("starting up RemindMe with version '%s' ...", config.BuildVersion)
+	// TODO make text/json configurable
+	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
+		AddSource:  true,
+		Level:      slog.LevelInfo, // TODO make configurable
+		TimeFormat: time.RFC3339Nano,
+	}))
+
+	logger.Info("starting up RemindMe", "version", config.BuildVersion)
 	processes, err := setup(config, logger)
 	if err != nil {
-		logger.Err(err)
+		logger.Error("startup failed", "error", err)
 		return err
 	}
 
@@ -46,15 +55,15 @@ func Run(config *Config) error {
 	go func() {
 		select {
 		case s := <-sigChan:
-			logger.Infof("received signal, shutting down: %v", s)
+			logger.Info("shutting down", "reason", "signal", "signal", s)
 		case <-ctx.Done():
-			logger.Infof("at least one process exited, shutting down")
+			logger.Info("shutting down", "reason", "process exited")
 		}
 
 		for _, p := range processes {
 			err := p.Stop()
 			if err != nil {
-				logger.Err(err)
+				logger.Error("process stopped with error", "error", err)
 			}
 		}
 	}()
@@ -67,10 +76,10 @@ func Run(config *Config) error {
 
 	err = eg.Wait()
 	if err != nil {
-		logger.Err(err)
+		logger.Error("error group stopped with error", "error", err)
 	}
 
-	logger.Infof("shut down complete, bye")
+	logger.Info("shut down complete, bye")
 	return err
 }
 
@@ -79,7 +88,8 @@ type process interface {
 	Stop() error
 }
 
-func setup(config *Config, logger gologger.Logger) ([]process, error) {
+func setup(config *Config, logger *slog.Logger) ([]process, error) {
+	legacyLogger := gologger.New(gologger.LogLevelInfo, 0)
 	baseURL, err := url.Parse(config.API.BaseURL)
 	if err != nil {
 		return nil, err
@@ -90,16 +100,16 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	dbConfig := config.databaseConfig()
 	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.OutputServices = make(map[string]database.OutputService)
-	db, err := database.NewService(dbConfig, logger.WithField("component", "database"))
+	db, err := database.NewService(dbConfig, legacyLogger.WithField("component", "database"))
 	if err != nil {
-		logger.Err(err)
+		logger.Error("failed to assemble database service", "error", err)
 		return nil, err
 	}
 
 	// iCal connector
 	icalDB, err := icaldb.New(db.GormDB())
 	if err != nil {
-		logger.Err(err)
+		logger.Error("failed to assemble iCal database service", "error", err)
 		return nil, err
 	}
 	icalConnector := ical.New(&ical.Config{
@@ -107,7 +117,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		Database:        db,
 		BaseURL:         baseURL,
 		RefreshInterval: time.Minute * time.Duration(config.ICal.RefreshInterval),
-	}, logger.WithField("component", "ical connector"))
+	}, legacyLogger.WithField("component", "ical connector"))
 
 	dbConfig.OutputServices[ical.OutputType] = icalConnector
 	dbConfig.OutputServices[ical.InputType] = icalConnector
@@ -116,13 +126,13 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	// Matrix connector
 	matrixDB, err := matrixdb.New(db.GormDB())
 	if err != nil {
-		logger.Err(err)
+		logger.Error("failed to assemble matrix database service", "error", err)
 		return nil, err
 	}
 
-	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, logger.WithField("component", "matrix connector"))
+	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, legacyLogger.WithField("component", "matrix connector"))
 	if err != nil {
-		logger.Err(err)
+		logger.Error("failed to assemble matrix connector service", "error", err)
 		return nil, err
 	}
 	processes = append(processes, matrixConnector)
@@ -135,7 +145,7 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemonConf.OutputServices[ical.OutputType] = icalConnector
-	daemon := daemon.New(daemonConf, db, logger.WithField("component", "daemon"))
+	daemon := daemon.New(daemonConf, db, legacyLogger.WithField("component", "daemon"))
 	processes = append(processes, daemon)
 
 	// API
@@ -144,26 +154,26 @@ func setup(config *Config, logger gologger.Logger) ([]process, error) {
 		coreAPI := coreapi.New(&coreapi.Config{
 			Database:            db,
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
-		}, logger.WithField("component", "core API"))
+		}, legacyLogger.WithField("component", "core API"))
 
 		// Matrix API
 		matrixAPI := matrixapi.New(&matrixapi.Config{
 			Database:            db,
 			MatrixDB:            matrixDB,
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
-		}, logger.WithField("component", "matrix API"))
+		}, legacyLogger.WithField("component", "matrix API"))
 
 		// iCal API
 		icalAPI := icalapi.New(&icalapi.Config{
 			IcalDB:   icalDB,
 			Database: db,
-		}, logger.WithField("component", "ical API"))
+		}, legacyLogger.WithField("component", "ical API"))
 
 		apiConfig := config.apiConfig()
 		apiConfig.RouteProviders["core"] = coreAPI
 		apiConfig.RouteProviders["matrix"] = matrixAPI
 		apiConfig.RouteProviders["ical"] = icalAPI
-		server := api.NewServer(apiConfig, logger.WithField("component", "api"))
+		server := api.NewServer(apiConfig, logger.With("component", "api"))
 		processes = append(processes, server)
 	}
 

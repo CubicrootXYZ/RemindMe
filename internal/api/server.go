@@ -2,10 +2,10 @@ package api
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
 )
@@ -13,7 +13,7 @@ import (
 type server struct {
 	server *http.Server
 	config *Config
-	logger gologger.Logger
+	logger *slog.Logger
 }
 
 type RouteProvider interface {
@@ -27,7 +27,7 @@ type Config struct {
 }
 
 // NewServer assembles a new API webserver.
-func NewServer(config *Config, logger gologger.Logger) Server {
+func NewServer(config *Config, logger *slog.Logger) Server {
 	return &server{
 		config: config,
 		logger: logger,
@@ -37,7 +37,7 @@ func NewServer(config *Config, logger gologger.Logger) Server {
 // Start the webserver and serve the given endpoints.
 // Blocks until stopped.
 func (server *server) Start() error {
-	server.logger.Infof("starting server at '%s'", server.config.Address)
+	server.logger.Info("starting server", "address", server.config.Address)
 	err := server.assembleRoutes()
 	if err != nil {
 		return err
@@ -56,8 +56,9 @@ func (server *server) Start() error {
 // Stop the server.
 // Might take a few moments.
 func (server *server) Stop() error {
-	server.logger.Infof("stopping server ...")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	timeout := time.Second * 5
+	server.logger.Info("stopping server", timeout, time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return server.server.Shutdown(ctx)
 }

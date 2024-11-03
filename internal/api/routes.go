@@ -11,11 +11,11 @@ func (server *server) assembleRoutes() error {
 	router := gin.New()
 
 	for name, provider := range server.config.RouteProviders {
-		server.logger.Infof("registering routes from: %s", name)
+		server.logger.Info("registering routes from provider", "provider", name)
 
 		err := provider.RegisterRoutes(router)
 		if err != nil {
-			server.logger.Errorf("error while setting up routes for '%s', routes might not be setup correctly: %v", name, err)
+			server.logger.Error("error while setting up routes for proider", "provider", name, "error", err)
 			continue
 		}
 	}
