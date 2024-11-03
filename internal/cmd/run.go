@@ -117,7 +117,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		Database:        db,
 		BaseURL:         baseURL,
 		RefreshInterval: time.Minute * time.Duration(config.ICal.RefreshInterval),
-	}, legacyLogger.WithField("component", "ical connector"))
+	}, logger.With("component", "ical connector"))
 
 	dbConfig.OutputServices[ical.OutputType] = icalConnector
 	dbConfig.OutputServices[ical.InputType] = icalConnector
