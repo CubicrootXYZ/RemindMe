@@ -57,7 +57,7 @@ func (server *server) Start() error {
 // Might take a few moments.
 func (server *server) Stop() error {
 	timeout := time.Second * 5
-	server.logger.Info("stopping server", timeout, time.Second*5)
+	server.logger.Info("stopping server", "timeout", timeout)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	return server.server.Shutdown(ctx)
