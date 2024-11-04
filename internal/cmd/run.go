@@ -130,7 +130,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		return nil, err
 	}
 
-	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, legacyLogger.WithField("component", "matrix connector"))
+	matrixConnector, err := matrix.New(assembleMatrixConfig(config, icalConnector), db, matrixDB, logger.With("component", "matrix connector"))
 	if err != nil {
 		logger.Error("failed to assemble matrix connector service", "error", err)
 		return nil, err

@@ -1,6 +1,7 @@
 package messenger
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 
@@ -29,13 +30,13 @@ type state struct {
 	rateLimitedUntilMutex sync.Mutex
 }
 
-func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger gologger.Logger) (Messenger, error) {
+func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger *slog.Logger) (Messenger, error) {
 	return &service{
 		roomUserCache: make(roomCache),
 		config:        config,
 		client:        matrixClient,
 		db:            db,
-		logger:        logger,
+		// TODO logger:        logger,
 		state: &state{
 			rateLimitedUntilMutex: sync.Mutex{},
 		},
