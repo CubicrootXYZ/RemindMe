@@ -2,9 +2,9 @@ package matrix
 
 import (
 	"errors"
+	"log/slog"
 	"strings"
 
-	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -21,12 +21,12 @@ type MessageEvent struct {
 }
 
 func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Event) {
-	logger := service.logger.WithFields(map[string]any{
-		"sender":          evt.Sender,
-		"room":            evt.RoomID,
-		"event_timestamp": evt.Timestamp,
-	})
-	logger.Debugf("new message received")
+	logger := service.logger.With(
+		"matrix.sender", evt.Sender,
+		"matrix.room.id", evt.RoomID,
+		"matrix.event.timestamp", evt.Timestamp,
+	)
+	logger.Debug("new message received")
 
 	// Do not answer our own and old messages
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
@@ -35,7 +35,7 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 
 	room, err := service.matrixDatabase.GetRoomByRoomID(string(evt.RoomID))
 	if err != nil {
-		logger.Debugf("do not know room, ignoring message")
+		logger.Debug("ignoring message", "reason", "unknown room")
 		return
 	}
 
@@ -48,7 +48,7 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 		}
 	}
 	if !isUserKnown {
-		logger.Debugf("do not know user, ignoring message")
+		logger.Debug("ignoring message", "reason", "unknown user")
 		return
 	}
 
@@ -58,12 +58,12 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 		return
 	}
 	if !errors.Is(err, matrixdb.ErrNotFound) {
-		logger.Err(err)
+		logger.Error("failed to get message from database", "error", err)
 	}
 
 	msgEvt, err := service.parseMessageEvent(evt, room)
 	if err != nil {
-		logger.Infof("can not handle event: " + err.Error())
+		logger.Info("failed to parse message event", "error", err)
 		return
 	}
 
@@ -76,41 +76,38 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 	}
 }
 
-func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger gologger.Logger) {
+func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger *slog.Logger) {
 	replyToMessage, err := service.matrixDatabase.GetMessageByID(msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 	if err != nil {
-		logger.Infof(
-			"discarding message, can not find the message '%s' it replies to: %s",
-			msgEvent.Content.RelatesTo.InReplyTo.EventID.String(),
-			err.Error(),
-		)
+		logger.Info("failed to get replied to message from database", "error", err,
+			"matrix.event.id", msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
 		return
 	}
 
 	msg := strings.ToLower(format.StripReply(msgEvent.Content.Body))
 	for i := range service.config.ReplyActions {
 		if service.config.ReplyActions[i].Selector().MatchString(msg) {
-			logger.Infof("moving event to reply action: %s", service.config.ReplyActions[i].Name())
+			logger.Info("moving event to reply action", "action.name", service.config.ReplyActions[i].Name())
 			service.config.ReplyActions[i].HandleEvent(msgEvent, replyToMessage)
 			return
 		}
 	}
 
-	logger.Infof("moving event to default reply action")
+	logger.Info("moving event to default reply action")
 	service.config.DefaultReplyAction.HandleEvent(msgEvent, replyToMessage)
 }
 
-func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger gologger.Logger) {
+func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger *slog.Logger) {
 	msg := strings.ToLower(msgEvent.Content.Body)
 	for i := range service.config.MessageActions {
 		if service.config.MessageActions[i].Selector().MatchString(msg) {
-			logger.Infof("moving event to message action: %s", service.config.MessageActions[i].Name())
+			logger.Info("moving event to message action", "action.name", service.config.MessageActions[i].Name())
 			service.config.MessageActions[i].HandleEvent(msgEvent)
 			return
 		}
 	}
 
-	logger.Infof("moving event to default message action")
+	logger.Info("moving event to default message action")
 	service.config.DefaultMessageAction.HandleEvent(msgEvent)
 }
 

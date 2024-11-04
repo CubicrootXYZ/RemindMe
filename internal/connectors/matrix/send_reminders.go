@@ -18,7 +18,7 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 
 	originalMessage, err := service.matrixDatabase.GetEventMessageByOutputAndEvent(event.ID, output.OutputID, output.OutputType)
 	if err != nil {
-		service.logger.Err(err)
+		service.logger.Error("failed to get event message", "error", err)
 		originalMessage = nil
 	}
 
@@ -51,7 +51,7 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 	}
 	_, err = service.matrixDatabase.NewMessage(dbMsg)
 	if err != nil {
-		service.logger.Errorf("failed to save message to database: %v", err)
+		service.logger.Error("failed to save message to database", "error", err)
 	}
 
 	reactions := ReminderReactions
@@ -66,7 +66,7 @@ func (service *service) SendReminder(event *daemon.Event, output *daemon.Output)
 			MessageExternalIdentifier: resp.ExternalIdentifier,
 		})
 		if err != nil {
-			service.logger.Errorf("failed to send '%s' reaction: %s", reaction, err.Error())
+			service.logger.Error("failed to send reaction", "matrix.reaction", reaction, "error", err)
 			continue
 		}
 	}
@@ -104,7 +104,7 @@ func (service *service) SendDailyReminder(reminder *daemon.DailyReminder, output
 	}
 	_, err = service.matrixDatabase.NewMessage(dbMsg)
 	if err != nil {
-		service.logger.Errorf("failed to save message to database: %v", err)
+		service.logger.Error("failed to save message to database", "error", err)
 	}
 
 	return nil

@@ -2,11 +2,12 @@ package matrix
 
 import (
 	"errors"
+	"log/slog"
+	"os"
 	"regexp"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -65,7 +66,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 		},
 		database:       fx.db,
 		matrixDatabase: fx.matrixDB,
-		logger:         gologger.New(gologger.LogLevelDebug, 0),
+		logger:         slog.New(slog.NewTextHandler(os.Stdout, nil)),
 		botname:        "@bot:example.com",
 		messenger:      fx.messenger,
 	}

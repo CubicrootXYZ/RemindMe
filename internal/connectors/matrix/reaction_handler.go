@@ -18,12 +18,12 @@ type ReactionEvent struct {
 }
 
 func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.Event) {
-	logger := service.logger.WithFields(map[string]any{
-		"sender":          evt.Sender,
-		"room":            evt.RoomID,
-		"event_timestamp": evt.Timestamp,
-	})
-	logger.Debugf("new reaction received")
+	logger := service.logger.With(
+		"matrix.sender", evt.Sender,
+		"matrix.room.id", evt.RoomID,
+		"matrix.event.timestamp", evt.Timestamp,
+	)
+	logger.Debug("new reaction received")
 
 	// Do not answer our own and old messages
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
@@ -32,7 +32,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 
 	room, err := service.matrixDatabase.GetRoomByRoomID(string(evt.RoomID))
 	if err != nil {
-		logger.Debugf("do not know room, ignoring message")
+		logger.Debug("ignoring reaction", "reason", "unknown room")
 		return
 	}
 
@@ -45,36 +45,37 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 		}
 	}
 	if !isUserKnown {
-		logger.Debugf("do not know user, ignoring message")
+		logger.Debug("ignoring reaction", "reason", "unknown user")
 		return
 	}
 
 	content, ok := evt.Content.Parsed.(*event.ReactionEventContent)
 	if !ok {
-		logger.Infof("Event is not a reaction event. Can not handle it.")
+		logger.Info("ignoring reaction", "reason", "not a reaction event")
 		return
 	}
 
 	if content.RelatesTo.EventID.String() == "" {
-		logger.Infof("Reaction with no relating message. Can not handle that.")
+		logger.Info("ignoring reaction", "reason", "no related event")
 		return
 	}
 
 	message, err := service.matrixDatabase.GetMessageByID(content.RelatesTo.EventID.String())
 	if err != nil {
-		logger.Infof("Do not know the message related to the reaction.")
+		logger.Info("ignoring reaction", "reason", "unknown related message")
 		return
 	}
 
 	if message.Room.RoomID != room.RoomID {
 		// Should never happen.
-		logger.Infof("Ignore reaction from room %s referring to event from room %s.", message.Room.RoomID, room.RoomID)
+		logger.Info("ignoring reaction", "reason", "message from different room than reaction",
+			"matrix.message.room.id", message.Room.RoomID, "matrix.reaction.room.id", room.RoomID)
 		return
 	}
 
 	reactionEvent, err := service.parseReactionEvent(evt, room)
 	if err != nil {
-		logger.Errorf("Can not parse reaction event: %s", err.Error())
+		logger.Error("failed to parse reaction event", "error", err)
 		return
 	}
 
@@ -88,7 +89,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 		}
 	}
 
-	logger.Infof("No action found matching key %s", content.RelatesTo.Key)
+	logger.Info("ignoring reaction", "reason", "unknown reaction", "matrix.reaction.key", content.RelatesTo.Key)
 }
 
 func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.MatrixRoom) (*ReactionEvent, error) {
