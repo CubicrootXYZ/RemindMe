@@ -1,9 +1,9 @@
 package message
 
 import (
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -17,7 +17,7 @@ var changeEventActionRegex = regexp.MustCompile("(?i)(^(change|update|set)[ ]+(r
 
 // ChangeEventAction for changing an existing event.
 type ChangeEventAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -26,7 +26,7 @@ type ChangeEventAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ChangeEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ChangeEventAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -75,7 +75,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 
 	newTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to parse time", "error", err)
 		go action.storer.SendAndStoreResponse(
 			"Ehm, sorry to say that, but I was not able to understand the time to schedule the reminder to.",
 			matrixdb.MessageTypeChangeEventError,
@@ -90,7 +90,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 	})
 	if err != nil || len(events) == 0 {
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to list events", "error", err)
 		}
 		go action.storer.SendAndStoreResponse(
 			"This reminder is not in my database.",
@@ -104,7 +104,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 	evt.Time = newTime
 	evt, err = action.db.UpdateEvent(evt)
 	if err != nil || len(events) == 0 {
-		action.logger.Err(err)
+		action.logger.Error("failed to update event", "error", err)
 		go action.storer.SendAndStoreResponse(
 			"Whups, this did not work, sorry.",
 			matrixdb.MessageTypeChangeEventError,

@@ -2,10 +2,10 @@ package reply_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -50,7 +50,7 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -96,7 +96,7 @@ func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -139,7 +139,7 @@ func TestMakeRecurringAction_HandleEventWithDurationError(t *testing.T) {
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

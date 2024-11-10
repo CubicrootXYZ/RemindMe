@@ -2,9 +2,9 @@ package reply
 
 import (
 	"fmt"
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -19,7 +19,7 @@ var changeTimeRegex = regexp.MustCompile(".*")
 
 // ChangeTimeAction acts as a template for new actions.
 type ChangeTimeAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -28,7 +28,7 @@ type ChangeTimeAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ChangeTimeAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ChangeTimeAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -58,13 +58,13 @@ func (action *ChangeTimeAction) Selector() *regexp.Regexp {
 func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToMessage *matrixdb.MatrixMessage) {
 	if replyToMessage.EventID == nil || replyToMessage.Event == nil {
 		// No event given, can not update anything
-		action.logger.Debugf("can not update event with event ID nil")
+		action.logger.Debug("can not update event with event ID nil")
 		return
 	}
 
 	remindTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to parse time", "error", err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry I was not able to understand the remind date and time from this message.",
 			event.Event.ID.String(),
@@ -80,7 +80,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 	message.EventID = replyToMessage.EventID
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
-		action.logger.Errorf("failed to save message to db: %v", err)
+		action.logger.Error("failed to save message to database", "error", err)
 		return
 	}
 
@@ -88,7 +88,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 	replyToMessage.Event.Active = true
 	_, err = action.db.UpdateEvent(replyToMessage.Event)
 	if err != nil {
-		action.logger.Errorf("failed to update event in database: %v", err)
+		action.logger.Error("failed to update event in database", "error", err)
 		return
 	}
 

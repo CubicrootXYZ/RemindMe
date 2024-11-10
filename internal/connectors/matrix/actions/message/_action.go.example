@@ -17,7 +17,7 @@ var exampleActionRegex = regexp.MustCompile("(?i)example .*")
 
 // ExampleAction acts as a template for new actions.
 type ExampleAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -25,7 +25,7 @@ type ExampleAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ExampleAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ExampleAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB

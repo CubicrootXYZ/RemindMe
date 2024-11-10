@@ -2,12 +2,12 @@ package message_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
 	_ "time/tzdata"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
@@ -55,7 +55,7 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 
 	action := &message.SetDailyReminderAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -119,7 +119,7 @@ func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
 
 	action := &message.SetDailyReminderAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -186,7 +186,7 @@ func TestSetDailyReminderAction_HandleEventWithUpdateChannelError(t *testing.T) 
 
 	action := &message.SetDailyReminderAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -246,7 +246,7 @@ func TestSetDailyReminderAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	action := &message.SetDailyReminderAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

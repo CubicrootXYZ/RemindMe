@@ -2,9 +2,9 @@ package message
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -20,7 +20,7 @@ var enableICalExportActionRegex = regexp.MustCompile("(?i)^(ical$|(show|give|lis
 
 // EnableICalExportAction enables iCal in a channel.
 type EnableICalExportAction struct {
-	logger     gologger.Logger
+	logger     *slog.Logger
 	client     mautrixcl.Client
 	messenger  messenger.Messenger
 	matrixDB   matrixdb.Service
@@ -30,7 +30,7 @@ type EnableICalExportAction struct {
 
 // Configure is called on startup and sets all dependencies.
 func (action *EnableICalExportAction) Configure(
-	logger gologger.Logger,
+	logger *slog.Logger,
 	client mautrixcl.Client,
 	messenger messenger.Messenger,
 	matrixDB matrixdb.Service,
@@ -74,9 +74,9 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
-		action.logger.Err(err)
+		action.logger.Error("failed to get/create iCal output", "error", err)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeIcalExportEnable
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to save message to database", "error", err)
 	}
 
 	msgBuilder := format.Formater{}
@@ -102,7 +102,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 		event.Room.RoomID,
 	))
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to send response", "error", err)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.BodyFormatted = response
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to save response to database", "error", err)
 	}
 }
 
