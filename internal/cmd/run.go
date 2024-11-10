@@ -24,21 +24,15 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/lmittmann/tint"
 	"golang.org/x/sync/errgroup"
 )
 
 // Run setups the application and runs it
 func Run(config *Config) error {
-	legacyLogger := gologger.New(config.loggerConfig(), 0).WithField("component", "cmd")
+	legacyLogger := gologger.New(gologger.LogLevelDebug, 0).WithField("component", "cmd")
 	defer legacyLogger.Flush()
 
-	// TODO make text/json configurable
-	logger := slog.New(tint.NewHandler(os.Stdout, &tint.Options{
-		AddSource:  true,
-		Level:      slog.LevelInfo, // TODO make configurable
-		TimeFormat: time.RFC3339Nano,
-	}))
+	logger := config.logger()
 
 	logger.Info("starting up RemindMe", "version", config.BuildVersion)
 	processes, err := setup(config, logger)
