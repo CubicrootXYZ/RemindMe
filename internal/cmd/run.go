@@ -29,9 +29,6 @@ import (
 
 // Run setups the application and runs it
 func Run(config *Config) error {
-	legacyLogger := gologger.New(gologger.LogLevelDebug, 0).WithField("component", "cmd")
-	defer legacyLogger.Flush()
-
 	logger := config.logger()
 
 	logger.Info("starting up RemindMe", "version", config.BuildVersion)
@@ -139,7 +136,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 	daemonConf.OutputServices = make(map[string]daemon.OutputService)
 	daemonConf.OutputServices[matrix.OutputType] = matrixConnector
 	daemonConf.OutputServices[ical.OutputType] = icalConnector
-	daemon := daemon.New(daemonConf, db, legacyLogger.WithField("component", "daemon"))
+	daemon := daemon.New(daemonConf, db, logger.With("component", "daemon"))
 	processes = append(processes, daemon)
 
 	// API

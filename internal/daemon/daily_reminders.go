@@ -13,8 +13,8 @@ func (service *service) sendOutDailyReminders() error {
 	}
 
 	service.logger.
-		WithField("channels", len(channels)).
-		Debugf("checking channels for daily reminder")
+		With("channels", len(channels)).
+		Debug("checking channels for daily reminder")
 
 	eventsAfter := time.Now()
 	eventsBefore := eventsAfter.Add(time.Hour*24 + time.Second)
@@ -22,8 +22,9 @@ func (service *service) sendOutDailyReminders() error {
 	for _, channel := range channels {
 		if !isDailyReminderTimeReached(channel) {
 			service.logger.
-				WithField("channel", channel.ID).
-				Debugf("no daily reminder send out - reminder time not reached")
+				Debug("no daily reminder send out",
+					"channel.id", channel.ID,
+					"reason", "reminder time not reached")
 			continue
 		}
 
@@ -33,34 +34,35 @@ func (service *service) sendOutDailyReminders() error {
 			EventsBefore: &eventsBefore,
 		})
 		if err != nil {
-			service.logger.Err(err)
+			service.logger.Error("failed to list events", "error", err)
 			continue
 		}
 
 		for _, output := range channel.Outputs {
 			if isDailyReminderSentToday(&output) {
 				service.logger.
-					WithField("channel", channel.ID).
-					Debugf("no daily reminder send out - already done")
+					Debug("no daily reminder send out",
+						"channel.id", channel.ID,
+						"reason", "already done")
 				continue
 			}
 
 			outputService, ok := service.config.OutputServices[output.OutputType]
 			if !ok {
-				service.logger.Errorf("missing output service for type: %s", output.OutputType)
+				service.logger.Error("unknown output type", "output.type", output.OutputType)
 				continue
 			}
 
-			service.logger.WithFields(map[string]any{
-				"events":              len(events),
-				"output_type":         output.OutputType,
-				"output_id":           output.OutputID,
-				"daily_reminder_time": channel.DailyReminder,
-			}).Debugf("sending out daily reminder")
+			service.logger.With(
+				"events", len(events),
+				"output.type", output.OutputType,
+				"output.id", output.OutputID,
+				"daily_reminder_time", channel.DailyReminder,
+			).Debug("sending out daily reminder")
 
 			err := outputService.SendDailyReminder(dailyReminderFromDatabase(events), outputFromDatabase(&output))
 			if err != nil {
-				service.logger.Err(err)
+				service.logger.Error("failed to send out daily reminder", "error", err)
 				continue
 			}
 
@@ -68,7 +70,7 @@ func (service *service) sendOutDailyReminders() error {
 			output.LastDailyReminder = &now
 			_, err = service.database.UpdateOutput(&output)
 			if err != nil {
-				service.logger.Err(err)
+				service.logger.Error("failed to update output", "error", err)
 			}
 		}
 	}

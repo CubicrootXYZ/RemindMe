@@ -12,14 +12,17 @@ func (service *service) sendOutEvents() error {
 			outputService, ok := service.config.OutputServices[event.Channel.Outputs[j].OutputType]
 
 			if !ok {
-				service.logger.Errorf("missing output service for type: %s", event.Channel.Outputs[j].OutputType)
+				service.logger.Error("unknown output type", "output.type", event.Channel.Outputs[j].OutputType)
 				continue
 			}
 
 			err = outputService.SendReminder(eventFromDatabase(&event), outputFromDatabase(&event.Channel.Outputs[j]))
 			if err != nil {
 				eventSuccess = false
-				service.logger.Err(err)
+				service.logger.Error("failed to send reminder to output",
+					"error", err,
+					"output.id", event.Channel.Outputs[j].OutputID,
+					"output.type", event.Channel.Outputs[j].OutputType)
 				continue
 			}
 		}
@@ -41,7 +44,7 @@ func (service *service) sendOutEvents() error {
 
 		_, err = service.database.UpdateEvent(&event)
 		if err != nil {
-			service.logger.Errorf("failed updating event after sending reminder: %w", err)
+			service.logger.Error("failed updating event after sending reminder", "error", err)
 			continue
 		}
 	}
