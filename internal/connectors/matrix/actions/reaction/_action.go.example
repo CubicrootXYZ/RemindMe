@@ -1,7 +1,8 @@
 package reaction
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -46,5 +47,5 @@ func (action *ExampleAction) Selector() []string {
 
 // HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
 func (action *ExampleAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
-	action.logger.Infof("Example action called")
+	action.logger.Info("Example action called")
 }
