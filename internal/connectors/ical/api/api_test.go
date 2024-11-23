@@ -1,9 +1,9 @@
 package api_test
 
 import (
+	"log/slog"
 	"net/http/httptest"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/api"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -18,7 +18,7 @@ func testServer(ctrl *gomock.Controller) (*database.MockService, *icaldb.MockSer
 	api := api.New(&api.Config{
 		Database: db,
 		IcalDB:   icalDB,
-	}, gologger.New(gologger.LogLevelDebug, 0))
+	}, slog.Default())
 
 	r := gin.New()
 	err := api.RegisterRoutes(r)

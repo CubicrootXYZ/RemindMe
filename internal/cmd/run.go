@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/middleware"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
@@ -80,7 +79,6 @@ type process interface {
 }
 
 func setup(config *Config, logger *slog.Logger) ([]process, error) {
-	legacyLogger := gologger.New(gologger.LogLevelInfo, 0)
 	baseURL, err := url.Parse(config.API.BaseURL)
 	if err != nil {
 		return nil, err
@@ -158,7 +156,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		icalAPI := icalapi.New(&icalapi.Config{
 			IcalDB:   icalDB,
 			Database: db,
-		}, legacyLogger.WithField("component", "ical API"))
+		}, logger.With("component", "ical API"))
 
 		apiConfig := config.apiConfig()
 		apiConfig.RouteProviders["core"] = coreAPI
