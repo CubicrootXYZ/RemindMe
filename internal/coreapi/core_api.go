@@ -1,14 +1,15 @@
 package coreapi
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/gin-gonic/gin"
 )
 
 type coreAPI struct {
 	config *Config
-	logger gologger.Logger
+	logger *slog.Logger
 }
 
 // Config holds the configuration for the core API.
@@ -19,7 +20,7 @@ type Config struct {
 
 // New assembles a new core API.
 // Core API uses the /core path prefix.
-func New(config *Config, logger gologger.Logger) CoreAPI {
+func New(config *Config, logger *slog.Logger) CoreAPI {
 	return &coreAPI{
 		config: config,
 		logger: logger,

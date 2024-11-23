@@ -145,7 +145,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		coreAPI := coreapi.New(&coreapi.Config{
 			Database:            db,
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
-		}, legacyLogger.WithField("component", "core API"))
+		}, logger.With("component", "core API"))
 
 		// Matrix API
 		matrixAPI := matrixapi.New(&matrixapi.Config{

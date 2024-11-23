@@ -54,7 +54,7 @@ func channelsToResponse(channelsIn []database.Channel) []Channel {
 func (api *coreAPI) listChannelsHandler(ctx *gin.Context) {
 	channels, err := api.config.Database.GetChannels()
 	if err != nil {
-		api.logger.Err(err)
+		api.logger.Error("failed to list channels", "error", err)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
