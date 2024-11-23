@@ -152,7 +152,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 			Database:            db,
 			MatrixDB:            matrixDB,
 			DefaultAuthProvider: middleware.APIKeyAuth(config.API.APIKey),
-		}, legacyLogger.WithField("component", "matrix API"))
+		}, logger.With("component", "matrix API"))
 
 		// iCal API
 		icalAPI := icalapi.New(&icalapi.Config{

@@ -69,7 +69,7 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 
 	rooms, err := api.config.MatrixDB.ListInputRoomsByChannel(channelID)
 	if err != nil {
-		api.logger.Err(err)
+		api.logger.Error("failed to list input rooms", "error", err, "channel.id", channelID)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
@@ -98,7 +98,7 @@ func (api *api) listOutputRoomsHandler(ctx *gin.Context) {
 
 	rooms, err := api.config.MatrixDB.ListOutputRoomsByChannel(channelID)
 	if err != nil {
-		api.logger.Err(err)
+		api.logger.Error("failed to list output rooms", "error", err, "channel.id", channelID)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
