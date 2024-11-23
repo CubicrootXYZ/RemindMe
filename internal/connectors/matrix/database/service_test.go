@@ -4,13 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-var logger gologger.Logger
 var service database.Service
 var gormDB *gorm.DB
 
@@ -41,12 +39,7 @@ func getService(gormDB *gorm.DB) database.Service {
 	return service
 }
 
-func getLogger() gologger.Logger {
-	return gologger.New(gologger.LogLevelDebug, 0)
-}
-
 func TestMain(m *testing.M) {
-	logger = getLogger()
 	gormDB = getGormDB()
 	service = getService(gormDB)
 

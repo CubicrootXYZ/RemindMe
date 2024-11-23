@@ -2,10 +2,10 @@ package reply_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reply"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -50,7 +50,7 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 
 	action := &reply.ChangeTimeAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -103,7 +103,7 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 
 	action := &reply.ChangeTimeAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -140,7 +140,7 @@ func TestChangeTimeAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	action := &reply.ChangeTimeAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

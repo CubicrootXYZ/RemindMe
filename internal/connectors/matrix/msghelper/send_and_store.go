@@ -1,7 +1,8 @@
 package msghelper
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
@@ -11,11 +12,11 @@ import (
 type Storer struct {
 	db        matrixdb.Service
 	messenger messenger.Messenger
-	logger    gologger.Logger
+	logger    *slog.Logger
 }
 
 // NewStorer assembles a new storer.
-func NewStorer(db matrixdb.Service, messenger messenger.Messenger, logger gologger.Logger) *Storer {
+func NewStorer(db matrixdb.Service, messenger messenger.Messenger, logger *slog.Logger) *Storer {
 	return &Storer{
 		db:        db,
 		messenger: messenger,
@@ -27,7 +28,7 @@ func NewStorer(db matrixdb.Service, messenger messenger.Messenger, logger gologg
 func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, messageType matrixdb.MatrixMessageType, event matrix.MessageEvent) {
 	resp, err := storer.messenger.SendMessage(messenger.HTMLMessage(message, messageFormatted, event.Room.RoomID))
 	if err != nil {
-		storer.logger.Err(err)
+		storer.logger.Error("failed to send message", "error", err)
 		return
 	}
 
@@ -45,7 +46,7 @@ func (storer *Storer) SendAndStoreMessage(message, messageFormatted string, mess
 
 	_, err = storer.db.NewMessage(&dbMessage)
 	if err != nil {
-		storer.logger.Err(err)
+		storer.logger.Error("failed to store message to database", "error", err)
 	}
 }
 
@@ -63,7 +64,7 @@ func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.
 		event.Room.RoomID,
 	))
 	if err != nil {
-		storer.logger.Err(err)
+		storer.logger.Error("failed to send response", "error", err)
 		return
 	}
 
@@ -85,7 +86,7 @@ func (storer *Storer) SendAndStoreResponse(message string, messageType matrixdb.
 
 	_, err = storer.db.NewMessage(&dbMessage)
 	if err != nil {
-		storer.logger.Err(err)
+		storer.logger.Error("failed to store response", "error", err)
 	}
 }
 

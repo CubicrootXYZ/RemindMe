@@ -5,10 +5,10 @@
 package matrix
 
 import (
+	slog "log/slog"
 	reflect "reflect"
 	regexp "regexp"
 
-	gologger "github.com/CubicrootXYZ/gologger"
 	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	mautrixcl "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	messenger "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
@@ -40,7 +40,7 @@ func (m *MockReplyAction) EXPECT() *MockReplyActionMockRecorder {
 }
 
 // Configure mocks base method.
-func (m *MockReplyAction) Configure(arg0 gologger.Logger, arg1 mautrixcl.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service, arg5 *BridgeServices) {
+func (m *MockReplyAction) Configure(arg0 *slog.Logger, arg1 mautrixcl.Client, arg2 messenger.Messenger, arg3 database.Service, arg4 database0.Service, arg5 *BridgeServices) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Configure", arg0, arg1, arg2, arg3, arg4, arg5)
 }

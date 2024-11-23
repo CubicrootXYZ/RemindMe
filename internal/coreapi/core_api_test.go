@@ -1,10 +1,10 @@
 package coreapi_test
 
 import (
+	"log/slog"
 	"net/http/httptest"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/middleware"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -13,13 +13,12 @@ import (
 )
 
 func testCoreAPI(ctrl *gomock.Controller) (*httptest.Server, *database.MockService) {
-	logger := gologger.New(gologger.LogLevelDebug, 0)
 	db := database.NewMockService(ctrl)
 
 	api := coreapi.New(&coreapi.Config{
 		Database:            db,
 		DefaultAuthProvider: middleware.APIKeyAuth("123"),
-	}, logger)
+	}, slog.Default())
 
 	r := gin.New()
 	err := api.RegisterRoutes(r)

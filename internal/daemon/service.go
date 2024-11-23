@@ -1,17 +1,17 @@
 package daemon
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
 type service struct {
 	config   *Config
 	database database.Service
-	logger   gologger.Logger
+	logger   *slog.Logger
 	done     chan interface{}
 
 	daemonWG *sync.WaitGroup
@@ -32,7 +32,7 @@ type Config struct {
 }
 
 // New assembles a new service.
-func New(config *Config, database database.Service, logger gologger.Logger) Service {
+func New(config *Config, database database.Service, logger *slog.Logger) Service {
 	return &service{
 		config:   config,
 		database: database,
@@ -60,13 +60,13 @@ func (service *service) startEventDaemon() {
 	for {
 		select {
 		case <-eventsTicker.C:
-			service.logger.Debugf("sending out events ...")
+			service.logger.Debug("sending out events ...")
 			err := service.sendOutEvents()
 			if err != nil {
-				service.logger.Err(err)
+				service.logger.Error("failed to send out events", "error", err)
 			}
 		case <-service.done:
-			service.logger.Debugf("event daemon stopped")
+			service.logger.Debug("event daemon stopped")
 			service.daemonWG.Done()
 			return
 		}
@@ -82,10 +82,10 @@ func (service *service) startDailyReminderDaemon() {
 		case <-dailyReminderTicker.C:
 			err := service.sendOutDailyReminders()
 			if err != nil {
-				service.logger.Err(err)
+				service.logger.Error("failed to send out daily reminders", "error", err)
 			}
 		case <-service.done:
-			service.logger.Debugf("event daemon stopped")
+			service.logger.Debug("event daemon stopped")
 			service.daemonWG.Done()
 			return
 		}
@@ -95,7 +95,7 @@ func (service *service) startDailyReminderDaemon() {
 // Stops shuts down the service in an unblocking way.
 // Start() will return once the daemon is stopped.
 func (service *service) Stop() error {
-	service.logger.Debugf("stopping daemon ...")
+	service.logger.Debug("stopping daemon ...")
 	close(service.done)
 
 	return nil

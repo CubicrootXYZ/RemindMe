@@ -2,10 +2,10 @@ package message_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -60,7 +60,7 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -136,7 +136,7 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -178,7 +178,7 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -218,7 +218,7 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -262,7 +262,7 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -301,7 +301,7 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -338,7 +338,7 @@ func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 
 	action := &message.AddUserAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

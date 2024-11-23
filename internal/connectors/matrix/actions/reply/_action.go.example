@@ -1,9 +1,9 @@
 package reply
 
 import (
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
@@ -13,7 +13,7 @@ import (
 
 // ExampleAction acts as a template for new actions.
 type ExampleAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -21,7 +21,7 @@ type ExampleAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ExampleAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ExampleAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -48,5 +48,5 @@ func (action *ExampleAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ExampleAction) HandleEvent(event *matrix.MessageEvent, replyToMessage *matrixdb.MatrixMessage) {
-	action.logger.Infof("Example action called")
+	action.logger.Info("Example action called")
 }

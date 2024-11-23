@@ -1,7 +1,8 @@
 package reaction
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -11,7 +12,7 @@ import (
 
 // DeleteEventAction takes cafe of delete requests via reactions.
 type DeleteEventAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -19,7 +20,7 @@ type DeleteEventAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *DeleteEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *DeleteEventAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -46,16 +47,14 @@ func (action *DeleteEventAction) Selector() []string {
 
 // HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
 func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
-	l := action.logger.WithFields(
-		map[string]any{
-			"reaction":        event.Content.RelatesTo.Key,
-			"room":            reactionToMessage.RoomID,
-			"related_message": reactionToMessage.ID,
-			"user":            event.Event.Sender,
-		},
+	l := action.logger.With(
+		"matrix.reaction.key", event.Content.RelatesTo.Key,
+		"matrix.room.id", reactionToMessage.RoomID,
+		"matrix.related_message.id", reactionToMessage.ID,
+		"matrix.sender", event.Event.Sender,
 	)
 	if reactionToMessage.EventID == nil || reactionToMessage.Event == nil {
-		l.Infof("skipping because message does not relate to any event")
+		l.Info("skipping because message does not relate to any event")
 		return
 	}
 
@@ -64,7 +63,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 
 	_, err := action.db.UpdateEvent(evt)
 	if err != nil {
-		l.Err(err)
+		l.Error("failed to update event", "error", err)
 		_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
 			"Whoopsie, can not delete the event as requested.",
 			event.Room.RoomID,
@@ -82,7 +81,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 		event.Room.RoomID,
 	))
 	if err != nil {
-		action.logger.Errorf("failed to send message: %w", err)
+		action.logger.Error("failed to send response", "error", err)
 		return
 	}
 
@@ -92,7 +91,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 		EventID: reactionToMessage.EventID,
 	})
 	if err != nil {
-		action.logger.Errorf("failed to list messages for event: %w", err)
+		action.logger.Error("failed to list messages", "error", err)
 		return
 	}
 
@@ -102,7 +101,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.ReactionEvent, reacti
 			ChannelExternalIdentifier: event.Room.RoomID,
 		})
 		if err != nil {
-			action.logger.Errorf("failed to delete message: %w", err)
+			action.logger.Error("failed to delete message", "error", err)
 		}
 	}
 }

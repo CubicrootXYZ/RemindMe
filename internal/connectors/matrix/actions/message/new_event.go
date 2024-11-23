@@ -2,10 +2,10 @@ package message
 
 import (
 	"fmt"
+	"log/slog"
 	"regexp"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -21,7 +21,7 @@ var newEventActionRegex = regexp.MustCompile(".*")
 
 // NewEventAction for new events. Should be the default message handler.
 type NewEventAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -29,7 +29,7 @@ type NewEventAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *NewEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *NewEventAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -57,7 +57,7 @@ func (action *NewEventAction) Selector() *regexp.Regexp {
 func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 	remindTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to extract time from message", "error", err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry I was not able to understand the remind date and time from this message",
 			event.Event.ID.String(),
@@ -77,7 +77,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 		InputID:   &event.Input.ID,
 	})
 	if err != nil {
-		action.logger.Errorf("failed to save event to db: %v", err)
+		action.logger.Error("failed to save event to database", "error", err)
 		return
 	}
 
@@ -86,7 +86,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 	message.EventID = &dbEvent.ID
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
-		action.logger.Errorf("failed to save message to db: %v", err)
+		action.logger.Error("failed to save message to database", "error", err)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 
 		resp, err := action.messenger.SendResponse(response)
 		if err != nil {
-			action.logger.Errorf("failed sending out message: %v", err)
+			action.logger.Error("failed to send out message", "error", err)
 			return
 		}
 
@@ -119,7 +119,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 		message.EventID = &dbEvent.ID
 		_, err = action.matrixDB.NewMessage(message)
 		if err != nil {
-			action.logger.Infof("Could not add message to database: %v", err)
+			action.logger.Warn("failed to add message to database", "error", err)
 		}
 	}(event, dbEvent)
 
@@ -130,7 +130,7 @@ func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
 			ChannelExternalIdentifier: event.Room.RoomID,
 		})
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Warn("failed to send reaction", "error", err)
 		}
 	}
 }

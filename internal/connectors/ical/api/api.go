@@ -1,7 +1,8 @@
 package api
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/apictx"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -17,11 +18,11 @@ type Config struct {
 type api struct {
 	icalDB   icaldb.Service
 	database database.Service
-	logger   gologger.Logger
+	logger   *slog.Logger
 }
 
 // New assembles a new iCal API.
-func New(config *Config, logger gologger.Logger) API {
+func New(config *Config, logger *slog.Logger) API {
 	return &api{
 		icalDB:   config.IcalDB,
 		logger:   logger,

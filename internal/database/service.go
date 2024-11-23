@@ -1,7 +1,8 @@
 package database
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/gormlogger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -9,7 +10,7 @@ import (
 
 type service struct {
 	db     *gorm.DB
-	logger gologger.Logger
+	logger *slog.Logger
 	config *Config
 }
 
@@ -35,8 +36,8 @@ type Config struct {
 }
 
 // NewService assembles a new database service.
-func NewService(config *Config, logger gologger.Logger) (Service, error) {
-	logger.Debugf("setting up database ...")
+func NewService(config *Config, logger *slog.Logger) (Service, error) {
+	logger.Debug("setting up database")
 
 	if config == nil {
 		return nil, ErrInvalidConfig
@@ -57,13 +58,13 @@ func NewService(config *Config, logger gologger.Logger) (Service, error) {
 		logger: logger,
 	}
 
-	logger.Debugf("migrating database ...")
+	logger.Debug("migrating database")
 	err = service.migrate()
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Debugf("database setup finished")
+	logger.Debug("database setup finished")
 	return service, nil
 }
 
@@ -105,11 +106,11 @@ func (service *service) commit() error {
 }
 
 func (service *service) rollbackWithError(err error) error {
-	service.logger.Infof("rollbacking transaction due to error: %v", err)
+	service.logger.Info("rollback transaction", "error", err)
 
 	err2 := service.db.Rollback().Error
 	if err2 != nil {
-		service.logger.Errorf("rollbacking failed with: %v", err2)
+		service.logger.Error("rollback failed", "error", err2, "original_error", err)
 	}
 
 	return err

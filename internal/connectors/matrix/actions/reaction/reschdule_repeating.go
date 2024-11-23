@@ -1,9 +1,9 @@
 package reaction
 
 import (
+	"log/slog"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -13,7 +13,7 @@ import (
 
 // RescheduleRepeatingAction takes care of rescheduling a repeating event.
 type RescheduleRepeatingAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -21,7 +21,7 @@ type RescheduleRepeatingAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *RescheduleRepeatingAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *RescheduleRepeatingAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -48,16 +48,14 @@ func (action *RescheduleRepeatingAction) Selector() []string {
 
 // HandleEvent is where the reaction event and the related message get's send to if it matches the Selector.
 func (action *RescheduleRepeatingAction) HandleEvent(event *matrix.ReactionEvent, reactionToMessage *matrixdb.MatrixMessage) {
-	l := action.logger.WithFields(
-		map[string]any{
-			"reaction":        event.Content.RelatesTo.Key,
-			"room":            reactionToMessage.RoomID,
-			"related_message": reactionToMessage.ID,
-			"user":            event.Event.Sender,
-		},
+	l := action.logger.With(
+		"matrix.reaction.key", event.Content.RelatesTo.Key,
+		"matrix.room.id", reactionToMessage.RoomID,
+		"matrix.related_message.id", reactionToMessage.ID,
+		"matrix.sender", event.Event.Sender,
 	)
 	if reactionToMessage.EventID == nil || reactionToMessage.Event == nil {
-		l.Infof("skipping because message does not relate to any event")
+		l.Info("skipping because message does not relate to any event")
 		return
 	}
 
@@ -72,7 +70,7 @@ func (action *RescheduleRepeatingAction) HandleEvent(event *matrix.ReactionEvent
 	}
 	_, err := action.db.NewEvent(newEvt)
 	if err != nil {
-		l.Err(err)
+		l.Error("failed to save event to database", "error", err)
 		_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
 			"Whoopsie, can not update the event as requested.",
 			event.Room.RoomID,
@@ -85,6 +83,6 @@ func (action *RescheduleRepeatingAction) HandleEvent(event *matrix.ReactionEvent
 		ChannelExternalIdentifier: reactionToMessage.Room.RoomID,
 	})
 	if err != nil {
-		l.Err(err)
+		l.Error("failed to delete message", "error", err)
 	}
 }

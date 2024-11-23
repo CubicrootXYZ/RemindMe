@@ -2,10 +2,10 @@ package matrix
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -18,7 +18,7 @@ import (
 
 type service struct {
 	config         *Config
-	logger         gologger.Logger
+	logger         *slog.Logger
 	database       database.Service
 	matrixDatabase matrixdb.Service
 	messenger      messenger.Messenger
@@ -35,7 +35,7 @@ type MessageAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent)
-	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+	Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
 //go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
@@ -45,7 +45,7 @@ type ReplyAction interface {
 	Selector() *regexp.Regexp
 	Name() string
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
-	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+	Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
 //go:generate mockgen -destination=reaction_action_mock.go -package=matrix . ReactionAction
@@ -55,7 +55,7 @@ type ReactionAction interface {
 	Selector() []string
 	Name() string
 	HandleEvent(event *ReactionEvent, reactionToMessage *matrixdb.MatrixMessage)
-	Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+	Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
 // Config holds information for the matrix connector.
@@ -92,8 +92,8 @@ type BridgeServiceICal interface {
 }
 
 // New sets up a new matrix connector.
-func New(config *Config, database database.Service, matrixDB matrixdb.Service, logger gologger.Logger) (Service, error) {
-	logger.Debugf("setting up matrix connector ...")
+func New(config *Config, database database.Service, matrixDB matrixdb.Service, logger *slog.Logger) (Service, error) {
+	logger.Debug("setting up matrix connector")
 
 	service := &service{
 		config:         config,
@@ -105,7 +105,7 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 
 	err := service.setupMautrixClient()
 	if err != nil {
-		service.logger.Err(err)
+		service.logger.Error("failed to setup mautrix client", "error", err)
 		return nil, err
 	}
 
@@ -118,7 +118,7 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 
 	service.setLastMessage()
 
-	logger.Debugf("matrix connector setup finished")
+	logger.Debug("matrix connector setup finished")
 	return service, nil
 }
 
@@ -138,7 +138,7 @@ func (service *service) setLastMessage() {
 func (service *service) setupActions() {
 	// Collect all actions and inject dependencies.
 	actions := []interface {
-		Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
+		Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 		Name() string
 	}{
 		service.config.DefaultMessageAction,
@@ -157,7 +157,7 @@ func (service *service) setupActions() {
 
 	for _, action := range actions {
 		action.Configure(
-			service.logger.WithField("component", "action-"+action.Name()),
+			service.logger.With("component", "action-"+action.Name()),
 			service.client,
 			service.messenger,
 			service.matrixDatabase,
@@ -168,7 +168,7 @@ func (service *service) setupActions() {
 }
 
 func (service *service) setupMautrixClient() error {
-	service.logger.Debugf("setting up mautrix client ...")
+	service.logger.Debug("setting up mautrix client")
 
 	matrixClient, err := mautrix.NewClient(service.config.Homeserver, "", "")
 	if err != nil {
@@ -185,7 +185,7 @@ func (service *service) setupMautrixClient() error {
 		StoreCredentials: true,
 	})
 
-	service.logger.Debugf("matrix client setup finished")
+	service.logger.Debug("mautrix client setup finished")
 	return err
 }
 
@@ -193,7 +193,7 @@ func (service *service) setupMessenger() error {
 	config := &messenger.Config{}
 
 	messenger, err := messenger.NewMessenger(config, service.matrixDatabase, service.client,
-		service.logger.WithField("component", "matrix-messenger"))
+		service.logger.With("component", "matrix-messenger"))
 	if err != nil {
 		return err
 	}
@@ -206,16 +206,16 @@ func (service *service) setupMessenger() error {
 // Start starts the services asynchronous processes.
 // This method will block until stopped.
 func (service *service) Start() error {
-	service.logger.Debugf("starting matrix connector")
+	service.logger.Debug("starting matrix connector")
 	err := service.startListener()
-	service.logger.Debugf("matrix connector stopped")
+	service.logger.Debug("matrix connector stopped")
 	return err
 }
 
 // Stop stops the services asynchronous processes.
 // This method will not block, wait for Stop() to return.
 func (service *service) Stop() error {
-	service.logger.Debugf("stopping matrix connector ...")
+	service.logger.Debug("stopping matrix connector ...")
 	service.client.StopSync()
 	return nil
 }

@@ -2,10 +2,10 @@ package daemon_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon/mocks"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -23,7 +23,7 @@ func testDaemon(ctrl *gomock.Controller, events, daily bool) (daemon.Service, *d
 		},
 		EventsInterval:        intervalFromBool(events),
 		DailyReminderInterval: intervalFromBool(daily),
-	}, db, gologger.New(gologger.LogLevelDebug, 0)), db, outputService
+	}, db, slog.Default()), db, outputService
 }
 
 func intervalFromBool(b bool) time.Duration {

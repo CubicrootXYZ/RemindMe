@@ -1,10 +1,10 @@
 package message_test
 
 import (
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -56,7 +56,7 @@ func TestEnableICalExportAction_HandleEvent(t *testing.T) { //nolint: dupl
 
 	action := &message.EnableICalExportAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,
@@ -131,7 +131,7 @@ func TestEnableICalExportAction_HandleEventWithNoOutput(t *testing.T) {
 
 	action := &message.EnableICalExportAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

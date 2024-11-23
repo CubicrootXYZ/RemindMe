@@ -1,10 +1,10 @@
 package messenger
 
 import (
+	"log/slog"
 	"sync"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
@@ -16,7 +16,7 @@ type service struct {
 	config        *Config
 	client        MatrixClient
 	db            database.Service
-	logger        gologger.Logger
+	logger        *slog.Logger
 	state         *state
 }
 
@@ -29,7 +29,7 @@ type state struct {
 	rateLimitedUntilMutex sync.Mutex
 }
 
-func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger gologger.Logger) (Messenger, error) {
+func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient, logger *slog.Logger) (Messenger, error) {
 	return &service{
 		roomUserCache: make(roomCache),
 		config:        config,
@@ -44,7 +44,7 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 
 // sendMessageEvent sends a message event to matrix, will take care of encryption if available
 func (messenger *service) sendMessageEvent(messageEvent *messageEvent, roomID string, eventType event.Type) (*mautrix.RespSendEvent, error) {
-	messenger.logger.Infof("Sending message to room %s", roomID)
+	messenger.logger.Info("sending message", "matrix.room.id", roomID)
 	return messenger.client.SendMessageEvent(id.RoomID(roomID), eventType, &messageEvent)
 }
 

@@ -1,10 +1,10 @@
 package message
 
 import (
+	"log/slog"
 	"regexp"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -21,7 +21,7 @@ var timezoneCaptureGroup = regexp.MustCompile("(?i)^set timezone (.*)$")
 
 // ChangeTimezoneAction allows setting a timezone for the matrix channel.
 type ChangeTimezoneAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -30,7 +30,7 @@ type ChangeTimezoneAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ChangeTimezoneAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ChangeTimezoneAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -65,7 +65,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 	}
 	_, err := time.LoadLocation(tz)
 	if err != nil {
-		action.logger.Infof("failed to load timezone '%s' with: %s", tz, err.Error())
+		action.logger.Info("failed to load timezone", "timezone", tz, "error", err)
 		action.storer.SendAndStoreResponse("Sorry, but I do not know what timezone this is.", matrixdb.MessageTypeTimezoneChange, *event)
 		return
 	}
@@ -76,7 +76,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 
 	_, err = action.matrixDB.UpdateRoom(room)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to update room", "error", err)
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Ups, that did not work 😨",
 			event.Event.ID.String(),
@@ -85,7 +85,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}

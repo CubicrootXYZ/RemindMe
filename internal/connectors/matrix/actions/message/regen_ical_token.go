@@ -2,9 +2,9 @@ package message
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
@@ -20,7 +20,7 @@ var regenIcalTokenActionRegex = regexp.MustCompile("(?i)^(make|generate|)[ ]*(re
 
 // RegenICalTokenAction enables iCal in a channel.
 type RegenICalTokenAction struct {
-	logger     gologger.Logger
+	logger     *slog.Logger
 	client     mautrixcl.Client
 	messenger  messenger.Messenger
 	matrixDB   matrixdb.Service
@@ -30,7 +30,7 @@ type RegenICalTokenAction struct {
 
 // Configure is called on startup and sets all dependencies.
 func (action *RegenICalTokenAction) Configure(
-	logger gologger.Logger,
+	logger *slog.Logger,
 	client mautrixcl.Client,
 	messenger messenger.Messenger,
 	matrixDB matrixdb.Service,
@@ -70,7 +70,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 		if errors.Is(err, ical.ErrNotFound) {
 			msg = "It looks like iCal output is not set up for this channel. Set it up first."
 		} else {
-			action.logger.Err(err)
+			action.logger.Error("failed to get iCal output", "error", err)
 		}
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			msg,
@@ -80,7 +80,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -90,7 +90,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeIcalRegenToken
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to store message to databse", "error", err)
 	}
 
 	msgBuilder := format.Formater{}
@@ -107,7 +107,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 		event.Room.RoomID,
 	))
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to send response", "error", err)
 		return
 	}
 
@@ -120,7 +120,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.BodyFormatted = response
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to store response to database", "error", err)
 	}
 }
 

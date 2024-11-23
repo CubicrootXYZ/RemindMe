@@ -2,11 +2,11 @@ package message
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mapping"
@@ -20,7 +20,7 @@ var deleteEventActionRegex = regexp.MustCompile("(?i)(^(delete|remove)[ ]*(remin
 
 // DeleteEventAction acts as a template for new actions.
 type DeleteEventAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -29,7 +29,7 @@ type DeleteEventAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *DeleteEventAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *DeleteEventAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -59,7 +59,7 @@ func (action *DeleteEventAction) Selector() *regexp.Regexp {
 func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 	id, err := getIDFromSentence(event.Content.Body)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to get ID from message", "error", err)
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Ups, can not find an ID in there.",
 			event.Event.ID.String(),
@@ -68,7 +68,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -78,7 +78,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		ChannelID: &event.Channel.ID,
 	})
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to list events", "error", err)
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry, an error appeared.",
 			event.Event.ID.String(),
@@ -87,7 +87,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -101,7 +101,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -111,13 +111,13 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 	dbMessage.EventID = &events[0].ID
 	_, err = action.matrixDB.NewMessage(dbMessage)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to save message to database", "error", err)
 		return
 	}
 
 	err = action.db.DeleteEvent(&events[0])
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to delete event", "error", err)
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry, an error appeared.",
 			event.Event.ID.String(),
@@ -126,7 +126,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}

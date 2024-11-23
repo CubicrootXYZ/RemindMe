@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/format"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -20,31 +20,31 @@ const (
 )
 
 func (service *service) refreshIcalInputs() {
-	service.logger.Debugf("refreshing iCal inputs now ...")
+	service.logger.Debug("refreshing iCal inputs")
 
 	f := false
 	inputs, err := service.config.ICalDB.ListIcalInputs(&icaldb.ListIcalInputsOpts{
 		Disabled: &f,
 	})
 	if err != nil {
-		service.logger.Err(err)
+		service.logger.Error("failed to list iCal inputs", "error", err)
 		return
 	}
 
 	for _, input := range inputs {
-		l := service.logger.WithField("iCal input ID", input.ID)
+		l := service.logger.With("ical.input_id", input.ID)
 
 		if input.LastRefresh != nil && time.Since(*input.LastRefresh) < service.config.RefreshInterval {
-			l.Debugf("skipping input as has not yet reached the refresh interval")
+			l.Debug("skipping input as has not yet reached the refresh interval")
 			continue
 		}
 
 		now := time.Now()
 		err := service.refreshIcalInput(&input)
 		if err != nil {
-			l.Infof("failed refreshing: %v", input.ID, err)
+			l.Info("failed refreshing input", "error", err)
 			if input.LastRefresh != nil && time.Since(*input.LastRefresh) > time.Hour*48 {
-				l.Infof("disabling input, no success refrehsing since 48 hours")
+				l.Info("disabling input, no successful refresh in 48 hours")
 				input.Disabled = true
 			}
 		} else {
@@ -54,7 +54,7 @@ func (service *service) refreshIcalInputs() {
 
 		_, err = service.config.ICalDB.UpdateIcalInput(&input)
 		if err != nil {
-			l.Infof("failed updating input in database: %v", err)
+			l.Info("failed updating input in database", "error", err)
 			continue
 		}
 	}
@@ -128,7 +128,7 @@ func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 	return nil
 }
 
-func getFileContent(url string, logger gologger.Logger) (string, error) {
+func getFileContent(url string, logger *slog.Logger) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
@@ -137,7 +137,7 @@ func getFileContent(url string, logger gologger.Logger) (string, error) {
 		return "", err
 	}
 	req.Header.Set("Accept", "text/calendar")
-	logger.Debugf("making request with GET to %s", url)
+	logger.Debug("making request", "url", url, "http.method", "GET")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

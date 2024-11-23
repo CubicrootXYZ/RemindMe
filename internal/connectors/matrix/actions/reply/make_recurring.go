@@ -2,10 +2,10 @@ package reply
 
 import (
 	"fmt"
+	"log/slog"
 	"regexp"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/gonaturalduration"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
@@ -21,7 +21,7 @@ var makeRecurringActionRegex = regexp.MustCompile("(?i)^(repeat|every|each|alway
 
 // MakeRecurringAction makes an event recurring.
 type MakeRecurringAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -30,7 +30,7 @@ type MakeRecurringAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *MakeRecurringAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *MakeRecurringAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -60,14 +60,14 @@ func (action *MakeRecurringAction) Selector() *regexp.Regexp {
 func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, replyToMessage *matrixdb.MatrixMessage) {
 	if replyToMessage.EventID == nil || replyToMessage.Event == nil {
 		// No event given, can not update anything
-		action.logger.Debugf("can not change event with event ID nil")
+		action.logger.Debug("can not change event with event ID nil")
 		return
 	}
 
 	// Get duration from message
 	duration := gonaturalduration.ParseNumber(event.Content.Body)
 	if duration <= time.Minute {
-		action.logger.Infof("missing duration in message")
+		action.logger.Info("missing duration in message")
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry I was not able to understand the duration from this message.",
 			event.Event.ID.String(),
@@ -83,7 +83,7 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 	message.EventID = replyToMessage.EventID
 	_, err := action.matrixDB.NewMessage(message)
 	if err != nil {
-		action.logger.Errorf("failed to save message to db: %v", err)
+		action.logger.Error("failed to save message to database", "error", err)
 		return
 	}
 
@@ -93,7 +93,7 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 
 	dbEvent, err := action.db.UpdateEvent(replyToMessage.Event)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to update event", "error", err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry, that failed :/.",
 			event.Event.ID.String(),

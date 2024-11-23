@@ -3,10 +3,11 @@ package message_test
 import (
 	"errors"
 	"fmt"
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/message"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -52,7 +53,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 
 	action := &message.NewEventAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 		client,
 		msngr,
 		matrixDB,
@@ -136,7 +137,7 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	action := &message.NewEventAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 		client,
 		msngr,
 		matrixDB,
@@ -189,7 +190,7 @@ func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
 
 	action := &message.NewEventAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.New(slog.NewTextHandler(os.Stdout, nil)),
 		client,
 		msngr,
 		matrixDB,

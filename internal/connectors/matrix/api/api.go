@@ -1,7 +1,8 @@
 package api
 
 import (
-	"github.com/CubicrootXYZ/gologger"
+	"log/slog"
+
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/apictx"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -10,7 +11,7 @@ import (
 
 type api struct {
 	config *Config
-	logger gologger.Logger
+	logger *slog.Logger
 }
 
 // Config holds the configuration for the API.
@@ -22,7 +23,7 @@ type Config struct {
 }
 
 // New assembles a new API.
-func New(config *Config, logger gologger.Logger) API {
+func New(config *Config, logger *slog.Logger) API {
 	return &api{
 		config: config,
 		logger: logger,

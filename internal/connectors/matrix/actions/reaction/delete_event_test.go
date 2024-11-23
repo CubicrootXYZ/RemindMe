@@ -2,9 +2,9 @@ package reaction_test
 
 import (
 	"errors"
+	"log/slog"
 	"testing"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reaction"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
@@ -60,7 +60,7 @@ func TestDeleteAction_HandleEvent(t *testing.T) {
 
 	action := &reaction.DeleteEventAction{}
 	action.Configure(
-		gologger.New(gologger.LogLevelDebug, 0),
+		slog.Default(),
 		client,
 		msngr,
 		matrixDB,

@@ -2,6 +2,7 @@ package ical_test
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -9,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -27,7 +27,7 @@ func testService(ctrl *gomock.Controller) (ical.Service, *icaldb.MockService, *d
 			Database: db,
 			ICalDB:   icalDB,
 			BaseURL:  url,
-		}, gologger.New(gologger.LogLevelDebug, 0)),
+		}, slog.New(slog.NewTextHandler(os.Stdout, nil))),
 		icalDB,
 		db
 }

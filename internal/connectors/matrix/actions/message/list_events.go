@@ -1,9 +1,9 @@
 package message
 
 import (
+	"log/slog"
 	"regexp"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -18,7 +18,7 @@ var listEventsActionRegex = regexp.MustCompile("(?i)^((list|show)(| all| the)(| 
 
 // ListEventsAction lists all events.
 type ListEventsAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -27,7 +27,7 @@ type ListEventsAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *ListEventsAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *ListEventsAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -67,9 +67,9 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err2 != nil {
-			action.logger.Err(err2)
+			action.logger.Error("failed to send response", "error", err2)
 		}
-		action.logger.Err(err)
+		action.logger.Error("failed to list events", "error", err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 	message.Type = matrixdb.MessageTypeEventList
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to save message to database", "error", err)
 	}
 
 	msg := format.Formater{}

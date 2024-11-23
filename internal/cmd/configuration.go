@@ -3,25 +3,33 @@ package cmd
 import (
 	"errors"
 	"flag"
+	"log/slog"
+	"os"
+	"slices"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/jinzhu/configor"
+	"github.com/lmittmann/tint"
 )
 
 type Config struct {
-	Debug    bool
 	Database configDatabase
 	Daemon   configDaemon
 	Matrix   configMatrix
 	ICal     configICal
 	API      configAPI
+	Logger   configLogger
 
 	BuildVersion string
+}
+
+type configLogger struct {
+	Format string `default:"text"`
+	Debug  bool
 }
 
 type configDatabase struct {
@@ -67,12 +75,32 @@ func (config *Config) databaseConfig() *database.Config {
 	}
 }
 
-func (config *Config) loggerConfig() gologger.LogLevel {
-	if config.Debug {
-		return gologger.LogLevelDebug
+func (config *Config) logger() *slog.Logger {
+	logLevel := slog.LevelInfo
+	if config.Logger.Debug {
+		logLevel = slog.LevelDebug
 	}
 
-	return gologger.LogLevelInfo
+	var handler slog.Handler
+	switch config.Logger.Format {
+	case "text":
+		handler = tint.NewHandler(os.Stdout, &tint.Options{
+			AddSource:  true,
+			Level:      logLevel,
+			TimeFormat: time.RFC3339Nano,
+		})
+	case "json":
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			AddSource: true,
+			Level:     logLevel,
+		})
+	default:
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: logLevel,
+		})
+	}
+
+	return slog.New(handler)
 }
 
 func (config *Config) daemonConfig() *daemon.Config {
@@ -119,6 +147,10 @@ func LoadConfiguration() (*Config, error) {
 
 	if config.API.Enabled && len(config.API.APIKey) < 10 {
 		return nil, errors.New("API key needs to be at least 10 characters")
+	}
+
+	if !slices.Contains([]string{"text", "json"}, config.Logger.Format) {
+		return nil, errors.New("logger format must be one of: text, json")
 	}
 
 	return config, nil

@@ -3,10 +3,10 @@ package ical
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
@@ -28,13 +28,13 @@ type Config struct {
 
 type service struct {
 	config *Config
-	logger gologger.Logger
+	logger *slog.Logger
 
 	stop chan bool
 }
 
 // New assembles a new ical connector service.
-func New(config *Config, logger gologger.Logger) Service {
+func New(config *Config, logger *slog.Logger) Service {
 	return &service{
 		config: config,
 		logger: logger,
@@ -58,7 +58,7 @@ func (service *service) Start() error {
 
 func (service *service) Stop() error {
 	service.stop <- true
-	service.logger.Infof("stopping")
+	service.logger.Info("stopping")
 	return nil
 }
 

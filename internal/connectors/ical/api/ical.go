@@ -47,7 +47,7 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 			response.AbortWithNotFoundError(ctx)
 			return
 		}
-		api.logger.Err(err)
+		api.logger.Error("failed to get iCal output", "error", err, "ical.output.id", id)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
@@ -63,14 +63,14 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 			response.AbortWithNotFoundError(ctx)
 			return
 		}
-		api.logger.Err(err)
+		api.logger.Error("failed to get output from database", "error", err)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}
 
 	events, err := api.database.GetEventsByChannel(o.ChannelID)
 	if err != nil {
-		api.logger.Err(err)
+		api.logger.Error("failed to get events from database", "error", err)
 		response.AbortWithInternalServerError(ctx)
 		return
 	}

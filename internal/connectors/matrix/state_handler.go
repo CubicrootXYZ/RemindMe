@@ -14,12 +14,12 @@ import (
 
 // EventStateHandler handles state events from matrix.
 func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Event) {
-	logger := service.logger.WithFields(map[string]any{
-		"sender":          evt.Sender,
-		"room":            evt.RoomID,
-		"event_timestamp": evt.Timestamp,
-	})
-	logger.Debugf("new state event")
+	logger := service.logger.With(
+		"matrix.sender", evt.Sender,
+		"matrix.room", evt.RoomID,
+		"matrix.event_timestamp", evt.Timestamp,
+	)
+	logger.Debug("new state event")
 
 	// Ignore old events or events from the bot itself
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
@@ -28,7 +28,7 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 
 	content, ok := evt.Content.Parsed.(*event.MemberEventContent)
 	if !ok {
-		logger.Infof("Event is not a member event. Can not handle it.")
+		logger.Info("cannot handle event", "reason", "not a member event")
 		return
 	}
 
@@ -37,7 +37,7 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	if err == nil {
 		return
 	} else if !errors.Is(err, matrixdb.ErrNotFound) {
-		logger.Err(err)
+		logger.Error("failed to get event", "error", err)
 		return
 	}
 
@@ -45,15 +45,15 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	case event.MembershipInvite, event.MembershipJoin:
 		err := service.handleInvite(evt, content)
 		if err != nil {
-			logger.Errorf("Failed to handle membership invite with: " + err.Error())
+			logger.Error("failed to handle state event", "matrix.event.membership", "invite/join", "error", err)
 		}
 	case event.MembershipLeave, event.MembershipBan:
 		err := service.handleLeave(evt)
 		if err != nil {
-			logger.Errorf("Failed to handle membership leave with: " + err.Error())
+			logger.Error("failed to handle state event", "matrix.event.membership", "leave/ban", "error", err)
 		}
 	default:
-		logger.Infof("No handling of this event as Membership %s is unknown.", content.Membership)
+		logger.Info("cannot handle state event", "reason", "unknown membership type", "event.membership", content.Membership)
 	}
 }
 
@@ -64,7 +64,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	}
 
 	if declineInvites && !service.userInWhitelist(evt.Sender.String()) {
-		service.logger.Debugf(evt.Sender.String() + " ignored bot reached max users or invites are disallowed")
+		service.logger.Debug("invite ignored", "reason", "disabled/not whitelisted", "matrix.user", evt.Sender.String())
 		return nil
 	}
 
@@ -77,7 +77,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	}
 
 	if user != nil && user.Blocked {
-		service.logger.Debugf("user '%s' is blocked - ignoring", evt.Sender.String())
+		service.logger.Debug("invite ignored", "reason", "blocked", "matrix.user", evt.Sender.String())
 		return nil
 	}
 
@@ -94,7 +94,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	// TODO for further testing service.client needs to be mocked.
 	_, err = service.client.JoinRoom(evt.RoomID.String(), "", nil)
 	if err != nil {
-		service.logger.Errorf("Failed joining channel %s with: %s", evt.RoomID.String(), err.Error())
+		service.logger.Error("failed to join channel", "error", err, "matrix.room.id", evt.RoomID.String())
 		return err
 	}
 
@@ -133,7 +133,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 
 	err = service.setupNewChannel(room, user)
 	if err != nil {
-		service.logger.Errorf("failed to setup new channel: %s", err.Error())
+		service.logger.Error("failed to setup new channel", "error", err)
 		return err
 	}
 
@@ -186,7 +186,7 @@ func (service *service) sendWelcomeMessage(room *matrixdb.MatrixRoom, user *matr
 		room.RoomID,
 	))
 	if err != nil {
-		service.logger.Infof("failed to send message: " + err.Error())
+		service.logger.Info("failed to send message", "error", err.Error())
 		return
 	}
 
@@ -201,7 +201,7 @@ func (service *service) sendWelcomeMessage(room *matrixdb.MatrixRoom, user *matr
 		Incoming:      false,
 	})
 	if err != nil {
-		service.logger.Errorf("failed saving message into database: " + err.Error())
+		service.logger.Error("failed saving message to database", "error", err.Error())
 	}
 }
 
@@ -264,10 +264,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 
 	if time.Unix(evt.Timestamp/1000, 0).Sub(room.CreatedAt) < 0 {
 		// Got invited to room after this event. Ignore this event.
-		service.logger.Infof(
-			"ignoring leave/ban for room '%s' as got invited afterwards again",
-			room.RoomID,
-		)
+		service.logger.Info("leave ignored", "reason", "got invited again", "matrix.room.id", room.RoomID)
 		return nil
 	}
 
@@ -278,7 +275,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 
 	err = service.removeFromChannel(room)
 	if err != nil {
-		service.logger.Errorf("failed to remove room from channel: %s", err.Error())
+		service.logger.Error("failed to remove room from channel", "error", err)
 		return err
 	}
 
@@ -286,7 +283,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 	_, err = service.client.LeaveRoom(evt.RoomID)
 	if err != nil {
 		// Fire and forget, we might already be banned
-		service.logger.Err(err)
+		service.logger.Error("failed to leave room", "error", err)
 	}
 
 	return nil
@@ -313,7 +310,7 @@ func (service *service) removeRoom(room *matrixdb.MatrixRoom) error {
 		return err
 	}
 
-	service.logger.Infof("found %d dangling matrix users, deleted them", cnt)
+	service.logger.Info("deleted dangling matrix users", "count", cnt)
 
 	return nil
 }

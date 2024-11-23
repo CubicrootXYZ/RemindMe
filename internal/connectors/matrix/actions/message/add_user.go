@@ -1,10 +1,10 @@
 package message
 
 import (
+	"log/slog"
 	"regexp"
 	"strings"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -17,14 +17,14 @@ import (
 var addUserActionRegex = regexp.MustCompile("(?i)(^[ ]*add[ ]+user).*")
 
 type AddUserAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
 	db        database.Service
 }
 
-func (action *AddUserAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *AddUserAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -49,7 +49,7 @@ func (action *AddUserAction) Selector() *regexp.Regexp {
 func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	usersInRoom, err := action.client.JoinedMembers(event.Event.RoomID)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to get room members", "error", err)
 		return
 	}
 
@@ -72,7 +72,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -105,7 +105,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 			event.Room.RoomID,
 		))
 		if err != nil {
-			action.logger.Err(err)
+			action.logger.Error("failed to send response", "error", err)
 		}
 		return
 	}
@@ -121,7 +121,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 				event.Room.RoomID,
 			))
 			if err != nil {
-				action.logger.Err(err)
+				action.logger.Error("failed to send response", "error", err)
 			}
 			return
 		}
@@ -130,7 +130,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	// Add new user to room
 	_, err = action.matrixDB.AddUserToRoom(username, event.Room)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to add user to room", "error", err)
 		return
 	}
 
@@ -139,7 +139,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeAddUser
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to store messafe to database", "error", err)
 	}
 
 	message := "Added that user 👏. They can now interact with me."
@@ -151,7 +151,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 		event.Room.RoomID,
 	))
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to send response", "error", err)
 		return
 	}
 
@@ -164,6 +164,6 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.BodyFormatted = message
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to store response to database", "error", err)
 	}
 }

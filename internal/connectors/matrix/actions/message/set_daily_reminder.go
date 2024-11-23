@@ -2,10 +2,10 @@ package message
 
 import (
 	"fmt"
+	"log/slog"
 	"regexp"
 	"time"
 
-	"github.com/CubicrootXYZ/gologger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/format"
@@ -20,7 +20,7 @@ var setDailyReminderRegex = regexp.MustCompile("(?i)^(set|update|change|)[ ]*(th
 
 // SetDailyReminderAction sets the time for the daily reminder.
 type SetDailyReminderAction struct {
-	logger    gologger.Logger
+	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
 	matrixDB  matrixdb.Service
@@ -29,7 +29,7 @@ type SetDailyReminderAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *SetDailyReminderAction) Configure(logger gologger.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *SetDailyReminderAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -61,12 +61,12 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 	dbMsg.Type = matrixdb.MessageTypeSetDailyReminder
 	_, err := action.matrixDB.NewMessage(dbMsg)
 	if err != nil {
-		action.logger.Errorf("Could not save message: %s", err.Error())
+		action.logger.Error("failed to store message to database", "error", err)
 	}
 
 	timeRemind, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, true)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to parse time", "error", err)
 		msg := "Sorry, I was not able to understand the time."
 		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
 		return
@@ -76,7 +76,7 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 	event.Channel.DailyReminder = &minutesSinceMidnight
 	_, err = action.db.UpdateChannel(event.Channel)
 	if err != nil {
-		action.logger.Err(err)
+		action.logger.Error("failed to update channel", "error", err)
 		msg := "Whups, could not save that change. Sorry, try again later."
 		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
 		return
