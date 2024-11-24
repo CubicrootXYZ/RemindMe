@@ -11,7 +11,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/jinzhu/configor v1.2.2
 	github.com/lmittmann/tint v1.0.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/net v0.31.0
