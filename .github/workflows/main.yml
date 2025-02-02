@@ -40,14 +40,14 @@ jobs:
 
   deploy_openapi_spec:
     needs: [render_openapi_spec]
-    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.16
+    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.17
     with:
       artifact_name: rendered-api-docu
       artifact_path: index.html
 
   build_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
-    uses: CubicrootXYZ/Workflows/.github/workflows/build_image.yaml@v0.0.16
+    uses: CubicrootXYZ/Workflows/.github/workflows/build_image.yaml@v0.0.17
     with:
       docker_build_args: "--no-cache"
       docker_file_path: "./"
