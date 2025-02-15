@@ -1,7 +1,6 @@
 package apictx_test
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +26,7 @@ func TestRequireIDInURI(t *testing.T) {
 
 	t.Run("happy case", func(t *testing.T) {
 		req, err := http.NewRequestWithContext(
-			context.Background(),
+			t.Context(),
 			http.MethodGet,
 			server.URL+"/123",
 			nil,
@@ -48,7 +47,7 @@ func TestRequireIDInURI(t *testing.T) {
 
 	t.Run("wrong type", func(t *testing.T) {
 		req, err := http.NewRequestWithContext(
-			context.Background(),
+			t.Context(),
 			http.MethodGet,
 			server.URL+"/abcd",
 			nil,

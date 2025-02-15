@@ -1,7 +1,6 @@
 package response_test
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +20,7 @@ func TestWithDataWithString(t *testing.T) {
 	server := httptest.NewServer(r)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/",
 		nil,
@@ -37,7 +36,7 @@ func TestWithDataWithString(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":"hello world"}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":"hello world"}`, string(body))
 }
 
 func TestWithDataWithMap(t *testing.T) {
@@ -52,7 +51,7 @@ func TestWithDataWithMap(t *testing.T) {
 	server := httptest.NewServer(r)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/",
 		nil,
@@ -68,7 +67,7 @@ func TestWithDataWithMap(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":{"k e y 3 ":[1,2,3],"key":"value","key2":1}}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":{"k e y 3 ":[1,2,3],"key":"value","key2":1}}`, string(body))
 }
 
 func TestWithDataWithNil(t *testing.T) {
@@ -79,7 +78,7 @@ func TestWithDataWithNil(t *testing.T) {
 	server := httptest.NewServer(r)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/",
 		nil,
@@ -95,5 +94,5 @@ func TestWithDataWithNil(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":null}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":null}`, string(body))
 }
