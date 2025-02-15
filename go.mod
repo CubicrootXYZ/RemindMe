@@ -1,6 +1,6 @@
 module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-go 1.23
+go 1.24
 
 require (
 	github.com/CubicrootXYZ/gonaturalduration v0.6.0
