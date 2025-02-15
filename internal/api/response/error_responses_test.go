@@ -1,7 +1,6 @@
 package response_test
 
 import (
-	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -21,7 +20,7 @@ func TestAbortWithInternalServerError(t *testing.T) {
 	server := httptest.NewServer(r)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/",
 		nil,
@@ -37,7 +36,7 @@ func TestAbortWithInternalServerError(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
+	assert.JSONEq(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
 }
 
 func TestAbortWithNotFoundError(t *testing.T) {
@@ -48,7 +47,7 @@ func TestAbortWithNotFoundError(t *testing.T) {
 	server := httptest.NewServer(r)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/",
 		nil,
@@ -64,5 +63,5 @@ func TestAbortWithNotFoundError(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"message":"Not Found","status":"error"}`, string(body))
+	assert.JSONEq(t, `{"message":"Not Found","status":"error"}`, string(body))
 }

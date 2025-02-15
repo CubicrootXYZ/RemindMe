@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -42,7 +41,7 @@ func TestAPI_ListInputRoomsHandler(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/inputs/rooms",
 		nil,
@@ -58,7 +57,7 @@ func TestAPI_ListInputRoomsHandler(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
@@ -74,7 +73,7 @@ func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/inputs/rooms",
 		nil,
@@ -90,7 +89,7 @@ func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
@@ -105,7 +104,7 @@ func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/inputs/rooms",
 		nil,
@@ -121,7 +120,7 @@ func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
+	assert.JSONEq(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
 }
 
 func TestAPI_ListInputRoomsHandlerWithInvalidPath(t *testing.T) {
@@ -131,7 +130,7 @@ func TestAPI_ListInputRoomsHandlerWithInvalidPath(t *testing.T) {
 	_, _, server := testServer(ctrl)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/0/inputs/rooms",
 		nil,
@@ -157,7 +156,7 @@ func TestAPI_ListOutputRoomsHandler(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/outputs/rooms",
 		nil,
@@ -173,7 +172,7 @@ func TestAPI_ListOutputRoomsHandler(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
@@ -189,7 +188,7 @@ func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/outputs/rooms",
 		nil,
@@ -205,7 +204,7 @@ func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
+	assert.JSONEq(t, `{"status":"success","data":[{"id":1,"created_at":"2006-01-02T15:04:05+07:00","room_id":"roomid","users":[{"id":"userid","blocked":false}]}]}`, string(body))
 }
 
 func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {
@@ -220,7 +219,7 @@ func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/1/outputs/rooms",
 		nil,
@@ -236,7 +235,7 @@ func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {
 	body, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
+	assert.JSONEq(t, `{"message":"Internal Server Error","status":"error"}`, string(body))
 }
 
 func TestAPI_ListOutputRoomsHandlerWithInvalidPath(t *testing.T) {
@@ -246,7 +245,7 @@ func TestAPI_ListOutputRoomsHandlerWithInvalidPath(t *testing.T) {
 	_, _, server := testServer(ctrl)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/matrix/channels/0/outputs/rooms",
 		nil,

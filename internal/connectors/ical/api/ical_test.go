@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -60,7 +59,7 @@ func TestAPI_ICALExportHandler(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1?token=1234",
 		nil,
@@ -108,7 +107,7 @@ func TestAPI_ICALExportHandlerWithEventsError(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1?token=1234",
 		nil,
@@ -144,7 +143,7 @@ func TestAPI_ICALExportHandlerWithOutputNotFound(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1?token=1234",
 		nil,
@@ -175,7 +174,7 @@ func TestAPI_ICALExportHandlerWithWrongToken(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1?token=1234",
 		nil,
@@ -201,7 +200,7 @@ func TestAPI_ICALExportHandlerWithIcalOutputNotFound(t *testing.T) {
 	)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1?token=1234",
 		nil,
@@ -222,7 +221,7 @@ func TestAPI_ICALExportHandlerWithNoToken(t *testing.T) {
 	_, _, server := testServer(ctrl)
 
 	req, err := http.NewRequestWithContext(
-		context.Background(),
+		t.Context(),
 		http.MethodGet,
 		server.URL+"/ical/1",
 		nil,

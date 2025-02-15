@@ -37,7 +37,7 @@ func TestAPIKeyAuth(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
-		assert.Equal(t, "{\"message\":\"pong\"}", string(body))
+		assert.JSONEq(t, "{\"message\":\"pong\"}", string(body))
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
@@ -54,7 +54,7 @@ func TestAPIKeyAuth(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
-		assert.Equal(t, "{\"message\":\"Unauthenticated\",\"status\":\"error\"}", string(body))
+		assert.JSONEq(t, "{\"message\":\"Unauthenticated\",\"status\":\"error\"}", string(body))
 	})
 
 	t.Run("no key", func(t *testing.T) {
@@ -71,6 +71,6 @@ func TestAPIKeyAuth(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
-		assert.Equal(t, "{\"message\":\"Unauthenticated\",\"status\":\"error\"}", string(body))
+		assert.JSONEq(t, "{\"message\":\"Unauthenticated\",\"status\":\"error\"}", string(body))
 	})
 }
