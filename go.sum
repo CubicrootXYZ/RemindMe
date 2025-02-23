@@ -3,8 +3,8 @@ filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4
 github.com/BurntSushi/toml v1.2.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
 github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/CubicrootXYZ/gonaturalduration v0.6.0 h1:EE+Aj5tsfx5NLb1kYLSTMc12ykGBKC5UnHULEx0TEM8=
-github.com/CubicrootXYZ/gonaturalduration v0.6.0/go.mod h1:oQNxtz48TlkD0OIKRYfd+Fw4K7H7PndL6wbmoH51mX8=
+github.com/CubicrootXYZ/gonaturalduration v0.7.0 h1:1A3zeLeY8yMHdpltJTG1aVIT86pJztggBezjuWLSEkc=
+github.com/CubicrootXYZ/gonaturalduration v0.7.0/go.mod h1:HpJ0OvDnxJLHWIZMaz86Inmc+1yD9Gk7I64az8H38YU=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d h1:aeRXn89hSJJF9Ut/5FmkVwbgKW6VgnvaNseoB+uC+Ro=
 github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d/go.mod h1:CN47TkXtxcVeEZ9KqqwEoRKVsfqTh2pl0XKPWIB/Z8o=
 github.com/arran4/golang-ical v0.3.2 h1:MGNjcXJFSuCXmYX/RpZhR2HDCYoFuK8vTPFLEdFC3JY=
