@@ -124,16 +124,23 @@ func TestInfoFromEvents(t *testing.T) {
 			Message: "my event 3",
 			Time:    refTime().Add(time.Minute * -2),
 		},
+		{
+			Model: gorm.Model{
+				ID: 1,
+			},
+			Message: "my event 4",
+			Time:    refTime().Add(time.Hour * 24 * 30),
+		},
 	}, "")
 
 	assert.Equal(
 		t,
-		"\nNOVEMBER 2014\n➡️ MY EVENT 3\nat 11:43 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 1\nat 11:45 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 2\nat 11:47 12.11.2014 (UTC) (ID: 1) \n",
+		"\nDECEMBER 2014\n➡️ MY EVENT 4\nat 11:45 12.12.2014 (UTC) (ID: 1) \n\nNOVEMBER 2014\n➡️ MY EVENT 3\nat 11:43 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 1\nat 11:45 12.11.2014 (UTC) (ID: 1) \n➡️ MY EVENT 2\nat 11:47 12.11.2014 (UTC) (ID: 1) \n",
 		msg,
 	)
 	assert.Equal(
 		t,
-		"<br><b>November 2014</b><br>\n➡️ <b>my event 3</b><br>at 11:43 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 1</b><br>at 11:45 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 2</b><br>at 11:47 12.11.2014 (UTC) (ID: 1) <br>",
+		"<br><b>December 2014</b><br>\n➡️ <b>my event 4</b><br>at 11:45 12.12.2014 (UTC) (ID: 1) <br><br><b>November 2014</b><br>\n➡️ <b>my event 3</b><br>at 11:43 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 1</b><br>at 11:45 12.11.2014 (UTC) (ID: 1) <br>➡️ <b>my event 2</b><br>at 11:47 12.11.2014 (UTC) (ID: 1) <br>",
 		msgF,
 	)
 }

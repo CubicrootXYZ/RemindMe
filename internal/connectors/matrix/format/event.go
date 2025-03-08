@@ -68,26 +68,36 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 
 	// Sort events by time.
 	sort.Slice(events, func(i, j int) bool {
-		return events[i].Time.Sub(events[j].Time) < 0
+		return events[i].Time.Sub(events[j].Time) > 0
 	})
 
-	var str, strFormatted strings.Builder
-	currentHeader := ""
+	headersOrdered := []string{}
+	eventsByHeader := map[string][]database.Event{}
 	for i := range events {
-		newHeader := headerFromEvent(&events[i], loc, time.Now())
-		if newHeader != currentHeader {
-			str.WriteString("\n")
-			str.WriteString(strings.ToUpper(newHeader))
-			str.WriteString("\n")
-			strFormatted.WriteString("<br><b>")
-			strFormatted.WriteString(newHeader)
-			strFormatted.WriteString("</b><br>\n")
-			currentHeader = newHeader
+		header := headerFromEvent(&events[i], loc, time.Now())
+		if _, ok := eventsByHeader[header]; ok {
+			eventsByHeader[header] = append(eventsByHeader[header], events[i])
+			continue
 		}
 
-		msg, msgF := infoFromEvent(&events[i], loc)
-		str.WriteString(msg)
-		strFormatted.WriteString(msgF)
+		eventsByHeader[header] = []database.Event{events[i]}
+		headersOrdered = append(headersOrdered, header)
+	}
+
+	var str, strFormatted strings.Builder
+	for _, header := range headersOrdered {
+		str.WriteString("\n")
+		str.WriteString(strings.ToUpper(header))
+		str.WriteString("\n")
+		strFormatted.WriteString("<br><b>")
+		strFormatted.WriteString(header)
+		strFormatted.WriteString("</b><br>\n")
+
+		for i := range eventsByHeader[header] {
+			msg, msgF := infoFromEvent(&eventsByHeader[header][len(eventsByHeader[header])-i-1], loc)
+			str.WriteString(msg)
+			strFormatted.WriteString(msgF)
+		}
 	}
 
 	return str.String(), strFormatted.String()
