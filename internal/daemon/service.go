@@ -21,6 +21,7 @@ type service struct {
 
 // OutputService defines an interface for services handling outputs.
 type OutputService interface {
+	ToLocalTime(time.Time, *Output) time.Time
 	SendReminder(*Event, *Output) error
 	SendDailyReminder(*DailyReminder, *Output) error
 }

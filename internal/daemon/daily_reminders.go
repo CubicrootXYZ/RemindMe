@@ -20,14 +20,6 @@ func (service *service) sendOutDailyReminders() error {
 	eventsBefore := eventsAfter.Add(time.Hour*24 + time.Second)
 
 	for _, channel := range channels {
-		if !isDailyReminderTimeReached(channel) {
-			service.logger.
-				Debug("no daily reminder send out",
-					"channel.id", channel.ID,
-					"reason", "reminder time not reached")
-			continue
-		}
-
 		events, err := service.database.ListEvents(&database.ListEventsOpts{
 			ChannelID:    &channel.ID,
 			EventsAfter:  &eventsAfter,
@@ -39,17 +31,29 @@ func (service *service) sendOutDailyReminders() error {
 		}
 
 		for _, output := range channel.Outputs {
-			if isDailyReminderSentToday(&output) {
-				service.logger.
-					Debug("no daily reminder send out",
-						"channel.id", channel.ID,
-						"reason", "already done")
-				continue
-			}
-
 			outputService, ok := service.config.OutputServices[output.OutputType]
 			if !ok {
 				service.logger.Error("unknown output type", "output.type", output.OutputType)
+				continue
+			}
+
+			if !isDailyReminderTimeReached(channel, &output, outputService) {
+				service.logger.
+					Debug("no daily reminder send out",
+						"channel.id", channel.ID,
+						"output.id", output.ID,
+						"output.output_type", output.OutputType,
+						"reason", "reminder time not reached")
+				continue
+			}
+
+			if isDailyReminderSentToday(&output, outputService) {
+				service.logger.
+					Debug("no daily reminder send out",
+						"channel.id", channel.ID,
+						"output.id", output.ID,
+						"output.output_type", output.OutputType,
+						"reason", "already done")
 				continue
 			}
 
@@ -78,20 +82,27 @@ func (service *service) sendOutDailyReminders() error {
 	return nil
 }
 
-func isDailyReminderTimeReached(channel database.Channel) bool {
+func isDailyReminderTimeReached(
+	channel database.Channel,
+	output *database.Output,
+	outputService OutputService,
+) bool {
 	if channel.DailyReminder == nil {
 		return false
 	}
 
-	now := time.Now().In(time.UTC)
+	now := outputService.ToLocalTime(time.Now(), outputFromDatabase(output))
 	return (now.Hour()*60 + now.Minute()) >= int(*channel.DailyReminder)
 }
 
-func isDailyReminderSentToday(output *database.Output) bool {
+func isDailyReminderSentToday(
+	output *database.Output,
+	outputService OutputService,
+) bool {
 	if output.LastDailyReminder == nil {
 		return false
 	}
 
-	now := time.Now().In(time.UTC)
+	now := outputService.ToLocalTime(time.Now(), outputFromDatabase(output))
 	return now.Day() == output.LastDailyReminder.Day() && now.Month() == output.LastDailyReminder.Month() && now.Year() == output.LastDailyReminder.Year()
 }

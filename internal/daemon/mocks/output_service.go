@@ -6,6 +6,7 @@ package mocks
 
 import (
 	reflect "reflect"
+	time "time"
 
 	daemon "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	gomock "github.com/golang/mock/gomock"
@@ -60,4 +61,18 @@ func (m *MockOutputService) SendReminder(arg0 *daemon.Event, arg1 *daemon.Output
 func (mr *MockOutputServiceMockRecorder) SendReminder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendReminder", reflect.TypeOf((*MockOutputService)(nil).SendReminder), arg0, arg1)
+}
+
+// ToLocalTime mocks base method.
+func (m *MockOutputService) ToLocalTime(arg0 time.Time, arg1 *daemon.Output) time.Time {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ToLocalTime", arg0, arg1)
+	ret0, _ := ret[0].(time.Time)
+	return ret0
+}
+
+// ToLocalTime indicates an expected call of ToLocalTime.
+func (mr *MockOutputServiceMockRecorder) ToLocalTime(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToLocalTime", reflect.TypeOf((*MockOutputService)(nil).ToLocalTime), arg0, arg1)
 }
