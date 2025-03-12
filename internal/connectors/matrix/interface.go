@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"errors"
+	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 )
@@ -28,4 +29,6 @@ type Service interface {
 
 	SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error
 	SendReminder(*daemon.Event, *daemon.Output) error
+
+	ToLocalTime(time.Time, *daemon.Output) time.Time
 }

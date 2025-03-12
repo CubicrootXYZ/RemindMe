@@ -136,7 +136,13 @@ func (service *service) SendReminder(*daemon.Event, *daemon.Output) error {
 	// Not supported.
 	return nil
 }
+
 func (service *service) SendDailyReminder(*daemon.DailyReminder, *daemon.Output) error {
 	// Not supported.
 	return nil
+}
+
+func (service *service) ToLocalTime(date time.Time, _ *daemon.Output) time.Time {
+	// Not supported.
+	return date
 }

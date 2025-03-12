@@ -6,6 +6,7 @@ package ical
 
 import (
 	reflect "reflect"
+	time "time"
 
 	database "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	daemon "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
@@ -149,4 +150,18 @@ func (m *MockService) Stop() error {
 func (mr *MockServiceMockRecorder) Stop() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockService)(nil).Stop))
+}
+
+// ToLocalTime mocks base method.
+func (m *MockService) ToLocalTime(arg0 time.Time, arg1 *daemon.Output) time.Time {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ToLocalTime", arg0, arg1)
+	ret0, _ := ret[0].(time.Time)
+	return ret0
+}
+
+// ToLocalTime indicates an expected call of ToLocalTime.
+func (mr *MockServiceMockRecorder) ToLocalTime(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ToLocalTime", reflect.TypeOf((*MockService)(nil).ToLocalTime), arg0, arg1)
 }
