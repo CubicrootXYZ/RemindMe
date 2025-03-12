@@ -8,7 +8,6 @@ linters:
     - paralleltest # This project is not using parallel testing
     - nlreturn # Only formatting
     - ireturn # This project sometimes uses interfaces
-    - gomnd # This project has some hardcoded numbers for times and delays
     - err113 # Do not agree
     - gochecknoglobals # This project still uses some global variables
     - exhaustruct # This projects relies on using only parts of structs
@@ -33,7 +32,7 @@ linters:
     - sqlclosecheck
     - wastedassign
     - inamedparam
-    - execinquery
+    - tenv
 
 linters-settings:
   cyclop:
