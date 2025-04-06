@@ -15,7 +15,7 @@ require (
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/net v0.38.0
-	golang.org/x/sync v0.12.0
+	golang.org/x/sync v0.13.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 	maunium.net/go/mautrix v0.13.0
