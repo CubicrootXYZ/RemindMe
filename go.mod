@@ -3,13 +3,13 @@ module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 go 1.24
 
 require (
+	github.com/CubicrootXYZ/configor v1.0.0
 	github.com/CubicrootXYZ/gonaturalduration v0.7.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
 	github.com/arran4/golang-ical v0.3.2
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang/mock v1.6.0
-	github.com/jinzhu/configor v1.2.2
 	github.com/lmittmann/tint v1.0.7
 	github.com/stretchr/testify v1.10.0
 	github.com/teambition/rrule-go v1.8.2
@@ -35,6 +35,7 @@ require (
 	github.com/go-playground/validator/v10 v10.26.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.2 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/goccy/go-yaml v1.17.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
