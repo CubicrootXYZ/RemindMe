@@ -8,11 +8,11 @@ import (
 	"slices"
 	"time"
 
+	"github.com/CubicrootXYZ/configor"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/jinzhu/configor"
 	"github.com/lmittmann/tint"
 )
 
