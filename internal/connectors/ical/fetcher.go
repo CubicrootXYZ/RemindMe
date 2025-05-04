@@ -40,8 +40,16 @@ func (service *service) refreshIcalInputs() {
 		}
 
 		now := time.Now()
+		service.metricLastRefresh.
+			WithLabelValues(strconv.FormatUint(uint64(input.ID), 10)).
+			Set(float64(now.Unix()))
+
 		err := service.refreshIcalInput(&input)
 		if err != nil {
+			service.metricErrorCount.
+				WithLabelValues(strconv.FormatUint(uint64(input.ID), 10)).
+				Inc()
+
 			l.Info("failed refreshing input", "error", err)
 			if input.LastRefresh != nil && time.Since(*input.LastRefresh) > time.Hour*48 {
 				l.Info("disabling input, no successful refresh in 48 hours")
@@ -54,6 +62,10 @@ func (service *service) refreshIcalInputs() {
 
 		_, err = service.config.ICalDB.UpdateIcalInput(&input)
 		if err != nil {
+			service.metricErrorCount.
+				WithLabelValues(strconv.FormatUint(uint64(input.ID), 10)).
+				Inc()
+
 			l.Info("failed updating input in database", "error", err)
 			continue
 		}

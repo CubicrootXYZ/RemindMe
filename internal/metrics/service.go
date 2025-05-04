@@ -19,8 +19,10 @@ type service struct {
 
 func New(cfg *Config) (Service, error) {
 	s := http.Server{
-		Addr:    cfg.Address,
-		Handler: promhttp.Handler(),
+		Addr:              cfg.Address,
+		Handler:           promhttp.Handler(),
+		ReadHeaderTimeout: time.Second * 30,
+		WriteTimeout:      time.Second * 30,
 	}
 
 	return &service{
