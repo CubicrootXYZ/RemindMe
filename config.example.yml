@@ -48,7 +48,7 @@ api:
   enabled: false
   # Overwrite listen address for the webserver
   address: "0.0.0.0:8080"
-  # API Key used for authentication
+  # API key used for authentication
   apikey: xyz
   # URL where the API can be reached (root level)
   baseurl: https://example.com
@@ -58,3 +58,11 @@ logger:
   # Format must be one of: text, json
   format: "text"
   debug: false
+
+# Metric settings
+#
+# Serves prometheus metrics at the given address.
+metrics:
+  enabled: false
+  # Overwrite listen address for the webserver
+  address: "0.0.0.0:9092"
