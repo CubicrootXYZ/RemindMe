@@ -25,6 +25,10 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 	)
 	logger.Debug("new reaction received")
 
+	service.metricEventInCount.
+		WithLabelValues("reaction").
+		Inc()
+
 	// Do not answer our own and old messages
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return

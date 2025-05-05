@@ -21,6 +21,10 @@ func (service *service) EventStateHandler(_ mautrix.EventSource, evt *event.Even
 	)
 	logger.Debug("new state event")
 
+	service.metricEventInCount.
+		WithLabelValues("state").
+		Inc()
+
 	// Ignore old events or events from the bot itself
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return
