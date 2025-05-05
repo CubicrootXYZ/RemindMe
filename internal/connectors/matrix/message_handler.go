@@ -28,6 +28,10 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 	)
 	logger.Debug("new message received")
 
+	service.metricEventInCount.
+		WithLabelValues("message").
+		Inc()
+
 	// Do not answer our own and old messages
 	if evt.Sender.String() == service.botname || evt.Timestamp/1000 <= service.lastMessageFrom.Unix() {
 		return

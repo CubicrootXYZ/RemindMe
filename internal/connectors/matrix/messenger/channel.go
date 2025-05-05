@@ -14,6 +14,10 @@ type ChannelResponse struct {
 
 // CreateChannel creates a new matrix channel with the given user
 func (messenger *service) CreateChannel(userIdentifier string) (*ChannelResponse, error) {
+	messenger.metricEventOutCount.
+		WithLabelValues("room_create").
+		Inc()
+
 	room := mautrix.ReqCreateRoom{
 		Visibility:    "private",
 		RoomAliasName: "RemindMe-" + uniuri.NewLen(5),
