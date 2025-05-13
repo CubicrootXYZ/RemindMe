@@ -27,6 +27,10 @@ func (messenger *service) deleteMessage(deleteAction *Delete, retries uint, retr
 	var err error
 	maxRetries := retries
 
+	messenger.metricEventOutCount.
+		WithLabelValues("message_delete").
+		Inc()
+
 	for retries > 0 {
 		// Wait until the rate limit is gone again
 		for time.Until(messenger.state.rateLimitedUntil) >= 0 {

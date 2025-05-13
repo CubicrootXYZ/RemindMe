@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -18,6 +20,8 @@ type service struct {
 	db            database.Service
 	logger        *slog.Logger
 	state         *state
+
+	metricEventOutCount *prometheus.CounterVec
 }
 
 type Config struct {
@@ -39,6 +43,11 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 		state: &state{
 			rateLimitedUntilMutex: sync.Mutex{},
 		},
+		metricEventOutCount: promauto.NewCounterVec(prometheus.CounterOpts{
+			Namespace: "remindme",
+			Name:      "matrix_events_out_total",
+			Help:      "Counts events send by the matrix connector.",
+		}, []string{"event_type"}),
 	}, nil
 }
 

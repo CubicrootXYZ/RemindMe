@@ -23,6 +23,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metrics"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -164,6 +165,16 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		apiConfig.RouteProviders["ical"] = icalAPI
 		server := api.NewServer(apiConfig, logger.With("component", "api"))
 		processes = append(processes, server)
+	}
+
+	// Metrics
+	if config.Metrics.Enabled {
+		metricsService, err := metrics.New(config.metricsConfig())
+		if err != nil {
+			return nil, err
+		}
+
+		processes = append(processes, metricsService)
 	}
 
 	return processes, nil
