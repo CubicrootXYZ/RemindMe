@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type service struct {
@@ -15,6 +17,10 @@ type service struct {
 	done     chan interface{}
 
 	daemonWG *sync.WaitGroup
+
+	metricLastDailyReminderRun *prometheus.GaugeVec
+	metricLastEventRun         *prometheus.GaugeVec
+	metricEventsProcessed      *prometheus.CounterVec
 }
 
 //go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
@@ -41,6 +47,22 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 		done:     make(chan interface{}),
 
 		daemonWG: &sync.WaitGroup{},
+
+		metricLastDailyReminderRun: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: "remindme",
+			Name:      "daemon_daily_reminder_last_run_timestamp_seconds",
+			Help:      "Unix timestamp of the last run of the daily reminder daemon.",
+		}, []string{}),
+		metricLastEventRun: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: "remindme",
+			Name:      "daemon_event_last_run_timestamp_seconds",
+			Help:      "Unix timestamp of the last run of the event daemon.",
+		}, []string{}),
+		metricEventsProcessed: promauto.NewCounterVec(prometheus.CounterOpts{
+			Namespace: "remindme",
+			Name:      "daemon_event_events_processed_total",
+			Help:      "Amount of events processed by the event daemon.",
+		}, []string{}),
 	}
 }
 
