@@ -13,6 +13,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metrics"
 	"github.com/lmittmann/tint"
 )
 
@@ -23,6 +24,7 @@ type Config struct {
 	ICal     configICal
 	API      configAPI
 	Logger   configLogger
+	Metrics  configMetrics
 
 	BuildVersion string
 }
@@ -67,6 +69,11 @@ type configAPI struct {
 	Address string `default:"0.0.0.0:8080"`
 	APIKey  string
 	BaseURL string
+}
+
+type configMetrics struct {
+	Enabled bool
+	Address string `default:"0.0.0.0:9092"`
 }
 
 func (config *Config) databaseConfig() *database.Config {
@@ -127,6 +134,12 @@ func (config *Config) apiConfig() *api.Config {
 	return &api.Config{
 		Address:        config.API.Address,
 		RouteProviders: make(map[string]api.RouteProvider),
+	}
+}
+
+func (config *Config) metricsConfig() *metrics.Config {
+	return &metrics.Config{
+		Address: config.Metrics.Address,
 	}
 }
 

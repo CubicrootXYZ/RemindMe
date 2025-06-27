@@ -15,6 +15,8 @@ func (service *service) sendOutDailyReminders() error {
 	service.logger.
 		With("channels", len(channels)).
 		Debug("checking channels for daily reminder")
+	service.metricLastDailyReminderRun.WithLabelValues().
+		Set(float64(time.Now().Unix()))
 
 	eventsAfter := time.Now()
 	eventsBefore := eventsAfter.Add(time.Hour*24 + time.Second)

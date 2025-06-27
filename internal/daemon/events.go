@@ -1,10 +1,17 @@
 package daemon
 
+import "time"
+
 func (service *service) sendOutEvents() error {
 	events, err := service.database.GetEventsPending()
 	if err != nil {
 		return err
 	}
+
+	service.metricLastEventRun.WithLabelValues().
+		Set(float64(time.Now().Unix()))
+	service.metricEventsProcessed.WithLabelValues().
+		Add(float64(len(events)))
 
 	for _, event := range events {
 		eventSuccess := true

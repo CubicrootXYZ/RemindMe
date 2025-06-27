@@ -12,8 +12,18 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/mautrixcl"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
+)
+
+var (
+	metricEventInCount = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "matrix_events_in_total",
+		Help:      "Counts events received by the matrix connector.",
+	}, []string{"event_type"})
 )
 
 type service struct {
@@ -26,6 +36,8 @@ type service struct {
 
 	client          *mautrix.Client
 	lastMessageFrom time.Time
+
+	metricEventInCount *prometheus.CounterVec
 }
 
 //go:generate mockgen -destination=message_action_mock.go -package=matrix . MessageAction
@@ -101,6 +113,8 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 		database:       database,
 		matrixDatabase: matrixDB,
 		botname:        format.FullUsername(config.Username, config.Homeserver),
+
+		metricEventInCount: metricEventInCount,
 	}
 
 	err := service.setupMautrixClient()
