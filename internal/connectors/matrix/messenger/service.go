@@ -13,6 +13,14 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
+var (
+	metricEventOutCount = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "matrix_events_out_total",
+		Help:      "Counts events send by the matrix connector.",
+	}, []string{"event_type"})
+)
+
 type service struct {
 	roomUserCache roomCache
 	config        *Config
@@ -43,11 +51,7 @@ func NewMessenger(config *Config, db database.Service, matrixClient MatrixClient
 		state: &state{
 			rateLimitedUntilMutex: sync.Mutex{},
 		},
-		metricEventOutCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "remindme",
-			Name:      "matrix_events_out_total",
-			Help:      "Counts events send by the matrix connector.",
-		}, []string{"event_type"}),
+		metricEventOutCount: metricEventOutCount,
 	}, nil
 }
 

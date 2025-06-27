@@ -69,6 +69,8 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 		logger:         slog.New(slog.NewTextHandler(os.Stdout, nil)),
 		botname:        "@bot:example.com",
 		messenger:      fx.messenger,
+
+		metricEventInCount: metricEventInCount,
 	}
 
 	return s, &fx

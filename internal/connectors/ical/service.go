@@ -18,6 +18,20 @@ const (
 	iCalScrapeInteval = time.Minute * 15
 )
 
+var (
+	metricLastRefresh = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "remindme",
+		Name:      "ical_refresh_timestamp_seconds",
+		Help:      "Unix timestamp of the last refresh of the iCal inputs.",
+	}, []string{"input_id"})
+
+	metricErrorCount = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "ical_refresh_errors_total",
+		Help:      "Counts errors on refreshing iCal inputs.",
+	}, []string{"input_id"})
+)
+
 // Config holds the configuration for the service.
 type Config struct {
 	ICalDB   icaldb.Service
@@ -41,19 +55,11 @@ type service struct {
 // New assembles a new ical connector service.
 func New(config *Config, logger *slog.Logger) Service {
 	return &service{
-		config: config,
-		logger: logger,
-		stop:   make(chan bool, 1),
-		metricLastRefresh: promauto.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: "remindme",
-			Name:      "ical_refresh_timestamp_seconds",
-			Help:      "Unix timestamp of the last refresh of the iCal inputs.",
-		}, []string{"input_id"}),
-		metricErrorCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "remindme",
-			Name:      "ical_refresh_errors_total",
-			Help:      "Counts errors on refreshing iCal inputs.",
-		}, []string{"input_id"}),
+		config:            config,
+		logger:            logger,
+		stop:              make(chan bool, 1),
+		metricLastRefresh: metricLastRefresh,
+		metricErrorCount:  metricErrorCount,
 	}
 }
 

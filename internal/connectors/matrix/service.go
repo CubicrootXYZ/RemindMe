@@ -18,6 +18,14 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
+var (
+	metricEventInCount = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "matrix_events_in_total",
+		Help:      "Counts events received by the matrix connector.",
+	}, []string{"event_type"})
+)
+
 type service struct {
 	config         *Config
 	logger         *slog.Logger
@@ -106,11 +114,7 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 		matrixDatabase: matrixDB,
 		botname:        format.FullUsername(config.Username, config.Homeserver),
 
-		metricEventInCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Namespace: "remindme",
-			Name:      "matrix_events_in_total",
-			Help:      "Counts events received by the matrix connector.",
-		}, []string{"event_type"}),
+		metricEventInCount: metricEventInCount,
 	}
 
 	err := service.setupMautrixClient()
