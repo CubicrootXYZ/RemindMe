@@ -17,7 +17,7 @@ name: Renovate
 
 jobs:
   renovate:
-    uses: CubicrootXYZ/Workflows/.github/workflows/renovate.yaml@v0.0.21
+    uses: CubicrootXYZ/Workflows/.github/workflows/renovate.yaml@c7d822fd67aed413a8a5c9f37927d16a6afe4ec7
     with:
       author: "cubicrootxyz/renovate <cubicrootxyz-renovate@users.noreply.github.com>"
     secrets:
