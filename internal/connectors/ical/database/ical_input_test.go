@@ -18,6 +18,7 @@ func testInput() *database.IcalInput {
 func TestService_NewIcalInput(t *testing.T) {
 	start := time.Now()
 	time.Sleep(time.Millisecond) // Avoids issues with database time representation being less accurate.
+
 	inputBefore, err := service.NewIcalInput(testInput())
 	require.NoError(t, err)
 
@@ -57,12 +58,14 @@ func TestService_ListIcalInput(t *testing.T) {
 	require.NoError(t, err)
 
 	found := false
+
 	for _, i := range inputs {
 		if i.ID == input.ID {
 			found = true
 			break
 		}
 	}
+
 	assert.True(t, found, "entity is not in list return")
 
 	tr := true
@@ -72,12 +75,14 @@ func TestService_ListIcalInput(t *testing.T) {
 	require.NoError(t, err)
 
 	found = false
+
 	for _, i := range inputs {
 		if i.ID == input.ID {
 			found = true
 			break
 		}
 	}
+
 	assert.False(t, found, "entity is in list return")
 }
 

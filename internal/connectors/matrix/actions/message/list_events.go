@@ -69,12 +69,15 @@ func (action *ListEventsAction) HandleEvent(event *matrix.MessageEvent) {
 		if err2 != nil {
 			action.logger.Error("failed to send response", "error", err2)
 		}
+
 		action.logger.Error("failed to list events", "error", err)
+
 		return
 	}
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeEventList
+
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Error("failed to save message to database", "error", err)

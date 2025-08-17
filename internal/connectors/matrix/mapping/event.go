@@ -10,6 +10,7 @@ import (
 // MessageFromEvent creates a MatrixMessage from a MessageEvent.
 func MessageFromEvent(event *matrix.MessageEvent) *database.MatrixMessage {
 	sender := event.Event.Sender.String()
+
 	return &database.MatrixMessage{
 		ID:            event.Event.ID.String(),
 		UserID:        &sender,

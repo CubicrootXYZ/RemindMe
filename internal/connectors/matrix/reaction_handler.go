@@ -41,6 +41,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 	}
 
 	isUserKnown := false
+
 	userStr := evt.Sender.String()
 	for i := range room.Users {
 		if room.Users[i].ID == userStr {
@@ -48,6 +49,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 			break
 		}
 	}
+
 	if !isUserKnown {
 		logger.Debug("ignoring reaction", "reason", "unknown user")
 		return
@@ -74,6 +76,7 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 		// Should never happen.
 		logger.Info("ignoring reaction", "reason", "message from different room than reaction",
 			"matrix.message.room.id", message.Room.RoomID, "matrix.reaction.room.id", room.RoomID)
+
 		return
 	}
 
@@ -111,6 +114,7 @@ func (service *service) parseReactionEvent(evt *event.Event, room *matrixdb.Matr
 	if err != nil {
 		return nil, err
 	}
+
 	reactionEvent.Channel = channel
 	reactionEvent.Input = input
 

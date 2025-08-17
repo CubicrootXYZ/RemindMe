@@ -12,6 +12,7 @@ func StripReply(msg string) string {
 		if strings.HasPrefix(line, ">") {
 			continue
 		}
+
 		strippedMsg.WriteString(line)
 	}
 

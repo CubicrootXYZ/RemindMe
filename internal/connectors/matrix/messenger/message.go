@@ -97,6 +97,7 @@ func (messenger *service) SendMessage(message *Message) (*MessageResponse, error
 // The message sending will be tried for retries times and the time between retries is retry * retryTime
 func (messenger *service) sendMessage(messageEvent *messageEvent, channel string, retries uint, retryTime time.Duration) (*MessageResponse, error) {
 	var err error
+
 	maxRetries := retries
 
 	messenger.metricEventOutCount.
@@ -118,6 +119,7 @@ func (messenger *service) sendMessage(messageEvent *messageEvent, channel string
 			// Rate limit is exceeded so wait until we can send requests again
 			messenger.encounteredRateLimit()
 			messenger.logger.Info("sending message is stopped since we ran in a rate limit")
+
 			continue
 		} else if errors.Is(err, mautrix.MForbidden) || errors.Is(err, mautrix.MUnknownToken) || errors.Is(err, mautrix.MMissingToken) || errors.Is(err, mautrix.MBadJSON) || errors.Is(err, mautrix.MNotJSON) || errors.Is(err, mautrix.MUnsupportedRoomVersion) || errors.Is(err, mautrix.MIncompatibleRoomVersion) {
 			// Errors indicating that the request is invalid, do not try again
@@ -136,6 +138,7 @@ func (messenger *service) sendMessage(messageEvent *messageEvent, channel string
 	}
 
 	messenger.logger.Info("sending message failed and retries are exceeded", "error", err)
+
 	return nil, err
 }
 

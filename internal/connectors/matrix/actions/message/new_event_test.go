@@ -46,6 +46,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -123,6 +124,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 			))
 		})
 	}
+
 	time.Sleep(time.Millisecond * 10) // wait for goroutine to finish
 }
 
@@ -130,6 +132,7 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -183,6 +186,7 @@ func TestNewEventAction_HandleEventWithNewEventError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -256,6 +260,7 @@ func (matcher *eventMatcher) Matches(x interface{}) bool {
 	} else if evt.RepeatInterval != nil {
 		return false
 	}
+
 	if matcher.evt.RepeatUntil != nil {
 		if *matcher.evt.RepeatUntil != *evt.RepeatUntil {
 			return false
@@ -263,6 +268,7 @@ func (matcher *eventMatcher) Matches(x interface{}) bool {
 	} else if evt.RepeatUntil != nil {
 		return false
 	}
+
 	if matcher.evt.InputID != nil {
 		if *matcher.evt.InputID != *evt.InputID {
 			return false

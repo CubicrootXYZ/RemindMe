@@ -21,6 +21,7 @@ func testServer(ctrl *gomock.Controller) (*database.MockService, *icaldb.MockSer
 	}, slog.Default())
 
 	r := gin.New()
+
 	err := api.RegisterRoutes(r)
 	if err != nil {
 		panic(err)

@@ -23,6 +23,7 @@ func (service *service) refreshIcalInputs() {
 	service.logger.Debug("refreshing iCal inputs")
 
 	f := false
+
 	inputs, err := service.config.ICalDB.ListIcalInputs(&icaldb.ListIcalInputsOpts{
 		Disabled: &f,
 	})
@@ -51,8 +52,10 @@ func (service *service) refreshIcalInputs() {
 				Inc()
 
 			l.Info("failed refreshing input", "error", err)
+
 			if input.LastRefresh != nil && time.Since(*input.LastRefresh) > time.Hour*48 {
 				l.Info("disabling input, no successful refresh in 48 hours")
+
 				input.Disabled = true
 			}
 		} else {
@@ -67,6 +70,7 @@ func (service *service) refreshIcalInputs() {
 				Inc()
 
 			l.Info("failed updating input in database", "error", err)
+
 			continue
 		}
 	}
@@ -107,12 +111,14 @@ func (service *service) refreshIcalInput(input *icaldb.IcalInput) error {
 	}
 
 	newEvents := make([]database.Event, 0)
+
 	for _, event := range events {
 		if event.ExternalReference == "" {
 			continue
 		}
 
 		update := false
+
 		for _, eEvent := range existingEvents {
 			if eEvent.ExternalReference == "" {
 				continue
@@ -148,10 +154,12 @@ func getFileContent(url string, logger *slog.Logger) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	req.Header.Set("Accept", "text/calendar")
 	logger.Debug("making request", "url", url, "http.method", "GET")
 
 	client := &http.Client{}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
@@ -166,5 +174,6 @@ func getFileContent(url string, logger *slog.Logger) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(data), nil
 }

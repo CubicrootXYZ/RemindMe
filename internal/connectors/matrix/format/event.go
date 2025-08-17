@@ -29,6 +29,7 @@ func MessageFromEvent(event *daemon.Event, timeZone string) (string, string, err
 	}
 
 	msg, msgFormatted := f.Build()
+
 	return msg, msgFormatted, nil
 }
 
@@ -47,12 +48,15 @@ func infoFromEvent(event *database.Event, loc *time.Location) (string, string) {
 	f.Text(" (ID: ")
 	f.Text(strconv.Itoa(int(event.ID)))
 	f.Text(") ")
+
 	if event.RepeatInterval != nil {
 		f.Italic("🔁 ")
 	}
+
 	if event.ExternalReference != "" {
 		f.Italic("🌐 ")
 	}
+
 	f.NewLine()
 
 	return f.Build()
@@ -73,6 +77,7 @@ func InfoFromEvents(events []database.Event, timeZone string) (string, string) {
 
 	headersOrdered := []string{}
 	eventsByHeader := map[string][]database.Event{}
+
 	for i := range events {
 		header := headerFromEvent(&events[i], loc, time.Now())
 		if _, ok := eventsByHeader[header]; ok {
@@ -110,6 +115,7 @@ func InfoFromDaemonEvents(events []daemon.Event, timeZone string) (string, strin
 	}
 
 	var str, strFormatted strings.Builder
+
 	for i := range events {
 		msg, msgF := InfoFromDaemonEvent(&events[i], timeZone)
 		str.WriteString(msg)
@@ -133,9 +139,11 @@ func InfoFromDaemonEvent(event *daemon.Event, timeZone string) (string, string) 
 	f.Text(" (ID: ")
 	f.Text(strconv.Itoa(int(event.ID)))
 	f.Text(") ")
+
 	if event.RepeatInterval != nil {
 		f.Italic("🔁 ")
 	}
+
 	f.NewLine()
 
 	return f.Build()

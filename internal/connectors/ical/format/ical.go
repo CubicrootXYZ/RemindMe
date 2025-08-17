@@ -38,6 +38,7 @@ func NewCalendar(calendarID string, events []database.Event) string {
 		ical.WriteString(endTime.UTC().Format(dateFormatICal))
 		ical.WriteString("\nDTSTAMP:")
 		ical.WriteString(event.CreatedAt.UTC().Format(dateFormatICal))
+
 		if event.RepeatInterval != nil {
 			if event.RepeatUntil != nil && time.Until(*event.RepeatUntil) > 0 ||
 				event.RepeatUntil == nil {
@@ -48,6 +49,7 @@ func NewCalendar(calendarID string, events []database.Event) string {
 				))
 			}
 		}
+
 		ical.WriteString("\nUID:")
 		ical.WriteString(strconv.FormatUint(uint64(event.ID), 10))
 		ical.WriteString("\nSUMMARY:")
@@ -77,20 +79,25 @@ func MinutesToIcalRecurrenceRule(interval time.Duration, occurences uint64) stri
 	switch {
 	case minutes%(60*24) == 0:
 		days := minutes / (60 * 24)
+
 		rule.WriteString("FREQ=DAILY")
+
 		if days > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(days, 10))
 		}
 	case minutes%(60) == 0:
 		hours := minutes / (60)
+
 		rule.WriteString("FREQ=HOURLY")
+
 		if hours > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(hours, 10))
 		}
 	default:
 		rule.WriteString("FREQ=MINUTELY")
+
 		if minutes > 1 {
 			rule.WriteString(";INTERVAL=")
 			rule.WriteString(strconv.FormatUint(minutes, 10))
@@ -111,6 +118,7 @@ func occurencesFromStartAndEnd(start time.Time, interval time.Duration, end *tim
 	}
 
 	occurences := uint64(0)
+
 	start = start.Add(interval)
 	for end.Sub(start) > 0 {
 		start = start.Add(interval)
@@ -139,11 +147,13 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 	}
 
 	events := make([]database.Event, 0)
+
 	for _, event := range calendar.Events() {
 		idProp := event.GetProperty(ical.ComponentPropertyUniqueId)
 		if idProp == nil {
 			continue
 		}
+
 		id := idProp.Value
 		if len(id) <= 0 {
 			continue
@@ -153,6 +163,7 @@ func EventsFromIcal(input string, opts *EventOpts) ([]database.Event, error) {
 		if err != nil {
 			continue
 		}
+
 		duration, err := getDurationFromEvent(event)
 		if err != nil {
 			duration = opts.DefaultDuration
@@ -210,6 +221,7 @@ func getStartTimeFromEvent(event *ical.VEvent) (time.Time, error) {
 		if refTime.Sub(startTime) < 0 {
 			refTime = startTime.Add(time.Second * -1)
 		}
+
 		return rruleObj.After(refTime, false), nil
 	}
 
@@ -233,6 +245,7 @@ func getDurationFromEvent(event *ical.VEvent) (time.Duration, error) {
 		if err == nil {
 			return endTime.Sub(startTime), nil
 		}
+
 		return 24 * time.Hour, nil
 	}
 

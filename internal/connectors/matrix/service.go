@@ -133,6 +133,7 @@ func New(config *Config, database database.Service, matrixDB matrixdb.Service, l
 	service.setLastMessage()
 
 	logger.Debug("matrix connector setup finished")
+
 	return service, nil
 }
 
@@ -162,9 +163,11 @@ func (service *service) setupActions() {
 	for _, action := range service.config.MessageActions {
 		actions = append(actions, action)
 	}
+
 	for _, action := range service.config.ReplyActions {
 		actions = append(actions, action)
 	}
+
 	for _, action := range service.config.ReactionActions {
 		actions = append(actions, action)
 	}
@@ -200,6 +203,7 @@ func (service *service) setupMautrixClient() error {
 	})
 
 	service.logger.Debug("mautrix client setup finished")
+
 	return err
 }
 
@@ -223,6 +227,7 @@ func (service *service) Start() error {
 	service.logger.Debug("starting matrix connector")
 	err := service.startListener()
 	service.logger.Debug("matrix connector stopped")
+
 	return err
 }
 
@@ -231,6 +236,7 @@ func (service *service) Start() error {
 func (service *service) Stop() error {
 	service.logger.Debug("stopping matrix connector ...")
 	service.client.StopSync()
+
 	return nil
 }
 
@@ -246,10 +252,12 @@ func (service *service) InputRemoved(inputType string, inputID uint) error {
 		if errors.Is(err, matrixdb.ErrNotFound) {
 			return nil
 		}
+
 		return err
 	}
 
 	err = service.removeRoom(room)
+
 	return err
 }
 
@@ -266,9 +274,11 @@ func (service *service) OutputRemoved(outputType string, outputID uint) error {
 			// No need to delete already deleted room.
 			return nil
 		}
+
 		return err
 	}
 
 	err = service.removeRoom(room)
+
 	return err
 }

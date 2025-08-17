@@ -55,6 +55,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 
 	username := format.GetUsernameFromLink(event.Content.FormattedBody)
 	exactMatch := true
+
 	if username == "" {
 		// Fall back to plain text
 		// TODO remove all regex-matching strings here!
@@ -74,10 +75,12 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
 	userInRoom := false
+
 	for user := range usersInRoom.Joined {
 		if exactMatch {
 			if user.String() == username {
@@ -90,6 +93,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 				username == user.String() {
 				userInRoom = true
 				username = user.String()
+
 				break
 			}
 		}
@@ -107,6 +111,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
@@ -123,6 +128,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 			if err != nil {
 				action.logger.Error("failed to send response", "error", err)
 			}
+
 			return
 		}
 	}
@@ -137,12 +143,14 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	// Add message to database
 	msg := mapping.MessageFromEvent(event)
 	msg.Type = matrixdb.MessageTypeAddUser
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to store messafe to database", "error", err)
 	}
 
 	message := "Added that user 👏. They can now interact with me."
+
 	resp, err := action.messenger.SendResponse(messenger.PlainTextResponse(
 		message,
 		event.Event.ID.String(),
@@ -162,6 +170,7 @@ func (action *AddUserAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeAddUser
 	msg.Body = message
 	msg.BodyFormatted = message
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to store response to database", "error", err)

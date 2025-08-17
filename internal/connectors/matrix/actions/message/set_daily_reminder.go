@@ -59,6 +59,7 @@ func (action *SetDailyReminderAction) Selector() *regexp.Regexp {
 func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 	dbMsg := mapping.MessageFromEvent(event)
 	dbMsg.Type = matrixdb.MessageTypeSetDailyReminder
+
 	_, err := action.matrixDB.NewMessage(dbMsg)
 	if err != nil {
 		action.logger.Error("failed to store message to database", "error", err)
@@ -67,18 +68,23 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 	timeRemind, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, true)
 	if err != nil {
 		action.logger.Error("failed to parse time", "error", err)
+
 		msg := "Sorry, I was not able to understand the time."
 		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
+
 		return
 	}
 
 	minutesSinceMidnight := uint(timeRemind.In(time.UTC).Hour()*60 + timeRemind.In(time.UTC).Minute())
 	event.Channel.DailyReminder = &minutesSinceMidnight
+
 	_, err = action.db.UpdateChannel(event.Channel)
 	if err != nil {
 		action.logger.Error("failed to update channel", "error", err)
+
 		msg := "Whups, could not save that change. Sorry, try again later."
 		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
+
 		return
 	}
 

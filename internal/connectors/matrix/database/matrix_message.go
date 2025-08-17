@@ -22,12 +22,15 @@ func (service *service) ListMessages(opts ListMessageOpts) ([]MatrixMessage, err
 	if opts.RoomID != nil {
 		q = q.Where("room_id = ?", *opts.RoomID)
 	}
+
 	if opts.Type != nil {
 		q = q.Where("type = ?", *opts.Type)
 	}
+
 	if opts.Incoming != nil {
 		q = q.Where("incoming = ?", *opts.Incoming)
 	}
+
 	if opts.EventID != nil {
 		q = q.Where("event_id = ?", *opts.EventID)
 	}
@@ -43,11 +46,13 @@ func (service *service) NewMessage(message *MatrixMessage) (*MatrixMessage, erro
 
 func (service *service) GetMessageByID(messageID string) (*MatrixMessage, error) {
 	var message MatrixMessage
+
 	err := service.db.Preload("Event").Preload("Room").Preload("User").First(&message, "matrix_messages.id = ?", messageID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
+
 		return nil, err
 	}
 
@@ -56,6 +61,7 @@ func (service *service) GetMessageByID(messageID string) (*MatrixMessage, error)
 
 func (service *service) GetLastMessage() (*MatrixMessage, error) {
 	var message MatrixMessage
+
 	err := service.db.Preload("Event").Preload("Room").Preload("User").Order("matrix_messages.send_at DESC").First(&message).Error
 
 	return &message, err
@@ -63,15 +69,18 @@ func (service *service) GetLastMessage() (*MatrixMessage, error) {
 
 func (service *service) GetEventMessageByOutputAndEvent(eventID uint, outputID uint, _ string) (*MatrixMessage, error) {
 	var room MatrixRoom
+
 	err := service.db.First(&room, "matrix_rooms.id = ?", outputID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
+
 		return nil, err
 	}
 
 	var message MatrixMessage
+
 	err = service.db.Preload("Event").Preload("Room").Preload("User").
 		First(
 			&message,
@@ -85,8 +94,10 @@ func (service *service) GetEventMessageByOutputAndEvent(eventID uint, outputID u
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
 		}
+
 		return nil, err
 	}
+
 	return &message, nil
 }
 

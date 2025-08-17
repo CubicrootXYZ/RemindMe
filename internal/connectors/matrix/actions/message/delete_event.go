@@ -60,6 +60,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 	id, err := getIDFromSentence(event.Content.Body)
 	if err != nil {
 		action.logger.Error("failed to get ID from message", "error", err)
+
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Ups, can not find an ID in there.",
 			event.Event.ID.String(),
@@ -70,6 +71,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
@@ -79,6 +81,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 	})
 	if err != nil {
 		action.logger.Error("failed to list events", "error", err)
+
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry, an error appeared.",
 			event.Event.ID.String(),
@@ -89,6 +92,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
@@ -103,12 +107,14 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
 	dbMessage := mapping.MessageFromEvent(event)
 	dbMessage.Type = matrixdb.MessageTypeEventDelete
 	dbMessage.EventID = &events[0].ID
+
 	_, err = action.matrixDB.NewMessage(dbMessage)
 	if err != nil {
 		action.logger.Error("failed to save message to database", "error", err)
@@ -118,6 +124,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 	err = action.db.DeleteEvent(&events[0])
 	if err != nil {
 		action.logger.Error("failed to delete event", "error", err)
+
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Sorry, an error appeared.",
 			event.Event.ID.String(),
@@ -128,6 +135,7 @@ func (action *DeleteEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 

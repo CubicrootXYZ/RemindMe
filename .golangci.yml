@@ -1,75 +1,91 @@
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - gofumpt # Only formatting
-    - godot # Only formatting
-    - varnamelen # Imho not important
-    - wrapcheck # This project does not use error wrapping
-    - paralleltest # This project is not using parallel testing
-    - nlreturn # Only formatting
-    - ireturn # This project sometimes uses interfaces
-    - err113 # Do not agree
-    - gochecknoglobals # This project still uses some global variables
-    - exhaustruct # This projects relies on using only parts of structs
-    - errorlint # This project has not yet moved to static errors
-    - wsl # Formatting
-    - misspell # My english is just not that good
-    - lll # Formatting
-    - tagliatelle # Formatting
-    - gochecknoinits # issue 84
-    - gocritic # Formatting
-    - godox # Formatting
-    - durationcheck # Using duration multiplication a few times
-    - gci # Formatting
-    - nonamedreturns # Do not agree with this linter
-    - stylecheck # Formatting
-    - testpackage # Naming
-    - exhaustive # To many false positives
-    - interfacebloat # Do not agree
-    - mnd # Do not agree
-    # deprecated
+    - durationcheck
+    - err113
+    - errorlint
+    - exhaustive
+    - exhaustruct
+    - gochecknoglobals
+    - gochecknoinits
+    - gocritic
+    - godot
+    - godox
+    - inamedparam
+    - interfacebloat
+    - ireturn
+    - lll
+    - misspell
+    - mnd
+    - nlreturn
+    - nonamedreturns
+    - paralleltest
     - rowserrcheck
     - sqlclosecheck
+    - tagliatelle
+    - testpackage
+    - varnamelen
     - wastedassign
-    - inamedparam
-    - tenv
-
-linters-settings:
-  cyclop:
-    max-complexity: 30
-  funlen:
-    lines: 150
-    statements: 80
-  gocognit:
-    min-complexity: 40 # not ideal, should be improved
-
-  depguard:
+    - wrapcheck
+    - wsl
+    - noinlineerr
+    - funcorder
+  settings:
+    cyclop:
+      max-complexity: 30
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: github.com/tj/assert
+              desc: github.com/stretchr/testify/assert is preferred
+    funlen:
+      lines: 150
+      statements: 80
+    gocognit:
+      min-complexity: 40
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      main:
-        deny:
-          - pkg: github.com/tj/assert
-            desc: github.com/stretchr/testify/assert is preferred
-
-issues:
-  exclude-rules:
-    - path: '(.*)_test\.go'
-      linters:
-        - funlen
-        - forcetypeassert
-        - goconst
-        - noctx
-        - forbidigo
-    - path: internal/connectors/matrix/tests
-      linters:
-        - forbidigo
-    - path: '(.*)\/string\.go'
-      text: "G404: Use of weak random number generator" # Used as fallback
-    - path: '(.*)\/motivational_sentence\.go'
-      text: "G404: Use of weak random number generator" # Not important
-    - path: '(.*)\/initializers\.go'
-      text: "SA4009: argument db is overwritten before first use" # Preparation for later usage
-    - path: '(.*).go'
-      text: 'G115: integer overflow conversion' # Conversions from database (int) to business model (uint)
-  exclude:
-    - 'string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant' # Used for test validation
-    - '`\(\*Syncer\)\.sendAndStoreReply` - `reminderID` always receives `0' # Param might be useful later
+      - linters:
+          - forbidigo
+          - forcetypeassert
+          - funlen
+          - goconst
+          - noctx
+        path: (.*)_test\.go
+      - linters:
+          - forbidigo
+        path: internal/connectors/matrix/tests
+      - path: (.*)\/string\.go
+        text: 'G404: Use of weak random number generator'
+      - path: (.*)\/motivational_sentence\.go
+        text: 'G404: Use of weak random number generator'
+      - path: (.*)\/initializers\.go
+        text: 'SA4009: argument db is overwritten before first use'
+      - path: (.*).go
+        text: 'G115: integer overflow conversion'
+      - path: (.+)\.go$
+        text: string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant
+      - path: (.+)\.go$
+        text: '`\(\*Syncer\)\.sendAndStoreReply` - `reminderID` always receives `0'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

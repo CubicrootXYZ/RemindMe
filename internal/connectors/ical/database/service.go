@@ -25,9 +25,11 @@ func (service *service) migrate() error {
 	if err != nil {
 		return err
 	}
+
 	err = service.db.AutoMigrate(&IcalOutput{})
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

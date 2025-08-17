@@ -14,6 +14,7 @@ import (
 func TestService_ReactionEventHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{

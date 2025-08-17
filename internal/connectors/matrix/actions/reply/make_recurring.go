@@ -75,12 +75,14 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 			event.Event.Sender.String(),
 			event.Room.RoomID,
 		))
+
 		return
 	}
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeChangeEvent
 	message.EventID = replyToMessage.EventID
+
 	_, err := action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Error("failed to save message to database", "error", err)
@@ -101,6 +103,7 @@ func (action *MakeRecurringAction) HandleEvent(event *matrix.MessageEvent, reply
 			event.Event.Sender.String(),
 			event.Room.RoomID,
 		))
+
 		return
 	}
 

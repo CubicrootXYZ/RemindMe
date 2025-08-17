@@ -44,6 +44,7 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 	}
 
 	isUserKnown := false
+
 	userStr := evt.Sender.String()
 	for i := range room.Users {
 		if room.Users[i].ID == userStr {
@@ -51,6 +52,7 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 			break
 		}
 	}
+
 	if !isUserKnown {
 		logger.Debug("ignoring message", "reason", "unknown user")
 		return
@@ -61,6 +63,7 @@ func (service *service) MessageEventHandler(_ mautrix.EventSource, evt *event.Ev
 	if err == nil && msg != nil {
 		return
 	}
+
 	if !errors.Is(err, matrixdb.ErrNotFound) {
 		logger.Error("failed to get message from database", "error", err)
 	}
@@ -85,6 +88,7 @@ func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger *
 	if err != nil {
 		logger.Info("failed to get replied to message from database", "error", err,
 			"matrix.event.id", msgEvent.Content.RelatesTo.InReplyTo.EventID.String())
+
 		return
 	}
 
@@ -93,6 +97,7 @@ func (service *service) findMatchingReplyAction(msgEvent *MessageEvent, logger *
 		if service.config.ReplyActions[i].Selector().MatchString(msg) {
 			logger.Info("moving event to reply action", "action.name", service.config.ReplyActions[i].Name())
 			service.config.ReplyActions[i].HandleEvent(msgEvent, replyToMessage)
+
 			return
 		}
 	}
@@ -107,6 +112,7 @@ func (service *service) findMatchingMessageAction(msgEvent *MessageEvent, logger
 		if service.config.MessageActions[i].Selector().MatchString(msg) {
 			logger.Info("moving event to message action", "action.name", service.config.MessageActions[i].Name())
 			service.config.MessageActions[i].HandleEvent(msgEvent)
+
 			return
 		}
 	}
@@ -130,6 +136,7 @@ func (service *service) parseMessageEvent(evt *event.Event, room *matrixdb.Matri
 	if err != nil {
 		return nil, err
 	}
+
 	msgEvt.Channel = channel
 	msgEvt.Input = input
 

@@ -13,6 +13,7 @@ import (
 
 func testRoom() *matrixdb.MatrixRoom {
 	roomID := "!12345678:example.org"
+
 	var err error
 	for err == nil {
 		roomID = fmt.Sprintf("!%d:example.org", rand.Int()) //nolint:gosec
@@ -41,12 +42,14 @@ func TestService_ListInputRoomsByChannel(t *testing.T) {
 	require.NoError(t, err)
 
 	foundRoom := false
+
 	for _, r := range rooms {
 		if r.ID == roomBefore.ID {
 			foundRoom = true
 			break
 		}
 	}
+
 	assert.True(t, foundRoom, "room is not in response")
 }
 
@@ -90,12 +93,14 @@ func TestService_ListOutputRoomsByChannel(t *testing.T) {
 	require.NoError(t, err)
 
 	foundRoom := false
+
 	for _, r := range rooms {
 		if r.ID == roomBefore.ID {
 			foundRoom = true
 			break
 		}
 	}
+
 	assert.True(t, foundRoom, "room is not in response")
 }
 
@@ -206,6 +211,7 @@ func TestService_AddUserToRoom(t *testing.T) {
 	assertRoomsEqual(t, roomBefore, roomAfter)
 
 	userFound := false
+
 	for _, u := range roomAfter.Users {
 		if u.ID == user.ID {
 			userFound = true
@@ -225,6 +231,7 @@ func TestService_AddUserToRoomWithUserAlreadyExists(t *testing.T) {
 
 	roomBefore, err = service.AddUserToRoom(user.ID, roomBefore)
 	require.NoError(t, err)
+
 	roomBefore.Users[0].Rooms = nil // GetRoomByID does not set rooms
 
 	roomAfter, err := service.GetRoomByID(roomBefore.ID)
@@ -233,6 +240,7 @@ func TestService_AddUserToRoomWithUserAlreadyExists(t *testing.T) {
 	assertRoomsEqual(t, roomBefore, roomAfter)
 
 	userFound := false
+
 	for _, u := range roomAfter.Users {
 		if u.ID == user.ID {
 			userFound = true
@@ -249,12 +257,15 @@ func assertRoomsEqual(t *testing.T, a *matrixdb.MatrixRoom, b *matrixdb.MatrixRo
 	assert.Equal(t, a.ID, b.ID)
 	assert.Equal(t, a.CreatedAt.UTC(), b.CreatedAt.UTC())
 	assert.Equal(t, a.UpdatedAt.UTC(), b.UpdatedAt.UTC())
+
 	if !a.DeletedAt.Valid {
 		assert.False(t, b.DeletedAt.Valid)
 	} else {
 		assert.Equal(t, a.DeletedAt.Time.UTC(), b.DeletedAt.Time.UTC())
 	}
+
 	assert.Equal(t, a.RoomID, b.RoomID)
+
 	if len(a.Users) == 0 {
 		assert.Empty(t, b.Users)
 	} else {

@@ -60,6 +60,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
+
 		return
 	}
 
@@ -70,17 +71,20 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
+
 		return
 	}
 
 	newTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
 		action.logger.Error("failed to parse time", "error", err)
+
 		go action.storer.SendAndStoreResponse(
 			"Ehm, sorry to say that, but I was not able to understand the time to schedule the reminder to.",
 			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
+
 		return
 	}
 
@@ -92,24 +96,29 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to list events", "error", err)
 		}
+
 		go action.storer.SendAndStoreResponse(
 			"This reminder is not in my database.",
 			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
+
 		return
 	}
 
 	evt := &events[0]
 	evt.Time = newTime
+
 	evt, err = action.db.UpdateEvent(evt)
 	if err != nil || len(events) == 0 {
 		action.logger.Error("failed to update event", "error", err)
+
 		go action.storer.SendAndStoreResponse(
 			"Whups, this did not work, sorry.",
 			matrixdb.MessageTypeChangeEventError,
 			*event,
 		)
+
 		return
 	}
 

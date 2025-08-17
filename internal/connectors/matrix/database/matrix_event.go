@@ -14,6 +14,7 @@ func (service *service) NewEvent(event *MatrixEvent) (*MatrixEvent, error) {
 
 func (service *service) GetEventByID(eventID string) (*MatrixEvent, error) {
 	var event MatrixEvent
+
 	err := service.db.Preload("Room").Preload("User").First(&event, "matrix_events.id = ?", eventID).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -28,6 +29,7 @@ func (service *service) GetEventByID(eventID string) (*MatrixEvent, error) {
 
 func (service *service) GetLastEvent() (*MatrixEvent, error) {
 	var event MatrixEvent
+
 	err := service.db.Preload("Room").Preload("User").Order("matrix_events.send_at DESC").First(&event).Error
 
 	return &event, err

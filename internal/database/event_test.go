@@ -110,12 +110,14 @@ func TestEvent_NextEventTime(t *testing.T) {
 
 func testEvent() *database.Event {
 	var channel *database.Channel
+
 	err := gormDB.First(&channel).Error
 	if err != nil {
 		panic(err)
 	}
 
 	channel = testChannel()
+
 	channel, err = service.NewChannel(channel)
 	if err != nil {
 		panic(err)
@@ -170,10 +172,13 @@ func TestService_GetEventsByChannel(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotEmpty(t, events)
+
 	evtFound := false
+
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
 			evtFound = true
+
 			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
 			assert.Equal(t, eventBefore.Message, eventAfter.Message)
 			assert.Equal(t, eventBefore.Active, eventAfter.Active)
@@ -206,10 +211,13 @@ func TestService_ListEvents(t *testing.T) {
 		require.NoError(t, err)
 
 		require.NotEmpty(t, events)
+
 		evtFound := false
+
 		for _, eventAfter := range events {
 			if eventAfter.ID == eventBefore.ID {
 				evtFound = true
+
 				assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
 				assert.Equal(t, eventBefore.Message, eventAfter.Message)
 				assert.Equal(t, eventBefore.Active, eventAfter.Active)
@@ -246,6 +254,7 @@ func TestService_ListEvents(t *testing.T) {
 func TestService_ListEventsWithInactiveEvent(t *testing.T) {
 	eventBefore, err := service.NewEvent(testEvent())
 	eventBefore.Active = false
+
 	require.NoError(t, err)
 
 	input := &database.Input{
@@ -274,10 +283,13 @@ func TestService_ListEventsWithInactiveEvent(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotEmpty(t, events)
+
 	evtFound := false
+
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
 			evtFound = true
+
 			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
 			assert.Equal(t, eventBefore.Message, eventAfter.Message)
 			assert.Equal(t, eventBefore.Active, eventAfter.Active)
@@ -306,10 +318,13 @@ func TestService_GetEventsPending(t *testing.T) {
 	require.NoError(t, err)
 
 	require.NotEmpty(t, events)
+
 	evtFound := false
+
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
 			evtFound = true
+
 			assert.Equal(t, eventBefore.Duration, eventAfter.Duration)
 			assert.Equal(t, eventBefore.Message, eventAfter.Message)
 			assert.Equal(t, eventBefore.Active, eventAfter.Active)
@@ -332,6 +347,7 @@ func TestService_GetEventsPendingWithInactiveEvent(t *testing.T) {
 	require.NoError(t, err)
 
 	evtFound := false
+
 	for _, eventAfter := range events {
 		if eventAfter.ID == eventBefore.ID {
 			evtFound = true

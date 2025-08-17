@@ -30,6 +30,7 @@ func roomToResponse(room *matrixdb.MatrixRoom) Room {
 			Blocked: room.Users[i].Blocked,
 		}
 	}
+
 	return Room{
 		ID:        room.ID,
 		CreatedAt: room.CreatedAt.Format(time.RFC3339),
@@ -71,6 +72,7 @@ func (api *api) listInputRoomsHandler(ctx *gin.Context) {
 	if err != nil {
 		api.logger.Error("failed to list input rooms", "error", err, "channel.id", channelID)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 
@@ -100,6 +102,7 @@ func (api *api) listOutputRoomsHandler(ctx *gin.Context) {
 	if err != nil {
 		api.logger.Error("failed to list output rooms", "error", err, "channel.id", channelID)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 

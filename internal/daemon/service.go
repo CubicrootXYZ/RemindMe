@@ -77,6 +77,7 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
 	go service.startDailyReminderDaemon()
+
 	service.startEventDaemon()
 
 	service.daemonWG.Wait()
@@ -92,6 +93,7 @@ func (service *service) startEventDaemon() {
 		select {
 		case <-eventsTicker.C:
 			service.logger.Debug("sending out events ...")
+
 			err := service.sendOutEvents()
 			if err != nil {
 				service.logger.Error("failed to send out events", "error", err)
@@ -99,6 +101,7 @@ func (service *service) startEventDaemon() {
 		case <-service.done:
 			service.logger.Debug("event daemon stopped")
 			service.daemonWG.Done()
+
 			return
 		}
 	}
@@ -118,6 +121,7 @@ func (service *service) startDailyReminderDaemon() {
 		case <-service.done:
 			service.logger.Debug("event daemon stopped")
 			service.daemonWG.Done()
+
 			return
 		}
 	}

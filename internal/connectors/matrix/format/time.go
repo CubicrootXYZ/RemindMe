@@ -46,7 +46,7 @@ func ParseTime(msg string, timeZone string, rawDate bool) (time.Time, error) {
 	// Midnight? Move to 9:00
 	if !rawDate {
 		timeString := parsedTime.In(loc).Format("15:04")
-		if timeString == "00:00" && !(strings.Contains(msg, "00:00") || strings.Contains(msg, "12am") || strings.Contains(msg, "24:00")) {
+		if timeString == "00:00" && (!strings.Contains(msg, "00:00") && !strings.Contains(msg, "12am") && !strings.Contains(msg, "24:00")) {
 			parsedTime = parsedTime.Add(9 * time.Hour)
 		}
 	}
@@ -106,6 +106,7 @@ func toLocalTime(datetime time.Time, loc *time.Location) string {
 // TimeToHourAndMinute converts a time object to an string with the hour and minute in 24h format.
 func TimeToHourAndMinute(t time.Time) string {
 	hours := t.Hour()
+
 	minutes := t.Minute()
 	if minutes < 10 {
 		return fmt.Sprintf("%d:0%d", hours, minutes)
@@ -117,6 +118,7 @@ func TimeToHourAndMinute(t time.Time) string {
 // ToNiceDuration formats a time.Duration into a nice string.
 func ToNiceDuration(d time.Duration) string {
 	pre := ""
+
 	if d < 0 {
 		d *= -1
 		pre = "-"
@@ -129,6 +131,7 @@ func ToNiceDuration(d time.Duration) string {
 	} else if d < 48*time.Hour {
 		return fmt.Sprintf("%s%.0f hours", pre, float64(d/time.Hour))
 	}
+
 	return fmt.Sprintf("%s%.0f days", pre, float64(d/(24*time.Hour)))
 }
 
@@ -137,5 +140,6 @@ func tzFromString(timezone string) *time.Location {
 	if err != nil {
 		return time.UTC
 	}
+
 	return loc
 }

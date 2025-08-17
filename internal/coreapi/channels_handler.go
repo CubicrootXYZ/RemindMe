@@ -56,6 +56,7 @@ func (api *coreAPI) listChannelsHandler(ctx *gin.Context) {
 	if err != nil {
 		api.logger.Error("failed to list channels", "error", err)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 

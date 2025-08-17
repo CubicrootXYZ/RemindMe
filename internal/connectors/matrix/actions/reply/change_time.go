@@ -72,12 +72,14 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 			event.Event.Sender.String(),
 			event.Room.RoomID,
 		))
+
 		return
 	}
 
 	message := mapping.MessageFromEvent(event)
 	message.Type = matrixdb.MessageTypeChangeEvent
 	message.EventID = replyToMessage.EventID
+
 	_, err = action.matrixDB.NewMessage(message)
 	if err != nil {
 		action.logger.Error("failed to save message to database", "error", err)
@@ -86,6 +88,7 @@ func (action *ChangeTimeAction) HandleEvent(event *matrix.MessageEvent, replyToM
 
 	replyToMessage.Event.Time = remindTime
 	replyToMessage.Event.Active = true
+
 	_, err = action.db.UpdateEvent(replyToMessage.Event)
 	if err != nil {
 		action.logger.Error("failed to update event in database", "error", err)

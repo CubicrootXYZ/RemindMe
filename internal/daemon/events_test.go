@@ -73,6 +73,7 @@ func testDatabaseOutput() *database.Output {
 	}
 
 	output.ID = 12
+
 	return output
 }
 
@@ -96,6 +97,7 @@ func testOutput() *daemon.Output {
 func TestService_SendOutEvents(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, db, outputService := testDaemon(ctrl, true, false)
 
 	event := testDatabaseEvent()
@@ -105,7 +107,8 @@ func TestService_SendOutEvents(t *testing.T) {
 	event.Active = false
 	db.EXPECT().UpdateEvent(event).MinTimes(1).Return(nil, nil)
 
-	go service.Start()               //nolint:errcheck
+	go service.Start() //nolint:errcheck
+
 	time.Sleep(time.Millisecond * 5) // give time to execute
 
 	err := service.Stop()
@@ -115,11 +118,13 @@ func TestService_SendOutEvents(t *testing.T) {
 func TestService_SendOutEventsWithDatabaseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, db, _ := testDaemon(ctrl, true, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, errors.New("test"))
 
-	go service.Start()               //nolint:errcheck
+	go service.Start() //nolint:errcheck
+
 	time.Sleep(time.Millisecond * 5) // give time to execute
 
 	err := service.Stop()
@@ -129,12 +134,14 @@ func TestService_SendOutEventsWithDatabaseError(t *testing.T) {
 func TestService_SendOutEventsWithOutputError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, db, outputService := testDaemon(ctrl, true, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).MinTimes(1).Return(errors.New("test"))
 
-	go service.Start()               //nolint:errcheck
+	go service.Start() //nolint:errcheck
+
 	time.Sleep(time.Millisecond * 5) // give time to execute
 
 	err := service.Stop()

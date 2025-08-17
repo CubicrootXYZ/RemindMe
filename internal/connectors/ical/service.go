@@ -65,6 +65,7 @@ func New(config *Config, logger *slog.Logger) Service {
 
 func (service *service) Start() error {
 	ticker := time.NewTicker(iCalScrapeInteval)
+
 	for {
 		service.refreshIcalInputs()
 
@@ -79,7 +80,9 @@ func (service *service) Start() error {
 
 func (service *service) Stop() error {
 	service.stop <- true
+
 	service.logger.Info("stopping")
+
 	return nil
 }
 
@@ -137,6 +140,7 @@ func (service *service) GetOutput(outputID uint, regenToken bool) (*icaldb.IcalO
 		if errors.Is(err, icaldb.ErrNotFound) {
 			return nil, "", ErrNotFound
 		}
+
 		return nil, "", err
 	}
 

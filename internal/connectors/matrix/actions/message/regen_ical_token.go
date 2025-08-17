@@ -72,6 +72,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 		} else {
 			action.logger.Error("failed to get iCal output", "error", err)
 		}
+
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			msg,
 			event.Event.ID.String(),
@@ -82,12 +83,14 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
 	// Add message to database
 	msg := mapping.MessageFromEvent(event)
 	msg.Type = matrixdb.MessageTypeIcalRegenToken
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to store message to databse", "error", err)
@@ -118,6 +121,7 @@ func (action *RegenICalTokenAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeIcalRegenToken
 	msg.Body = response
 	msg.BodyFormatted = response
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to store response to database", "error", err)

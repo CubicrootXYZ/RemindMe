@@ -79,6 +79,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 func TestService_MessageEventHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -123,6 +124,7 @@ func TestService_MessageEventHandler(t *testing.T) {
 func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -161,6 +163,7 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 func TestService_MessageEventHandlerWithAlreadyKnown(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -193,6 +196,7 @@ func TestService_MessageEventHandlerWithAlreadyKnown(t *testing.T) {
 func TestService_MessageEventHandlerWithUserNotInRoom(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -224,6 +228,7 @@ func TestService_MessageEventHandlerWithUserNotInRoom(t *testing.T) {
 func TestService_MessageEventHandlerWithGetRoomError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -246,6 +251,7 @@ func TestService_MessageEventHandlerWithGetRoomError(t *testing.T) {
 func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -290,6 +296,7 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 func TestService_MessageEventHandlerWithReply(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	evt := event.Event{
@@ -335,6 +342,7 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 func TestService_MessageEventHandlerWithFromBot(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, _ := testService(ctrl)
 
 	evt := event.Event{
@@ -355,6 +363,7 @@ func TestService_MessageEventHandlerWithFromBot(t *testing.T) {
 func TestService_MessageEventHandlerWithToOld(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, _ := testService(ctrl)
 	service.lastMessageFrom = time.Now()
 

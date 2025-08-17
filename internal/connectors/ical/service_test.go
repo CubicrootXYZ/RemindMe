@@ -23,6 +23,7 @@ func testService(ctrl *gomock.Controller) (ical.Service, *icaldb.MockService, *d
 	url, _ := url.Parse("https://example.com")
 	db := database.NewMockService(ctrl)
 	icalDB := icaldb.NewMockService(ctrl)
+
 	return ical.New(&ical.Config{
 			Database: db,
 			ICalDB:   icalDB,

@@ -14,6 +14,7 @@ func (service *service) NewIcalInput(input *IcalInput) (*IcalInput, error) {
 
 func (service *service) GetIcalInputByID(id uint) (*IcalInput, error) {
 	var entity IcalInput
+
 	err := service.db.First(&entity, "id = ?", id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound
@@ -24,6 +25,7 @@ func (service *service) GetIcalInputByID(id uint) (*IcalInput, error) {
 
 func (service *service) ListIcalInputs(opts *ListIcalInputsOpts) ([]IcalInput, error) {
 	var inputs []IcalInput
+
 	query := service.db
 
 	if opts.Disabled != nil {
@@ -31,6 +33,7 @@ func (service *service) ListIcalInputs(opts *ListIcalInputsOpts) ([]IcalInput, e
 	}
 
 	err := query.Find(&inputs).Error
+
 	return inputs, err
 }
 

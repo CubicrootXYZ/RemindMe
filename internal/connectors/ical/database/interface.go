@@ -15,6 +15,7 @@ var (
 // IcalInput holds information about an iCal resource that can be fetched.
 type IcalInput struct {
 	gorm.Model
+
 	URL         string
 	LastRefresh *time.Time
 	Disabled    bool // Disabled if fetching failed for to long.
@@ -23,6 +24,7 @@ type IcalInput struct {
 // IcalOutput holds information about an iCal resource holding channel events.
 type IcalOutput struct {
 	gorm.Model
+
 	Token string
 }
 
