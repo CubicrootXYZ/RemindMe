@@ -12,6 +12,7 @@ import (
 
 func testDatabaseChannel() database.Channel {
 	dailyReminder := uint(0)
+
 	return database.Channel{
 		DailyReminder: &dailyReminder,
 		Outputs:       []database.Output{*testDatabaseOutput()},
@@ -21,6 +22,7 @@ func testDatabaseChannel() database.Channel {
 func TestService_SendOutDailyReminders(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, db, outputService := testDaemon(ctrl, false, true)
 
 	channel := testDatabaseChannel()
@@ -35,6 +37,7 @@ func TestService_SendOutDailyReminders(t *testing.T) {
 	db.EXPECT().UpdateOutput(gomock.Any()).MinTimes(1).Return(nil, nil)
 
 	go service.Start() //nolint:errcheck
+
 	time.Sleep(time.Millisecond * 5)
 
 	err := service.Stop()

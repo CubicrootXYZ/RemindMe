@@ -16,6 +16,7 @@ func TestCoreAPI_ListChannelsHandler(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	server, db := testCoreAPI(ctrl)
 
 	// Mock expectations
@@ -31,6 +32,7 @@ func TestCoreAPI_ListChannelsHandler(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
+
 	defer resp.Body.Close()
 
 	// Assert response
@@ -45,6 +47,7 @@ func TestCoreAPI_ListChannelsHandlerWithError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	server, db := testCoreAPI(ctrl)
 
 	// Mock expectations
@@ -58,6 +61,7 @@ func TestCoreAPI_ListChannelsHandlerWithError(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
+
 	defer resp.Body.Close()
 
 	// Assert response
@@ -72,6 +76,7 @@ func TestCoreAPI_ListChannelsHandlerWithoutAuth(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	server, _ := testCoreAPI(ctrl)
 
 	// Assemble request
@@ -80,6 +85,7 @@ func TestCoreAPI_ListChannelsHandlerWithoutAuth(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
+
 	defer resp.Body.Close()
 
 	// Assert response

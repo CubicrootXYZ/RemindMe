@@ -51,18 +51,23 @@ func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 	if opts.InputID != nil {
 		query = query.Where("events.input_id = ?", *opts.InputID)
 	}
+
 	if opts.ChannelID != nil {
 		query = query.Where("events.channel_id = ?", *opts.ChannelID)
 	}
+
 	if opts.IDs != nil {
 		query = query.Where("events.id IN ?", opts.IDs)
 	}
+
 	if !opts.IncludeInactive {
 		query = query.Where("events.active = ?", true)
 	}
+
 	if opts.EventsBefore != nil {
 		query = query.Where("events.time <= ?", *opts.EventsBefore)
 	}
+
 	if opts.EventsAfter != nil {
 		query = query.Where("events.time >= ?", *opts.EventsAfter)
 	}
@@ -72,6 +77,7 @@ func (service *service) ListEvents(opts *ListEventsOpts) ([]Event, error) {
 	var events []Event
 
 	err := query.Preload("Channel").Preload("Input").Find(&events).Error
+
 	return events, err
 }
 
@@ -80,6 +86,7 @@ func (service *service) GetEventsByChannel(channelID uint) ([]Event, error) {
 	var events []Event
 
 	err := service.db.Preload("Channel").Preload("Input").Find(&events, "events.channel_id = ?", channelID).Error
+
 	return events, err
 }
 
@@ -88,6 +95,7 @@ func (service *service) GetEventsPending() ([]Event, error) {
 	var events []Event
 
 	err := service.db.Preload("Channel").Preload("Input").Preload("Channel.Outputs").Find(&events, "events.active = ? AND events.time <= ?", true, time.Now()).Error
+
 	return events, err
 }
 

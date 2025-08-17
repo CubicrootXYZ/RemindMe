@@ -20,6 +20,7 @@ func TestAPIKeyAuth(t *testing.T) {
 			"message": "pong",
 		})
 	})
+
 	svr := httptest.NewServer(r)
 	defer svr.Close()
 
@@ -31,6 +32,7 @@ func TestAPIKeyAuth(t *testing.T) {
 
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)
+
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
@@ -48,6 +50,7 @@ func TestAPIKeyAuth(t *testing.T) {
 
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)
+
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)
@@ -65,6 +68,7 @@ func TestAPIKeyAuth(t *testing.T) {
 
 		resp, err := http.DefaultClient.Do(req)
 		require.NoError(t, err)
+
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(resp.Body)

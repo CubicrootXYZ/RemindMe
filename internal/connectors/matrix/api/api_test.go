@@ -22,6 +22,7 @@ func testServer(ctrl *gomock.Controller) (*database.MockService, *matrixdb.MockS
 	}, slog.Default())
 
 	r := gin.New()
+
 	err := api.RegisterRoutes(r)
 	if err != nil {
 		panic(err)

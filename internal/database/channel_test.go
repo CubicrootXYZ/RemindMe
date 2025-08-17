@@ -14,6 +14,7 @@ import (
 
 func testChannel() *database.Channel {
 	dailyReminder := uint(120)
+
 	return &database.Channel{
 		Description:   "channel description",
 		DailyReminder: &dailyReminder,
@@ -22,6 +23,7 @@ func testChannel() *database.Channel {
 
 func testInput() *database.Input {
 	id := uint(1)
+
 	_, err := service.GetInputByID(id)
 	for !errors.Is(err, database.ErrNotFound) {
 		id = uint(rand.Int()) //nolint:gosec
@@ -37,6 +39,7 @@ func testInput() *database.Input {
 
 func testOutput() *database.Output {
 	id := uint(1)
+
 	_, err := service.GetOutputByID(id)
 	for !errors.Is(err, database.ErrNotFound) {
 		id = uint(rand.Int()) //nolint:gosec
@@ -313,6 +316,7 @@ func TestService_GetChannels(t *testing.T) {
 	require.NoError(t, err)
 
 	channelFound := false
+
 	for _, channelAfter := range channels {
 		if channelAfter.ID == channelBefore.ID {
 			channelFound = true

@@ -83,10 +83,12 @@ func (f *Formater) Text(text string) {
 // List adds a list to the message
 func (f *Formater) List(items []string) {
 	f.msgFormatted.WriteString("<ul>")
+
 	for _, item := range items {
 		f.msg.WriteString("- " + item + "\n")
 		f.msgFormatted.WriteString("<li>" + item + "</li>")
 	}
+
 	f.msgFormatted.WriteString("</ul><br>")
 }
 

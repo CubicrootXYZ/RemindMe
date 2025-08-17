@@ -85,6 +85,7 @@ func TestService_GetEventMessageByOutputAndEvent(t *testing.T) {
 	c := database.Channel{}
 	err := gormDB.Save(&c).Error
 	require.NoError(t, err)
+
 	evt := &database.Event{
 		Channel: c,
 		Time:    time.Now(),
@@ -108,6 +109,7 @@ func TestService_GetEventMessageByOutputAndEventWithRoomNotFound(t *testing.T) {
 	c := database.Channel{}
 	err := gormDB.Save(&c).Error
 	require.NoError(t, err)
+
 	evt := &database.Event{
 		Channel: c,
 		Time:    time.Now(),
@@ -130,6 +132,7 @@ func TestService_GetEventMessageByOutputAndEventWithMessageNotFound(t *testing.T
 	c := database.Channel{}
 	err := gormDB.Save(&c).Error
 	require.NoError(t, err)
+
 	evt := &database.Event{
 		Channel: c,
 		Time:    time.Now(),

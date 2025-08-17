@@ -77,6 +77,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 		if !errors.Is(err, matrixdb.ErrNotFound) {
 			return err
 		}
+
 		user = nil
 	}
 
@@ -119,6 +120,7 @@ func (service *service) handleInvite(evt *event.Event, content *event.MemberEven
 	}
 
 	room.Users = append(room.Users, *user)
+
 	room, err = service.matrixDatabase.UpdateRoom(room)
 	if err != nil {
 		return err
@@ -263,6 +265,7 @@ func (service *service) handleLeave(evt *event.Event) error {
 		if errors.Is(err, matrixdb.ErrNotFound) {
 			return nil
 		}
+
 		return err
 	}
 

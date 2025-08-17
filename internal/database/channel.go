@@ -13,15 +13,18 @@ func (service *service) NewChannel(channel *Channel) (*Channel, error) {
 
 func (service *service) GetChannelByID(channelID uint) (*Channel, error) {
 	var channel Channel
+
 	err := service.db.Preload("Inputs").Preload("Outputs").First(&channel, "channels.id = ?", channelID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound
 	}
+
 	return &channel, err
 }
 
 func (service *service) GetChannels() ([]Channel, error) {
 	var channels []Channel
+
 	err := service.db.Preload("Inputs").Preload("Outputs").Find(&channels).Error
 
 	return channels, err
@@ -39,6 +42,7 @@ func (service *service) AddOutputToChannel(channelID uint, output *Output) error
 
 func (service *service) RemoveInputFromChannel(channelID, inputID uint) error {
 	tx := service.newSession()
+
 	input, err := tx.GetInputByID(inputID)
 	if err != nil {
 		return tx.rollbackWithError(err)
@@ -75,6 +79,7 @@ func (service *service) deleteInput(channelID, inputID uint) error {
 
 func (service *service) RemoveOutputFromChannel(channelID, outputID uint) error {
 	tx := service.newSession()
+
 	output, err := tx.GetOutputByID(outputID)
 	if err != nil {
 		return tx.rollbackWithError(err)

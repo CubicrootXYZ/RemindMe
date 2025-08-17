@@ -67,6 +67,7 @@ func MessageWithOutput(output database.Output) MessageEventOpt {
 		if evt.Channel.Outputs == nil {
 			evt.Channel.Outputs = make([]database.Output, 0)
 		}
+
 		evt.Channel.Outputs = append(evt.Channel.Outputs, output)
 	}
 }
@@ -88,6 +89,7 @@ func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {
 	for _, o := range opts {
 		o(msg)
 	}
+
 	return msg
 }
 

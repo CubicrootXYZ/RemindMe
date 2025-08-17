@@ -43,6 +43,7 @@ func TestChangeTimeAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -96,6 +97,7 @@ func TestChangeTimeAction_HandleEventWithUpdateError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -133,6 +135,7 @@ func TestChangeTimeAction_HandleEventWithNewMessageError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)

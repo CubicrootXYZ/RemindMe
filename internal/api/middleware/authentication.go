@@ -15,6 +15,7 @@ func APIKeyAuth(apikey string) gin.HandlerFunc {
 		headers := ctx.Request.Header
 
 		authenticated := false
+
 		if values, ok := headers["Authorization"]; ok {
 			for _, value := range values {
 				if value == apikey {
@@ -31,6 +32,7 @@ func APIKeyAuth(apikey string) gin.HandlerFunc {
 			}
 			ctx.JSON(http.StatusUnauthorized, response)
 			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("missing api key"))
+
 			return
 		}
 	}

@@ -34,6 +34,7 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 		response.AbortWithNotFoundError(ctx)
 		return
 	}
+
 	token := ctx.Query("token")
 	if token == "" {
 		// Use not found to not leak any information.
@@ -47,8 +48,10 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 			response.AbortWithNotFoundError(ctx)
 			return
 		}
+
 		api.logger.Error("failed to get iCal output", "error", err, "ical.output.id", id)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 
@@ -63,8 +66,10 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 			response.AbortWithNotFoundError(ctx)
 			return
 		}
+
 		api.logger.Error("failed to get output from database", "error", err)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 
@@ -72,6 +77,7 @@ func (api *api) icalExportHandler(ctx *gin.Context) {
 	if err != nil {
 		api.logger.Error("failed to get events from database", "error", err)
 		response.AbortWithInternalServerError(ctx)
+
 		return
 	}
 

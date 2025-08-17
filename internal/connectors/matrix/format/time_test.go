@@ -101,9 +101,11 @@ func TestTimeToHourAndMinute(t *testing.T) {
 func refTime() time.Time {
 	layout := "2006-01-02T15:04:05.000Z"
 	str1 := "2014-11-12T11:45:26.371Z"
+
 	refTime, err := time.Parse(layout, str1)
 	if err != nil {
 		panic(err)
 	}
+
 	return refTime
 }

@@ -65,6 +65,7 @@ type Service interface {
 // Channel is the centerpiece orchestrating in- and outputs.
 type Channel struct {
 	gorm.Model
+
 	Description   string
 	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
 	Inputs        []Input
@@ -74,6 +75,7 @@ type Channel struct {
 // Input takes in data.
 type Input struct {
 	gorm.Model
+
 	ChannelID uint
 	Channel   Channel
 	InputType string `gorm:"index:idx_input,unique"`
@@ -84,6 +86,7 @@ type Input struct {
 // Output takes data and moves it elsewhere.
 type Output struct {
 	gorm.Model
+
 	ChannelID         uint
 	Channel           Channel
 	OutputType        string `gorm:"index:idx_output,unique"`
@@ -95,6 +98,7 @@ type Output struct {
 // Event holds information about an event
 type Event struct {
 	gorm.Model
+
 	Time              time.Time `gorm:"index"`
 	Duration          time.Duration
 	Message           string

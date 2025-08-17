@@ -85,7 +85,8 @@ func assertUsersEqual(t *testing.T, a *matrixdb.MatrixUser, b *matrixdb.MatrixUs
 
 	assert.Equal(t, a.ID, b.ID)
 
-	require.Equal(t, len(a.Rooms), len(b.Rooms))
+	require.Len(t, b.Rooms, len(a.Rooms))
+
 	for i := range a.Rooms {
 		assertRoomsEqual(t, &a.Rooms[i], &b.Rooms[i])
 	}

@@ -46,6 +46,7 @@ func (service *service) sendOutDailyReminders() error {
 						"output.id", output.ID,
 						"output.output_type", output.OutputType,
 						"reason", "reminder time not reached")
+
 				continue
 			}
 
@@ -56,6 +57,7 @@ func (service *service) sendOutDailyReminders() error {
 						"output.id", output.ID,
 						"output.output_type", output.OutputType,
 						"reason", "already done")
+
 				continue
 			}
 
@@ -74,6 +76,7 @@ func (service *service) sendOutDailyReminders() error {
 
 			now := time.Now().UTC()
 			output.LastDailyReminder = &now
+
 			_, err = service.database.UpdateOutput(&output)
 			if err != nil {
 				service.logger.Error("failed to update output", "error", err)
@@ -94,6 +97,7 @@ func isDailyReminderTimeReached(
 	}
 
 	now := outputService.ToLocalTime(time.Now(), outputFromDatabase(output))
+
 	return (now.Hour()*60 + now.Minute()) >= int(*channel.DailyReminder)
 }
 
@@ -106,5 +110,6 @@ func isDailyReminderSentToday(
 	}
 
 	now := outputService.ToLocalTime(time.Now(), outputFromDatabase(output))
+
 	return now.Day() == output.LastDailyReminder.Day() && now.Month() == output.LastDailyReminder.Month() && now.Year() == output.LastDailyReminder.Year()
 }

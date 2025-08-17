@@ -21,6 +21,7 @@ func (cache roomCache) GetUsers(room id.RoomID) []id.UserID {
 			delete(cache, room)
 			return nil
 		}
+
 		return entry.RoomMembers
 	}
 

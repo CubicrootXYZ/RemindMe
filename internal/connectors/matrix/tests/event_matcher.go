@@ -51,6 +51,7 @@ func (matcher *EventMatcher) Matches(x interface{}) bool {
 	} else if evt.RepeatInterval != nil {
 		return false
 	}
+
 	if matcher.evt.RepeatUntil != nil {
 		if evt.RepeatUntil == nil {
 			fmt.Println("repeat until is not set in event")
@@ -59,6 +60,7 @@ func (matcher *EventMatcher) Matches(x interface{}) bool {
 	} else if evt.RepeatUntil != nil {
 		return false
 	}
+
 	if matcher.evt.InputID != nil {
 		if *matcher.evt.InputID != *evt.InputID {
 			return false

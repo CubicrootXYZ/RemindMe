@@ -76,13 +76,16 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		action.logger.Error("failed to get/create iCal output", "error", err)
+
 		return
 	}
 
 	// Add message to database
 	msg := mapping.MessageFromEvent(event)
 	msg.Type = matrixdb.MessageTypeIcalExportEnable
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to save message to database", "error", err)
@@ -113,6 +116,7 @@ func (action *EnableICalExportAction) HandleEvent(event *matrix.MessageEvent) {
 	msg.Type = matrixdb.MessageTypeIcalExportEnable
 	msg.Body = response
 	msg.BodyFormatted = response
+
 	_, err = action.matrixDB.NewMessage(msg)
 	if err != nil {
 		action.logger.Error("failed to save response to database", "error", err)

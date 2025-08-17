@@ -38,6 +38,7 @@ func NewServer(config *Config, logger *slog.Logger) Server {
 // Blocks until stopped.
 func (server *server) Start() error {
 	server.logger.Info("starting server", "address", server.config.Address)
+
 	err := server.assembleRoutes()
 	if err != nil {
 		return err
@@ -50,6 +51,7 @@ func (server *server) Start() error {
 	if err := server.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
+
 	return nil
 }
 
@@ -58,7 +60,9 @@ func (server *server) Start() error {
 func (server *server) Stop() error {
 	timeout := time.Second * 5
 	server.logger.Info("stopping server", "timeout", timeout)
+
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+
 	return server.server.Shutdown(ctx)
 }

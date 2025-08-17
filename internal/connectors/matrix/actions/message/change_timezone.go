@@ -59,14 +59,17 @@ func (action *ChangeTimezoneAction) Selector() *regexp.Regexp {
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 	tz := ""
+
 	matches := timezoneCaptureGroup.FindStringSubmatch(event.Content.Body)
 	if len(matches) >= 2 {
 		tz = matches[1]
 	}
+
 	_, err := time.LoadLocation(tz)
 	if err != nil {
 		action.logger.Info("failed to load timezone", "timezone", tz, "error", err)
 		action.storer.SendAndStoreResponse("Sorry, but I do not know what timezone this is.", matrixdb.MessageTypeTimezoneChange, *event)
+
 		return
 	}
 
@@ -77,6 +80,7 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 	_, err = action.matrixDB.UpdateRoom(room)
 	if err != nil {
 		action.logger.Error("failed to update room", "error", err)
+
 		err = action.messenger.SendResponseAsync(messenger.PlainTextResponse(
 			"Ups, that did not work 😨",
 			event.Event.ID.String(),
@@ -87,14 +91,17 @@ func (action *ChangeTimezoneAction) HandleEvent(event *matrix.MessageEvent) {
 		if err != nil {
 			action.logger.Error("failed to send response", "error", err)
 		}
+
 		return
 	}
 
 	msgBuilder := format.Formater{}
 	msgBuilder.Text("Changed this channels timezone from ")
+
 	if tzBefore == "" {
 		tzBefore = "UTC"
 	}
+
 	msgBuilder.Italic(tzBefore)
 	msgBuilder.Text(" to ")
 	msgBuilder.Text(tz)

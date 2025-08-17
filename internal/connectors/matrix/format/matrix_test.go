@@ -34,7 +34,7 @@ func TestGetHomeserverFromUserID_SpecialCharacters(t *testing.T) {
 
 func TestGetHomeserverFromUserID_EmptyHomeserver(t *testing.T) {
 	result := format.GetHomeserverFromUserID("@user:")
-	assert.Equal(t, ``, result)
+	assert.Empty(t, result)
 }
 
 func TestGetHomeserverFromUserID_NoHomeserver(t *testing.T) {

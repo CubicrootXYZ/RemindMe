@@ -16,6 +16,7 @@ import (
 func TestService_SendDailyReminder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
@@ -67,6 +68,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 func TestService_SendDailyReminderWithNewMessageError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
@@ -118,6 +120,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 func TestService_SendDailyReminderWithSendMessageError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	expectedErr := errors.New("test error")
@@ -166,6 +169,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 func TestService_SendDailyReminderWithGetRoomError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	service, fx := testService(ctrl)
 
 	expectedErr := errors.New("test error")
@@ -195,9 +199,11 @@ func TestService_SendDailyReminderWithGetRoomError(t *testing.T) {
 func refTime() time.Time {
 	layout := "2006-01-02T15:04:05.000Z"
 	str1 := "2014-11-12T11:45:26.371Z"
+
 	refTime, err := time.Parse(layout, str1)
 	if err != nil {
 		panic(err)
 	}
+
 	return refTime
 }

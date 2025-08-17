@@ -89,6 +89,7 @@ func (config *Config) logger() *slog.Logger {
 	}
 
 	var handler slog.Handler
+
 	switch config.Logger.Format {
 	case "text":
 		handler = tint.NewHandler(os.Stdout, &tint.Options{

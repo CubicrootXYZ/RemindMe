@@ -46,6 +46,7 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -117,6 +118,7 @@ func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -174,6 +176,7 @@ func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -221,6 +224,7 @@ func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -262,6 +266,7 @@ func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -303,6 +308,7 @@ func TestDeleteEventAction_HandleEventWithIDNotFound(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)

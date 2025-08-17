@@ -17,6 +17,7 @@ func (service *service) NewIcalOutput(output *IcalOutput) (*IcalOutput, error) {
 
 func (service *service) GetIcalOutputByID(id uint) (*IcalOutput, error) {
 	var entity IcalOutput
+
 	err := service.db.First(&entity, "id = ?", id).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrNotFound

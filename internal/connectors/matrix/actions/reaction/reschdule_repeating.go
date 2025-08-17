@@ -68,13 +68,16 @@ func (action *RescheduleRepeatingAction) HandleEvent(event *matrix.ReactionEvent
 		ChannelID: reactionToMessage.Event.ChannelID,
 		InputID:   reactionToMessage.Event.InputID,
 	}
+
 	_, err := action.db.NewEvent(newEvt)
 	if err != nil {
 		l.Error("failed to save event to database", "error", err)
+
 		_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
 			"Whoopsie, can not update the event as requested.",
 			event.Room.RoomID,
 		))
+
 		return
 	}
 

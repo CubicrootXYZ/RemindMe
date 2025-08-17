@@ -24,6 +24,7 @@ func (messenger *service) SendRedactAsync(redact *Redact) error {
 
 func (messenger *service) sendRedact(roomID string, eventID string, retries uint, retryTime time.Duration) error {
 	var err error
+
 	maxRetries := retries
 
 	for retries > 0 {
@@ -41,6 +42,7 @@ func (messenger *service) sendRedact(roomID string, eventID string, retries uint
 			// Rate limit is exceeded so wait until we can send requests again
 			messenger.encounteredRateLimit()
 			messenger.logger.Info("sending message is stopped since we ran in a rate limit")
+
 			continue
 		} else if errors.Is(err, mautrix.MForbidden) || errors.Is(err, mautrix.MUnknownToken) || errors.Is(err, mautrix.MMissingToken) || errors.Is(err, mautrix.MBadJSON) || errors.Is(err, mautrix.MNotJSON) || errors.Is(err, mautrix.MUnsupportedRoomVersion) || errors.Is(err, mautrix.MIncompatibleRoomVersion) {
 			// Errors indicating that the request is invalid, do not try again
@@ -59,5 +61,6 @@ func (messenger *service) sendRedact(roomID string, eventID string, retries uint
 	}
 
 	messenger.logger.Info("sending message failed and retries are exceeded", "error", err)
+
 	return err
 }

@@ -38,14 +38,17 @@ func TestMarkDoneAction_Selector(t *testing.T) {
 	examples = append(examples, examplesFromDocu...)
 
 	reactions := action.Selector()
+
 	for _, example := range examples {
 		matches := false
+
 		for _, reaction := range reactions {
 			if example == reaction {
 				matches = true
 				break
 			}
 		}
+
 		assert.Truef(t, matches, "%s is not part of reactions", example)
 	}
 }
@@ -54,6 +57,7 @@ func TestMarkDoneAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)

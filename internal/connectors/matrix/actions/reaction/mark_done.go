@@ -65,10 +65,12 @@ func (action *MarkDoneAction) HandleEvent(event *matrix.ReactionEvent, reactionT
 		_, err := action.db.UpdateEvent(evt)
 		if err != nil {
 			l.Error("failed to update event", "error", err)
+
 			_ = action.messenger.SendMessageAsync(messenger.PlainTextMessage(
 				"Whoopsie, can not update the event as requested.",
 				event.Room.RoomID,
 			))
+
 			return
 		}
 	}

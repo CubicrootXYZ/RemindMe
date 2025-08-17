@@ -59,12 +59,14 @@ func NewService(config *Config, logger *slog.Logger) (Service, error) {
 	}
 
 	logger.Debug("migrating database")
+
 	err = service.migrate()
 	if err != nil {
 		return nil, err
 	}
 
 	logger.Debug("database setup finished")
+
 	return service, nil
 }
 

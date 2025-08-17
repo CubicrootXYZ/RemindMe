@@ -21,10 +21,12 @@ func testCoreAPI(ctrl *gomock.Controller) (*httptest.Server, *database.MockServi
 	}, slog.Default())
 
 	r := gin.New()
+
 	err := api.RegisterRoutes(r)
 	if err != nil {
 		panic(err)
 	}
+
 	server := httptest.NewServer(r)
 
 	return server, db
@@ -41,5 +43,6 @@ func testDatabaseChannel() database.Channel {
 
 	c.ID = 1
 	c.CreatedAt = created
+
 	return c
 }

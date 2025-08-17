@@ -45,6 +45,7 @@ func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -108,6 +109,7 @@ func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -152,6 +154,7 @@ func TestChangeTimezoneAction_HandleEventWithUpdateError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)

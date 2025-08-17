@@ -8,5 +8,6 @@ func URLSaveString(n int) string {
 	for i := range b {
 		b[i] = urlSaveRunes[Intn(len(urlSaveRunes))]
 	}
+
 	return string(b)
 }

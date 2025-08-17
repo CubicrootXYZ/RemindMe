@@ -13,7 +13,8 @@ func RequireIDInURI() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestModel idInURI
 
-		if err := ctx.BindUri(&requestModel); err != nil {
+		err := ctx.BindUri(&requestModel)
+		if err != nil {
 			return
 		}
 

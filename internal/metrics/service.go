@@ -37,5 +37,6 @@ func (service *service) Start() error {
 func (service *service) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
+
 	return service.server.Shutdown(ctx)
 }

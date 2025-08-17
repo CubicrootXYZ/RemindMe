@@ -32,6 +32,7 @@ func Run(config *Config) error {
 	logger := config.logger()
 
 	logger.Info("starting up RemindMe", "version", config.BuildVersion)
+
 	processes, err := setup(config, logger)
 	if err != nil {
 		logger.Error("startup failed", "error", err)
@@ -71,6 +72,7 @@ func Run(config *Config) error {
 	}
 
 	logger.Info("shut down complete, bye")
+
 	return err
 }
 
@@ -84,12 +86,14 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	processes := []process{}
 
 	// Database
 	dbConfig := config.databaseConfig()
 	dbConfig.InputServices = make(map[string]database.InputService)
 	dbConfig.OutputServices = make(map[string]database.OutputService)
+
 	db, err := database.NewService(dbConfig, logger.With("component", "database"))
 	if err != nil {
 		logger.Error("failed to assemble database service", "error", err)
@@ -102,6 +106,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		logger.Error("failed to assemble iCal database service", "error", err)
 		return nil, err
 	}
+
 	icalConnector := ical.New(&ical.Config{
 		ICalDB:          icalDB,
 		Database:        db,
@@ -125,6 +130,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 		logger.Error("failed to assemble matrix connector service", "error", err)
 		return nil, err
 	}
+
 	processes = append(processes, matrixConnector)
 
 	dbConfig.InputServices[matrix.InputType] = matrixConnector

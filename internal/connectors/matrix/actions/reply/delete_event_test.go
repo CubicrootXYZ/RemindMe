@@ -43,6 +43,7 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -119,6 +120,7 @@ func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -173,6 +175,7 @@ func TestDeleteEventAction_HandleEventWithMissingEventID(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
@@ -202,6 +205,7 @@ func TestDeleteEventAction_HandleEventWithDeleteError(t *testing.T) {
 	// Setup
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	db := database.NewMockService(ctrl)
 	matrixDB := matrixdb.NewMockService(ctrl)
 	client := mautrixcl.NewMockClient(ctrl)
