@@ -3,6 +3,8 @@ ARG VERSION="development"
 
 WORKDIR /run
 
+RUN apk update && apk upgrade
+
 COPY ./ ./
 RUN go mod download
 RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
