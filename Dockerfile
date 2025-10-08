@@ -3,13 +3,12 @@ ARG VERSION="development"
 
 WORKDIR /run
 
-RUN apk update && apk upgrade
-
 COPY ./ ./
 RUN go mod download
 RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
 
 FROM alpine:3.22
+RUN apk update && apk upgrade
 COPY --from=builder /run/remindme /run/
 WORKDIR /run
 
