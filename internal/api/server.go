@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"time"
 
+	"context"
+
 	"github.com/gin-gonic/gin"
-	"golang.org/x/net/context"
 )
 
 type server struct {
