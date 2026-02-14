@@ -42,7 +42,7 @@ type messageEvent struct {
 		InReplyTo *struct {
 			EventID string `json:"event_id,omitempty"`
 		} `json:"m.in_reply_to,omitempty"`
-	} `json:"m.relates_to,omitempty"`
+	} `json:"m.relates_to"`
 	MSC1767Message []matrixMSC1767Event `json:"org.matrix.msc1767.message,omitempty"`
 }
 

@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"net/http"
+	"slices"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/api/response"
 	"github.com/gin-gonic/gin"
@@ -17,11 +18,8 @@ func APIKeyAuth(apikey string) gin.HandlerFunc {
 		authenticated := false
 
 		if values, ok := headers["Authorization"]; ok {
-			for _, value := range values {
-				if value == apikey {
-					authenticated = true
-					break
-				}
+			if slices.Contains(values, apikey) {
+				authenticated = true
 			}
 		}
 

@@ -24,7 +24,7 @@ func TestNewCalendar(t *testing.T) {
 				ID: 1,
 			},
 			Time:           testTime(),
-			RepeatUntil:    toP(testTime()),
+			RepeatUntil:    new(testTime()),
 			RepeatInterval: toP(time.Hour * 24),
 			Message:        "Event 1",
 		},
@@ -40,7 +40,7 @@ func TestNewCalendar(t *testing.T) {
 				ID: 3,
 			},
 			Time:           testTime(),
-			RepeatUntil:    toP(testTime().Add(time.Hour * 100)),
+			RepeatUntil:    new(testTime().Add(time.Hour * 100)),
 			RepeatInterval: toP(time.Hour * 24),
 			Message:        "Event 3",
 		},
@@ -193,5 +193,5 @@ END:VCALENDAR
 }
 
 func toP[T any](elem T) *T {
-	return &elem
+	return new(elem)
 }

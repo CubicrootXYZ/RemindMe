@@ -91,7 +91,7 @@ func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 
 			matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 				ID:            "id1",
-				UserID:        toP("@user:example.com"),
+				UserID:        new("@user:example.com"),
 				Body:          `Changed this channels timezone from UTC to ` + tz + ` 🛫 🛬`,
 				BodyFormatted: `Changed this channels timezone from UTC to ` + tz + ` 🛫 🛬`,
 				Type:          matrixdb.MessageTypeTimezoneChange,
@@ -140,7 +140,7 @@ func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `Sorry, but I do not know what timezone this is.`,
 		BodyFormatted: `Sorry, but I do not know what timezone this is.`,
 		Type:          matrixdb.MessageTypeTimezoneChange,

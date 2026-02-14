@@ -15,7 +15,7 @@ const (
 	DateTimeFormatDefault = "15:04 02.01.2006 (MST)"
 	// DateFormatShort is a short date format used.
 	DateFormatShort = "Mon, 02 Jan"
-	// TimeFormatShot is a short time format used.
+	// TimeFormatShort is a short time format used.
 	TimeFormatShort = "15:04 (MST)"
 )
 

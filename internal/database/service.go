@@ -75,7 +75,7 @@ func (service *service) GormDB() *gorm.DB {
 }
 
 func (service *service) migrate() error {
-	models := []interface{}{
+	models := []any{
 		Channel{},
 		Input{},
 		Output{},

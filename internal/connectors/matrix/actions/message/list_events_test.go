@@ -64,7 +64,7 @@ func TestListEventsAction_HandleEvent(t *testing.T) {
 	)
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return([]database.Event{
 		dbtests.TestEvent(),
 	}, nil)
@@ -90,7 +90,7 @@ at 08:04 02.01.2006 (UTC) (ID: 2824)
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:     "!234",
-		UserID: toP("@user:example.com"),
+		UserID: new("@user:example.com"),
 		Body: `== YOUR EVENTS ==
 
 JANUARY 2006
@@ -133,7 +133,7 @@ func TestListEventsAction_HandleEventWithError(t *testing.T) {
 	)
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return(nil, errors.New("test"))
 
 	msngr.EXPECT().SendResponseAsync(&messenger.Response{
@@ -147,8 +147,4 @@ func TestListEventsAction_HandleEventWithError(t *testing.T) {
 	}).Return(nil)
 
 	action.HandleEvent(tests.TestEvent())
-}
-
-func toP[T any](elem T) *T {
-	return &elem
 }

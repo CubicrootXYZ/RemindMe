@@ -20,7 +20,7 @@ func New(db *gorm.DB) (Service, error) {
 }
 
 func (service *service) migrate() error {
-	models := []interface{}{
+	models := []any{
 		MatrixRoom{},
 		MatrixUser{},
 		MatrixMessage{},

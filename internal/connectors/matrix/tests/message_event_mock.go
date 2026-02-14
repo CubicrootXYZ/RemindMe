@@ -77,7 +77,7 @@ type MessageOpt func(msg *matrixdb.MatrixMessage)
 func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {
 	msg := &matrixdb.MatrixMessage{
 		ID:      "msg1",
-		EventID: ToP(uint(1)),
+		EventID: new(uint(1)),
 		Event: &database.Event{
 			Model: gorm.Model{
 				ID: 1,
@@ -96,7 +96,7 @@ func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {
 func WithFromTestEvent() MessageOpt {
 	return func(msg *matrixdb.MatrixMessage) {
 		msg.ID = "evt1"
-		msg.UserID = ToP("@user:example.com")
+		msg.UserID = new("@user:example.com")
 		msg.Body = "message"
 		msg.BodyFormatted = "<b>message</b>"
 		msg.SendAt = time.UnixMilli(92848488)
@@ -114,7 +114,7 @@ func WithTestEvent() MessageOpt {
 			},
 			Time: time.UnixMilli(92848488),
 		}
-		msg.EventID = ToP(uint(1))
+		msg.EventID = new(uint(1))
 	}
 }
 

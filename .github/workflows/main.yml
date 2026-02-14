@@ -16,23 +16,23 @@ permissions:
 
 jobs:
   golang_quality:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_quality.yaml@v0.0.26
 
   golang_test:
-    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/golang_test.yaml@v0.0.26
     needs: [build_openapi_spec] # Validates agains OpenAPI spec
     with:
       services: '{"database": {"image": "mysql:9.0", "ports": ["3306:3306"], "env": {"MYSQL_ROOT_PASSWORD": "mypass", "MYSQL_DATABASE": "remindme"}}}'
       env: '{"TEST_DB_HOST": "database"}'
 
   build_openapi_spec:
-    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_golang_build.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_golang_build.yaml@v0.0.26
     with:
       entrypoint: cmd/remindme/main.go
 
   render_openapi_spec:
     needs: [build_openapi_spec]
-    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_render.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/openapi2_render.yaml@v0.0.26
     with:
       spec_artifact_name: openapi-spec
       spec_artifact_path: docs/
@@ -40,14 +40,14 @@ jobs:
 
   deploy_openapi_spec:
     needs: [render_openapi_spec]
-    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/pages.yaml@v0.0.26
     with:
       artifact_name: rendered-api-docu
       artifact_path: index.html
 
   build_image:
     needs: [golang_test, golang_quality, render_openapi_spec]
-    uses: CubicrootXYZ/Workflows/.github/workflows/build_image.yaml@v0.0.25
+    uses: CubicrootXYZ/Workflows/.github/workflows/build_image.yaml@v0.0.26
     with:
       docker_build_args: "--no-cache"
       docker_file_path: "./"

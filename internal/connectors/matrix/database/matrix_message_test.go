@@ -165,7 +165,7 @@ func TestService_ListMessages(t *testing.T) {
 	// List first message.
 	msgs, err := service.ListMessages(matrixdb.ListMessageOpts{
 		RoomID:   &msg1.RoomID,
-		Incoming: toP(true),
+		Incoming: new(true),
 	})
 	require.NoError(t, err)
 	require.Len(t, msgs, 1)
@@ -198,8 +198,4 @@ func assertMessagesEqual(t *testing.T, a *matrixdb.MatrixMessage, b *matrixdb.Ma
 	assert.Equal(t, a.Incoming, b.Incoming)
 	assertUsersEqual(t, a.User, b.User)
 	assertRoomsEqual(t, &a.Room, &b.Room)
-}
-
-func toP[T any](elem T) *T {
-	return &elem
 }

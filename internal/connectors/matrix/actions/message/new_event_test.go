@@ -228,7 +228,7 @@ type eventMatcher struct {
 	evt *database.Event
 }
 
-func (matcher *eventMatcher) Matches(x interface{}) bool {
+func (matcher *eventMatcher) Matches(x any) bool {
 	evt, ok := x.(*database.Event)
 	if !ok {
 		return false
