@@ -231,8 +231,8 @@ func TestService_ListEvents(t *testing.T) {
 	t.Run("list by channel and time", func(t *testing.T) {
 		events, err := service.ListEvents(&database.ListEventsOpts{
 			ChannelID:    &eventBefore.ChannelID,
-			EventsBefore: toP(eventBefore.Time.Add(time.Second)),
-			EventsAfter:  toP(eventBefore.Time.Add(-1 * time.Second)),
+			EventsBefore: new(eventBefore.Time.Add(time.Second)),
+			EventsAfter:  new(eventBefore.Time.Add(-1 * time.Second)),
 		})
 		require.NoError(t, err)
 		require.Len(t, events, 1)
@@ -244,7 +244,7 @@ func TestService_ListEvents(t *testing.T) {
 	t.Run("list by channel and time - nothing found", func(t *testing.T) {
 		events, err := service.ListEvents(&database.ListEventsOpts{
 			ChannelID:   &eventBefore.ChannelID,
-			EventsAfter: toP(eventBefore.Time.Add(time.Second)),
+			EventsAfter: new(eventBefore.Time.Add(time.Second)),
 		})
 		require.NoError(t, err)
 		require.Empty(t, events)
@@ -389,8 +389,4 @@ func TestService_DeleteEvent(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Empty(t, events)
-}
-
-func toP[T any](elem T) *T {
-	return &elem
 }

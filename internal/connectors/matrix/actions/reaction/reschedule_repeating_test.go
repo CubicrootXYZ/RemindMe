@@ -3,6 +3,7 @@ package reaction_test
 import (
 	"errors"
 	"log/slog"
+	"slices"
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/actions/reaction"
@@ -39,14 +40,7 @@ func TestRescheduleRepeatingAction_Selector(t *testing.T) {
 	reactions := action.Selector()
 
 	for _, example := range examples {
-		matches := false
-
-		for _, reaction := range reactions {
-			if example == reaction {
-				matches = true
-				break
-			}
-		}
+		matches := slices.Contains(reactions, example)
 
 		assert.Truef(t, matches, "%s is not part of reactions", example)
 	}

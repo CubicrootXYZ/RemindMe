@@ -68,7 +68,7 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "daily reminder at 10am",
 		BodyFormatted: "daily reminder at 10am",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -78,7 +78,7 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 	).Return(nil, nil)
 
 	channel := tests.TestEvent().Channel
-	channel.DailyReminder = toP(uint(600))
+	channel.DailyReminder = new(uint(600))
 	db.EXPECT().UpdateChannel(channel).Return(nil, nil)
 
 	msngr.EXPECT().SendResponse(&messenger.Response{
@@ -95,7 +95,7 @@ func TestSetDailyReminderAction_HandleEvent(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		BodyFormatted: "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -133,7 +133,7 @@ func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "daily reminder at 10am",
 		BodyFormatted: "daily reminder at 10am",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -143,7 +143,7 @@ func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
 	).Return(nil, nil)
 
 	channel := tests.TestEvent().Channel
-	channel.DailyReminder = toP(uint(480))
+	channel.DailyReminder = new(uint(480))
 	db.EXPECT().UpdateChannel(channel).Return(nil, nil)
 
 	msngr.EXPECT().SendResponse(&messenger.Response{
@@ -160,7 +160,7 @@ func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		BodyFormatted: "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -201,7 +201,7 @@ func TestSetDailyReminderAction_HandleEventWithUpdateChannelError(t *testing.T) 
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "daily reminder at 10am",
 		BodyFormatted: "daily reminder at 10am",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -211,7 +211,7 @@ func TestSetDailyReminderAction_HandleEventWithUpdateChannelError(t *testing.T) 
 	).Return(nil, nil)
 
 	channel := tests.TestEvent().Channel
-	channel.DailyReminder = toP(uint(600))
+	channel.DailyReminder = new(uint(600))
 	db.EXPECT().UpdateChannel(channel).Return(nil, errors.New("test"))
 
 	msngr.EXPECT().SendMessage(&messenger.Message{
@@ -224,7 +224,7 @@ func TestSetDailyReminderAction_HandleEventWithUpdateChannelError(t *testing.T) 
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "Whups, could not save that change. Sorry, try again later.",
 		BodyFormatted: "Whups, could not save that change. Sorry, try again later.",
 		Type:          matrixdb.MessageTypeSetDailyReminderError,
@@ -262,7 +262,7 @@ func TestSetDailyReminderAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "daily reminder at 10am",
 		BodyFormatted: "daily reminder at 10am",
 		Type:          matrixdb.MessageTypeSetDailyReminder,
@@ -272,7 +272,7 @@ func TestSetDailyReminderAction_HandleEventWithNewMessageError(t *testing.T) {
 	).Return(nil, errors.New("test"))
 
 	channel := tests.TestEvent().Channel
-	channel.DailyReminder = toP(uint(600))
+	channel.DailyReminder = new(uint(600))
 	db.EXPECT().UpdateChannel(channel).Return(nil, nil)
 
 	msngr.EXPECT().SendResponse(&messenger.Response{
@@ -289,7 +289,7 @@ func TestSetDailyReminderAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		BodyFormatted: "I will send you a daily overview at 10:00. To disable the reminder message me with \"delete daily reminder\".",
 		Type:          matrixdb.MessageTypeSetDailyReminder,

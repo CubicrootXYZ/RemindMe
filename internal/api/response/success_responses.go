@@ -7,7 +7,7 @@ import (
 )
 
 // WithData responds with the given data and a 200 status code.
-func WithData(ctx *gin.Context, data interface{}) {
+func WithData(ctx *gin.Context, data any) {
 	resp := DataResponse{
 		Status: "success",
 		Data:   data,

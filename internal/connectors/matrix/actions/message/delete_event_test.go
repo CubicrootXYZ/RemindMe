@@ -67,11 +67,11 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `delete 123`,
 		BodyFormatted: `delete 123`,
 		Type:          matrixdb.MessageTypeEventDelete,
-		EventID:       toP(uint(123)),
+		EventID:       new(uint(123)),
 		Incoming:      true,
 		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
 	},
@@ -79,12 +79,12 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
 		IDs:       []uint{123},
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return([]database.Event{
 		mockEvent(),
 	}, nil)
 
-	db.EXPECT().DeleteEvent(toP(mockEvent())).Return(nil)
+	db.EXPECT().DeleteEvent(new(mockEvent())).Return(nil)
 
 	msngr.EXPECT().SendResponse(&messenger.Response{
 		Message:                   "Deleted event \"\"",
@@ -100,11 +100,11 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `Deleted event ""`,
 		BodyFormatted: `Deleted event ""`,
 		Type:          matrixdb.MessageTypeEventDelete,
-		EventID:       toP(uint(123)),
+		EventID:       new(uint(123)),
 	},
 	).Return(nil, nil)
 
@@ -139,11 +139,11 @@ func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `delete 123`,
 		BodyFormatted: `delete 123`,
 		Type:          matrixdb.MessageTypeEventDelete,
-		EventID:       toP(uint(123)),
+		EventID:       new(uint(123)),
 		Incoming:      true,
 		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
 	},
@@ -151,12 +151,12 @@ func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
 		IDs:       []uint{123},
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return([]database.Event{
 		mockEvent(),
 	}, nil)
 
-	db.EXPECT().DeleteEvent(toP(mockEvent())).Return(errors.New("test"))
+	db.EXPECT().DeleteEvent(new(mockEvent())).Return(errors.New("test"))
 
 	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
 		"Sorry, an error appeared.",
@@ -197,11 +197,11 @@ func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "evt1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `delete 123`,
 		BodyFormatted: `delete 123`,
 		Type:          matrixdb.MessageTypeEventDelete,
-		EventID:       toP(uint(123)),
+		EventID:       new(uint(123)),
 		Incoming:      true,
 		SendAt:        time.UnixMilli(tests.TestEvent().Event.Timestamp),
 	},
@@ -209,7 +209,7 @@ func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
 		IDs:       []uint{123},
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return([]database.Event{
 		mockEvent(),
 	}, nil)
@@ -245,7 +245,7 @@ func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
 		IDs:       []uint{123},
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return([]database.Event{}, nil)
 
 	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(
@@ -287,7 +287,7 @@ func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
 		IDs:       []uint{123},
-		ChannelID: toP(uint(68272)),
+		ChannelID: new(uint(68272)),
 	}).Return(nil, errors.New("test"))
 
 	msngr.EXPECT().SendResponseAsync(messenger.PlainTextResponse(

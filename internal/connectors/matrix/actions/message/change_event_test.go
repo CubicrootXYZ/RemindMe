@@ -88,7 +88,7 @@ to `+today9PM(),
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:     "id1",
-		UserID: toP("@user:example.com"),
+		UserID: new("@user:example.com"),
 		Body: `I rescheduled your reminder
 > 
 to ` + today9PM(),
@@ -150,7 +150,7 @@ func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `Whups, this did not work, sorry.`,
 		BodyFormatted: `Whups, this did not work, sorry.`,
 		Type:          matrixdb.MessageTypeChangeEventError,
@@ -200,7 +200,7 @@ func TestChangeEventAction_HandleEventWithNotFound(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `This reminder is not in my database.`,
 		BodyFormatted: `This reminder is not in my database.`,
 		Type:          matrixdb.MessageTypeChangeEventError,
@@ -245,7 +245,7 @@ func TestChangeEventAction_HandleEventWithMissingID(t *testing.T) {
 
 	matrixDB.EXPECT().NewMessage(&matrixdb.MatrixMessage{
 		ID:            "id1",
-		UserID:        toP("@user:example.com"),
+		UserID:        new("@user:example.com"),
 		Body:          `Ups, seems like there is a reminder ID missing in your message.`,
 		BodyFormatted: `Ups, seems like there is a reminder ID missing in your message.`,
 		Type:          matrixdb.MessageTypeChangeEventError,

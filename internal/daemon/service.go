@@ -34,7 +34,7 @@ type service struct {
 	config   *Config
 	database database.Service
 	logger   *slog.Logger
-	done     chan interface{}
+	done     chan any
 
 	daemonWG *sync.WaitGroup
 
@@ -64,7 +64,7 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 		config:   config,
 		database: database,
 		logger:   logger,
-		done:     make(chan interface{}),
+		done:     make(chan any),
 
 		daemonWG: &sync.WaitGroup{},
 

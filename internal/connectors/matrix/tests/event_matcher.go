@@ -16,7 +16,7 @@ func NewEventMatcher(evt *database.Event) *EventMatcher {
 	}
 }
 
-func (matcher *EventMatcher) Matches(x interface{}) bool {
+func (matcher *EventMatcher) Matches(x any) bool {
 	evt, ok := x.(*database.Event)
 	if !ok {
 		fmt.Println("EventMatcher: wrong type, want *database.Event")

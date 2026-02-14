@@ -23,7 +23,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/coreapi"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metrics"
+	metrics "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metricserver"
 	"golang.org/x/sync/errgroup"
 )
 
