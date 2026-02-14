@@ -17,6 +17,7 @@ func testOutput() *database.IcalOutput {
 
 func TestService_NewIcalOutput(t *testing.T) {
 	start := time.Now()
+
 	time.Sleep(time.Millisecond) // Avoids issues with database time representation being less accurate.
 
 	outputBefore, err := service.NewIcalOutput(testOutput())

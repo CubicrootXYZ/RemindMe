@@ -43,7 +43,7 @@ func TestWithDataWithString(t *testing.T) {
 func TestWithDataWithMap(t *testing.T) {
 	r := gin.New()
 	r.GET("/", func(ctx *gin.Context) {
-		response.WithData(ctx, map[string]interface{}{
+		response.WithData(ctx, map[string]any{
 			"key":      "value",
 			"key2":     1,
 			"k e y 3 ": []uint64{1, 2, 3},

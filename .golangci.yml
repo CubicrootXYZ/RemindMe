@@ -31,6 +31,7 @@ linters:
     - wsl
     - noinlineerr
     - funcorder
+    - prealloc
   settings:
     cyclop:
       max-complexity: 30
@@ -75,6 +76,9 @@ linters:
         text: string `11:45 12\.11\.2014 \(UTC\)` has 3 occurrences, make it a constant
       - path: (.+)\.go$
         text: '`\(\*Syncer\)\.sendAndStoreReply` - `reminderID` always receives `0'
+      - linters:
+          - revive
+        text: '^var-naming:'
     paths:
       - third_party$
       - builtin$

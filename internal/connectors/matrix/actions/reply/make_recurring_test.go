@@ -75,7 +75,7 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 		tests.WithRecurringEvent(time.Hour*2),
 	).Event)).
 		Return(&database.Event{
-			RepeatUntil: tests.ToP(time.Now()),
+			RepeatUntil: new(time.Now()),
 		}, nil)
 
 	msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{}, nil)

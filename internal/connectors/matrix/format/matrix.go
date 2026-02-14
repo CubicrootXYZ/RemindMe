@@ -24,7 +24,7 @@ func GetHomeserverFromUserID(userID string) string {
 	return strings.Split(userID, ":")[1]
 }
 
-// GetUSerNameFromUserIdentififer extracts the username from the user identifier string.
+// GetUsernameFromUserIdentifier extracts the username from the user identifier string.
 // E.g. @testuser:matrix.org will result in testuser
 func GetUsernameFromUserIdentifier(userID string) string {
 	if !strings.Contains(userID, ":") {

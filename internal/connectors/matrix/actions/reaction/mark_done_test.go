@@ -3,6 +3,7 @@ package reaction_test
 import (
 	"errors"
 	"log/slog"
+	"slices"
 	"testing"
 	"time"
 
@@ -40,14 +41,7 @@ func TestMarkDoneAction_Selector(t *testing.T) {
 	reactions := action.Selector()
 
 	for _, example := range examples {
-		matches := false
-
-		for _, reaction := range reactions {
-			if example == reaction {
-				matches = true
-				break
-			}
-		}
+		matches := slices.Contains(reactions, example)
 
 		assert.Truef(t, matches, "%s is not part of reactions", example)
 	}

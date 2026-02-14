@@ -14,6 +14,6 @@ type MessageSuccessResponse struct {
 
 // DataResponse is the default response for data
 type DataResponse struct {
-	Status string      `example:"success" json:"status"`
-	Data   interface{} `json:"data"`
+	Status string `example:"success" json:"status"`
+	Data   any    `json:"data"`
 }

@@ -17,6 +17,7 @@ func testInput() *database.IcalInput {
 
 func TestService_NewIcalInput(t *testing.T) {
 	start := time.Now()
+
 	time.Sleep(time.Millisecond) // Avoids issues with database time representation being less accurate.
 
 	inputBefore, err := service.NewIcalInput(testInput())

@@ -1,6 +1,6 @@
 module github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-go 1.25.5
+go 1.26
 
 require (
 	github.com/CubicrootXYZ/configor v1.0.0

@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"errors"
+	"slices"
 	"time"
 
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
@@ -357,11 +358,5 @@ func (service *service) removeFromChannel(room *matrixdb.MatrixRoom) error {
 }
 
 func (service *service) userInWhitelist(user string) bool {
-	for _, u := range service.config.UserWhitelist {
-		if u == user {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(service.config.UserWhitelist, user)
 }

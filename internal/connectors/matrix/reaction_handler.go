@@ -1,6 +1,8 @@
 package matrix
 
 import (
+	"slices"
+
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"maunium.net/go/mautrix"
@@ -88,11 +90,9 @@ func (service *service) ReactionEventHandler(_ mautrix.EventSource, evt *event.E
 
 	// Find fitting action.
 	for i := range service.config.ReactionActions {
-		for _, reaction := range service.config.ReactionActions[i].Selector() {
-			if reaction == content.RelatesTo.Key {
-				service.config.ReactionActions[i].HandleEvent(reactionEvent, message)
-				return
-			}
+		if slices.Contains(service.config.ReactionActions[i].Selector(), content.RelatesTo.Key) {
+			service.config.ReactionActions[i].HandleEvent(reactionEvent, message)
+			return
 		}
 	}
 

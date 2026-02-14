@@ -8,7 +8,8 @@ import (
 // StripReply removes the quoted reply from a message
 func StripReply(msg string) string {
 	strippedMsg := strings.Builder{}
-	for _, line := range strings.Split(msg, "\n") {
+
+	for line := range strings.SplitSeq(msg, "\n") {
 		if strings.HasPrefix(line, ">") {
 			continue
 		}

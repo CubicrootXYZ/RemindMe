@@ -240,5 +240,5 @@ func TestInfoFromDaemonEventsWithNoEvents(t *testing.T) {
 }
 
 func toP[T any](elem T) *T {
-	return &elem
+	return new(elem)
 }

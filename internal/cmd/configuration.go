@@ -13,7 +13,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metrics"
+	metrics "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/metricserver"
 	"github.com/lmittmann/tint"
 )
 
@@ -146,6 +146,7 @@ func (config *Config) metricsConfig() *metrics.Config {
 
 func LoadConfiguration() (*Config, error) {
 	fileName := flag.String("config", "config.yml", "Configuration file to load")
+
 	flag.Parse()
 
 	config := &Config{}
