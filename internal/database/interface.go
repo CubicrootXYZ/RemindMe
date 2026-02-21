@@ -57,6 +57,7 @@ type Service interface {
 	UpdateEvent(*Event) (*Event, error)
 
 	DeleteEvent(event *Event) error
+	Cleanup(opts *CleanupOpts) (int64, error)
 
 	// Misc
 	GormDB() *gorm.DB
