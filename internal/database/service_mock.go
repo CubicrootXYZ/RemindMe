@@ -62,6 +62,21 @@ func (mr *MockServiceMockRecorder) AddOutputToChannel(arg0, arg1 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddOutputToChannel", reflect.TypeOf((*MockService)(nil).AddOutputToChannel), arg0, arg1)
 }
 
+// Cleanup mocks base method.
+func (m *MockService) Cleanup(arg0 *CleanupOpts) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cleanup", arg0)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Cleanup indicates an expected call of Cleanup.
+func (mr *MockServiceMockRecorder) Cleanup(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cleanup", reflect.TypeOf((*MockService)(nil).Cleanup), arg0)
+}
+
 // DeleteChannel mocks base method.
 func (m *MockService) DeleteChannel(arg0 uint) error {
 	m.ctrl.T.Helper()

@@ -28,6 +28,18 @@ var (
 		Name:      "daemon_event_events_processed_total",
 		Help:      "Amount of events processed by the event daemon.",
 	}, []string{})
+
+	metricLastCleanupRun = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "remindme",
+		Name:      "daemon_cleanup_last_run_timestamp_seconds",
+		Help:      "Unix timestamp of the last run of the cleanup daemon.",
+	}, []string{})
+
+	metricItemsCleaned = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "daemon_cleanup_items_cleaned_total",
+		Help:      "Amount of items cleaned by the cleanup daemon.",
+	}, []string{})
 )
 
 type service struct {
@@ -41,6 +53,9 @@ type service struct {
 	metricLastDailyReminderRun *prometheus.GaugeVec
 	metricLastEventRun         *prometheus.GaugeVec
 	metricEventsProcessed      *prometheus.CounterVec
+
+	metricLastCleanupRun *prometheus.GaugeVec
+	metricItemsCleaned   *prometheus.CounterVec
 }
 
 //go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
@@ -71,15 +86,18 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 		metricLastDailyReminderRun: metricLastDailyReminderRun,
 		metricLastEventRun:         metricLastEventRun,
 		metricEventsProcessed:      metricEventsProcessed,
+
+		metricLastCleanupRun: metricLastCleanupRun,
+		metricItemsCleaned:   metricItemsCleaned,
 	}
 }
 
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
 	go service.startDailyReminderDaemon()
+	go service.startCleanupDaemon()
 
 	service.startEventDaemon()
-
 	service.daemonWG.Wait()
 
 	return nil
@@ -125,6 +143,45 @@ func (service *service) startDailyReminderDaemon() {
 			return
 		}
 	}
+}
+
+func (service *service) startCleanupDaemon() {
+	service.daemonWG.Add(1)
+
+	cleanupTicker := time.NewTicker(time.Hour)
+
+	for {
+		select {
+		case <-cleanupTicker.C:
+			service.logger.Debug("running cleanup daemon ...")
+
+			err := service.performCleanup()
+			if err != nil {
+				service.logger.Error("failed to run cleanup", "error", err)
+			}
+		case <-service.done:
+			service.logger.Debug("cleanup daemon stopped")
+			service.daemonWG.Done()
+
+			return
+		}
+	}
+}
+
+func (service *service) performCleanup() error {
+	opts := &database.CleanupOpts{
+		OlderThan: 365 * 24 * time.Hour,
+	}
+
+	deleted, err := service.database.Cleanup(opts)
+	if err != nil {
+		return err
+	}
+
+	service.metricLastCleanupRun.WithLabelValues().Set(float64(time.Now().Unix()))
+	service.metricItemsCleaned.WithLabelValues().Add(float64(deleted))
+
+	return nil
 }
 
 // Stops shuts down the service in an unblocking way.
