@@ -71,6 +71,7 @@ type Config struct {
 	OutputServices        map[string]OutputService // Maps OutputTypes to the services
 	EventsInterval        time.Duration            // Interval in which to send out event reminders
 	DailyReminderInterval time.Duration            // Interval in which to send out daily reminder
+	CleanupInterval       time.Duration            // Interval in which to run cleanup
 }
 
 // New assembles a new service.
@@ -148,7 +149,11 @@ func (service *service) startDailyReminderDaemon() {
 func (service *service) startCleanupDaemon() {
 	service.daemonWG.Add(1)
 
-	cleanupTicker := time.NewTicker(time.Hour)
+	if service.config.CleanupInterval == 0 {
+		service.config.CleanupInterval = time.Hour
+	}
+
+	cleanupTicker := time.NewTicker(service.config.CleanupInterval)
 
 	for {
 		select {
@@ -166,22 +171,6 @@ func (service *service) startCleanupDaemon() {
 			return
 		}
 	}
-}
-
-func (service *service) performCleanup() error {
-	opts := &database.CleanupOpts{
-		OlderThan: 365 * 24 * time.Hour,
-	}
-
-	deleted, err := service.database.Cleanup(opts)
-	if err != nil {
-		return err
-	}
-
-	service.metricLastCleanupRun.WithLabelValues().Set(float64(time.Now().Unix()))
-	service.metricItemsCleaned.WithLabelValues().Add(float64(deleted))
-
-	return nil
 }
 
 // Stops shuts down the service in an unblocking way.

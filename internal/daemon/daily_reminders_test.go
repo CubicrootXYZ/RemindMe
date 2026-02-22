@@ -23,7 +23,7 @@ func TestService_SendOutDailyReminders(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service, db, outputService := testDaemon(ctrl, false, true)
+	service, db, outputService := testDaemon(ctrl, false, true, false)
 
 	channel := testDatabaseChannel()
 	output := testOutput()

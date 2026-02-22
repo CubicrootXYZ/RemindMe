@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testDaemon(ctrl *gomock.Controller, events, daily bool) (daemon.Service, *database.MockService, *mocks.MockOutputService) {
+func testDaemon(ctrl *gomock.Controller, events, daily, cleanup bool) (daemon.Service, *database.MockService, *mocks.MockOutputService) {
 	db := database.NewMockService(ctrl)
 	outputService := mocks.NewMockOutputService(ctrl)
 
@@ -23,6 +23,7 @@ func testDaemon(ctrl *gomock.Controller, events, daily bool) (daemon.Service, *d
 		},
 		EventsInterval:        intervalFromBool(events),
 		DailyReminderInterval: intervalFromBool(daily),
+		CleanupInterval:       intervalFromBool(cleanup),
 	}, db, slog.Default()), db, outputService
 }
 
@@ -98,7 +99,7 @@ func TestService_SendOutEvents(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service, db, outputService := testDaemon(ctrl, true, false)
+	service, db, outputService := testDaemon(ctrl, true, false, false)
 
 	event := testDatabaseEvent()
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*event}, nil)
@@ -119,7 +120,7 @@ func TestService_SendOutEventsWithDatabaseError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service, db, _ := testDaemon(ctrl, true, false)
+	service, db, _ := testDaemon(ctrl, true, false, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, errors.New("test"))
 
@@ -135,7 +136,7 @@ func TestService_SendOutEventsWithOutputError(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	service, db, outputService := testDaemon(ctrl, true, false)
+	service, db, outputService := testDaemon(ctrl, true, false, false)
 
 	db.EXPECT().GetEventsPending().MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).MinTimes(1).Return(errors.New("test"))
