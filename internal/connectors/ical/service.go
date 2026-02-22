@@ -171,3 +171,8 @@ func (service *service) ToLocalTime(date time.Time, _ *daemon.Output) time.Time 
 	// Not supported.
 	return date
 }
+
+func (service *service) Cleanup() error {
+	// Not supported.
+	return nil
+}

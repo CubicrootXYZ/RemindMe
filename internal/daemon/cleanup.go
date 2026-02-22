@@ -16,6 +16,12 @@ func (service *service) performCleanup() error {
 		return err
 	}
 
+	for _, outputService := range service.config.OutputServices {
+		if err := outputService.Cleanup(); err != nil {
+			return err
+		}
+	}
+
 	service.metricLastCleanupRun.WithLabelValues().Set(float64(time.Now().Unix()))
 	service.metricItemsCleaned.WithLabelValues().Add(float64(deleted))
 

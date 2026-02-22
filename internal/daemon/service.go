@@ -65,6 +65,7 @@ type OutputService interface {
 	ToLocalTime(time.Time, *Output) time.Time
 	SendReminder(*Event, *Output) error
 	SendDailyReminder(*DailyReminder, *Output) error
+	Cleanup() error
 }
 
 type Config struct {

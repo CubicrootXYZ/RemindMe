@@ -48,6 +48,20 @@ func (mr *MockServiceMockRecorder) AddUserToRoom(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUserToRoom", reflect.TypeOf((*MockService)(nil).AddUserToRoom), arg0, arg1)
 }
 
+// Cleanup mocks base method.
+func (m *MockService) Cleanup() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cleanup")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Cleanup indicates an expected call of Cleanup.
+func (mr *MockServiceMockRecorder) Cleanup() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cleanup", reflect.TypeOf((*MockService)(nil).Cleanup))
+}
+
 // DeleteAllEventsFromRoom mocks base method.
 func (m *MockService) DeleteAllEventsFromRoom(arg0 uint) error {
 	m.ctrl.T.Helper()

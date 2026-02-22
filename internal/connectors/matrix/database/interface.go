@@ -43,6 +43,8 @@ type Service interface {
 	GetLastEvent() (*MatrixEvent, error)
 	NewEvent(event *MatrixEvent) (*MatrixEvent, error)
 	DeleteAllEventsFromRoom(roomID uint) error
+
+	Cleanup() error
 }
 
 // MatrixRoom holds information about a room.

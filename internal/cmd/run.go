@@ -119,7 +119,7 @@ func setup(config *Config, logger *slog.Logger) ([]process, error) {
 	processes = append(processes, icalConnector)
 
 	// Matrix connector
-	matrixDB, err := matrixdb.New(db.GormDB())
+	matrixDB, err := matrixdb.New(db.GormDB(), logger.With("component", "matrix_database"))
 	if err != nil {
 		logger.Error("failed to assemble matrix database service", "error", err)
 		return nil, err

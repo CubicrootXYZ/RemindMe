@@ -1,6 +1,7 @@
 package database_test
 
 import (
+	"log/slog"
 	"os"
 	"testing"
 
@@ -31,7 +32,7 @@ func getGormDB() *gorm.DB {
 }
 
 func getService(gormDB *gorm.DB) database.Service {
-	service, err := database.New(gormDB)
+	service, err := database.New(gormDB, slog.Default())
 	if err != nil {
 		panic(err)
 	}
