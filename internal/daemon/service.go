@@ -28,6 +28,18 @@ var (
 		Name:      "daemon_event_events_processed_total",
 		Help:      "Amount of events processed by the event daemon.",
 	}, []string{})
+
+	metricLastCleanupRun = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "remindme",
+		Name:      "daemon_cleanup_last_run_timestamp_seconds",
+		Help:      "Unix timestamp of the last run of the cleanup daemon.",
+	}, []string{})
+
+	metricItemsCleaned = promauto.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "remindme",
+		Name:      "daemon_cleanup_items_cleaned_total",
+		Help:      "Amount of items cleaned by the cleanup daemon.",
+	}, []string{})
 )
 
 type service struct {
@@ -41,6 +53,9 @@ type service struct {
 	metricLastDailyReminderRun *prometheus.GaugeVec
 	metricLastEventRun         *prometheus.GaugeVec
 	metricEventsProcessed      *prometheus.CounterVec
+
+	metricLastCleanupRun *prometheus.GaugeVec
+	metricItemsCleaned   *prometheus.CounterVec
 }
 
 //go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
@@ -50,12 +65,14 @@ type OutputService interface {
 	ToLocalTime(time.Time, *Output) time.Time
 	SendReminder(*Event, *Output) error
 	SendDailyReminder(*DailyReminder, *Output) error
+	Cleanup() error
 }
 
 type Config struct {
 	OutputServices        map[string]OutputService // Maps OutputTypes to the services
 	EventsInterval        time.Duration            // Interval in which to send out event reminders
 	DailyReminderInterval time.Duration            // Interval in which to send out daily reminder
+	CleanupInterval       time.Duration            // Interval in which to run cleanup
 }
 
 // New assembles a new service.
@@ -71,15 +88,18 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 		metricLastDailyReminderRun: metricLastDailyReminderRun,
 		metricLastEventRun:         metricLastEventRun,
 		metricEventsProcessed:      metricEventsProcessed,
+
+		metricLastCleanupRun: metricLastCleanupRun,
+		metricItemsCleaned:   metricItemsCleaned,
 	}
 }
 
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
 	go service.startDailyReminderDaemon()
+	go service.startCleanupDaemon()
 
 	service.startEventDaemon()
-
 	service.daemonWG.Wait()
 
 	return nil
@@ -120,6 +140,33 @@ func (service *service) startDailyReminderDaemon() {
 			}
 		case <-service.done:
 			service.logger.Debug("event daemon stopped")
+			service.daemonWG.Done()
+
+			return
+		}
+	}
+}
+
+func (service *service) startCleanupDaemon() {
+	service.daemonWG.Add(1)
+
+	if service.config.CleanupInterval == 0 {
+		service.config.CleanupInterval = time.Hour
+	}
+
+	cleanupTicker := time.NewTicker(service.config.CleanupInterval)
+
+	for {
+		select {
+		case <-cleanupTicker.C:
+			service.logger.Debug("running cleanup daemon ...")
+
+			err := service.performCleanup()
+			if err != nil {
+				service.logger.Error("failed to run cleanup", "error", err)
+			}
+		case <-service.done:
+			service.logger.Debug("cleanup daemon stopped")
 			service.daemonWG.Done()
 
 			return

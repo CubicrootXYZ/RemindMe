@@ -43,6 +43,8 @@ type Service interface {
 	GetLastEvent() (*MatrixEvent, error)
 	NewEvent(event *MatrixEvent) (*MatrixEvent, error)
 	DeleteAllEventsFromRoom(roomID uint) error
+
+	Cleanup() error
 }
 
 // MatrixRoom holds information about a room.
@@ -95,8 +97,8 @@ type MatrixMessage struct {
 	Type             MatrixMessageType
 	Incoming         bool
 	EventID          *uint
-	Event            *database.Event
-	ReplyToMessageID *string `gorm:"size:255"`
+	Event            *database.Event `gorm:"constraint:OnDelete:SET NULL;"`
+	ReplyToMessageID *string         `gorm:"size:255"`
 	ReplyToMessage   *MatrixMessage
 }
 

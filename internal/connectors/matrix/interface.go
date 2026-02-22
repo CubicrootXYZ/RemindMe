@@ -31,4 +31,6 @@ type Service interface {
 	SendReminder(*daemon.Event, *daemon.Output) error
 
 	ToLocalTime(time.Time, *daemon.Output) time.Time
+
+	Cleanup() error
 }

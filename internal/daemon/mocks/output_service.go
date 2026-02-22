@@ -35,6 +35,20 @@ func (m *MockOutputService) EXPECT() *MockOutputServiceMockRecorder {
 	return m.recorder
 }
 
+// Cleanup mocks base method.
+func (m *MockOutputService) Cleanup() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Cleanup")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Cleanup indicates an expected call of Cleanup.
+func (mr *MockOutputServiceMockRecorder) Cleanup() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Cleanup", reflect.TypeOf((*MockOutputService)(nil).Cleanup))
+}
+
 // SendDailyReminder mocks base method.
 func (m *MockOutputService) SendDailyReminder(arg0 *daemon.DailyReminder, arg1 *daemon.Output) error {
 	m.ctrl.T.Helper()
