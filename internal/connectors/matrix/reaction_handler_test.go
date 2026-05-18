@@ -5,17 +5,13 @@ import (
 
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	gomock "github.com/golang/mock/gomock"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
 
 func TestService_ReactionEventHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",

@@ -7,22 +7,25 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
-func testService(ctrl *gomock.Controller) (ical.Service, *icaldb.MockService, *database.MockService) {
+func testService(t *testing.T) (ical.Service, *icaldb.MockService, *database.MockService) {
+	t.Helper()
+
 	url, _ := url.Parse("https://example.com")
-	db := database.NewMockService(ctrl)
-	icalDB := icaldb.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	icalDB := icaldb.NewMockService(t)
 
 	return ical.New(&ical.Config{
 			Database: db,
@@ -34,8 +37,7 @@ func testService(ctrl *gomock.Controller) (ical.Service, *icaldb.MockService, *d
 }
 
 func TestService_InputRemoved(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalInput(uint(1)).Return(nil)
 
@@ -44,8 +46,7 @@ func TestService_InputRemoved(t *testing.T) {
 }
 
 func TestService_InputRemovedWithNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalInput(uint(1)).Return(icaldb.ErrNotFound)
 
@@ -54,16 +55,14 @@ func TestService_InputRemovedWithNotFound(t *testing.T) {
 }
 
 func TestService_InputRemovedWithWrongType(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, _, _ := testService(ctrl)
+	service, _, _ := testService(t)
 
 	err := service.InputRemoved("notical", 1)
 	require.NoError(t, err)
 }
 
 func TestService_InputRemovedWithError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalInput(uint(1)).Return(errors.New("test"))
 
@@ -72,8 +71,7 @@ func TestService_InputRemovedWithError(t *testing.T) {
 }
 
 func TestService_OutputRemoved(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalOutput(uint(1)).Return(nil)
 
@@ -82,8 +80,7 @@ func TestService_OutputRemoved(t *testing.T) {
 }
 
 func TestService_OutputRemovedWithNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalOutput(uint(1)).Return(icaldb.ErrNotFound)
 
@@ -92,16 +89,14 @@ func TestService_OutputRemovedWithNotFound(t *testing.T) {
 }
 
 func TestService_OutputRemovedWithWrongType(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, _, _ := testService(ctrl)
+	service, _, _ := testService(t)
 
 	err := service.OutputRemoved("notical", 1)
 	require.NoError(t, err)
 }
 
 func TestService_OutputRemovedWithError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().DeleteIcalOutput(uint(1)).Return(errors.New("test"))
 
@@ -110,10 +105,9 @@ func TestService_OutputRemovedWithError(t *testing.T) {
 }
 
 func TestService_NewOutput(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, db := testService(ctrl)
+	service, icalDB, db := testService(t)
 
-	icalDB.EXPECT().NewIcalOutput(gomock.Any()).Return(&icaldb.IcalOutput{
+	icalDB.EXPECT().NewIcalOutput(mock.Anything).Return(&icaldb.IcalOutput{
 		Model: gorm.Model{
 			ID: 1,
 		},
@@ -135,10 +129,9 @@ func TestService_NewOutput(t *testing.T) {
 }
 
 func TestService_NewOutputWithAddError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, db := testService(ctrl)
+	service, icalDB, db := testService(t)
 
-	icalDB.EXPECT().NewIcalOutput(gomock.Any()).Return(&icaldb.IcalOutput{
+	icalDB.EXPECT().NewIcalOutput(mock.Anything).Return(&icaldb.IcalOutput{
 		Model: gorm.Model{
 			ID: 1,
 		},
@@ -156,18 +149,16 @@ func TestService_NewOutputWithAddError(t *testing.T) {
 }
 
 func TestService_NewOutputWithNewIcalError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
-	icalDB.EXPECT().NewIcalOutput(gomock.Any()).Return(nil, errors.New("test"))
+	icalDB.EXPECT().NewIcalOutput(mock.Anything).Return(nil, errors.New("test"))
 
 	_, _, err := service.NewOutput(2)
 	require.Error(t, err)
 }
 
 func TestService_GetOutput(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(&icaldb.IcalOutput{
 		Model: gorm.Model{
@@ -184,8 +175,7 @@ func TestService_GetOutput(t *testing.T) {
 }
 
 func TestService_GetOutputWithRegenToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(&icaldb.IcalOutput{
 		Model: gorm.Model{
@@ -213,8 +203,7 @@ func TestService_GetOutputWithRegenToken(t *testing.T) {
 }
 
 func TestService_GetOutputWithNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, icaldb.ErrNotFound)
 
@@ -223,8 +212,7 @@ func TestService_GetOutputWithNotFound(t *testing.T) {
 }
 
 func TestService_GetOutputWithError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, _ := testService(ctrl)
+	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(nil, errors.New("test"))
 
@@ -233,16 +221,19 @@ func TestService_GetOutputWithError(t *testing.T) {
 }
 
 func TestService_Fetcher(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	service, icalDB, db := testService(ctrl)
+	service, icalDB, db := testService(t)
 
 	content, err := os.ReadFile("format/testdata/calendar1.ical")
 	require.NoError(t, err)
 
+	calledMutex := &sync.Mutex{}
 	called := false
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(content)
+
+		calledMutex.Lock()
 		called = true
+		calledMutex.Unlock()
 	}))
 
 	f := false
@@ -300,7 +291,7 @@ func TestService_Fetcher(t *testing.T) {
 			ExternalReference: "3",
 		},
 	}).Return(nil)
-	icalDB.EXPECT().UpdateIcalInput(gomock.Any()).Return(nil, nil)
+	icalDB.EXPECT().UpdateIcalInput(mock.Anything).Return(nil, nil)
 
 	go func() {
 		assert.NoError(t, service.Start())
@@ -310,7 +301,9 @@ func TestService_Fetcher(t *testing.T) {
 	require.NoError(t, service.Stop())
 	time.Sleep(time.Millisecond * 10)
 
+	calledMutex.Lock()
 	assert.True(t, called, "testserver was not called once")
+	calledMutex.Unlock()
 }
 
 func testTime() time.Time {

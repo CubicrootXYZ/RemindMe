@@ -14,14 +14,10 @@ type service struct {
 	config *Config
 }
 
-//go:generate mockgen -destination=mocks/input_service.go -package=mocks . InputService
-
 // InputService defines an interface for any arbitrary input connector.
 type InputService interface {
 	InputRemoved(inputType string, inputID uint) error
 }
-
-//go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
 
 // OutputService defines an interface for any arbitrary output connector.
 type OutputService interface {

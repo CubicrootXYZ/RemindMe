@@ -6,8 +6,6 @@ import (
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database/mocks"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -125,11 +123,8 @@ func TestService_AddOutputToChannel(t *testing.T) {
 }
 
 func TestService_RemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	input := testInput()
-	inputService := mocks.NewMockInputService(ctrl)
+	inputService := database.NewMockInputService(t)
 	inputService.EXPECT().InputRemoved(input.InputType, input.InputID).Return(nil)
 
 	service := getService(&database.Config{
@@ -157,13 +152,10 @@ func TestService_RemoveInputFromChannel(t *testing.T) { //nolint:dupl // wrong h
 }
 
 func TestService_RemoveInputFromChannelWithInputServiceError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	input := testInput()
 	expectedErr := errors.New("test")
 
-	inputService := mocks.NewMockInputService(ctrl)
+	inputService := database.NewMockInputService(t)
 	inputService.EXPECT().InputRemoved(input.InputType, input.InputID).Return(expectedErr)
 
 	service := getService(&database.Config{
@@ -207,11 +199,8 @@ func TestService_RemoveInputFromChannelWithoutInputService(t *testing.T) {
 }
 
 func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong hint
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	output := testOutput()
-	outputService := mocks.NewMockOutputService(ctrl)
+	outputService := database.NewMockOutputService(t)
 	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID).Return(nil)
 
 	service := getService(&database.Config{
@@ -239,13 +228,10 @@ func TestService_RemoveOutputFromChannel(t *testing.T) { //nolint:dupl // wrong 
 }
 
 func TestService_RemoveOutputFromChannelWithOutputServiceError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
 	output := testOutput()
 	expectedErr := errors.New("test")
 
-	outputService := mocks.NewMockOutputService(ctrl)
+	outputService := database.NewMockOutputService(t)
 	outputService.EXPECT().OutputRemoved(output.OutputType, output.OutputID).Return(expectedErr)
 
 	service := getService(&database.Config{

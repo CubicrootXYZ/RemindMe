@@ -12,8 +12,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestDeleteEventAction(t *testing.T) {
@@ -41,13 +41,10 @@ func TestDeleteEventAction_Selector(t *testing.T) {
 
 func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.DeleteEventAction{}
 	action.Configure(
@@ -73,13 +70,13 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 				))
 
 			// Expectations
-			db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
+			db.EXPECT().DeleteEvent(mock.MatchedBy(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event))).
 				Return(nil)
 
-			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			msngr.EXPECT().SendResponse(mock.Anything).Return(&messenger.MessageResponse{
 				ExternalIdentifier: "abcde",
 			}, nil)
-			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+			matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
 				RoomID:  &tests.TestEvent().Room.ID,
@@ -118,13 +115,10 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.DeleteEventAction{}
 	action.Configure(
@@ -150,13 +144,13 @@ func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 				))
 
 			// Expectations
-			db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
+			db.EXPECT().DeleteEvent(mock.MatchedBy(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event))).
 				Return(nil)
 
-			msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+			msngr.EXPECT().SendResponse(mock.Anything).Return(&messenger.MessageResponse{
 				ExternalIdentifier: "abcde",
 			}, nil)
-			matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+			matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 			matrixDB.EXPECT().ListMessages(matrixdb.ListMessageOpts{
 				RoomID:  &tests.TestEvent().Room.ID,
@@ -173,13 +167,10 @@ func TestDeleteEventAction_HandleEventWithFailingListMessages(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithMissingEventID(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.DeleteEventAction{}
 	action.Configure(
@@ -203,13 +194,10 @@ func TestDeleteEventAction_HandleEventWithMissingEventID(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithDeleteError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.DeleteEventAction{}
 	action.Configure(
@@ -228,7 +216,7 @@ func TestDeleteEventAction_HandleEventWithDeleteError(t *testing.T) {
 		))
 
 	// Expect
-	db.EXPECT().DeleteEvent(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event)).
+	db.EXPECT().DeleteEvent(mock.MatchedBy(tests.NewEventMatcher(tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()).Event))).
 		Return(errors.New("test"))
 
 	// Execute

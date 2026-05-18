@@ -40,8 +40,6 @@ type service struct {
 	metricEventInCount *prometheus.CounterVec
 }
 
-//go:generate mockgen -destination=message_action_mock.go -package=matrix . MessageAction
-
 // MessageAction defines an interface for an action on messages.
 type MessageAction interface {
 	Selector() *regexp.Regexp
@@ -50,8 +48,6 @@ type MessageAction interface {
 	Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
 
-//go:generate mockgen -destination=reply_action_mock.go -package=matrix . ReplyAction
-
 // ReplyAction defines an interface for an action on replies.
 type ReplyAction interface {
 	Selector() *regexp.Regexp
@@ -59,8 +55,6 @@ type ReplyAction interface {
 	HandleEvent(event *MessageEvent, replyToMessage *matrixdb.MatrixMessage)
 	Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, bridgeServices *BridgeServices)
 }
-
-//go:generate mockgen -destination=reaction_action_mock.go -package=matrix . ReactionAction
 
 // ReactionAction defines an Interface for an action on reactions.
 type ReactionAction interface {

@@ -8,16 +8,13 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
-	gomock "github.com/golang/mock/gomock"
+	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
 func TestService_SendDailyReminder(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
 		&matrixdb.MatrixRoom{
@@ -45,7 +42,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 		nil,
 	)
 
-	fx.matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+	fx.matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 	err := service.SendDailyReminder(
 		&daemon.DailyReminder{
@@ -66,10 +63,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 }
 
 func TestService_SendDailyReminderWithNewMessageError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
 		&matrixdb.MatrixRoom{
@@ -97,7 +91,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 		nil,
 	)
 
-	fx.matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, errors.New("test"))
+	fx.matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, errors.New("test"))
 
 	err := service.SendDailyReminder(
 		&daemon.DailyReminder{
@@ -118,10 +112,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 }
 
 func TestService_SendDailyReminderWithSendMessageError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	expectedErr := errors.New("test error")
 
@@ -167,10 +158,7 @@ at 11:45 12.11.2014 (UTC) (ID: 56)
 }
 
 func TestService_SendDailyReminderWithGetRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	expectedErr := errors.New("test error")
 

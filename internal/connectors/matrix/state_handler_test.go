@@ -7,17 +7,13 @@ import (
 
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	gomock "github.com/golang/mock/gomock"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
 
 func TestService_EventStateHandlerWithInviteAndGetRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -40,10 +36,7 @@ func TestService_EventStateHandlerWithInviteAndGetRoomError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithInviteWhitelistAndGetRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 	service.config.AllowInvites = false
 	service.config.UserWhitelist = []string{"@user:example.com"}
 
@@ -67,10 +60,7 @@ func TestService_EventStateHandlerWithInviteWhitelistAndGetRoomError(t *testing.
 }
 
 func TestService_EventStateHandlerWithInviteAndGetUserError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -92,10 +82,7 @@ func TestService_EventStateHandlerWithInviteAndGetUserError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithInviteAndGetRoomCountError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -115,10 +102,7 @@ func TestService_EventStateHandlerWithInviteAndGetRoomCountError(t *testing.T) {
 	service.EventStateHandler(mautrix.EventSourceAccountData, &evt)
 }
 func TestService_EventStateHandlerWithInviteAndRoomLimitExceeded(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -139,10 +123,7 @@ func TestService_EventStateHandlerWithInviteAndRoomLimitExceeded(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithInviteAndInvitesDisallowed(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 	service.config.AllowInvites = false
 
 	evt := event.Event{
@@ -163,10 +144,7 @@ func TestService_EventStateHandlerWithInviteAndInvitesDisallowed(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithEventKnown(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -186,10 +164,7 @@ func TestService_EventStateHandlerWithEventKnown(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithGetEventError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -209,10 +184,7 @@ func TestService_EventStateHandlerWithGetEventError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithEventFromBot(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, _ := testService(ctrl)
+	service, _ := testService(t)
 
 	evt := event.Event{
 		Sender:    "@bot:example.com",
@@ -230,10 +202,7 @@ func TestService_EventStateHandlerWithEventFromBot(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithEventToOld(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, _ := testService(ctrl)
+	service, _ := testService(t)
 	service.lastMessageFrom = time.Now()
 
 	evt := event.Event{
@@ -252,10 +221,7 @@ func TestService_EventStateHandlerWithEventToOld(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithLeaveAndDeleteChannelError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -288,10 +254,7 @@ func TestService_EventStateHandlerWithLeaveAndDeleteChannelError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithLeaveAndGetChannelError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -323,10 +286,7 @@ func TestService_EventStateHandlerWithLeaveAndGetChannelError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithRemoveInputError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -357,10 +317,7 @@ func TestService_EventStateHandlerWithRemoveInputError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithGetInputError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -390,10 +347,7 @@ func TestService_EventStateHandlerWithGetInputError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithRemoveOutputError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -422,10 +376,7 @@ func TestService_EventStateHandlerWithRemoveOutputError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithGetOutputError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -453,10 +404,7 @@ func TestService_EventStateHandlerWithGetOutputError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithDeleteRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -482,10 +430,7 @@ func TestService_EventStateHandlerWithDeleteRoomError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithDeleteMessagesError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -510,10 +455,7 @@ func TestService_EventStateHandlerWithDeleteMessagesError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithDeleteEventsError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{
@@ -537,10 +479,7 @@ func TestService_EventStateHandlerWithDeleteEventsError(t *testing.T) {
 }
 
 func TestService_EventStateHandlerWithGetRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	stateKey := "asdfsdg"
 	evt := event.Event{

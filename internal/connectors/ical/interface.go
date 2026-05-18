@@ -19,8 +19,6 @@ var (
 	ErrNotFound = errors.New("not found")
 )
 
-//go:generate mockgen -destination=service_mock.go -package=ical . Service
-
 // Service provides and interface for the ical connector.
 // The connector is suitable for in- and output.
 type Service interface {

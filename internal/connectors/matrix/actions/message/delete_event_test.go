@@ -14,7 +14,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -44,14 +43,11 @@ func TestDeleteEventAction_Selector(t *testing.T) {
 
 func TestDeleteEventAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
@@ -116,14 +112,11 @@ func TestDeleteEventAction_HandleEvent(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
@@ -174,14 +167,11 @@ func TestDeleteEventAction_HandleEventWithDatabaseError(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
@@ -222,14 +212,11 @@ func TestDeleteEventAction_HandleEventWithNewMessageError(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
@@ -264,14 +251,11 @@ func TestDeleteEventAction_HandleEventWithEventNotFound(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
@@ -306,14 +290,11 @@ func TestDeleteEventAction_HandleEventWithListEventsError(t *testing.T) {
 
 func TestDeleteEventAction_HandleEventWithIDNotFound(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.DeleteEventAction{}
 	action.Configure(
