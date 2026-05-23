@@ -10,7 +10,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical"
 	icaldb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/ical/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
@@ -23,10 +22,7 @@ func testTime() time.Time {
 }
 
 func TestAPI_ICALExportHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db, icalDB, server := testServer(ctrl)
+	db, icalDB, server := testServer(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
@@ -80,10 +76,7 @@ func TestAPI_ICALExportHandler(t *testing.T) {
 }
 
 func TestAPI_ICALExportHandlerWithEventsError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db, icalDB, server := testServer(ctrl)
+	db, icalDB, server := testServer(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
@@ -124,10 +117,7 @@ func TestAPI_ICALExportHandlerWithEventsError(t *testing.T) {
 }
 
 func TestAPI_ICALExportHandlerWithOutputNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db, icalDB, server := testServer(ctrl)
+	db, icalDB, server := testServer(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
@@ -161,10 +151,7 @@ func TestAPI_ICALExportHandlerWithOutputNotFound(t *testing.T) {
 }
 
 func TestAPI_ICALExportHandlerWithWrongToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, icalDB, server := testServer(ctrl)
+	_, icalDB, server := testServer(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
@@ -193,10 +180,7 @@ func TestAPI_ICALExportHandlerWithWrongToken(t *testing.T) {
 }
 
 func TestAPI_ICALExportHandlerWithIcalOutputNotFound(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, icalDB, server := testServer(ctrl)
+	_, icalDB, server := testServer(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		nil,
@@ -220,10 +204,7 @@ func TestAPI_ICALExportHandlerWithIcalOutputNotFound(t *testing.T) {
 }
 
 func TestAPI_ICALExportHandlerWithNoToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, _, server := testServer(ctrl)
+	_, _, server := testServer(t)
 
 	req, err := http.NewRequestWithContext(
 		t.Context(),

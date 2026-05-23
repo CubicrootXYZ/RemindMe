@@ -12,8 +12,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestMakeRecurringAction(t *testing.T) {
@@ -41,13 +41,10 @@ func TestMakeRecurringAction_Selector(t *testing.T) {
 
 func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
@@ -69,17 +66,17 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 	// Expectations
 	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
-	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage(
+	db.EXPECT().UpdateEvent(mock.MatchedBy(tests.NewEventMatcher(tests.TestMessage(
 		tests.WithFromTestEvent(),
 		tests.WithTestEvent(),
 		tests.WithRecurringEvent(time.Hour*2),
-	).Event)).
+	).Event))).
 		Return(&database.Event{
 			RepeatUntil: new(time.Now()),
 		}, nil)
 
-	msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{}, nil)
-	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+	msngr.EXPECT().SendResponse(mock.Anything).Return(&messenger.MessageResponse{}, nil)
+	matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 	// Execute
 	action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
@@ -88,13 +85,10 @@ func TestMakeRecurringAction_HandleEvent(t *testing.T) {
 
 func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
@@ -116,14 +110,14 @@ func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 	// Expectations
 	tests.ExpectNewMessageFromEvent(matrixDB, event, matrixdb.MessageTypeChangeEvent, tests.MsgWithDBEventID(1))
 
-	db.EXPECT().UpdateEvent(tests.NewEventMatcher(tests.TestMessage(
+	db.EXPECT().UpdateEvent(mock.MatchedBy(tests.NewEventMatcher(tests.TestMessage(
 		tests.WithFromTestEvent(),
 		tests.WithTestEvent(),
 		tests.WithRecurringEvent(time.Hour*2),
-	).Event)).
+	).Event))).
 		Return(nil, errors.New("test"))
 
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+	msngr.EXPECT().SendResponseAsync(mock.Anything).Return(nil)
 
 	// Execute
 	action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))
@@ -132,13 +126,10 @@ func TestMakeRecurringAction_HandleEventWithUpdateError(t *testing.T) {
 
 func TestMakeRecurringAction_HandleEventWithDurationError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reply.MakeRecurringAction{}
 	action.Configure(
@@ -158,7 +149,7 @@ func TestMakeRecurringAction_HandleEventWithDurationError(t *testing.T) {
 		))
 
 	// Expectations
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+	msngr.EXPECT().SendResponseAsync(mock.Anything).Return(nil)
 
 	// Execute
 	action.HandleEvent(event, tests.TestMessage(tests.WithFromTestEvent(), tests.WithTestEvent()))

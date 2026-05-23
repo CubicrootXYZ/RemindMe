@@ -9,7 +9,6 @@ require (
 	github.com/arran4/golang-ical v0.3.5
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.12.0
-	github.com/golang/mock v1.6.0
 	github.com/lmittmann/tint v1.1.3
 	github.com/prometheus/client_golang v1.23.2
 	github.com/stretchr/testify v1.11.1
@@ -55,6 +54,7 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

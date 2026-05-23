@@ -11,8 +11,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestListCommandsAction(t *testing.T) {
@@ -40,13 +40,10 @@ func TestListCommandsAction_Selector(t *testing.T) {
 
 func TestListCommandsAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.ListCommandsAction{}
 	action.Configure(
@@ -59,9 +56,9 @@ func TestListCommandsAction_HandleEvent(t *testing.T) {
 	)
 
 	// Expectations
-	matrixDB.EXPECT().NewMessage(gomock.Any()).Times(3).Return(nil, nil)
+	matrixDB.EXPECT().NewMessage(mock.Anything).Times(3).Return(nil, nil)
 
-	msngr.EXPECT().SendMessage(gomock.Any()).Times(3).Return(&messenger.MessageResponse{
+	msngr.EXPECT().SendMessage(mock.Anything).Times(3).Return(&messenger.MessageResponse{
 		ExternalIdentifier: "ext1",
 	}, nil)
 

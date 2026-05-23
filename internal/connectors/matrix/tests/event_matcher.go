@@ -10,10 +10,12 @@ type EventMatcher struct {
 	evt *database.Event
 }
 
-func NewEventMatcher(evt *database.Event) *EventMatcher {
-	return &EventMatcher{
+func NewEventMatcher(evt *database.Event) func(any) bool {
+	m := &EventMatcher{
 		evt: evt,
 	}
+
+	return m.Matches
 }
 
 func (matcher *EventMatcher) Matches(x any) bool {

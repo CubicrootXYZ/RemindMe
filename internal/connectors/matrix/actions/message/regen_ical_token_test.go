@@ -14,7 +14,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 )
@@ -46,14 +45,12 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 	user := "@user:example.com"
 
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
 
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.RegenICalTokenAction{}
 	action.Configure(
@@ -83,7 +80,7 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 		SendAt:        time.UnixMilli(92848488),
 		Type:          matrixdb.MessageTypeIcalRegenToken,
 		Incoming:      true,
-	})
+	}).Return(nil, nil)
 
 	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
 		"Your new secret calendar URL is: https://example.com/ical/1?token=abcde",
@@ -105,7 +102,7 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 		SendAt:        time.UnixMilli(92848490),
 		Type:          matrixdb.MessageTypeIcalRegenToken,
 		Incoming:      false,
-	})
+	}).Return(nil, nil)
 
 	action.HandleEvent(tests.TestEvent(
 		tests.MessageWithOutput(database.Output{
@@ -120,14 +117,11 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 
 func TestRegenICalTokenAction_HandleEventWithNoOutput(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.RegenICalTokenAction{}
 	action.Configure(

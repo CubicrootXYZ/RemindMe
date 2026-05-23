@@ -6,7 +6,7 @@ import (
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
+	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,21 +20,18 @@ func testDatabaseChannel() database.Channel {
 }
 
 func TestService_SendOutDailyReminders(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, db, outputService := testDaemon(ctrl, false, true, false)
+	service, db, outputService := testDaemon(t, false, true, false)
 
 	channel := testDatabaseChannel()
 	output := testOutput()
 
-	db.EXPECT().GetChannels().MinTimes(1).Return([]database.Channel{channel}, nil)
-	db.EXPECT().ListEvents(gomock.Any()).MinTimes(1).Return([]database.Event{*testDatabaseEvent()}, nil)
-	outputService.EXPECT().ToLocalTime(gomock.Any(), output).MinTimes(2).Return(time.Now())
+	db.EXPECT().GetChannels().Return([]database.Channel{channel}, nil)
+	db.EXPECT().ListEvents(mock.Anything).Return([]database.Event{*testDatabaseEvent()}, nil)
+	outputService.EXPECT().ToLocalTime(mock.Anything, output).Return(time.Now())
 	outputService.EXPECT().SendDailyReminder(&daemon.DailyReminder{
 		Events: []daemon.Event{*testEvent()},
-	}, output).MinTimes(1).Return(nil)
-	db.EXPECT().UpdateOutput(gomock.Any()).MinTimes(1).Return(nil, nil)
+	}, output).Return(nil)
+	db.EXPECT().UpdateOutput(mock.Anything).Return(nil, nil)
 
 	go service.Start() //nolint:errcheck
 

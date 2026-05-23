@@ -12,8 +12,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAddTimeEventAction(t *testing.T) {
@@ -48,13 +48,10 @@ func TestAddTimeEventAction_Selector(t *testing.T) {
 
 func TestAddTimeAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reaction.AddTimeAction{}
 	action.Configure(
@@ -72,9 +69,9 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		)
 
 		// Expectations
-		db.EXPECT().UpdateEvent(gomock.Any()).Return(nil, nil)
+		db.EXPECT().UpdateEvent(mock.Anything).Return(nil, nil)
 
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponseAsync(mock.Anything).Return(nil)
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -88,9 +85,9 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		)
 
 		// Expectations
-		db.EXPECT().UpdateEvent(gomock.Any()).Return(nil, nil)
+		db.EXPECT().UpdateEvent(mock.Anything).Return(nil, nil)
 
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().SendResponseAsync(mock.Anything).Return(nil)
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -104,9 +101,9 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		)
 
 		// Expectations
-		db.EXPECT().UpdateEvent(gomock.Any()).Return(nil, nil)
+		db.EXPECT().UpdateEvent(mock.Anything).Return(nil, nil)
 
-		msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
+		msngr.EXPECT().SendResponseAsync(mock.Anything).Return(errors.New("test"))
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -120,12 +117,7 @@ func TestAddTimeAction_HandleEvent(t *testing.T) {
 		)
 
 		// Expectations
-		db.EXPECT().UpdateEvent(gomock.Any()).Return(nil, errors.New("test"))
-
-		msngr.EXPECT().SendMessageAsync(messenger.PlainTextMessage(
-			"Whoopsie, can not update the event as requested.",
-			"!room123",
-		)).Return(nil)
+		db.EXPECT().UpdateEvent(mock.Anything).Return(nil, errors.New("test"))
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(

@@ -58,8 +58,6 @@ type service struct {
 	metricItemsCleaned   *prometheus.CounterVec
 }
 
-//go:generate mockgen -destination=mocks/output_service.go -package=mocks . OutputService
-
 // OutputService defines an interface for services handling outputs.
 type OutputService interface {
 	ToLocalTime(time.Time, *Output) time.Time

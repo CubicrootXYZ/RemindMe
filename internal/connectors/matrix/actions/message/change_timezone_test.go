@@ -14,7 +14,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,14 +42,11 @@ func TestChangeTimezoneAction_Selector(t *testing.T) {
 
 func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.ChangeTimezoneAction{}
 	action.Configure(
@@ -107,14 +103,11 @@ func TestChangeTimezoneAction_HandleEvent(t *testing.T) {
 
 func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.ChangeTimezoneAction{}
 	action.Configure(
@@ -152,14 +145,11 @@ func TestChangeTimezoneAction_HandleEventWithInvalidTimezone(t *testing.T) {
 
 func TestChangeTimezoneAction_HandleEventWithUpdateError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.ChangeTimezoneAction{}
 	action.Configure(

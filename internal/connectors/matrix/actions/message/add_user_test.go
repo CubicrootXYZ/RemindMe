@@ -13,8 +13,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
 )
@@ -51,13 +51,10 @@ func TestAddUserAction_Selector(t *testing.T) {
 
 func TestAddUserAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -81,12 +78,12 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+		msngr.EXPECT().SendResponse(mock.Anything).Return(&messenger.MessageResponse{
 			ExternalIdentifier: "resp1",
 			Timestamp:          time.UnixMilli(92848490),
 		}, nil)
-		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
-		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
@@ -109,12 +106,12 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 		)
 		matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 			Return(nil, nil)
-		msngr.EXPECT().SendResponse(gomock.Any()).Return(&messenger.MessageResponse{
+		msngr.EXPECT().SendResponse(mock.Anything).Return(&messenger.MessageResponse{
 			ExternalIdentifier: "resp1",
 			Timestamp:          time.UnixMilli(92848490),
 		}, nil)
-		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
-		matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
+		matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
 
 		// Execute
 		action.HandleEvent(tests.TestEvent(
@@ -128,13 +125,10 @@ func TestAddUserAction_HandleEvent(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -157,8 +151,8 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 	)
 	matrixDB.EXPECT().AddUserToRoom("@user:example.org", tests.TestEvent().Room).
 		Return(nil, nil)
-	matrixDB.EXPECT().NewMessage(gomock.Any()).Return(nil, nil)
-	msngr.EXPECT().SendResponse(gomock.Any()).Return(nil, errors.New("test"))
+	matrixDB.EXPECT().NewMessage(mock.Anything).Return(nil, nil)
+	msngr.EXPECT().SendResponse(mock.Anything).Return(nil, errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
@@ -171,13 +165,10 @@ func TestAddUserAction_HandleEventWithResponseFailed(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -212,13 +203,10 @@ func TestAddUserAction_HandleEventWithAddUserError(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -239,7 +227,7 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 		},
 		nil,
 	)
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
+	msngr.EXPECT().SendResponseAsync(mock.Anything).Return(errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
@@ -257,13 +245,10 @@ func TestAddUserAction_HandleEventWithUserAlreadyInRoom(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -284,7 +269,7 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 		},
 		nil,
 	)
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(nil)
+	msngr.EXPECT().SendResponseAsync(mock.Anything).Return(nil)
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
@@ -297,13 +282,10 @@ func TestAddUserAction_HandleEventWithNoUsername(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(
@@ -322,7 +304,7 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 		},
 		nil,
 	)
-	msngr.EXPECT().SendResponseAsync(gomock.Any()).Return(errors.New("test"))
+	msngr.EXPECT().SendResponseAsync(mock.Anything).Return(errors.New("test"))
 
 	// Execute
 	action.HandleEvent(tests.TestEvent(
@@ -335,13 +317,10 @@ func TestAddUserAction_HandleEventWithUserNotJoined(t *testing.T) {
 
 func TestAddUserAction_HandleEventWithJoinedError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.AddUserAction{}
 	action.Configure(

@@ -15,7 +15,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	dbtests "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database/tests"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -42,14 +41,11 @@ func TestListEventsAction_Selector(t *testing.T) {
 
 func TestListEventsAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.ListEventsAction{}
 	action.Configure(
@@ -101,7 +97,7 @@ at 08:04 02.01.2006 (UTC) (ID: 2824)
 ➡️ <b>test event</b><br>at 08:04 02.01.2006 (UTC) (ID: 2824) <br>`,
 		Type:   matrixdb.MessageTypeEventList,
 		RoomID: 0,
-	})
+	}).Return(nil, nil)
 
 	action.HandleEvent(tests.TestEvent())
 
@@ -111,14 +107,11 @@ at 08:04 02.01.2006 (UTC) (ID: 2824)
 
 func TestListEventsAction_HandleEventWithError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
-	icalBridge := ical.NewMockService(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
+	icalBridge := ical.NewMockService(t)
 
 	action := &message.ListEventsAction{}
 	action.Configure(

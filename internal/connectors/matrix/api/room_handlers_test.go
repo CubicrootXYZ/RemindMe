@@ -8,7 +8,6 @@ import (
 	"time"
 
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,10 +29,7 @@ func testRoom() matrixdb.MatrixRoom {
 }
 
 func TestAPI_ListInputRoomsHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	matrixDB.EXPECT().ListInputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{testRoom()},
@@ -62,10 +58,7 @@ func TestAPI_ListInputRoomsHandler(t *testing.T) {
 }
 
 func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	room := testRoom()
 	matrixDB.EXPECT().ListInputRoomsByChannel(uint(1)).Return(
@@ -95,10 +88,7 @@ func TestAPI_ListInputRoomsHandlerWithEncryption(t *testing.T) {
 }
 
 func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	matrixDB.EXPECT().ListInputRoomsByChannel(uint(1)).Return(
 		nil,
@@ -127,10 +117,7 @@ func TestAPI_ListInputRoomsHandlerWithDatabaseError(t *testing.T) {
 }
 
 func TestAPI_ListInputRoomsHandlerWithInvalidPath(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, _, server := testServer(ctrl)
+	_, _, server := testServer(t)
 
 	req, err := http.NewRequestWithContext(
 		t.Context(),
@@ -149,10 +136,7 @@ func TestAPI_ListInputRoomsHandlerWithInvalidPath(t *testing.T) {
 }
 
 func TestAPI_ListOutputRoomsHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	matrixDB.EXPECT().ListOutputRoomsByChannel(uint(1)).Return(
 		[]matrixdb.MatrixRoom{testRoom()},
@@ -181,10 +165,7 @@ func TestAPI_ListOutputRoomsHandler(t *testing.T) {
 }
 
 func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	room := testRoom()
 	matrixDB.EXPECT().ListOutputRoomsByChannel(uint(1)).Return(
@@ -214,10 +195,7 @@ func TestAPI_ListOutputRoomsHandlerWithEncryption(t *testing.T) {
 }
 
 func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, matrixDB, server := testServer(ctrl)
+	_, matrixDB, server := testServer(t)
 
 	matrixDB.EXPECT().ListOutputRoomsByChannel(uint(1)).Return(
 		nil,
@@ -246,10 +224,7 @@ func TestAPI_ListOutputRoomsHandlerWithDatabaseError(t *testing.T) {
 }
 
 func TestAPI_ListOutputRoomsHandlerWithInvalidPath(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	_, _, server := testServer(ctrl)
+	_, _, server := testServer(t)
 
 	req, err := http.NewRequestWithContext(
 		t.Context(),

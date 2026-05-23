@@ -11,7 +11,6 @@ import (
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -39,16 +38,17 @@ func testRoom() *matrixdb.MatrixRoom {
 	}
 }
 
-func testService(ctrl *gomock.Controller) (service, *fixture) {
+func testService(t *testing.T) (service, *fixture) {
+	t.Helper()
 	fx := fixture{
-		messenger:            messenger.NewMockMessenger(ctrl),
-		matrixDB:             matrixdb.NewMockService(ctrl),
-		db:                   database.NewMockService(ctrl),
-		defaultMessageAction: NewMockMessageAction(ctrl),
-		messageAction:        NewMockMessageAction(ctrl),
-		defaultReplyAction:   NewMockReplyAction(ctrl),
-		replyAction:          NewMockReplyAction(ctrl),
-		reactionAction:       NewMockReactionAction(ctrl),
+		messenger:            messenger.NewMockMessenger(t),
+		matrixDB:             matrixdb.NewMockService(t),
+		db:                   database.NewMockService(t),
+		defaultMessageAction: NewMockMessageAction(t),
+		messageAction:        NewMockMessageAction(t),
+		defaultReplyAction:   NewMockReplyAction(t),
+		replyAction:          NewMockReplyAction(t),
+		reactionAction:       NewMockReactionAction(t),
 	}
 
 	s := service{
@@ -77,10 +77,7 @@ func testService(ctrl *gomock.Controller) (service, *fixture) {
 }
 
 func TestService_MessageEventHandler(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -122,10 +119,7 @@ func TestService_MessageEventHandler(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithMatch(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -161,10 +155,7 @@ func TestService_MessageEventHandlerWithMatch(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithAlreadyKnown(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -194,10 +185,7 @@ func TestService_MessageEventHandlerWithAlreadyKnown(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithUserNotInRoom(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -226,10 +214,7 @@ func TestService_MessageEventHandlerWithUserNotInRoom(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithGetRoomError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -249,10 +234,7 @@ func TestService_MessageEventHandlerWithGetRoomError(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -294,10 +276,7 @@ func TestService_MessageEventHandlerWithDefaultReply(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithReply(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, fx := testService(ctrl)
+	service, fx := testService(t)
 
 	evt := event.Event{
 		Sender:    "@user:example.com",
@@ -340,10 +319,7 @@ func TestService_MessageEventHandlerWithReply(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithFromBot(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, _ := testService(ctrl)
+	service, _ := testService(t)
 
 	evt := event.Event{
 		Sender:    "@bot:example.com",
@@ -361,10 +337,7 @@ func TestService_MessageEventHandlerWithFromBot(t *testing.T) {
 }
 
 func TestService_MessageEventHandlerWithToOld(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, _ := testService(ctrl)
+	service, _ := testService(t)
 	service.lastMessageFrom = time.Now()
 
 	evt := event.Event{

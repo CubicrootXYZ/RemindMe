@@ -13,8 +13,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
 )
 
@@ -43,13 +43,10 @@ func TestChangeEventAction_Selector(t *testing.T) {
 
 func TestChangeEventAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.ChangeEventAction{}
 	action.Configure(
@@ -72,9 +69,10 @@ func TestChangeEventAction_HandleEvent(t *testing.T) {
 		ChannelID: &tests.TestEvent().Channel.ID,
 	}).Return([]database.Event{evt}, nil)
 
-	db.EXPECT().UpdateEvent(&eventMatcher{
+	matcher := &eventMatcher{
 		evt: &evt,
-	}).Return(&evt, nil)
+	}
+	db.EXPECT().UpdateEvent(mock.MatchedBy(matcher.Matches)).Return(&evt, nil)
 
 	msngr.EXPECT().SendMessage(messenger.HTMLMessage(
 		`I rescheduled your reminder
@@ -105,13 +103,10 @@ to ` + today9PM(),
 
 func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.ChangeEventAction{}
 	action.Configure(
@@ -134,9 +129,10 @@ func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 		ChannelID: &tests.TestEvent().Channel.ID,
 	}).Return([]database.Event{evt}, nil)
 
-	db.EXPECT().UpdateEvent(&eventMatcher{
+	matcher := &eventMatcher{
 		evt: &evt,
-	}).Return(nil, errors.New("test"))
+	}
+	db.EXPECT().UpdateEvent(mock.MatchedBy(matcher.Matches)).Return(nil, errors.New("test"))
 
 	msngr.EXPECT().SendResponse(messenger.PlainTextResponse(
 		"Whups, this did not work, sorry.",
@@ -165,13 +161,10 @@ func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 
 func TestChangeEventAction_HandleEventWithNotFound(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.ChangeEventAction{}
 	action.Configure(
@@ -215,13 +208,10 @@ func TestChangeEventAction_HandleEventWithNotFound(t *testing.T) {
 
 func TestChangeEventAction_HandleEventWithMissingID(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &message.ChangeEventAction{}
 	action.Configure(

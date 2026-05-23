@@ -5,20 +5,16 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestService_Cleanup(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	service, db, outputService := testDaemon(ctrl, false, false, true)
+	service, db, outputService := testDaemon(t, false, false, true)
 
 	db.EXPECT().Cleanup(&database.CleanupOpts{
 		OlderThan: 365 * 24 * time.Hour,
-	}).Return(int64(0), nil).MinTimes(1)
-	outputService.EXPECT().Cleanup().Return(nil).MinTimes(1)
+	}).Return(int64(0), nil)
+	outputService.EXPECT().Cleanup().Return(nil)
 
 	go service.Start() //nolint:errcheck
 

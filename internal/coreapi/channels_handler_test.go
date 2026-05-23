@@ -7,17 +7,13 @@ import (
 	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestCoreAPI_ListChannelsHandler(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	server, db := testCoreAPI(ctrl)
+	server, db := testCoreAPI(t)
 
 	// Mock expectations
 	db.EXPECT().GetChannels().Return([]database.Channel{
@@ -45,10 +41,7 @@ func TestCoreAPI_ListChannelsHandler(t *testing.T) {
 
 func TestCoreAPI_ListChannelsHandlerWithError(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	server, db := testCoreAPI(ctrl)
+	server, db := testCoreAPI(t)
 
 	// Mock expectations
 	db.EXPECT().GetChannels().Return(nil, errors.New("test"))
@@ -74,10 +67,7 @@ func TestCoreAPI_ListChannelsHandlerWithError(t *testing.T) {
 
 func TestCoreAPI_ListChannelsHandlerWithoutAuth(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	server, _ := testCoreAPI(ctrl)
+	server, _ := testCoreAPI(t)
 
 	// Assemble request
 	req, err := http.NewRequest(http.MethodGet, server.URL+"/core/channels", nil)

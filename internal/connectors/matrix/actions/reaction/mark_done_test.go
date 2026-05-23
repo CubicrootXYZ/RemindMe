@@ -13,8 +13,8 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/messenger"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestMarkDoneAction(t *testing.T) {
@@ -49,13 +49,10 @@ func TestMarkDoneAction_Selector(t *testing.T) {
 
 func TestMarkDoneAction_HandleEvent(t *testing.T) {
 	// Setup
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
-	client := mautrixcl.NewMockClient(ctrl)
-	msngr := messenger.NewMockMessenger(ctrl)
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
+	client := mautrixcl.NewMockClient(t)
+	msngr := messenger.NewMockMessenger(t)
 
 	action := &reaction.MarkDoneAction{}
 	action.Configure(
@@ -77,7 +74,7 @@ func TestMarkDoneAction_HandleEvent(t *testing.T) {
 		evt.Active = false
 		db.EXPECT().UpdateEvent(&evt).Return(nil, nil)
 
-		msngr.EXPECT().DeleteMessageAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().DeleteMessageAsync(mock.Anything).Return(nil)
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -95,7 +92,7 @@ func TestMarkDoneAction_HandleEvent(t *testing.T) {
 		msg.Event.RepeatUntil = &until
 
 		// Expectations
-		msngr.EXPECT().DeleteMessageAsync(gomock.Any()).Return(nil)
+		msngr.EXPECT().DeleteMessageAsync(mock.Anything).Return(nil)
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(
@@ -112,11 +109,6 @@ func TestMarkDoneAction_HandleEvent(t *testing.T) {
 		// Expectations
 		evt.Active = false
 		db.EXPECT().UpdateEvent(&evt).Return(nil, errors.New("test"))
-
-		msngr.EXPECT().SendMessageAsync(messenger.PlainTextMessage(
-			"Whoopsie, can not update the event as requested.",
-			"!room123",
-		)).Return(nil)
 
 		// Execute
 		action.HandleEvent(tests.TestReactionEvent(

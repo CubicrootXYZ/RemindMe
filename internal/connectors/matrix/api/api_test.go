@@ -3,17 +3,18 @@ package api_test
 import (
 	"log/slog"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/api"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/gin-gonic/gin"
-	"github.com/golang/mock/gomock"
 )
 
-func testServer(ctrl *gomock.Controller) (*database.MockService, *matrixdb.MockService, *httptest.Server) { //nolint:unparam
-	db := database.NewMockService(ctrl)
-	matrixDB := matrixdb.NewMockService(ctrl)
+func testServer(t *testing.T) (*database.MockService, *matrixdb.MockService, *httptest.Server) { //nolint:unparam
+	t.Helper()
+	db := database.NewMockService(t)
+	matrixDB := matrixdb.NewMockService(t)
 
 	api := api.New(&api.Config{
 		Database:            db,
