@@ -14,8 +14,8 @@ import (
 // @contact.name Support
 // @contact.url https://github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot
 
-// @host your-bot-domain.tld
-// @BasePath /
+// @servers.url your-bot-domain.tld/
+// @servers.description An example URL where your RemindMe instance is running at
 // @query.collection.format multi
 
 // @securityDefinitions.apikey APIKeyAuthentication
