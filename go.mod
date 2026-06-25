@@ -16,7 +16,7 @@ require (
 	github.com/tj/go-naturaldate v1.3.0
 	golang.org/x/sync v0.21.0
 	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.31.1
+	gorm.io/gorm v1.31.2
 	maunium.net/go/mautrix v0.13.0
 )
 
