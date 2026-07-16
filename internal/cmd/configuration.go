@@ -92,7 +92,7 @@ func (config *Config) logger() *slog.Logger {
 
 	switch config.Logger.Format {
 	case "text":
-		handler = tint.NewHandler(os.Stdout, &tint.Options{
+		handler = tint.NewTextHandler(os.Stdout, &tint.Options{
 			AddSource:  true,
 			Level:      logLevel,
 			TimeFormat: time.RFC3339Nano,

@@ -32,6 +32,8 @@ linters:
     - noinlineerr
     - funcorder
     - prealloc
+    - gomodguard
+    - goconst
   settings:
     cyclop:
       max-complexity: 30
