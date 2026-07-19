@@ -16,10 +16,10 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-var setDailyReminderRegex = regexp.MustCompile("(?i)^(set|update|change|)[ ]*(the|a|my|)[ ]*(daily reminder|daily info|daily message).*")
+var setDefaultReminderTimeRegex = regexp.MustCompile("(?i)^(set|update|change|)[ ]*(the|a|my|)[ ]*(default|)[ ]*(reminder time|remind time|reminder).*")
 
-// SetDailyReminderAction sets the time for the daily reminder.
-type SetDailyReminderAction struct {
+// SetDefaultReminderTimeAction sets the time for the daily reminder.
+type SetDefaultReminderTimeAction struct {
 	logger    *slog.Logger
 	client    mautrixcl.Client
 	messenger messenger.Messenger
@@ -29,7 +29,7 @@ type SetDailyReminderAction struct {
 }
 
 // Configure is called on startup and sets all dependencies.
-func (action *SetDailyReminderAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
+func (action *SetDefaultReminderTimeAction) Configure(logger *slog.Logger, client mautrixcl.Client, messenger messenger.Messenger, matrixDB matrixdb.Service, db database.Service, _ *matrix.BridgeServices) {
 	action.logger = logger
 	action.client = client
 	action.matrixDB = matrixDB
@@ -39,26 +39,26 @@ func (action *SetDailyReminderAction) Configure(logger *slog.Logger, client maut
 }
 
 // Name of the action
-func (action *SetDailyReminderAction) Name() string {
-	return "Set Daily Reminder"
+func (action *SetDefaultReminderTimeAction) Name() string {
+	return "Set Default Reminder Time"
 }
 
 // GetDocu returns the documentation for the action.
-func (action *SetDailyReminderAction) GetDocu() (title, explaination string, examples []string) {
-	return "Set Daily Reminder",
-		"Set the time to send a reminder of todays events",
-		[]string{"daily reminder at 9am", "daily reminder at 13:00", "set the daily info at 4:00"}
+func (action *SetDefaultReminderTimeAction) GetDocu() (title, explanation string, examples []string) {
+	return "Set Default Reminder Time",
+		"Set the default time to use if no time is given",
+		[]string{"default reminder at 9am", "default reminder at 13:00", "set the remind time to 4:00"}
 }
 
 // Selector defines a regex on what messages the action should be used.
-func (action *SetDailyReminderAction) Selector() *regexp.Regexp {
-	return setDailyReminderRegex
+func (action *SetDefaultReminderTimeAction) Selector() *regexp.Regexp {
+	return setDefaultReminderTimeRegex
 }
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
-func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
+func (action *SetDefaultReminderTimeAction) HandleEvent(event *matrix.MessageEvent) {
 	dbMsg := mapping.MessageFromEvent(event)
-	dbMsg.Type = matrixdb.MessageTypeSetDailyReminder
+	dbMsg.Type = matrixdb.MessageTypeSetDefaultReminderTime
 
 	_, err := action.matrixDB.NewMessage(dbMsg)
 	if err != nil {
@@ -70,24 +70,29 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 		action.logger.Error("failed to parse time", "error", err)
 
 		msg := "Sorry, I was not able to understand the time."
-		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
+		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDefaultReminderTimeError, *event)
 
 		return
 	}
 
-	minutesSinceMidnight := uint(timeRemind.In(time.UTC).Hour()*60 + timeRemind.In(time.UTC).Minute())
-	event.Channel.DailyReminder = &minutesSinceMidnight
+	loc := time.UTC
+	if parsedLoc, err := time.LoadLocation(event.Room.TimeZone); err == nil {
+		loc = parsedLoc
+	}
+
+	minutesSinceMidnight := uint(timeRemind.In(loc).Hour()*60 + timeRemind.In(loc).Minute())
+	event.Channel.DefaultReminderTime = &minutesSinceMidnight
 
 	_, err = action.db.UpdateChannel(event.Channel)
 	if err != nil {
 		action.logger.Error("failed to update channel", "error", err)
 
 		msg := "Whups, could not save that change. Sorry, try again later."
-		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDailyReminderError, *event)
+		go action.storer.SendAndStoreMessage(msg, msg, matrixdb.MessageTypeSetDefaultReminderTimeError, *event)
 
 		return
 	}
 
-	msg := fmt.Sprintf("I will send you a daily overview at %s. To disable the reminder message me with \"delete daily reminder\".", format.TimeToHourAndMinute(timeRemind))
-	go action.storer.SendAndStoreResponse(msg, matrixdb.MessageTypeSetDailyReminder, *event)
+	msg := fmt.Sprintf("I will use %s as default for your reminders.", format.TimeToHourAndMinute(timeRemind))
+	go action.storer.SendAndStoreResponse(msg, matrixdb.MessageTypeSetDefaultReminderTime, *event)
 }

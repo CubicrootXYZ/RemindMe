@@ -34,6 +34,7 @@ linters:
     - prealloc
     - gomodguard
     - goconst
+    - dupl
   settings:
     cyclop:
       max-complexity: 30

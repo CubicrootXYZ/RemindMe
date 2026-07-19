@@ -212,6 +212,7 @@ func assembleMatrixConfig(config *Config, icalConnector ical.Service) *matrix.Co
 		&message.RegenICalTokenAction{},
 		&message.ChangeEventAction{},
 		&message.ListCommandsAction{},
+		&message.SetDefaultReminderTimeAction{},
 	)
 
 	cfg.ReactionActions = append(cfg.ReactionActions,
