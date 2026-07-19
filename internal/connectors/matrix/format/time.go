@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/tj/go-naturaldate"
 
 	_ "time/tzdata" // Import timezone data.
@@ -17,12 +18,14 @@ const (
 	DateFormatShort = "Mon, 02 Jan"
 	// TimeFormatShort is a short time format used.
 	TimeFormatShort = "15:04 (MST)"
+
+	DefaultReminderTime = 9 * time.Hour
 )
 
 // ParseTime parses the time from the input.
 // If a timezone is given the returned time.Time will be in that timezone.
 // rawDate disabled will try to find a date in the future.
-func ParseTime(msg string, timeZone string, rawDate bool) (time.Time, error) {
+func ParseTime(channel *database.Channel, msg string, timeZone string, rawDate bool) (time.Time, error) {
 	// Clear body from characters the library can not handle
 	msg = string(alphaNumericString([]byte(StripReply(msg))))
 
@@ -47,7 +50,13 @@ func ParseTime(msg string, timeZone string, rawDate bool) (time.Time, error) {
 	if !rawDate {
 		timeString := parsedTime.In(loc).Format("15:04")
 		if timeString == "00:00" && (!strings.Contains(msg, "00:00") && !strings.Contains(msg, "12am") && !strings.Contains(msg, "24:00")) {
-			parsedTime = parsedTime.Add(9 * time.Hour)
+			if channel.DefaultReminderTime != nil {
+				// Use channel default value.
+				parsedTime = parsedTime.Add(time.Duration(*channel.DefaultReminderTime) * time.Minute)
+			} else {
+				// Fall back to global default.
+				parsedTime = parsedTime.Add(9 * time.Hour)
+			}
 		}
 	}
 

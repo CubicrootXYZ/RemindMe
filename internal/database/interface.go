@@ -65,10 +65,12 @@ type Service interface {
 type Channel struct {
 	gorm.Model
 
-	Description   string
-	DailyReminder *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
-	Inputs        []Input
-	Outputs       []Output
+	Description         string
+	DailyReminder       *uint // minutes from midnight when to send the daily reminder. Null to deactivate.
+	DefaultReminderTime *uint // minutes from midnight.
+
+	Inputs  []Input
+	Outputs []Output
 }
 
 // Input takes in data.

@@ -55,7 +55,7 @@ func (action *NewEventAction) Selector() *regexp.Regexp {
 
 // HandleEvent is where the message event get's send to if it matches the Selector.
 func (action *NewEventAction) HandleEvent(event *matrix.MessageEvent) {
-	remindTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
+	remindTime, err := format.ParseTime(event.Channel, event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
 		action.logger.Error("failed to extract time from message", "error", err)
 		_ = action.messenger.SendResponseAsync(messenger.PlainTextResponse(

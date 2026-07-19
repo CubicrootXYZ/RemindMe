@@ -80,6 +80,7 @@ func (action *ListCommandsAction) listMessageCommands(event *matrix.MessageEvent
 		&NewEventAction{},
 		&RegenICalTokenAction{},
 		&SetDailyReminderAction{},
+		&SetDefaultReminderTimeAction{},
 	} {
 		title, explain, examples := action.GetDocu()
 		msg.BoldLine(title)

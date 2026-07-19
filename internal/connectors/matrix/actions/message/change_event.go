@@ -75,7 +75,7 @@ func (action *ChangeEventAction) HandleEvent(event *matrix.MessageEvent) {
 		return
 	}
 
-	newTime, err := format.ParseTime(event.Content.Body, event.Room.TimeZone, false)
+	newTime, err := format.ParseTime(event.Channel, event.Content.Body, event.Room.TimeZone, false)
 	if err != nil {
 		action.logger.Error("failed to parse time", "error", err)
 
