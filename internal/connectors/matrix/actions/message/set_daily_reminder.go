@@ -75,7 +75,12 @@ func (action *SetDailyReminderAction) HandleEvent(event *matrix.MessageEvent) {
 		return
 	}
 
-	minutesSinceMidnight := uint(timeRemind.In(time.UTC).Hour()*60 + timeRemind.In(time.UTC).Minute())
+	loc := time.UTC
+	if parsedLoc, err := time.LoadLocation(event.Room.TimeZone); err == nil {
+		loc = parsedLoc
+	}
+
+	minutesSinceMidnight := uint(timeRemind.In(loc).Hour()*60 + timeRemind.In(loc).Minute())
 	event.Channel.DailyReminder = &minutesSinceMidnight
 
 	_, err = action.db.UpdateChannel(event.Channel)
