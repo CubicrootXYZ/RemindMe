@@ -15,7 +15,7 @@ daemon:
     # Check for daily reminders, in seconds
     dailyreminders: 600
     # Resend reminder for important events without acknowledgement, in seconds
-    resend_unacknowledged: 3600
+    resendunacknowledged: 3600
 
 # Matrix connector settings
 matrix:
