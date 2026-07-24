@@ -25,6 +25,7 @@ A matrix bot that handles reminders and knows your agenda.
 * Repeatable reminders
 * Import reminders from an Ical link _(via API)_
 * iCal export of all reminders
+* Important reminders popping up until acknowledged
 * Allow bot to be invited _(enable in settings)_
 * Whitelist of matrix accounts to interact with _(enable in settings)_
 * HTTP API _(enable in settings)_

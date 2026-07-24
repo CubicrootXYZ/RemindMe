@@ -67,10 +67,11 @@ type OutputService interface {
 }
 
 type Config struct {
-	OutputServices        map[string]OutputService // Maps OutputTypes to the services
-	EventsInterval        time.Duration            // Interval in which to send out event reminders
-	DailyReminderInterval time.Duration            // Interval in which to send out daily reminder
-	CleanupInterval       time.Duration            // Interval in which to run cleanup
+	OutputServices               map[string]OutputService // Maps OutputTypes to the services
+	EventsInterval               time.Duration            // Interval in which to send out event reminders
+	DailyReminderInterval        time.Duration            // Interval in which to send out daily reminder
+	CleanupInterval              time.Duration            // Interval in which to run cleanup
+	ResendUnacknowledgedInterval time.Duration            // Duration to resend unacknowledged events again.
 }
 
 // New assembles a new service.

@@ -10,7 +10,7 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 )
 
-// MarkDoneAction takes cafe of delete requests via reactions.
+// MarkDoneAction takes care of delete requests via reactions.
 type MarkDoneAction struct {
 	logger    *slog.Logger
 	client    mautrixcl.Client

@@ -41,8 +41,9 @@ type configDatabase struct {
 
 type configDaemon struct {
 	Intervals struct {
-		Events         uint `default:"30"`
-		DailyReminders uint `default:"600"`
+		Events               uint `default:"30"`
+		DailyReminders       uint `default:"600"`
+		ResendUnacknowledged uint `default:"3600"`
 	}
 }
 
@@ -113,8 +114,9 @@ func (config *Config) logger() *slog.Logger {
 
 func (config *Config) daemonConfig() *daemon.Config {
 	return &daemon.Config{
-		EventsInterval:        time.Second * time.Duration(config.Daemon.Intervals.Events),
-		DailyReminderInterval: time.Second * time.Duration(config.Daemon.Intervals.DailyReminders),
+		EventsInterval:               time.Second * time.Duration(config.Daemon.Intervals.Events),
+		DailyReminderInterval:        time.Second * time.Duration(config.Daemon.Intervals.DailyReminders),
+		ResendUnacknowledgedInterval: time.Second * time.Duration(config.Daemon.Intervals.ResendUnacknowledged),
 	}
 }
 
