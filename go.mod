@@ -10,7 +10,7 @@ require (
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/lmittmann/tint v1.2.0
-	github.com/prometheus/client_golang v1.24.0
+	github.com/prometheus/client_golang v1.24.1
 	github.com/stretchr/testify v1.11.1
 	github.com/teambition/rrule-go v1.8.2
 	github.com/tj/go-naturaldate v1.3.0
