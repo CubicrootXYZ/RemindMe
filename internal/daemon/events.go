@@ -1,6 +1,10 @@
 package daemon
 
-import "time"
+import (
+	"time"
+
+	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
+)
 
 func (service *service) sendOutEvents() error {
 	events, err := service.database.GetEventsPending()
@@ -46,10 +50,16 @@ func (service *service) sendOutEvents() error {
 		}
 
 		nextTime := event.NextEventTime()
-		if !nextTime.IsZero() {
-			event.Time = nextTime
+		if nextTime.IsZero() {
+			if event.Importance < database.ImportanceImportant {
+				// Automatically acknowledged not important events.
+				event.Active = false
+			} else {
+				// Important events are rescheduled according to the configured interval until they are acknowledged.
+				event.Time = event.Time.Add(service.config.ResendUnacknowledgedInterval)
+			}
 		} else {
-			event.Active = false
+			event.Time = nextTime
 		}
 
 		_, err = service.database.UpdateEvent(&event)

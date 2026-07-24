@@ -20,9 +20,10 @@ func testDaemon(t *testing.T, events, daily, cleanup bool) (daemon.Service, *dat
 		OutputServices: map[string]daemon.OutputService{
 			"test": outputService,
 		},
-		EventsInterval:        intervalFromBool(events),
-		DailyReminderInterval: intervalFromBool(daily),
-		CleanupInterval:       intervalFromBool(cleanup),
+		EventsInterval:               intervalFromBool(events),
+		DailyReminderInterval:        intervalFromBool(daily),
+		CleanupInterval:              intervalFromBool(cleanup),
+		ResendUnacknowledgedInterval: time.Hour,
 	}, db, slog.Default()), db, outputService
 }
 
@@ -54,8 +55,10 @@ func interval40Hours() *time.Duration {
 	return &d
 }
 
-func testDatabaseEvent() *database.Event {
-	return &database.Event{
+type databaseEventManipulator func(*database.Event)
+
+func testDatabaseEvent(m ...databaseEventManipulator) *database.Event {
+	e := &database.Event{
 		Time:           time2123(),
 		Message:        "test",
 		RepeatInterval: interval40Hours(),
@@ -63,6 +66,25 @@ func testDatabaseEvent() *database.Event {
 		Channel: database.Channel{
 			Outputs: []database.Output{*testDatabaseOutput()},
 		},
+	}
+
+	for _, manip := range m {
+		manip(e)
+	}
+
+	return e
+}
+
+func testDatabaseEventWithImportanceImportant() databaseEventManipulator {
+	return func(e *database.Event) {
+		e.Importance = database.ImportanceImportant
+	}
+}
+
+func testDatabaseEventWithRecurring(interval time.Duration, until time.Time) databaseEventManipulator {
+	return func(e *database.Event) {
+		e.RepeatInterval = &interval
+		e.RepeatUntil = &until
 	}
 }
 
@@ -77,12 +99,33 @@ func testDatabaseOutput() *database.Output {
 	return output
 }
 
-func testEvent() *daemon.Event {
-	return &daemon.Event{
+type eventManipulator func(*daemon.Event)
+
+func testEvent(m ...eventManipulator) *daemon.Event {
+	e := &daemon.Event{
 		EventTime:      time2123(),
 		Message:        "test",
 		RepeatInterval: interval40Hours(),
 		RepeatUntil:    timeP2122(),
+	}
+
+	for _, manip := range m {
+		manip(e)
+	}
+
+	return e
+}
+
+func testEventWithImportanceImportant() eventManipulator {
+	return func(e *daemon.Event) {
+		e.Importance = daemon.ImportanceImportant
+	}
+}
+
+func testEventWithRecurring(interval time.Duration, until time.Time) eventManipulator {
+	return func(e *daemon.Event) {
+		e.RepeatInterval = &interval
+		e.RepeatUntil = &until
 	}
 }
 
@@ -102,6 +145,48 @@ func TestService_SendOutEvents(t *testing.T) {
 	outputService.EXPECT().SendReminder(testEvent(), testOutput()).Return(nil)
 
 	event.Active = false
+	db.EXPECT().UpdateEvent(event).Return(nil, nil)
+
+	go service.Start() //nolint:errcheck
+
+	time.Sleep(time.Millisecond * 5) // give time to execute
+
+	err := service.Stop()
+	require.NoError(t, err)
+}
+
+func TestService_SendOutEventsWithImportantEvent(t *testing.T) {
+	service, db, outputService := testDaemon(t, true, false, false)
+
+	event := testDatabaseEvent(testDatabaseEventWithImportanceImportant())
+	db.EXPECT().GetEventsPending().Return([]database.Event{*event}, nil)
+	outputService.EXPECT().SendReminder(
+		testEvent(testEventWithImportanceImportant()),
+		testOutput(),
+	).Return(nil)
+
+	event.Time = testEvent().EventTime.Add(time.Hour)
+	db.EXPECT().UpdateEvent(event).Return(nil, nil)
+
+	go service.Start() //nolint:errcheck
+
+	time.Sleep(time.Millisecond * 5) // give time to execute
+
+	err := service.Stop()
+	require.NoError(t, err)
+}
+
+func TestService_SendOutEventsWithRecurringEvent(t *testing.T) {
+	service, db, outputService := testDaemon(t, true, false, false)
+
+	event := testDatabaseEvent(testDatabaseEventWithRecurring(time.Hour, time2123().Add(time.Hour*12)))
+	db.EXPECT().GetEventsPending().Return([]database.Event{*event}, nil)
+	outputService.EXPECT().SendReminder(
+		testEvent(testEventWithRecurring(time.Hour, time2123().Add(time.Hour*12))),
+		testOutput(),
+	).Return(nil)
+
+	event.Time = testEvent().EventTime.Add(time.Hour)
 	db.EXPECT().UpdateEvent(event).Return(nil, nil)
 
 	go service.Start() //nolint:errcheck

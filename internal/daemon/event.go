@@ -11,5 +11,6 @@ func eventFromDatabase(event *database.Event) *Event {
 		Message:        event.Message,
 		RepeatInterval: event.RepeatInterval,
 		RepeatUntil:    event.RepeatUntil,
+		Importance:     Importance(event.Importance),
 	}
 }
