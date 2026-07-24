@@ -41,8 +41,9 @@ type configDatabase struct {
 
 type configDaemon struct {
 	Intervals struct {
-		Events         uint `default:"30"`
-		DailyReminders uint `default:"600"`
+		Events               uint `default:"30"`
+		DailyReminders       uint `default:"600"`
+		ResendUnacknowledged uint `default:"3600"`
 	}
 }
 

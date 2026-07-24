@@ -11,6 +11,14 @@ type Service interface {
 	Stop() error
 }
 
+// Importance of the event.
+type Importance int
+
+const (
+	ImportanceDefault   Importance = 0
+	ImportanceImportant Importance = 1
+)
+
 // Event holds information about a reminder.
 type Event struct {
 	ID             uint
@@ -18,6 +26,7 @@ type Event struct {
 	Message        string
 	RepeatInterval *time.Duration
 	RepeatUntil    *time.Time
+	Importance     Importance
 }
 
 // DailyReminder holds information about a daily reminder.

@@ -96,6 +96,14 @@ type Output struct {
 	LastDailyReminder *time.Time // Daily reminder is determined by channel, but any channel will be retried until success
 }
 
+// Importance defines how important an event is.
+type Importance int
+
+const (
+	ImportanceDefault   Importance = 0
+	ImportanceImportant Importance = 1
+)
+
 // Event holds information about an event
 type Event struct {
 	gorm.Model
@@ -111,4 +119,5 @@ type Event struct {
 	InputID           *uint
 	Input             *Input
 	ExternalReference string
+	Importance        Importance
 }

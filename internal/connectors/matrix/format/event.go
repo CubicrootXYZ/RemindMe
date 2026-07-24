@@ -28,6 +28,10 @@ func MessageFromEvent(event *daemon.Event, timeZone string) (string, string, err
 		f.Text("🔁")
 	}
 
+	if event.Importance == daemon.ImportanceImportant {
+		f.Text("⚠️")
+	}
+
 	msg, msgFormatted := f.Build()
 
 	return msg, msgFormatted, nil
