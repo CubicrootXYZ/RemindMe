@@ -136,7 +136,7 @@ func TestSetDailyReminderAction_HandleEvent_WithTimezone(t *testing.T) {
 	).Return(nil, nil)
 
 	channel := tests.TestEvent().Channel
-	channel.DailyReminder = new(uint(480))
+	channel.DailyReminder = new(uint(600))
 	db.EXPECT().UpdateChannel(channel).Return(nil, nil)
 
 	msngr.EXPECT().SendResponse(&messenger.Response{
