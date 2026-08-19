@@ -6,7 +6,7 @@ require (
 	github.com/CubicrootXYZ/configor v1.0.0
 	github.com/CubicrootXYZ/gonaturalduration v0.7.0
 	github.com/CubicrootXYZ/gormlogger v0.0.0-20211030135540-f090b6c3590d
-	github.com/arran4/golang-ical v0.3.5
+	github.com/arran4/golang-ical v0.3.6
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/lmittmann/tint v1.2.0
