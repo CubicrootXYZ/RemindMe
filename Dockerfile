@@ -1,4 +1,4 @@
-FROM golang:1.26.6-alpine3.23 as builder
+FROM golang:1.26.7-alpine3.23 as builder
 ARG VERSION="development"
 
 WORKDIR /run
