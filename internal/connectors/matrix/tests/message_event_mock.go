@@ -6,7 +6,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"gorm.io/gorm"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
@@ -31,14 +30,10 @@ func TestEvent(opts ...MessageEventOpt) *matrix.MessageEvent {
 			TimeZone: "UTC",
 		},
 		Channel: &database.Channel{
-			Model: gorm.Model{
-				ID: 68272,
-			},
+			ID: 68272,
 		},
 		Input: &database.Input{
-			Model: gorm.Model{
-				ID: 187,
-			},
+			ID: 187,
 		},
 	}
 
@@ -79,9 +74,7 @@ func TestMessage(opts ...MessageOpt) *matrixdb.MatrixMessage {
 		ID:      "msg1",
 		EventID: new(uint(1)),
 		Event: &database.Event{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:      1,
 			Message: "test event",
 		},
 	}
@@ -109,9 +102,7 @@ func WithFromTestEvent() MessageOpt {
 func WithTestEvent() MessageOpt {
 	return func(msg *matrixdb.MatrixMessage) {
 		msg.Event = &database.Event{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:   1,
 			Time: time.UnixMilli(92848488),
 		}
 		msg.EventID = new(uint(1))

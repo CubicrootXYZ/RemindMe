@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func testService(t *testing.T) (ical.Service, *icaldb.MockService, *database.MockService) {
@@ -108,9 +107,7 @@ func TestService_NewOutput(t *testing.T) {
 	service, icalDB, db := testService(t)
 
 	icalDB.EXPECT().NewIcalOutput(mock.Anything).Return(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:    1,
 		Token: "abcde",
 	}, nil)
 
@@ -132,9 +129,7 @@ func TestService_NewOutputWithAddError(t *testing.T) {
 	service, icalDB, db := testService(t)
 
 	icalDB.EXPECT().NewIcalOutput(mock.Anything).Return(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID: 1,
 	}, nil)
 
 	db.EXPECT().AddOutputToChannel(uint(2), &database.Output{
@@ -161,9 +156,7 @@ func TestService_GetOutput(t *testing.T) {
 	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:    1,
 		Token: "abcde",
 	}, nil)
 
@@ -178,20 +171,14 @@ func TestService_GetOutputWithRegenToken(t *testing.T) {
 	service, icalDB, _ := testService(t)
 
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:    1,
 		Token: "abcde",
 	}, nil)
 	icalDB.EXPECT().GenerateNewToken(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:    1,
 		Token: "abcde",
 	}).Return(&icaldb.IcalOutput{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:    1,
 		Token: "abcde",
 	}, nil)
 
@@ -241,17 +228,13 @@ func TestService_Fetcher(t *testing.T) {
 		Disabled: &f,
 	}).Return([]icaldb.IcalInput{
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:  1,
 			URL: server.URL + "/",
 		},
 	}, nil)
 
 	db.EXPECT().GetInputByType(uint(1), "ical").Return(&database.Input{
-		Model: gorm.Model{
-			ID: 2,
-		},
+		ID:        2,
 		ChannelID: 3,
 	}, nil)
 

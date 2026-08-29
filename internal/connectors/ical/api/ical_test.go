@@ -12,7 +12,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func testTime() time.Time {
@@ -27,9 +26,7 @@ func TestAPI_ICALExportHandler(t *testing.T) {
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
 			Token: "1234",
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:    2,
 		},
 		nil,
 	)
@@ -44,9 +41,7 @@ func TestAPI_ICALExportHandler(t *testing.T) {
 	db.EXPECT().GetEventsByChannel(uint(34)).Return(
 		[]database.Event{
 			{
-				Model: gorm.Model{
-					ID: 69,
-				},
+				ID:      69,
 				Time:    testTime(),
 				Message: "my msg",
 			},
@@ -81,9 +76,7 @@ func TestAPI_ICALExportHandlerWithEventsError(t *testing.T) {
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
 			Token: "1234",
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:    2,
 		},
 		nil,
 	)
@@ -122,9 +115,7 @@ func TestAPI_ICALExportHandlerWithOutputNotFound(t *testing.T) {
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
 			Token: "1234",
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:    2,
 		},
 		nil,
 	)
@@ -156,9 +147,7 @@ func TestAPI_ICALExportHandlerWithWrongToken(t *testing.T) {
 	icalDB.EXPECT().GetIcalOutputByID(uint(1)).Return(
 		&icaldb.IcalOutput{
 			Token: "12345",
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:    2,
 		},
 		nil,
 	)

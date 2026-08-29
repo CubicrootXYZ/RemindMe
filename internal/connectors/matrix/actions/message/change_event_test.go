@@ -15,7 +15,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
 )
 
 func TestChangeEventAction(t *testing.T) {
@@ -59,9 +58,7 @@ func TestChangeEventAction_HandleEvent(t *testing.T) {
 	)
 
 	evt := database.Event{
-		Model: gorm.Model{
-			ID: 45,
-		},
+		ID: 45,
 	}
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{
@@ -119,9 +116,7 @@ func TestChangeEventAction_HandleEventWithUpdateError(t *testing.T) {
 	)
 
 	evt := database.Event{
-		Model: gorm.Model{
-			ID: 45,
-		},
+		ID: 45,
 	}
 
 	db.EXPECT().ListEvents(&database.ListEventsOpts{

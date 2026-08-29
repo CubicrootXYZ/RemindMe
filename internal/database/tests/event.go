@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"gorm.io/gorm"
 )
 
 func refTime() time.Time {
@@ -16,9 +15,7 @@ type EventOpts func(*database.Event)
 
 func TestEvent(opts ...EventOpts) database.Event {
 	event := database.Event{
-		Model: gorm.Model{
-			ID: 2824,
-		},
+		ID:       2824,
 		Duration: time.Hour,
 		Message:  "test event",
 		Time:     refTime(),

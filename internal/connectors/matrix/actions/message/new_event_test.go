@@ -16,7 +16,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gorm.io/gorm"
 )
 
 func TestNewEventAction(t *testing.T) {
@@ -77,9 +76,7 @@ func TestNewEventAction_HandleEvent(t *testing.T) {
 				},
 			}
 			db.EXPECT().NewEvent(mock.MatchedBy(matcher.Matches)).Return(&database.Event{
-				Model: gorm.Model{
-					ID: 1,
-				},
+				ID:        1,
 				Duration:  message.DefaultEventTime,
 				Message:   msg,
 				Active:    true,
@@ -154,9 +151,7 @@ func TestNewEventAction_HandleEventWithNewMessageError(t *testing.T) {
 		},
 	}
 	db.EXPECT().NewEvent(mock.MatchedBy(matcher.Matches)).Return(&database.Event{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:        1,
 		Duration:  message.DefaultEventTime,
 		Message:   "my test reminder at monday 1:11",
 		Active:    true,

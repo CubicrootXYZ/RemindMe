@@ -40,10 +40,9 @@ func testDatabaseChannel() database.Channel {
 	c := database.Channel{
 		Description:   "chan desc",
 		DailyReminder: &dailyReminder,
-	}
 
-	c.ID = 1
-	c.CreatedAt = created
+		ID:        1,
+		CreatedAt: created}
 
 	return c
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
 func TestRegenICalTokenAction(t *testing.T) {
@@ -106,9 +105,7 @@ func TestRegenICalTokenAction_HandleEvent(t *testing.T) { //nolint: dupl
 
 	action.HandleEvent(tests.TestEvent(
 		tests.MessageWithOutput(database.Output{
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:         2,
 			OutputType: ical.OutputType,
 			OutputID:   3,
 		}),
@@ -151,9 +148,7 @@ func TestRegenICalTokenAction_HandleEventWithNoOutput(t *testing.T) {
 
 	action.HandleEvent(tests.TestEvent(
 		tests.MessageWithOutput(database.Output{
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:         2,
 			OutputType: ical.OutputType,
 			OutputID:   3,
 		}),

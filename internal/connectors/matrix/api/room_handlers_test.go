@@ -20,9 +20,8 @@ func testRoom() matrixdb.MatrixRoom {
 				ID: "userid",
 			},
 		},
-	}
 
-	room.ID = 1
+		ID: 1}
 	room.CreatedAt, _ = time.Parse(time.RFC3339, "2006-01-02T15:04:05+07:00")
 
 	return room
