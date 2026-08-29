@@ -36,7 +36,7 @@ func (service *service) GenerateNewToken(output *IcalOutput) (*IcalOutput, error
 }
 
 func (service *service) DeleteIcalOutput(id uint) error {
-	result := service.db.Delete(&IcalOutput{Model: gorm.Model{ID: id}})
+	result := service.db.Delete(&IcalOutput{ID: id})
 	if result.Error != nil {
 		return result.Error
 	} else if result.RowsAffected == 0 {

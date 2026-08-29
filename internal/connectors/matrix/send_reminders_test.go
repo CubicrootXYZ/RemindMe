@@ -10,7 +10,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/daemon"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func TestService_SendDailyReminder(t *testing.T) {
@@ -19,9 +18,7 @@ func TestService_SendDailyReminder(t *testing.T) {
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "!1234",
-			Model: gorm.Model{
-				ID: 12,
-			},
+			ID:     12,
 		},
 		nil,
 	)
@@ -68,9 +65,7 @@ func TestService_SendDailyReminderWithNewMessageError(t *testing.T) {
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "!1234",
-			Model: gorm.Model{
-				ID: 12,
-			},
+			ID:     12,
 		},
 		nil,
 	)
@@ -119,9 +114,7 @@ func TestService_SendDailyReminderWithSendMessageError(t *testing.T) {
 	fx.matrixDB.EXPECT().GetRoomByID(uint(78)).Return(
 		&matrixdb.MatrixRoom{
 			RoomID: "!1234",
-			Model: gorm.Model{
-				ID: 12,
-			},
+			ID:     12,
 		},
 		nil,
 	)

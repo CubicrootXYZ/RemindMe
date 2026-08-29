@@ -9,7 +9,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func testTime() time.Time {
@@ -20,25 +19,19 @@ func testTime() time.Time {
 func TestNewCalendar(t *testing.T) {
 	events := []database.Event{
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:             1,
 			Time:           testTime(),
 			RepeatUntil:    new(testTime()),
 			RepeatInterval: toP(time.Hour * 24),
 			Message:        "Event 1",
 		},
 		{
-			Model: gorm.Model{
-				ID: 2,
-			},
+			ID:      2,
 			Time:    testTime(),
 			Message: "Event 2",
 		},
 		{
-			Model: gorm.Model{
-				ID: 3,
-			},
+			ID:             3,
 			Time:           testTime(),
 			RepeatUntil:    new(testTime().Add(time.Hour * 100)),
 			RepeatInterval: toP(time.Hour * 24),

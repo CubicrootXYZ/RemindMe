@@ -9,7 +9,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
 func TestMessageFromEvent(t *testing.T) {
@@ -55,9 +54,7 @@ func TestMessageFromEventWithRecurring(t *testing.T) {
 
 func TestInfoFromEvent(t *testing.T) {
 	msg, msgF := format.InfoFromEvent(&database.Event{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:      1,
 		Message: "my event",
 		Time:    refTime(),
 	}, "")
@@ -79,9 +76,7 @@ at 11:45 12.11.2014 (UTC) (ID: 1)
 func TestInfoFromEventWithRecurring(t *testing.T) {
 	dur := time.Hour
 	msg, msgF := format.InfoFromEvent(&database.Event{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:             1,
 		Message:        "my event",
 		Time:           refTime(),
 		RepeatInterval: &dur,
@@ -104,30 +99,22 @@ at 11:45 12.11.2014 (UTC) (ID: 1) 🔁
 func TestInfoFromEvents(t *testing.T) {
 	msg, msgF := format.InfoFromEvents([]database.Event{
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:      1,
 			Message: "my event 1",
 			Time:    refTime(),
 		},
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:      1,
 			Message: "my event 2",
 			Time:    refTime().Add(time.Minute * 2),
 		},
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:      1,
 			Message: "my event 3",
 			Time:    refTime().Add(time.Minute * -2),
 		},
 		{
-			Model: gorm.Model{
-				ID: 1,
-			},
+			ID:      1,
 			Message: "my event 4",
 			Time:    refTime().Add(time.Hour * 24 * 30),
 		},

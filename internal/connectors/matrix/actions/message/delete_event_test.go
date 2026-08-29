@@ -15,7 +15,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/tests"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
 func TestDeleteEventAction(t *testing.T) {
@@ -324,8 +323,6 @@ func TestDeleteEventAction_HandleEventWithIDNotFound(t *testing.T) {
 
 func mockEvent() database.Event {
 	return database.Event{
-		Model: gorm.Model{
-			ID: 123,
-		},
+		ID: 123,
 	}
 }

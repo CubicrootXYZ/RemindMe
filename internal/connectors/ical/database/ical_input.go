@@ -43,7 +43,7 @@ func (service *service) UpdateIcalInput(entity *IcalInput) (*IcalInput, error) {
 }
 
 func (service *service) DeleteIcalInput(id uint) error {
-	result := service.db.Delete(&IcalInput{Model: gorm.Model{ID: id}})
+	result := service.db.Delete(&IcalInput{ID: id})
 	if result.Error != nil {
 		return result.Error
 	} else if result.RowsAffected == 0 {

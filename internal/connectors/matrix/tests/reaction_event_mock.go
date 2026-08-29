@@ -4,7 +4,6 @@ import (
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix"
 	matrixdb "github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/connectors/matrix/database"
 	"github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/internal/database"
-	"gorm.io/gorm"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
@@ -31,14 +30,10 @@ func TestReactionEvent(opts ...ReactionEventOpt) *matrix.ReactionEvent {
 			TimeZone: "UTC",
 		},
 		Channel: &database.Channel{
-			Model: gorm.Model{
-				ID: 68272,
-			},
+			ID: 68272,
 		},
 		Input: &database.Input{
-			Model: gorm.Model{
-				ID: 187,
-			},
+			ID: 187,
 		},
 	}
 
