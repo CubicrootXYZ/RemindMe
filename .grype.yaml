@@ -1,0 +1,3 @@
+ignore:
+  - vulnerability: CVE-2026-85091
+    reason: "can probably not be exploited and there is no fix available right now"
