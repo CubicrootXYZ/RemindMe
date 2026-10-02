@@ -9,7 +9,7 @@ require (
 	github.com/arran4/golang-ical v0.3.6
 	github.com/dchest/uniuri v1.2.0
 	github.com/gin-gonic/gin v1.12.0
-	github.com/lmittmann/tint v1.2.0
+	github.com/lmittmann/tint v1.2.1
 	github.com/prometheus/client_golang v1.24.1
 	github.com/stretchr/testify v1.12.1
 	github.com/teambition/rrule-go v1.8.2
