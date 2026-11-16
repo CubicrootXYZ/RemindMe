@@ -49,7 +49,7 @@ require (
 	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
-	github.com/prometheus/common v0.73.1 // indirect
+	github.com/prometheus/common v0.74.0 // indirect
 	github.com/prometheus/procfs v0.23.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.65.0 // indirect
