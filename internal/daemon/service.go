@@ -95,17 +95,18 @@ func New(config *Config, database database.Service, logger *slog.Logger) Service
 
 // Start starts the service and blocks until it either get's shut down or an un
 func (service *service) Start() error {
+	service.daemonWG.Add(3)
 	go service.startDailyReminderDaemon()
 	go service.startCleanupDaemon()
 
 	service.startEventDaemon()
+
 	service.daemonWG.Wait()
 
 	return nil
 }
 
 func (service *service) startEventDaemon() {
-	service.daemonWG.Add(1)
 	eventsTicker := time.NewTicker(service.config.EventsInterval)
 
 	for {
@@ -127,7 +128,6 @@ func (service *service) startEventDaemon() {
 }
 
 func (service *service) startDailyReminderDaemon() {
-	service.daemonWG.Add(1)
 	dailyReminderTicker := time.NewTicker(service.config.DailyReminderInterval)
 
 	for {
@@ -147,8 +147,6 @@ func (service *service) startDailyReminderDaemon() {
 }
 
 func (service *service) startCleanupDaemon() {
-	service.daemonWG.Add(1)
-
 	if service.config.CleanupInterval == 0 {
 		service.config.CleanupInterval = time.Hour
 	}
