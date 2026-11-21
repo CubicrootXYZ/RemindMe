@@ -5,11 +5,13 @@ WORKDIR /run
 
 COPY ./ ./
 RUN go mod download
-RUN go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
+RUN CGO_ENABLED=0 go build -ldflags="-w -s -X github.com/CubicrootXYZ/matrix-reminder-and-calendar-bot/cmd.Version=${VERSION}" -o /run ./cmd/remindme
 
-FROM alpine:3.24
-RUN apk update && apk upgrade
-COPY --from=builder /run/remindme /run/
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /run/remindme /run/remindme
+
+USER 65532:65532
 WORKDIR /run
 
 CMD ["/run/remindme"]
